@@ -10,7 +10,6 @@ ef-tests.workspace = true
 walkdir.workspace = true
 rayon.workspace = true
 reth-stateless.workspace = true
-alloy-genesis.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",

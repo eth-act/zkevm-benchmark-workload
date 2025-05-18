@@ -1,5 +1,3 @@
-#![doc = include_str!("../../README.md")]
-
 use benchmark_runner::run_benchmark;
 use sp1_sdk::{ProverClient, SP1Stdin};
 use std::collections::HashMap;
