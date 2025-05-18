@@ -1,6 +1,6 @@
 use std::{fs, io, path::Path};
 
-pub use reth_stateless::{ClientInput, fork_spec::ForkSpec};
+use reth_stateless::{ClientInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
