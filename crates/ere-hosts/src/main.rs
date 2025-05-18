@@ -1,5 +1,8 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
+use anyhow::Result;
+use rayon::prelude::*;
+use std::sync::Arc;
 use std::{collections::HashMap, path::PathBuf};
 use witness_generator::generate_stateless_witness;
 use zkevm_metrics::WorkloadMetrics;
@@ -15,31 +18,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/sp1"),
     )?;
 
-    // TODO: Add more
+    // TODO: Add more backends
     Ok(())
 }
 
 // TODO: Eventually move this into benchmark_runner
-fn benchmark<C, V>(host_name: &str, guest_dir: &str) -> Result<(), Box<dyn std::error::Error>>
+fn benchmark<C, V>(host_name: &str, guest_dir: &str) -> Result<()>
 where
-    C: Compiler,
+    C: Compiler + Send + Sync,
     C::Error: std::error::Error + Send + Sync + 'static,
-    V: zkVM<C>,
+    V: zkVM<C> + Sync,
     V::Error: std::error::Error + Send + Sync + 'static,
 {
     println!("Benchmarking `{}`…", host_name);
 
-    let path = PathBuf::from(guest_dir);
+    // Compile program and create proving/verification keys
+    let program = C::compile(&PathBuf::from(guest_dir))?;
+    let zkvm_instance = V::new(program);
+    let zkvm_ref = Arc::new(&zkvm_instance);
 
-    // Compile program and generate proving + verifying key
-    let program = C::compile(&path)?;
-    let zkvm = V::new(program);
-
-    // Generate test corpus
     let corpuses = generate_stateless_witness::generate();
 
     // Iterate through test corpus and generate reports
-    for bw in &corpuses {
+    // TODO: note that when proving, processing these in parallel will likely skew the results
+    corpuses.par_iter().try_for_each(|bw| -> Result<()> {
         println!(" {} ({} blocks)", bw.name, bw.blocks_and_witnesses.len());
 
         let mut reports = Vec::new();
@@ -48,7 +50,7 @@ where
             stdin.write(ci)?;
             stdin.write(&bw.network)?;
 
-            let report = zkvm.execute(&stdin)?;
+            let report = zkvm_ref.execute(&stdin)?;
             let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
 
             reports.push(WorkloadMetrics {
@@ -66,7 +68,9 @@ where
         );
         WorkloadMetrics::to_path(out_path, &reports)?;
         println!("wrote {} reports", reports.len());
-    }
+
+        Ok(())
+    })?;
 
     Ok(())
 }
