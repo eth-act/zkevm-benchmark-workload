@@ -9,7 +9,7 @@ use zkvm_interface::{Compiler, Input, zkVM};
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
 
-    // one line per host: no inner-loop duplication
+    // SP1 zkVM
     benchmark::<ere_sp1::RV32_IM_SUCCINCT_ZKVM_ELF, ere_sp1::EreSP1>(
         "sp1",
         concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/sp1"),
