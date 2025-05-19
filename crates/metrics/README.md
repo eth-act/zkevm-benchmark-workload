@@ -45,6 +45,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ("compute".to_string(), 800),
                 ("teardown".to_string(), 100),
             ]),
+            proving_time_ms: 0,
         },
         // ... other workloads
     ];
