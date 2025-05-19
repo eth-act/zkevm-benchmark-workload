@@ -15,6 +15,8 @@ pub struct WorkloadMetrics {
     pub total_num_cycles: u64,
     /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
     pub region_cycles: HashMap<String, u64>,
+    /// Proving time in milliseconds
+    pub proving_time_ms: u64,
 }
 
 /// Errors that can occur during metrics processing.
@@ -109,6 +111,7 @@ mod tests {
                     ("compute".to_string(), 800),
                     ("teardown".to_string(), 100),
                 ]),
+                proving_time_ms: 0,
             },
             WorkloadMetrics {
                 name: "aes".into(),
@@ -118,6 +121,7 @@ mod tests {
                     ("encrypt".to_string(), 1_600),
                     ("final".to_string(), 200),
                 ]),
+                proving_time_ms: 0,
             },
         ]
     }

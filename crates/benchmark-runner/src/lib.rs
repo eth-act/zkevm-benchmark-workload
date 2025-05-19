@@ -74,6 +74,7 @@ where
                 name: format!("{}-{}", bw.name, ci.block.number),
                 total_num_cycles: report.total_num_cycles,
                 region_cycles,
+                proving_time_ms: 0,
             });
         }
 

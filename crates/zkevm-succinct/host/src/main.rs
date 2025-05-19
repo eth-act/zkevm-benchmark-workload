@@ -47,6 +47,7 @@ fn main() {
                     name: format!("{}-{}", name, block_number),
                     total_num_cycles,
                     region_cycles,
+                    proving_time_ms: 0,
                 };
                 reports.push(metrics);
             }
