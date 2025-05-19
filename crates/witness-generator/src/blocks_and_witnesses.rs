@@ -1,7 +1,6 @@
 use std::{fs, io, path::Path};
 
-use alloy_genesis::Genesis;
-pub use reth_stateless::ClientInput;
+use reth_stateless::{ClientInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -20,7 +19,7 @@ pub struct BlocksAndWitnesses {
     // TODO: Don't think we want to pass this through maybe ForkSpec
     // TODO: Also Genesis file is wrong in chainspec
     // TODO: We can keep this initially and don't measure the time it takes to deserialize
-    pub network: Genesis,
+    pub network: ForkSpec,
 }
 
 /// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.

@@ -1,18 +1,18 @@
+//! OpenVM guest program
+
 use openvm::io::read;
 
 extern crate alloc;
 
 use alloc::sync::Arc;
-use alloy_genesis::Genesis;
-use reth_stateless::{ClientInput, validation::stateless_validation};
-use tracing_subscriber::fmt;
+use reth_stateless::{ClientInput, fork_spec::ForkSpec, validation::stateless_validation};
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
     let input: ClientInput = read();
-    let genesis: Genesis = read();
-    let chain_spec = Arc::new(genesis.into());
+    let fork_spec: ForkSpec = read();
+    let chain_spec = Arc::new(fork_spec.into());
     println!("end read_input");
 
     println!("start validation");

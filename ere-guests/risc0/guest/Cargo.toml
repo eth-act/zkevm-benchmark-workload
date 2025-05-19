@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-alloy-genesis.workspace = true
 alloy-primitives.workspace = true
 c-kzg = { version = "=2.1.1", default-features = true }
 reth-ethereum-primitives = { workspace = true, features = [

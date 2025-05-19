@@ -2,7 +2,6 @@ use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
 };
-use reth_chainspec::ChainSpec;
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
@@ -61,7 +60,7 @@ pub fn generate() -> Vec<BlocksAndWitnesses> {
                     .into_iter()
                     .map(|(block, witness)| ClientInput { block, witness })
                     .collect(),
-                network: ChainSpec::from(case.network).genesis,
+                network: reth_stateless::fork_spec::ForkSpec::from(case.network),
             })
             .collect();
         blocks_and_witnesses.extend(blockchain_case);

@@ -1,0 +1,13 @@
+[package]
+name = "ere-hosts"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+benchmark-runner.workspace = true
+ere-sp1.workspace = true
+
+[lints]
+workspace = true

@@ -7,3 +7,5 @@ edition = "2021"
 rayon.workspace = true
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
+zkvm-interface.workspace = true
+anyhow = "*"
