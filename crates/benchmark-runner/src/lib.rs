@@ -2,6 +2,7 @@ use rayon::prelude::*;
 use witness_generator::{generate_stateless_witness, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 
+#[deprecated(note = "this function is being phased out, use run_benchmark_ere")]
 pub fn run_benchmark<F>(elf_path: &'static [u8], metrics_path_prefix: &str, zkvm_executor: F)
 where
     F: Fn(&BlocksAndWitnesses, &'static [u8]) -> Vec<WorkloadMetrics> + Send + Sync,
