@@ -1453,9 +1453,11 @@ checksum = "d86b93f97252c47b41663388e6d155714a9d0c398b99f1005cbc5f978b29f445"
 name = "benchmark-runner"
 version = "0.1.0"
 dependencies = [
+ "anyhow",
  "rayon",
  "witness-generator",
  "zkevm-metrics",
+ "zkvm-interface",
 ]
 
 [[package]]
@@ -3039,15 +3041,8 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "benchmark-runner",
- "dotenv",
  "ere-sp1",
- "rayon",
- "sp1-sdk",
- "witness-generator",
- "zkevm-metrics",
- "zkvm-interface",
 ]
 
 [[package]]
