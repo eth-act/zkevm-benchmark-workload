@@ -13,7 +13,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     dotenv::dotenv().ok();
 
     // SP1 zkVM
-    benchmark::<ere_sp1::RV32_IM_SUCCINCT_ZKVM_ELF, ere_sp1::EreSP1>(
+    run_benchmark_ere::<ere_sp1::RV32_IM_SUCCINCT_ZKVM_ELF, ere_sp1::EreSP1>(
         "sp1",
         concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/sp1"),
     )?;
@@ -23,7 +23,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 }
 
 // TODO: Eventually move this into benchmark_runner
-fn benchmark<C, V>(host_name: &str, guest_dir: &str) -> Result<()>
+fn run_benchmark_ere<C, V>(host_name: &str, guest_dir: &str) -> Result<()>
 where
     C: Compiler + Send + Sync,
     C::Error: std::error::Error + Send + Sync + 'static,
