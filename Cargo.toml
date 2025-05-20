@@ -122,14 +122,14 @@ ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", package =
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "f1540ee8235e9c7a2c710929972ecf5f18e63e12" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "f1540ee8235e9c7a2c710929972ecf5f18e63e12" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "f1540ee8235e9c7a2c710929972ecf5f18e63e12" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "f1540ee8235e9c7a2c710929972ecf5f18e63e12" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "f1540ee8235e9c7a2c710929972ecf5f18e63e12" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "e0e205d8faeb2ea4fb47bda51fb3ba9fd85b7a25" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "e0e205d8faeb2ea4fb47bda51fb3ba9fd85b7a25" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "e0e205d8faeb2ea4fb47bda51fb3ba9fd85b7a25" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "e0e205d8faeb2ea4fb47bda51fb3ba9fd85b7a25" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "e0e205d8faeb2ea4fb47bda51fb3ba9fd85b7a25" }
 
 # alloy
-alloy-primitives = { version = "1.0.0", default-features = false, features = [
+alloy-primitives = { version = "1.1.0", default-features = false, features = [
     "map-foldhash",
     "serde",
     "sha3-keccak",
