@@ -43,6 +43,7 @@ fn main() {
                     name: format!("{}-{}", corpus_name, block_number),
                     total_num_cycles: 0, // TODO
                     region_cycles,
+                    proving_time_ms: 0,
                 };
                 reports.push(metrics);
             }
