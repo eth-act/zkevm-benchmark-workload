@@ -17,7 +17,7 @@ pub fn main() {
 
     println!("start stateless validation");
     let start = env::cycle_count();
-    stateless_validation(input.block, input.witness, chain_spec).unwrap();
+    stateless_validation(input.block.into_block(), input.witness, chain_spec).unwrap();
     let end = env::cycle_count();
     eprintln!("stateless validation (cycle tracker): {}", end - start);
 }
