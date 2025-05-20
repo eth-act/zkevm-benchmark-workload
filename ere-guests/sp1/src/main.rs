@@ -21,7 +21,7 @@ pub fn main() {
     println!("cycle-tracker-report-end: read_input");
 
     println!("cycle-tracker-report-start: validation");
-    stateless_validation(input.block.into_block(), input.witness, chain_spec).unwrap();
+    stateless_validation(input.block, input.witness, chain_spec).unwrap();
     println!("cycle-tracker-report-end: validation");
 }
 

@@ -58,7 +58,10 @@ pub fn generate() -> Vec<BlocksAndWitnesses> {
                 blocks_and_witnesses: run_case(case)
                     .unwrap()
                     .into_iter()
-                    .map(|(block, witness)| ClientInput { block, witness })
+                    .map(|(recovered_block, witness)| ClientInput {
+                        block: recovered_block.into_block(),
+                        witness,
+                    })
                     .collect(),
                 network: reth_stateless::fork_spec::ForkSpec::from(case.network),
             })
