@@ -18,7 +18,15 @@ The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
 - **`crates/witness-generator`**: Generates the necessary inputs (`ClientInput`: block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures.
-- **zkVM Implementations (`crates/zkevm-*`)**: Directories prefixed with `zkevm-` (e.g., `crates/zkevm-succinct`, `crates/zkevm-zkm`) contain the benchmark implementations for specific zkVM platforms. Each typically includes distinct 'guest' and 'host' sub-crates.
+- **`crates/ere-hosts`**: Contains the host implementation that orchestrates benchmarking across different zkVM platforms.
+- **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
+- **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
+- **`ere-guests/`**: Directory containing guest program implementations for different zkVM platforms:
+  - `ere-guests/sp1/`: Succinct SP1 guest implementation
+  - `ere-guests/openvm/`: OpenVM guest implementation  
+  - `ere-guests/risc0/`: RISC0 guest implementation
+  - `ere-guests/zkm/`: zkMIPS guest implementation
+  - `ere-guests/pico/`: Pico guest implementation
 - **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator`.
 - **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs, organized by zkVM type.
 - **`scripts`**: Contains helper scripts (e.g., fetching fixtures).
@@ -29,24 +37,27 @@ The workspace is organized into several key components:
 Each zkVM benchmark implementation follows a common pattern:
 
 1. **Guest Program:**
-    - Located within the specific zkVM crate (e.g., `crates/zkevm-succinct/succinct-guest`).
-    - Contains the Rust code that performs the core Ethereum block validation (`reth_stateless::validation::stateless_validation`).
+    - Located within the `ere-guests/` directory for the specific zkVM (e.g., `ere-guests/sp1/`, `ere-guests/openvm/`).
+    - Contains the Rust code that executes the Ethereum state transition function(`reth_stateless::validation::stateless_validation`).
     - This code is compiled specifically for the target zkVM's architecture (e.g., RISC-V for SP1, MIPS for zkMIPS).
     - It reads block/witness data from its zkVM environment's standard input.
     - Uses platform-specific mechanisms (often `println!` markers) to delineate code regions for cycle counting.
 
 2. **Host Program:**
-    - Located within the specific zkVM crate (e.g., `crates/zkevm-succinct/succinct-host`).
+    - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
     - A standard Rust binary that orchestrates the benchmarking.
     - Uses `witness-generator` to get test data and generate input data.
     - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
     - Collects cycle count metrics reported by the zkVM SDK.
     - Saves the results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
 
+3. **Automatic Patch Application:**
+    - The benchmark runner includes functionality to automatically apply precompile patches for each zkVM.
+
 ## Prerequisites
 
 1. **Rust Toolchain:** A standard Rust installation managed by `rustup`.
-2. **zkVM-Specific Toolchains:** Each zkVM requires its own SDK and potentially a custom Rust toolchain/target. Please refer to the `README.md` within the specific `crates/zkevm-*` directory (e.g., `crates/zkevm-succinct/README.md`) for detailed setup instructions for that platform.
+2. **zkVM-Specific Toolchains:** Each zkVM requires its own SDK and potentially a custom Rust toolchain/target. Please refer to the specific zkVM guest directory in `ere-guests/` (e.g., `ere-guests/sp1/README.md`, `ere-guests/openvm/README.md`) for detailed setup instructions for that platform.
 3. **Git:** Required for cloning the repository :)
 4. **Common Shell Utilities:** The scripts in the `./scripts` directory require a `bash`-compatible shell and standard utilities like `curl`, `jq`, and `tar`.
 
@@ -68,11 +79,14 @@ Each zkVM benchmark implementation follows a common pattern:
 3. **Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
 This repository contains an `xtask` that will automate this process by calling `cargo <zkvm-name>`. See `.config/cargo.toml` for how this is setup and `precompile-patches` for the patches that each zkVM requires.
 
-4. **Run benchmark**: Navigate to the specific zkVM that you would like to benchmark and follow the readme.
+4. **Run benchmark**: Navigate to `crates/ere-hosts/` and follow the readme instructions to run benchmarks for specific zkVMs.
 
 ## Supported zkVM Benchmarks
 
-| zkVM        | Crate Path                | Guest Crate    | Host Crate    | Metrics Output         |
-| -------------------- | ------------------------- | -------------- | ------------- | ---------------------- |
-| **Succinct SP1**     | `crates/zkevm-succinct` | `succinct-guest` | `succinct-host` | `zkevm-metrics/succinct/` |
-| **zkMIPS**           | `crates/zkevm-zkm`      | `zkm-guest`    | `zkm-host`    | `zkevm-metrics/zkm/`
+| zkVM             | Guest Path            | Host Path           | Metrics Output             |
+| ---------------- | --------------------- | ------------------- | -------------------------- |
+| **Succinct SP1** | `ere-guests/sp1/`     | `crates/ere-hosts/` | `zkevm-metrics/sp1/`       |
+| **zkMIPS**       | `ere-guests/zkm/`     | `crates/zkevm-zkm/` | `zkevm-metrics/zkm/`       |
+| **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
+| **RISC0**        | `ere-guests/risc0/`   | `crates/ere-hosts/` | `zkevm-metrics/risc0/`     |
+| **Pico**         | `ere-guests/pico/`    | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
