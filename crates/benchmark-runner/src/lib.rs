@@ -51,6 +51,7 @@ where
 {
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
+    // TODO: This only needs to be generated once and possibly passed in as a parameter or read from disk.
     let corpuses = generate_stateless_witness::generate();
 
     match action {
