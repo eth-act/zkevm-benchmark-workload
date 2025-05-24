@@ -3052,14 +3052,31 @@ name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
  "benchmark-runner",
+ "ere-risczero",
  "ere-sp1",
+ "zkvm-interface",
+]
+
+[[package]]
+name = "ere-risczero"
+version = "0.1.0"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
+dependencies = [
+ "anyhow",
+ "borsh",
+ "hex",
+ "risc0-zkvm",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.12",
+ "toml",
  "zkvm-interface",
 ]
 
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#508c039cd290d809759530b9c19d2e1ec444c2e4"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -9955,19 +9972,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "risc0-host"
-version = "0.1.0"
-dependencies = [
- "benchmark-runner",
- "methods",
- "risc0-zkvm",
- "serde",
- "tracing-subscriber 0.3.19",
- "witness-generator",
- "zkevm-metrics",
-]
-
-[[package]]
 name = "risc0-zkos-v1compat"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11588,17 +11592,6 @@ dependencies = [
  "sp1-zkvm",
  "tracing",
  "tracing-subscriber 0.2.25",
-]
-
-[[package]]
-name = "succinct-host"
-version = "0.1.0"
-dependencies = [
- "benchmark-runner",
- "dotenv",
- "sp1-sdk",
- "witness-generator",
- "zkevm-metrics",
 ]
 
 [[package]]
@@ -14084,7 +14077,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#508c039cd290d809759530b9c19d2e1ec444c2e4"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
 dependencies = [
  "anyhow",
  "auto_impl",
