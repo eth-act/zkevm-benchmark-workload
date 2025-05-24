@@ -9,6 +9,7 @@ use thiserror::Error;
 /// Stores the total cycle count and a breakdown of cycle count per named region.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
 pub enum WorkloadMetrics {
+    /// Metrics produced when benchmarking in execution mode
     Execution {
         /// Name of the workload (e.g., "fft", "aes").
         name: String,
@@ -17,6 +18,7 @@ pub enum WorkloadMetrics {
         /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
         region_cycles: HashMap<String, u64>,
     },
+    /// Metrics produced when benchmarking in proving mode
     Proving {
         /// Name of the workload (e.g., "fft", "aes").
         name: String,
