@@ -89,7 +89,7 @@ where
                         name: format!("{}-{}", bw.name, block_number),
                         total_num_cycles: 0,
                         region_cycles: Default::default(),
-                        proving_time_ms: report.proving_time,
+                        proving_time_ms: report.proving_time.as_millis(),
                     }
                 }
             };
