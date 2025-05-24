@@ -1478,7 +1478,7 @@ dependencies = [
  "bitflags 2.9.0",
  "cexpr",
  "clang-sys",
- "itertools 0.13.0",
+ "itertools 0.11.0",
  "log",
  "prettyplease 0.2.32",
  "proc-macro2",
@@ -3060,7 +3060,7 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "anyhow",
  "borsh",
@@ -3076,7 +3076,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -5272,15 +5272,6 @@ dependencies = [
 
 [[package]]
 name = "matchers"
-version = "0.0.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f099785f7595cc4b4553a174ce30dd7589ef93391ff414dbb67f62392b9e0ce1"
-dependencies = [
- "regex-automata 0.1.10",
-]
-
-[[package]]
-name = "matchers"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8263075bb86c5a1b1427b5ae862e8889656f126e9f77c484496e8b47cf5c5558"
@@ -6246,7 +6237,7 @@ dependencies = [
  "reth-primitives-traits",
  "reth-stateless",
  "tracing",
- "tracing-subscriber 0.2.25",
+ "tracing-subscriber 0.3.19",
 ]
 
 [[package]]
@@ -8331,7 +8322,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.101",
@@ -11591,7 +11582,7 @@ dependencies = [
  "revm",
  "sp1-zkvm",
  "tracing",
- "tracing-subscriber 0.2.25",
+ "tracing-subscriber 0.3.19",
 ]
 
 [[package]]
@@ -12312,17 +12303,6 @@ dependencies = [
 
 [[package]]
 name = "tracing-log"
-version = "0.1.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f751112709b4e791d8ce53e32c4ed2d353565a795ce84da2285393f41557bdf2"
-dependencies = [
- "log",
- "once_cell",
- "tracing-core",
-]
-
-[[package]]
-name = "tracing-log"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ee855f1f400bd0e5c02d150ae5de3840039a3f54b025156404e34c23c03f47c3"
@@ -12346,16 +12326,6 @@ dependencies = [
 
 [[package]]
 name = "tracing-serde"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc6b213177105856957181934e4920de57730fc69bf42c37ee5bb664d406d9e1"
-dependencies = [
- "serde",
- "tracing-core",
-]
-
-[[package]]
-name = "tracing-serde"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "704b1aeb7be0d0a84fc9828cae51dab5970fee5088f83d1dd7ee6f6246fc6ff1"
@@ -12370,20 +12340,7 @@ version = "0.2.25"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e0d2eaa99c3c2e41547cfa109e910a68ea03823cccad4a0525dcbc9b01e8c71"
 dependencies = [
- "ansi_term",
- "chrono",
- "lazy_static",
- "matchers 0.0.1",
- "regex",
- "serde",
- "serde_json",
- "sharded-slab",
- "smallvec",
- "thread_local",
- "tracing",
  "tracing-core",
- "tracing-log 0.1.4",
- "tracing-serde 0.1.3",
 ]
 
 [[package]]
@@ -12392,7 +12349,7 @@ version = "0.3.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e8189decb5ac0fa7bc8b96b7cb9b2701d60d48805aca84a238004d665fcc4008"
 dependencies = [
- "matchers 0.1.0",
+ "matchers",
  "nu-ansi-term",
  "once_cell",
  "regex",
@@ -12403,8 +12360,8 @@ dependencies = [
  "thread_local",
  "tracing",
  "tracing-core",
- "tracing-log 0.2.0",
- "tracing-serde 0.2.0",
+ "tracing-log",
+ "tracing-serde",
 ]
 
 [[package]]
@@ -13713,7 +13670,7 @@ dependencies = [
  "reth-primitives-traits",
  "reth-stateless",
  "tracing",
- "tracing-subscriber 0.2.25",
+ "tracing-subscriber 0.3.19",
  "zkm-zkvm 1.0.0 (git+https://github.com/zkMIPS/zkMIPS.git)",
 ]
 
@@ -14077,7 +14034,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "anyhow",
  "auto_impl",

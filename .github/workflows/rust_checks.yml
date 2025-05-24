@@ -22,7 +22,7 @@ jobs:
           ./scripts/download-and-extract-fixtures.sh
       
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
+        uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
       
