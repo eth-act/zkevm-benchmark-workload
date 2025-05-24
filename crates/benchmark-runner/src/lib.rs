@@ -40,6 +40,7 @@ where
 }
 
 /// Action specifies whether we should prove or execute
+#[derive(, Clone, Copy)]
 pub enum Action {
     Prove,
     Execute,
