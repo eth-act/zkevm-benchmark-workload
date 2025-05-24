@@ -3052,7 +3052,24 @@ name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
  "benchmark-runner",
+ "ere-risczero",
  "ere-sp1",
+ "zkvm-interface",
+]
+
+[[package]]
+name = "ere-risczero"
+version = "0.1.0"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
+dependencies = [
+ "anyhow",
+ "borsh",
+ "hex",
+ "risc0-zkvm",
+ "serde_json",
+ "tempfile",
+ "thiserror 2.0.12",
+ "toml",
  "zkvm-interface",
 ]
 
@@ -9952,19 +9969,6 @@ dependencies = [
  "revm",
  "risc0-zkvm",
  "sha2 0.10.8",
-]
-
-[[package]]
-name = "risc0-host"
-version = "0.1.0"
-dependencies = [
- "benchmark-runner",
- "methods",
- "risc0-zkvm",
- "serde",
- "tracing-subscriber 0.3.19",
- "witness-generator",
- "zkevm-metrics",
 ]
 
 [[package]]

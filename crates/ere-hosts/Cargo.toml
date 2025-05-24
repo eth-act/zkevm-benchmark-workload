@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 benchmark-runner.workspace = true
 ere-sp1.workspace = true
+ere-risczero.workspace = true
 zkvm-interface.workspace = true
 
 [lints]
