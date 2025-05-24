@@ -76,8 +76,10 @@ Each zkVM benchmark implementation follows a common pattern:
     ./scripts/download-and-extract-fixtures.sh
     ```
 
-3. **Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
+3. **(Optionally)Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
 This repository contains an `xtask` that will automate this process by calling `cargo <zkvm-name>`. See `.config/cargo.toml` for how this is setup and `precompile-patches` for the patches that each zkVM requires.
+
+> Note: This is optional as it should be automatically done when the benchmarks are ran.
 
 4. **Run benchmark**: Navigate to `crates/ere-hosts/` and follow the readme instructions to run benchmarks for specific zkVMs.
 
