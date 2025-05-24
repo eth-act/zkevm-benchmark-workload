@@ -47,10 +47,7 @@ pub enum Action {
 
 pub fn run_benchmark_ere<V>(host_name: &str, zkvm_instance: V, action: Action) -> Result<()>
 where
-    // C: Compiler + Send + Sync,
-    // C::Error: std::error::Error + Send + Sync + 'static,
     V: zkVM + Sync,
-    // V::Error: std::error::Error + Send + Sync + 'static,
 {
     println!("Benchmarking `{}`…", host_name);
 
