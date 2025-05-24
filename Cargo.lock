@@ -6256,18 +6256,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openvm-host"
-version = "0.1.0"
-dependencies = [
- "eyre",
- "openvm-build",
- "openvm-sdk",
- "openvm-transpiler",
- "witness-generator",
- "zkevm-metrics",
-]
-
-[[package]]
 name = "openvm-instructions"
 version = "1.1.1"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.1.1#2f9bf748a7e6130d530adbefb6a6507278098ff5"
