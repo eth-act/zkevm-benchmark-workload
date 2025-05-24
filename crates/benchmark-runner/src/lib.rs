@@ -1,9 +1,6 @@
 use anyhow::*;
 use rayon::prelude::*;
-use std::collections::HashMap;
-use std::fs;
-use std::panic;
-use std::sync::Arc;
+use std::{collections::HashMap, fs, panic, sync::Arc};
 use witness_generator::{generate_stateless_witness, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
@@ -82,6 +79,7 @@ fn process_corpus_with_crash_handling<V>(
 ) where
     V: zkVM + Sync,
 {
+    let bench_name = bw.name.clone();
     let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
         process_corpus(bw, zkvm_ref, action, host_name)
     }));
@@ -91,14 +89,15 @@ fn process_corpus_with_crash_handling<V>(
         Action::Prove => "prove",
     };
 
-    let (crash_reason, is_panic) = match result {
+    use std::result::Result::Ok;
+    let crash_reason = match result {
         Ok(Ok(())) => {
             // Success, nothing to do
             return;
         }
         Ok(Err(e)) => {
             // Regular error - treat as crash
-            (format!("Error: {}", e), false)
+            format!("Error: {}", e)
         }
         Err(panic_info) => {
             // Panic - treat as crash
@@ -109,15 +108,19 @@ fn process_corpus_with_crash_handling<V>(
             } else {
                 "Unknown panic occurred".to_string()
             };
-            (format!("Panic: {}", panic_msg), true)
+            format!("Panic: {}", panic_msg)
         }
     };
 
-    eprintln!("Benchmark CRASHED for {}: {}", bw.name, crash_reason);
+    eprintln!(
+        "Benchmark CRASHED for {}: {}",
+        bench_name.clone(),
+        crash_reason
+    );
 
     // Create crash metrics
     let crash_metrics = WorkloadMetrics::Crashed {
-        name: bw.name.clone(),
+        name: bench_name.clone(),
         action: action_str.to_string(),
         reason: crash_reason.clone(),
     };
@@ -131,17 +134,16 @@ fn process_corpus_with_crash_handling<V>(
 
     if let Err(e) = fs::create_dir_all(&crash_dir) {
         panic!("Failed to create crash directory: {}", e);
-        return;
     }
 
     // Save crash metrics as JSON
-    let crash_json_file = format!("{}/{}.json", crash_dir, bw.name);
+    let crash_json_file = format!("{}/{}.json", crash_dir, &bench_name);
     if let Err(e) = WorkloadMetrics::to_path(&crash_json_file, &[crash_metrics]) {
         panic!("Failed to save crash metrics JSON: {}", e);
     } else {
         println!(
             "Recorded crash for corpus: {} in {}",
-            bw.name, crash_json_file
+            bench_name, crash_json_file
         );
     }
 }
