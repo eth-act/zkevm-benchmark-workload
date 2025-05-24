@@ -25,6 +25,15 @@ pub enum WorkloadMetrics {
         /// Proving time in milliseconds
         proving_time_ms: u128,
     },
+    /// Metrics produced when a benchmark crashes/errors
+    Crashed {
+        /// Name of the workload that crashed
+        name: String,
+        /// Action being performed when crash occurred (e.g., "execute", "prove")
+        action: String,
+        /// Reason for the crash (panic message)
+        reason: String,
+    },
 }
 
 /// Errors that can occur during metrics processing.
@@ -55,6 +64,7 @@ impl WorkloadMetrics {
         match self {
             WorkloadMetrics::Execution { name, .. } => name,
             WorkloadMetrics::Proving { name, .. } => name,
+            WorkloadMetrics::Crashed { name, .. } => name,
         }
     }
 
@@ -145,6 +155,11 @@ mod tests {
                 name: "ecdsa".into(),
                 proving_time_ms: 3_500,
             },
+            WorkloadMetrics::Crashed {
+                name: "sha256".into(),
+                action: "execute".into(),
+                reason: "Out of memory panic".into(),
+            },
         ]
     }
 
@@ -192,8 +207,15 @@ mod tests {
             proving_time_ms: 2000,
         };
 
+        let crashed_metric = WorkloadMetrics::Crashed {
+            name: "test_crashed".into(),
+            action: "execute".into(),
+            reason: "Test panic".into(),
+        };
+
         assert_eq!(execution_metric.name(), "test_execution");
         assert_eq!(proving_metric.name(), "test_proving");
+        assert_eq!(crashed_metric.name(), "test_crashed");
     }
 
     #[test]

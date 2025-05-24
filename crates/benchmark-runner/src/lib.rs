@@ -1,7 +1,6 @@
 use anyhow::*;
 use rayon::prelude::*;
-use std::collections::HashMap;
-use std::sync::Arc;
+use std::{collections::HashMap, fs, panic, sync::Arc};
 use witness_generator::{generate_stateless_witness, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
@@ -52,24 +51,102 @@ where
 {
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
+    // TODO: This only needs to be generated once and possibly passed in as a parameter or read from disk.
     let corpuses = generate_stateless_witness::generate();
 
     match action {
         Action::Execute => {
             // Use parallel iteration for execution
-            corpuses.into_par_iter().try_for_each(|bw| -> Result<()> {
-                process_corpus(bw, zkvm_ref.clone(), &action, host_name)
-            })?;
+            corpuses.into_par_iter().for_each(|bw| {
+                process_corpus_with_crash_handling(bw, zkvm_ref.clone(), &action, host_name);
+            });
         }
         Action::Prove => {
             // Use sequential iteration for proving
-            corpuses.into_iter().try_for_each(|bw| -> Result<()> {
-                process_corpus(bw, Arc::new(&*zkvm_ref), &action, host_name)
-            })?;
+            corpuses.into_iter().for_each(|bw| {
+                process_corpus_with_crash_handling(bw, Arc::new(&*zkvm_ref), &action, host_name);
+            });
         }
     }
 
     Ok(())
+}
+
+fn process_corpus_with_crash_handling<V>(
+    bw: BlocksAndWitnesses,
+    zkvm_ref: Arc<&V>,
+    action: &Action,
+    host_name: &str,
+) where
+    V: zkVM + Sync,
+{
+    let bench_name = bw.name.clone();
+    let result = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+        process_corpus(bw, zkvm_ref, action, host_name)
+    }));
+
+    let action_str = match action {
+        Action::Execute => "execute",
+        Action::Prove => "prove",
+    };
+
+    use std::result::Result::Ok;
+    let crash_reason = match result {
+        Ok(Ok(())) => {
+            // Success, nothing to do
+            return;
+        }
+        Ok(Err(e)) => {
+            // Regular error - treat as crash
+            format!("Error: {}", e)
+        }
+        Err(panic_info) => {
+            // Panic - treat as crash
+            let panic_msg = if let Some(s) = panic_info.downcast_ref::<&str>() {
+                s.to_string()
+            } else if let Some(s) = panic_info.downcast_ref::<String>() {
+                s.clone()
+            } else {
+                "Unknown panic occurred".to_string()
+            };
+            format!("Panic: {}", panic_msg)
+        }
+    };
+
+    eprintln!(
+        "Benchmark CRASHED for {}: {}",
+        bench_name.clone(),
+        crash_reason
+    );
+
+    // Create crash metrics
+    let crash_metrics = WorkloadMetrics::Crashed {
+        name: bench_name.clone(),
+        action: action_str.to_string(),
+        reason: crash_reason.clone(),
+    };
+
+    // Save crash info to crash directory
+    let crash_dir = format!(
+        "{}/zkevm-metrics/{}/crash",
+        env!("CARGO_WORKSPACE_DIR"),
+        host_name
+    );
+
+    if let Err(e) = fs::create_dir_all(&crash_dir) {
+        panic!("Failed to create crash directory: {}", e);
+    }
+
+    // Save crash metrics as JSON
+    let crash_json_file = format!("{}/{}.json", crash_dir, &bench_name);
+    if let Err(e) = WorkloadMetrics::to_path(&crash_json_file, &[crash_metrics]) {
+        panic!("Failed to save crash metrics JSON: {}", e);
+    } else {
+        println!(
+            "Recorded crash for corpus: {} in {}",
+            bench_name, crash_json_file
+        );
+    }
 }
 
 fn process_corpus<V>(
