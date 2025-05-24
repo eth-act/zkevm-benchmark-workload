@@ -11591,17 +11591,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "succinct-host"
-version = "0.1.0"
-dependencies = [
- "benchmark-runner",
- "dotenv",
- "sp1-sdk",
- "witness-generator",
- "zkevm-metrics",
-]
-
-[[package]]
 name = "svm-rs"
 version = "0.3.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"

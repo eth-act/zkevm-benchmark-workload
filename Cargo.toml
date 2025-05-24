@@ -3,8 +3,6 @@ members = [
     "crates/metrics",
     "crates/witness-generator",
     "xtask",
-    # succinct
-    "crates/zkevm-succinct/host",
     # zkm
     "crates/zkevm-zkm/host",
     # risc0
