@@ -39,7 +39,13 @@ where
     });
 }
 
-pub fn run_benchmark_ere<V>(host_name: &str, zkvm_instance: V) -> Result<()>
+/// Action specifies whether we should prove or execute
+pub enum Action {
+    Prove,
+    Execute,
+}
+
+pub fn run_benchmark_ere<V>(host_name: &str, zkvm_instance: V, action: Action) -> Result<()>
 where
     // C: Compiler + Send + Sync,
     // C::Error: std::error::Error + Send + Sync + 'static,
@@ -65,15 +71,27 @@ where
             stdin.write(ci);
             stdin.write(bw.network);
 
-            let report = zkvm_ref.execute(&stdin)?;
-            let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
+            let workload_metrics = match action {
+                Action::Execute => {
+                    let report = zkvm_ref.execute(&stdin)?;
+                    let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
+                    WorkloadMetrics::Execution {
+                        name: format!("{}-{}", bw.name, block_number),
+                        total_num_cycles: report.total_num_cycles,
+                        region_cycles,
+                    }
+                }
+                Action::Prove => {
+                    let (proof, report) = zkvm_ref.prove(&stdin)?;
 
-            reports.push(WorkloadMetrics {
-                name: format!("{}-{}", bw.name, block_number),
-                total_num_cycles: report.total_num_cycles,
-                region_cycles,
-                proving_time_ms: 0,
-            });
+                    WorkloadMetrics::Proving {
+                        name: format!("{}-{}", bw.name, block_number),
+                        proving_time_ms: report.proving_time.as_millis(),
+                    }
+                }
+            };
+
+            reports.push(workload_metrics);
         }
 
         let out_path = format!(
