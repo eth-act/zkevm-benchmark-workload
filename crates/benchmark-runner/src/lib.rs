@@ -75,20 +75,17 @@ where
                 Action::Execute => {
                     let report = zkvm_ref.execute(&stdin)?;
                     let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
-                    WorkloadMetrics {
+                    WorkloadMetrics::Execution {
                         name: format!("{}-{}", bw.name, block_number),
                         total_num_cycles: report.total_num_cycles,
                         region_cycles,
-                        proving_time_ms: 0,
                     }
                 }
                 Action::Prove => {
                     let (proof, report) = zkvm_ref.prove(&stdin)?;
 
-                    WorkloadMetrics {
+                    WorkloadMetrics::Proving {
                         name: format!("{}-{}", bw.name, block_number),
-                        total_num_cycles: 0,
-                        region_cycles: Default::default(),
                         proving_time_ms: report.proving_time.as_millis(),
                     }
                 }
