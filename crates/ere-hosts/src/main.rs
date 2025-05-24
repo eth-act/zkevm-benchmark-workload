@@ -1,6 +1,6 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Command};
 
 // use ere_pico::{ErePico, PICO_TARGET};
 
