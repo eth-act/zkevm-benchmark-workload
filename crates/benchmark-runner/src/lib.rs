@@ -54,20 +54,22 @@ where
 
     // Iterate through test corpus and generate reports
     // TODO: note that when proving, processing these in parallel will likely skew the results
-    corpuses.par_iter().try_for_each(|bw| -> Result<()> {
+    corpuses.into_par_iter().try_for_each(|bw| -> Result<()> {
         println!(" {} ({} blocks)", bw.name, bw.blocks_and_witnesses.len());
 
         let mut reports = Vec::new();
-        for ci in &bw.blocks_and_witnesses {
+        for ci in bw.blocks_and_witnesses {
+            let block_number = ci.block.number;
+
             let mut stdin = Input::new();
-            stdin.write(ci)?;
-            stdin.write(&bw.network)?;
+            stdin.write(ci);
+            stdin.write(bw.network);
 
             let report = zkvm_ref.execute(&stdin)?;
             let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
 
             reports.push(WorkloadMetrics {
-                name: format!("{}-{}", bw.name, ci.block.number),
+                name: format!("{}-{}", bw.name, block_number),
                 total_num_cycles: report.total_num_cycles,
                 region_cycles,
                 proving_time_ms: 0,
