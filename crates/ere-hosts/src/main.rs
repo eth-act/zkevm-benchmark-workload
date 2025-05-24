@@ -1,8 +1,9 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
 use clap::{Parser, ValueEnum};
-use std::path::PathBuf;
+use std::{path::PathBuf, process::Command};
 use strum::IntoEnumIterator;
+
 // use ere_pico::{ErePico, PICO_TARGET};
 use benchmark_runner::{Action, run_benchmark_ere};
 use ere_openvm::{EreOpenVM, OPENVM_TARGET};
@@ -84,14 +85,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     for zkvm in zkvms {
         match zkvm {
             zkVM::Sp1 => {
+                run_cargo_patch_command("sp1")?;
                 let sp1_zkvm = new_sp1_zkvm(resource)?;
                 run_benchmark_ere("sp1", sp1_zkvm, action)?;
             }
             zkVM::Risc0 => {
+                run_cargo_patch_command("risc0")?;
                 let risc0_zkvm = new_risczero_zkvm(resource)?;
                 run_benchmark_ere("risc0", risc0_zkvm, action)?;
             }
             zkVM::Openvm => {
+                run_cargo_patch_command("openvm")?;
                 let openvm_zkvm = new_openvm_zkvm(resource)?;
                 run_benchmark_ere("openvm", openvm_zkvm, action)?;
             } // zkVM::Pico => {
@@ -133,3 +137,28 @@ fn new_openvm_zkvm(
 //     let program = PICO_TARGET::compile(&PathBuf::from(guest_dir))?;
 //     Ok(ErePico::new(program, prover_resource))
 // }
+
+/// Patches the precompiles for a specific zkvm
+fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+    println!("Running cargo {}...", zkvm_name);
+
+    let output = Command::new("cargo").arg(zkvm_name).output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+
+        eprintln!(
+            "cargo {} failed with exit code: {:?}",
+            zkvm_name,
+            output.status.code()
+        );
+        eprintln!("stdout: {}", stdout);
+        eprintln!("stderr: {}", stderr);
+
+        return Err(format!("cargo {} command failed", zkvm_name).into());
+    }
+
+    println!("cargo {} completed successfully", zkvm_name);
+    Ok(())
+}
