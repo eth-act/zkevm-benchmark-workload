@@ -1478,7 +1478,7 @@ dependencies = [
  "bitflags 2.9.0",
  "cexpr",
  "clang-sys",
- "itertools 0.11.0",
+ "itertools 0.13.0",
  "log",
  "prettyplease 0.2.32",
  "proc-macro2",
@@ -3052,8 +3052,23 @@ name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
  "benchmark-runner",
+ "ere-openvm",
  "ere-risczero",
  "ere-sp1",
+ "zkvm-interface",
+]
+
+[[package]]
+name = "ere-openvm"
+version = "0.1.0"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
+dependencies = [
+ "openvm-build",
+ "openvm-circuit",
+ "openvm-sdk",
+ "openvm-stark-sdk",
+ "openvm-transpiler",
+ "thiserror 2.0.12",
  "zkvm-interface",
 ]
 
@@ -6732,6 +6747,7 @@ dependencies = [
  "p3-maybe-rayon 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=1ba4e5c)",
  "p3-uni-stark 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=1ba4e5c)",
  "p3-util 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=1ba4e5c)",
+ "rayon",
  "rustc-hash 2.1.1",
  "serde",
  "thiserror 1.0.69",
@@ -7368,6 +7384,9 @@ dependencies = [
 name = "p3-maybe-rayon"
 version = "0.1.0"
 source = "git+https://github.com/Plonky3/Plonky3.git?rev=1ba4e5c#1ba4e5c40417f4f7aae86bcca56b6484b4b2490b"
+dependencies = [
+ "rayon",
+]
 
 [[package]]
 name = "p3-maybe-rayon"
@@ -8322,7 +8341,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
 dependencies = [
  "anyhow",
- "itertools 0.11.0",
+ "itertools 0.14.0",
  "proc-macro2",
  "quote",
  "syn 2.0.101",
