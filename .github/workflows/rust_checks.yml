@@ -1,5 +1,4 @@
 name: Rust Checks
-
 on:
   push:
     branches: [ main, master ]
@@ -16,19 +15,32 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       - name: Download and Extract Fixtures
         run: |
           chmod +x ./scripts/download-and-extract-fixtures.sh
           ./scripts/download-and-extract-fixtures.sh
-
+      
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           components: clippy, rustfmt
-
+      
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+      
       - name: Check formatting
         run: cargo fmt --check --all
-
+      
       - name: Run tests
         run: cargo test -p zkevm-metrics -p witness-generator -p ere-hosts
