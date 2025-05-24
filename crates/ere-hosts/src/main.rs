@@ -22,8 +22,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let action = Action::Execute;
     run_benchmark_ere("risc0", risc0_zkvm, action)?;
 
-    let pico_zkvm = new_pico_zkvm()?;
-    run_benchmark_ere("pico", pico_zkvm)?;
+    let resource = ProverResourceType::Cpu;
+    let pico_zkvm = new_pico_zkvm(resource)?;
+    let action = Action::Execute;
+    run_benchmark_ere("pico", pico_zkvm, action)?;
 
     // TODO: Add more backends
     Ok(())
@@ -41,8 +43,9 @@ fn new_risczero_zkvm(
     let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
     Ok(EreRisc0::new(program, prover_resource))
 }
-fn new_pico_zkvm() -> Result<ErePico, Box<dyn std::error::Error>> {
-    let prover_resource = ProverResourceType::Cpu;
+fn new_pico_zkvm(
+    prover_resource: ProverResourceType,
+) -> Result<ErePico, Box<dyn std::error::Error>> {
     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/pico");
     let program = PICO_TARGET::compile(&PathBuf::from(guest_dir))?;
     Ok(ErePico::new(program, prover_resource))
