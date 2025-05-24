@@ -37,7 +37,7 @@ use std::env::temp_dir;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
-        WorkloadMetrics {
+        WorkloadMetrics::Execution {
             name: "workload name".into(),
             total_num_cycles: 1_000,
             region_cycles: HashMap::from_iter([
@@ -45,7 +45,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ("compute".to_string(), 800),
                 ("teardown".to_string(), 100),
             ]),
-            proving_time_ms: 0,
         },
         // ... other workloads
     ];
