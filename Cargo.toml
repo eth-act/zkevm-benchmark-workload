@@ -7,8 +7,6 @@ members = [
     "crates/zkevm-succinct/host",
     # zkm
     "crates/zkevm-zkm/host",
-    # risc0
-    "crates/zkevm-risc0/host",
     # openvm
     "crates/zkevm-openvm/host",
     # Guest programs
