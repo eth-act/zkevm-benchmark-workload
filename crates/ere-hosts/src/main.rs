@@ -3,7 +3,6 @@
 use std::path::PathBuf;
 
 use benchmark_runner::run_benchmark_ere;
-use ere_risczero::RV32_IM_RISCZERO_ZKVM_ELF;
 use ere_sp1::EreSP1;
 use zkvm_interface::{Compiler, ProverResourceType};
 
