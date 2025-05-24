@@ -1478,7 +1478,7 @@ dependencies = [
  "bitflags 2.9.0",
  "cexpr",
  "clang-sys",
- "itertools 0.13.0",
+ "itertools 0.11.0",
  "log",
  "prettyplease 0.2.32",
  "proc-macro2",
@@ -3092,7 +3092,7 @@ dependencies = [
 [[package]]
 name = "ere-pico"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#2c6a4f5313ef060651f85209849f0d285b513a2c"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "bincode",
  "pico-sdk",
@@ -3103,7 +3103,7 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#2c6a4f5313ef060651f85209849f0d285b513a2c"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "anyhow",
  "borsh",
@@ -3119,7 +3119,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#2c6a4f5313ef060651f85209849f0d285b513a2c"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -8852,7 +8852,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.11.0",
  "proc-macro2",
  "quote",
  "syn 2.0.101",
@@ -14564,7 +14564,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#2c6a4f5313ef060651f85209849f0d285b513a2c"
+source = "git+https://github.com/eth-applied-research-group/ere#d106f8d65c103c27e23e3cd7ba6a0e8eb7364c78"
 dependencies = [
  "anyhow",
  "auto_impl",
