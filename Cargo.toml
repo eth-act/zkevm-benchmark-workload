@@ -119,6 +119,7 @@ benchmark-runner = { path = "crates/benchmark-runner" }
 
 zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", package = "zkvm-interface" }
 ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-sp1" }
+ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-risczero" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
