@@ -117,6 +117,7 @@ zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", pa
 ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-sp1" }
 ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-risczero" }
 ere-pico = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-pico" }
+ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-openvm" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

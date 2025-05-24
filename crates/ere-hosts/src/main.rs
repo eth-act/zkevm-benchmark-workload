@@ -5,6 +5,7 @@ use std::path::PathBuf;
 // use ere_pico::{ErePico, PICO_TARGET};
 
 use benchmark_runner::{Action, run_benchmark_ere};
+use ere_openvm::{EreOpenVM, OPENVM_TARGET};
 use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
 
@@ -22,13 +23,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let action = Action::Execute;
     run_benchmark_ere("risc0", risc0_zkvm, action)?;
 
+    let resource = ProverResourceType::Cpu;
+    let openvm_zkvm = new_openvm_zkvm(resource)?;
+    let action = Action::Execute;
+    run_benchmark_ere("openvm", openvm_zkvm, action)?;
+
     // TODO: Symbol conflict with Risc0, See #42
     // let resource = ProverResourceType::Cpu;
     // let pico_zkvm = new_pico_zkvm(resource)?;
     // let action = Action::Execute;
     // run_benchmark_ere("pico", pico_zkvm, action)?;
 
-    // TODO: Add more backends
     Ok(())
 }
 
@@ -43,6 +48,13 @@ fn new_risczero_zkvm(
     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/risc0");
     let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
     Ok(EreRisc0::new(program, prover_resource))
+}
+fn new_openvm_zkvm(
+    prover_resource: ProverResourceType,
+) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
+    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
+    let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
+    Ok(EreOpenVM::new(program, prover_resource))
 }
 // fn new_pico_zkvm(
 //     prover_resource: ProverResourceType,
