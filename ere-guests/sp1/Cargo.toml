@@ -16,7 +16,10 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-revm = { version = "23.1.0", default-features = false, features = ["kzg-rs"] }
+revm = { version = "23.1.0", default-features = false, features = [
+    "kzg-rs",
+    "bn",
+] }
 alloy-primitives.workspace = true
 tracing-subscriber = "*"
 tracing = "*"
