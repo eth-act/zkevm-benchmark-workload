@@ -16,7 +16,7 @@ pub struct WorkloadMetrics {
     /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
     pub region_cycles: HashMap<String, u64>,
     /// Proving time in milliseconds
-    pub proving_time_ms: u64,
+    pub proving_time_ms: u128,
 }
 
 /// Errors that can occur during metrics processing.
