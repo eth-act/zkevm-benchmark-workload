@@ -89,4 +89,3 @@ This repository contains an `xtask` that will automate this process by calling `
 | **zkMIPS**       | `ere-guests/zkm/`     | `crates/zkevm-zkm/` | `zkevm-metrics/zkm/`       |
 | **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
 | **RISC0**        | `ere-guests/risc0/`   | `crates/ere-hosts/` | `zkevm-metrics/risc0/`     |
-| **Pico**         | `ere-guests/pico/`    | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
