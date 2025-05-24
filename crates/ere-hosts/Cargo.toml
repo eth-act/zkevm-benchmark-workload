@@ -12,6 +12,8 @@ ere-risczero.workspace = true
 # ere-pico.workspace = true
 zkvm-interface.workspace = true
 ere-openvm.workspace = true
+clap.workspace = true
+strum.workspace = true
 
 [lints]
 workspace = true

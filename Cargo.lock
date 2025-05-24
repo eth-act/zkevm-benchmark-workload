@@ -3052,9 +3052,11 @@ name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
  "benchmark-runner",
+ "clap",
  "ere-openvm",
  "ere-risczero",
  "ere-sp1",
+ "strum 0.26.3",
  "zkvm-interface",
 ]
 
