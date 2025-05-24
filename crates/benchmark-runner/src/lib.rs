@@ -1,6 +1,5 @@
 use anyhow::*;
 use rayon::prelude::*;
-use reth_stateless::{fork_spec::ForkSpec, ClientInput};
 use std::collections::HashMap;
 use std::fs;
 use std::panic;
