@@ -3038,6 +3038,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "erased-serde"
+version = "0.4.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e004d887f51fcb9fef17317a2f3525c887d8aa3f4f50fed920816a688284a5b7"
+dependencies = [
+ "serde",
+ "typeid",
+]
+
+[[package]]
 name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
@@ -3049,7 +3059,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#3cb1f39c231889acbd55761f804776c7e43d7ca4"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -12473,6 +12483,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "typeid"
+version = "1.0.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bc7d623258602320d5c55d1bc22793b57daff0ec7efc270ea7d55ce1d5f5471c"
+
+[[package]]
 name = "typenum"
 version = "1.18.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -14068,11 +14084,12 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#3cb1f39c231889acbd55761f804776c7e43d7ca4"
+source = "git+https://github.com/eth-applied-research-group/ere#74df1a3613fb82c9610a1c9c20f5395b4bc728dc"
 dependencies = [
  "anyhow",
  "auto_impl",
  "bincode",
+ "erased-serde",
  "indexmap 2.9.0",
  "serde",
  "thiserror 2.0.12",
