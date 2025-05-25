@@ -150,7 +150,7 @@ fn process_corpus_with_crash_handling<V>(
 }
 
 fn process_corpus<V>(
-    bw: BlocksAndWitnesses,
+    mut bw: BlocksAndWitnesses,
     zkvm_ref: Arc<&V>,
     action: &Action,
     host_name: &str,
@@ -158,6 +158,15 @@ fn process_corpus<V>(
 where
     V: zkVM + Sync,
 {
+    // Take the last element, because benchmarks are setup in such a way that
+    // We only want to benchmark the last block.
+    let last_block_with_witness = match bw.blocks_and_witnesses.last() {
+        Some(last_block) => last_block.clone(),
+        None => panic!("unexpected test with no blocks {}", &bw.name),
+    };
+
+    bw.blocks_and_witnesses = vec![last_block_with_witness];
+
     println!(" {} ({} blocks)", bw.name, bw.blocks_and_witnesses.len());
     let mut reports = Vec::new();
 
