@@ -20,7 +20,11 @@ revm = { version = "23.1.0", default-features = false, features = [
     "kzg-rs",
     "bn",
 ] }
-alloy-primitives.workspace = true
+alloy-primitives = { workspace = true, default-features = false, features = [
+    "map-foldhash",
+    "serde",
+    "sha3-keccak",
+] }
 tracing-subscriber = "*"
 tracing = "*"
 
