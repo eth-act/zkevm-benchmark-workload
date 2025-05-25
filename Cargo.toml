@@ -126,11 +126,7 @@ reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2da36a8325
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
 
 # alloy
-alloy-primitives = { version = "1.1.0", default-features = false, features = [
-    "map-foldhash",
-    "serde",
-    "sha3-keccak",
-] }
+alloy-primitives = { version = "1.1.0", default-features = false }
 
 # misc
 bincode = "1.3"
