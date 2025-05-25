@@ -1,0 +1,25 @@
+[package]
+version = "0.1.0"
+name = "fibonacci-program"
+edition = "2021"
+
+[dependencies]
+sp1-zkvm = { version = "4.2.0", features = ["embedded"] }
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-primitives-traits = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+revm = { version = "23.1.0", default-features = false, features = [
+    "kzg-rs",
+    "bn",
+] }
+alloy-primitives = { workspace = true, default-features = false, features = [
+    "map-foldhash",
+    "serde",
+    "sha3-keccak",
+] }

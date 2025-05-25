@@ -1,0 +1,23 @@
+[workspace]
+members = ["program", "script", "witness-generator"]
+resolver = "2"
+
+
+[workspace.dependencies]
+# branch is kw/zkevm-benchmark-workload-repo
+# NOTE: We are using a branch of a branch that has not yet been merged into master.
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+witness-generator = { path = "witness-generator" }
+# alloy
+alloy-primitives = { version = "1.1.0", default-features = false }
+
+[patch.crates-io]
+sha2 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", tag = "patch-sha2-0.10.8-sp1-4.0.0", package = "sha2" }
+bn = { git = "https://github.com/sp1-patches/bn", tag = "patch-0.6.0-sp1-4.0.0", package = "substrate-bn" }
+sha3 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", tag = "patch-sha3-0.10.8-sp1-4.0.0" }
+k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k256-13.4-sp1-4.1.0" }
+p256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-p256-13.2-sp1-4.1.0" }
