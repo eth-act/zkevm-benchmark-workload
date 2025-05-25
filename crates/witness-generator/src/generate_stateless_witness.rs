@@ -11,6 +11,86 @@ use reth_stateless::ClientInput;
 /// Root directory for the relevant blockchain tests within the `zkevm-fixtures` submodule.
 const BLOCKCHAIN_TEST_DIR: &str = "blockchain_tests";
 
+/// Load pre-generated witnesses from the `zkevm-fixtures-with-witnesses` directory.
+/// 
+/// If the directory doesn't exist or witnesses can't be loaded, returns an error
+/// with instructions for the user to generate witnesses first.
+/// 
+/// # Errors
+/// 
+/// Returns an error if:
+/// - The witness directory doesn't exist
+/// - Witness files can't be read or parsed
+/// - No witnesses are found
+pub fn load_pre_generated_witnesses() -> Result<Vec<BlocksAndWitnesses>, Box<dyn std::error::Error>> {
+    let workspace_root = Path::new(env!("CARGO_WORKSPACE_DIR"));
+    let witness_dir = workspace_root.join("zkevm-fixtures-with-witnesses");
+    
+    if !witness_dir.exists() {
+        return Err(format!(
+            "Pre-generated witness directory not found: {}\n\
+            Please generate witnesses first by running:\n\
+            cargo run --bin witness-generator",
+            witness_dir.display()
+        ).into());
+    }
+    
+    let index_path = witness_dir.join("index.json");
+    if !index_path.exists() {
+        return Err(format!(
+            "Witness index file not found: {}\n\
+            The witness directory exists but appears to be incomplete.\n\
+            Please regenerate witnesses by running:\n\
+            cargo run --bin witness-generator",
+            index_path.display()
+        ).into());
+    }
+    
+    // Read the index to get list of available witnesses
+    let index_content = std::fs::read_to_string(&index_path)?;
+    let witness_names: Vec<String> = serde_json::from_str(&index_content)?;
+    
+    if witness_names.is_empty() {
+        return Err("No witnesses found in index file. Please regenerate witnesses.".into());
+    }
+    
+    println!("Loading {} pre-generated witnesses from {}", witness_names.len(), witness_dir.display());
+    
+    let mut witnesses = Vec::new();
+    
+    for name in &witness_names {
+        let filename = format!("{}.json", sanitize_filename(name));
+        let file_path = witness_dir.join(filename);
+        
+        if !file_path.exists() {
+            return Err(format!(
+                "Witness file not found: {}\n\
+                The witness directory appears to be incomplete. Please regenerate witnesses.",
+                file_path.display()
+            ).into());
+        }
+        
+        let content = std::fs::read_to_string(&file_path)?;
+        let witness: BlocksAndWitnesses = serde_json::from_str(&content)
+            .map_err(|e| format!("Failed to parse witness file {}: {}", file_path.display(), e))?;
+        
+        witnesses.push(witness);
+    }
+    
+    println!("Successfully loaded {} witnesses", witnesses.len());
+    Ok(witnesses)
+}
+
+/// Sanitize a filename by replacing invalid characters with underscores
+fn sanitize_filename(name: &str) -> String {
+    name.chars()
+        .map(|c| match c {
+            '/' | '\\' | ':' | '*' | '?' | '"' | '<' | '>' | '|' | '[' | ']' => '_',
+            c => c,
+        })
+        .collect()
+}
+
 /// Generates `BlocksAndWitnesses` for all valid blockchain test cases found
 /// within the specified `BLOCKCHAIN_TEST_DIR` directory in `zkevm-fixtures`.
 ///

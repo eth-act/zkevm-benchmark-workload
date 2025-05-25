@@ -1,7 +1,7 @@
 use anyhow::*;
 use rayon::prelude::*;
 use std::{collections::HashMap, fs, panic, sync::Arc};
-use witness_generator::{generate_stateless_witness, BlocksAndWitnesses};
+use witness_generator::BlocksAndWitnesses;
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
 
@@ -10,7 +10,14 @@ pub fn run_benchmark<F>(elf_path: &'static [u8], metrics_path_prefix: &str, zkvm
 where
     F: Fn(&BlocksAndWitnesses, &'static [u8]) -> Vec<WorkloadMetrics> + Send + Sync,
 {
-    let generated_corpuses = generate_stateless_witness::generate();
+    let generated_corpuses = match witness_generator::generate_stateless_witness::load_pre_generated_witnesses() {
+        Ok(witnesses) => witnesses,
+        Err(e) => {
+            eprintln!("Failed to load pre-generated witnesses: {}", e);
+            eprintln!("Please run: cargo run --bin witness-generator");
+            panic!("Cannot proceed without witnesses");
+        }
+    };
 
     generated_corpuses.into_par_iter().for_each(|bw| {
         println!("{} (num_blocks={})", bw.name, bw.blocks_and_witnesses.len());
@@ -51,8 +58,21 @@ where
 {
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
-    // TODO: This only needs to be generated once and possibly passed in as a parameter or read from disk.
-    let corpuses = generate_stateless_witness::generate();
+    
+    // Load pre-generated witnesses instead of generating them every time
+    let corpuses = match witness_generator::generate_stateless_witness::load_pre_generated_witnesses() {
+        Ok(witnesses) => {
+            println!("Successfully loaded {} pre-generated witness collections", witnesses.len());
+            witnesses
+        }
+        Err(e) => {
+            eprintln!("Failed to load pre-generated witnesses: {}", e);
+            eprintln!("\nTo generate witnesses, run:");
+            eprintln!("  cargo run --bin witness-generator");
+            eprintln!("\nThen re-run your benchmark.");
+            return Err(e.into());
+        }
+    };
 
     match action {
         Action::Execute => {

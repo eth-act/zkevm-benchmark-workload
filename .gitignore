@@ -3,5 +3,7 @@ target
 
 # zkevm fixtures file
 zkevm-fixtures
+zkevm-fixtures-with-witnesses
+
 # zkevm metrics file
 zkevm-metrics
