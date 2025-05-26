@@ -1,0 +1,1871 @@
+{
+  "zkvm_name": "sp1",
+  "generated_at": "2025-05-26T20:05:41.852149",
+  "summary": {
+    "total_tests": 214,
+    "successful_tests": 61,
+    "failed_tests": 153,
+    "success_rate_percent": 28.5
+  },
+  "performance": {
+    "has_timing_data": true,
+    "test_count": 61,
+    "proving_time_ms": {
+      "mean": 699857.03,
+      "median": 414882,
+      "min": 258733,
+      "max": 11057720,
+      "std_dev": 1365998.03
+    },
+    "proving_time_seconds": {
+      "mean": 699.86,
+      "median": 414.88,
+      "min": 258.73,
+      "max": 11057.72
+    }
+  },
+  "categories": {
+    "stateful_opcodes": {
+      "total": 93,
+      "successful": 60,
+      "failed": 33,
+      "success_rate_percent": 64.52,
+      "performance": {
+        "test_count": 60,
+        "mean_ms": 527225.98,
+        "median_ms": 414320.0,
+        "min_ms": 258733,
+        "max_ms": 949150
+      }
+    },
+    "bytecode": {
+      "total": 15,
+      "successful": 1,
+      "failed": 14,
+      "success_rate_percent": 6.67,
+      "performance": {
+        "test_count": 1,
+        "mean_ms": 11057720,
+        "median_ms": 11057720,
+        "min_ms": 11057720,
+        "max_ms": 11057720
+      }
+    },
+    "compute": {
+      "total": 106,
+      "successful": 0,
+      "failed": 106,
+      "success_rate_percent": 0.0,
+      "performance": {
+        "test_count": 0
+      }
+    }
+  },
+  "errors": {
+    "total_failures": 153,
+    "error_patterns": {
+      "Unwrap Error": 153
+    },
+    "error_distribution": [
+      {
+        "pattern": "Unwrap Error",
+        "count": 153,
+        "percentage": 100.0,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g2msm]",
+            "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_AND-]",
+            "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g2add]",
+            "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+          }
+        ]
+      }
+    ]
+  },
+  "rankings": {
+    "fastest": [
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE same value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 258733,
+        "proving_time_seconds": 258.73
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE same value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 259833,
+        "proving_time_seconds": 259.83
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE new value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 260481,
+        "proving_time_seconds": 260.48
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE new value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 262188,
+        "proving_time_seconds": 262.19
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_BALANCE]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 318333,
+        "proving_time_seconds": 318.33
+      }
+    ],
+    "slowest": [
+      {
+        "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALLCODE]-2",
+        "category": "bytecode",
+        "proving_time_ms": 11057720,
+        "proving_time_seconds": 11057.72
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALLCODE]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 949150,
+        "proving_time_seconds": 949.15
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALL]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 944904,
+        "proving_time_seconds": 944.9
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_CALLCODE]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 934836,
+        "proving_time_seconds": 934.84
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_STATICCALL]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 933888,
+        "proving_time_seconds": 933.89
+      }
+    ]
+  },
+  "individual_tests": [
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 258733,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_False-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 625871,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfbalance[fork_Cancun-blockchain_test]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 634403,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_CALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 930816,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_STATICCALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 798958,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-512]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 370316,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_EXTCODEHASH]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 355644,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_blockhash[fork_Cancun-blockchain_test]-257",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 404448,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_False-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 413758,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 318333,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-1KiB]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 359506,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALLCODE]-2",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "success",
+      "proving_time_ms": 11057720,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-1KiB]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 358026,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_False-SSLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 626979,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_EXTCODEHASH]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 386358,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_CALLCODE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 934836,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Cancun-blockchain_test-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 611844,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_EXTCODEHASH]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 385786,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODEHASH]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 352860,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Prague-blockchain_test-absent_accounts_True-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 329784,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 320089,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_False-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 626133,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 260481,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_CALLCODE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 801377,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_False-SSLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 626463,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_STATICCALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 797612,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_EXTCODESIZE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 334964,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-5KiB]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 334216,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_DELEGATECALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 701687,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_DELEGATECALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 835049,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_CALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 795814,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_blockhash[fork_Prague-blockchain_test]-257",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 408911,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALLCODE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 949150,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Cancun-blockchain_test-SLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 353053,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_CALLCODE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 799547,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 414882,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 262188,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Prague-blockchain_test-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 522843,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_STATICCALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 933888,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Cancun-blockchain_test-absent_accounts_False-opcode_BALANCE]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 504786,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Cancun-blockchain_test-absent_accounts_True-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 328134,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_STATICCALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 928444,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfbalance[fork_Prague-blockchain_test]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 631725,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_DELEGATECALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 836637,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Cancun-blockchain_test-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 524424,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_CALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 797058,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 318606,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_EXTCODESIZE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 332036,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 415058,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Prague-blockchain_test-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 607014,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE same value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 259833,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_EXTCODESIZE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 333232,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Prague-blockchain_test-SLOAD]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 353698,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 944904,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Prague-blockchain_test-absent_accounts_False-opcode_BALANCE]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 507022,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_BALANCE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 318792,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_DELEGATECALL]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 701994,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-5KiB]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 338288,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_False-SSTORE new value]-2",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 412384,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODESIZE]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 331612,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-512]-1",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 372272,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g2msm]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_AND-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g2add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_191]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Prague-blockchain_test-shift_right_SHR]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SHR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-point_evaluation]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Prague-blockchain_test-IDENTITY]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Cancun-blockchain_test-SHA2-256]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_fp_to_g2]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SAR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Prague-blockchain_test-RIPEMD-160]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-512]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SMOD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Prague-blockchain_test-SHA2-256]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_EQ-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_jumpdests[fork_Cancun-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_MOD-mod_bits_191]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Cancun-blockchain_test-IDENTITY]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_GT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_BYTE-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_DIV-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_SMOD-mod_bits_255]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-ecrecover]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_EXTCODECOPY]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Cancun-blockchain_test-shift_right_SHR]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_fp_to_g1]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_BALANCE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bn128_mul]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-blake2f]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SGT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_SMOD-mod_bits_127]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-1KiB]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_fp_to_g1]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SUB-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-1KiB]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_ADD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_unop[fork_Cancun-blockchain_test-opcode_NOT]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_MOD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_keccak[fork_Prague-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_MUL-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_SMOD-mod_bits_63]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_SMOD-mod_bits_191]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SDIV-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SLT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_SMOD-mod_bits_63]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_EXP-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SHL-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: HttpError { status: 500, msg: \"unknown error\", path: \"/twirp/api.ProverService/ProveCore\", content_type: \"called `Result::unwrap()` on an `Err` value: Any { .. }\" }"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_XOR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SIGNEXTEND-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_jumps[fork_Prague-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bn128_mul]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_fp_to_g2]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_modexp[fork_Cancun-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_OR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_LT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_BALANCE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g1msm]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_255]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g1add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_MOD-mod_bits_255]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-ecrecover]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_63]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_BYTE-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_GT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SHL-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_EXP-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SMOD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_EQ-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_unop[fork_Cancun-blockchain_test-opcode_ISZERO]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_only_data_input[fork_Cancun-blockchain_test-RIPEMD-160]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_XOR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-5KiB]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_MUL-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SLT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-point_evaluation]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_ADD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SUB-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bn128_pairing]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_MOD-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_CALLCODE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_unop[fork_Prague-blockchain_test-opcode_ISZERO]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_SMOD-mod_bits_127]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_jumpdests[fork_Prague-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g1add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g1msm]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bn128_pairing]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_SMOD-mod_bits_255]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bn128_add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_EXTCODECOPY]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_BALANCE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_EXTCODEHASH]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-blake2f]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SIGNEXTEND-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_DIV-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_True-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SAR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SDIV-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_STATICCALL]",
+      "zkvm": "sp1",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_CALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Cancun-blockchain_test-shift_right_SAR]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g2add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_unop[fork_Prague-blockchain_test-opcode_NOT]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g2msm]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_AND-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_modexp[fork_Prague-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_SHR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_SMOD-mod_bits_191]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_127]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bn128_add]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_pairing_check]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SGT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_jumps[fork_Cancun-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_True-opcode_DELEGATECALL]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-5KiB]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_MOD-mod_bits_63]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Prague-blockchain_test-shift_right_SAR]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_keccak[fork_Cancun-blockchain_test]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODESIZE]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Prague-blockchain_test-512]",
+      "zkvm": "sp1",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_LT-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Prague-blockchain_test-op_MOD-mod_bits_127]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_OR-]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_pairing_check]",
+      "zkvm": "sp1",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: TwirpError(TwirpErrorResponse { code: Internal, msg: \"poisoned lock: another task failed inside\", meta: {} })"
+    }
+  ]
+}
