@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="page-title">zkEVM - Detailed Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1 id="nav-title">zkEVM</h1>
+                <span class="subtitle">Detailed Test Results & Analysis</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">← Dashboard</a>
+                <div id="other-zkvms-nav">
+                    <!-- Other zkVM links will be populated by JavaScript -->
+                </div>
+                <a href="#tests" class="nav-link">Test Results</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- zkVM Overview -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title" id="hero-title">zkEVM</h2>
+                <p class="hero-description" id="hero-description">
+                    Detailed test results and performance analysis for the Zero-Knowledge Virtual Machine.
+                </p>
+                <div class="hero-stats" id="zkvm-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-tests">-</div>
+                        <div class="stat-label">Total Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="successful-tests">-</div>
+                        <div class="stat-label">Successful Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="success-rate">-</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-time">-</div>
+                        <div class="stat-label">Avg Proving Time</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Summary -->
+        <section class="zkvm-section">
+            <div class="section-header">
+                <h3 class="section-title">Performance Summary</h3>
+                <p class="section-description">Key performance metrics and category breakdown</p>
+            </div>
+            
+            <div class="performance-grid" id="performance-grid">
+                <!-- Performance cards will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Individual Test Results -->
+        <section class="tests-section" id="tests">
+            <div class="section-header">
+                <h3 class="section-title">Individual Test Results</h3>
+                <p class="section-description" id="tests-description">Detailed results for every test executed</p>
+            </div>
+            
+            <!-- Test Filters -->
+            <div class="test-filters" id="test-filters">
+                <button class="filter-btn active" data-filter="all">All Tests</button>
+                <button class="filter-btn" data-filter="success">Successful</button>
+                <button class="filter-btn" data-filter="crashed">Failed</button>
+                <!-- Category filters will be dynamically added -->
+            </div>
+            
+            <div class="tests-container" id="tests-container">
+                <!-- Test results will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 zkEVM Benchmark Dashboard - <span id="footer-zkvm">zkEVM</span> Results</p>
+            <p class="footer-timestamp">Last updated: <span id="last-updated">-</span></p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p id="loading-message">Loading zkEVM test data...</p>
+    </div>
+
+    <script src="zkvm-detail-generic.js"></script>
+</body>
+</html> 

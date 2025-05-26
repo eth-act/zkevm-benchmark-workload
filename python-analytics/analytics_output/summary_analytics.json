@@ -1,0 +1,29 @@
+{
+  "generated_at": "2025-05-26T20:05:41.853874",
+  "zkvms": [
+    "risc0",
+    "sp1"
+  ],
+  "comparison": {
+    "risc0": {
+      "total_tests": 26,
+      "successful_tests": 13,
+      "failed_tests": 13,
+      "success_rate_percent": 50.0,
+      "performance": {
+        "mean_proving_time_ms": 544630.77,
+        "median_proving_time_ms": 245600
+      }
+    },
+    "sp1": {
+      "total_tests": 214,
+      "successful_tests": 61,
+      "failed_tests": 153,
+      "success_rate_percent": 28.5,
+      "performance": {
+        "mean_proving_time_ms": 699857.03,
+        "median_proving_time_ms": 414882
+      }
+    }
+  }
+}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>zkEVM Benchmark Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1>zkEVM Benchmarks</h1>
+                <span class="subtitle">Zero-Knowledge Virtual Machine Performance Analysis</span>
+            </div>
+            <div class="nav-links">
+                <a href="#overview" class="nav-link">Overview</a>
+                <a href="#zkvms" class="nav-link">zkVMs</a>
+                <a href="#analytics" class="nav-link">Analytics</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">zkEVM Performance Dashboard</h2>
+                <p class="hero-description">
+                    Comprehensive benchmark analysis across multiple Zero-Knowledge Virtual Machines.
+                    Compare performance, success rates, and error patterns in real-time.
+                </p>
+                <div class="hero-stats" id="hero-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-zkvms">-</div>
+                        <div class="stat-label">zkVMs Tested</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-tests">-</div>
+                        <div class="stat-label">Total Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-success-rate">-</div>
+                        <div class="stat-label">Avg Success Rate</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- zkVM Comparison Cards -->
+        <section class="zkvm-section" id="zkvms">
+            <div class="section-header">
+                <h3 class="section-title">zkVM Performance Comparison</h3>
+                <p class="section-description">
+                    Detailed performance metrics and analysis for each Zero-Knowledge Virtual Machine
+                </p>
+            </div>
+            
+            <div class="zkvm-grid" id="zkvm-grid">
+                <!-- zkVM cards will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Test Categories Section -->
+        <section class="categories-section" id="analytics">
+            <div class="section-header">
+                <h3 class="section-title">Test Category Analysis</h3>
+                <p class="section-description">
+                    Performance breakdown by test category across all zkVMs
+                </p>
+            </div>
+            
+            <div class="categories-container" id="categories-container">
+                <!-- Category analysis will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Error Analysis Section -->
+        <section class="errors-section">
+            <div class="section-header">
+                <h3 class="section-title">Error Pattern Analysis</h3>
+                <p class="section-description">
+                    Common failure patterns and error distribution across zkVMs
+                </p>
+            </div>
+            
+            <div class="errors-container" id="errors-container">
+                <!-- Error analysis will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 zkEVM Benchmark Dashboard. Generated from real benchmark data.</p>
+            <p class="footer-timestamp">Last updated: <span id="last-updated">-</span></p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading benchmark data...</p>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html> 
