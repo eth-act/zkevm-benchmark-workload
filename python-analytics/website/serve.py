@@ -34,9 +34,9 @@ def main():
     try:
         with socketserver.TCPServer(("", PORT), CORSHTTPRequestHandler) as httpd:
             print(f"Website is now running at http://localhost:{PORT}")
-            print("Main page: http://localhost:{PORT}/index.html")
-            print("RISC0 details: http://localhost:{PORT}/zkvm.html?zkvm=risc0")
-            print("SP1 details: http://localhost:{PORT}/zkvm.html?zkvm=sp1")
+            print(f"Main page: http://localhost:{PORT}/index.html")
+            print(f"RISC0 details: http://localhost:{PORT}/zkvm.html?zkvm=risc0")
+            print(f"SP1 details: http://localhost:{PORT}/zkvm.html?zkvm=sp1")
             httpd.serve_forever()
     except KeyboardInterrupt:
         print("\nServer stopped.")
