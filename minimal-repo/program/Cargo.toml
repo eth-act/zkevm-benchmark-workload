@@ -4,7 +4,8 @@ name = "fibonacci-program"
 edition = "2021"
 
 [dependencies]
-sp1-zkvm = { version = "4.2.0", features = ["embedded"] }
+# sp1-zkvm = { version = "4.2.0", features = ["embedded"] }
+sp1-zkvm = { version = "4.2.0" }
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
