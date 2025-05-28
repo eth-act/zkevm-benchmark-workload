@@ -6,7 +6,7 @@ use strum::IntoEnumIterator;
 
 // use ere_pico::{ErePico, PICO_TARGET};
 use benchmark_runner::{Action, run_benchmark_ere};
-use ere_openvm::{EreOpenVM, OPENVM_TARGET};
+// use ere_openvm::{EreOpenVM, OPENVM_TARGET};
 use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
 use zkvm_interface::{Compiler, ProverResourceType};
@@ -95,9 +95,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 run_benchmark_ere("risc0", risc0_zkvm, action)?;
             }
             zkVM::Openvm => {
-                run_cargo_patch_command("openvm")?;
-                let openvm_zkvm = new_openvm_zkvm(resource)?;
-                run_benchmark_ere("openvm", openvm_zkvm, action)?;
+                // run_cargo_patch_command("openvm")?;
+                // let openvm_zkvm = new_openvm_zkvm(resource)?;
+                // run_benchmark_ere("openvm", openvm_zkvm, action)?;
             } // zkVM::Pico => {
               //     let pico_zkvm = new_pico_zkvm(resource)?;
               //     run_benchmark_ere("pico", pico_zkvm, action)?;
@@ -122,13 +122,13 @@ fn new_risczero_zkvm(
     Ok(EreRisc0::new(program, prover_resource))
 }
 
-fn new_openvm_zkvm(
-    prover_resource: ProverResourceType,
-) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
-    let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
-    Ok(EreOpenVM::new(program, prover_resource))
-}
+// fn new_openvm_zkvm(
+//     prover_resource: ProverResourceType,
+// ) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
+//     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
+//     let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
+//     Ok(EreOpenVM::new(program, prover_resource))
+// }
 
 // fn new_pico_zkvm(
 //     prover_resource: ProverResourceType,

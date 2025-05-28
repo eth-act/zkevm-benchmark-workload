@@ -8,10 +8,10 @@ license.workspace = true
 [dependencies]
 benchmark-runner.workspace = true
 ere-sp1.workspace = true
-ere-risczero.workspace = true
+ere-risczero = { workspace = true, features = ["metal"] }
 # ere-pico.workspace = true
 zkvm-interface.workspace = true
-ere-openvm.workspace = true
+#ere-openvm.workspace = true
 clap.workspace = true
 strum.workspace = true
 
