@@ -10,9 +10,6 @@ use walkdir::{DirEntry, WalkDir};
 use crate::{BlocksAndWitnesses, witness_generator::WitnessGenerator};
 use reth_stateless::ClientInput;
 
-/// Root directory for the relevant blockchain tests within the `zkevm-fixtures` submodule.
-const BLOCKCHAIN_TEST_DIR: &str = "blockchain_tests";
-
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
 #[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
@@ -26,12 +23,6 @@ impl ExecSpecTestBlocksAndWitnesses {
     /// * `directory_path` - The path to the directory containing the blockchain test cases.
     pub fn new(directory_path: PathBuf) -> Self {
         Self { directory_path }
-    }
-}
-
-impl Default for ExecSpecTestBlocksAndWitnesses {
-    fn default() -> Self {
-        Self::new(path_to_zkevm_fixtures(BLOCKCHAIN_TEST_DIR))
     }
 }
 
@@ -107,16 +98,4 @@ fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
         .filter(|e| e.file_name().to_string_lossy().ends_with(extension))
         .map(DirEntry::into_path)
         .collect()
-}
-
-/// Constructs the absolute path to a subdirectory within the `zkevm-fixtures` submodule.
-///
-/// Assumes this crate (`witness-generator`) is located at `<workspace-root>/crates/witness-generator`.
-///
-fn path_to_zkevm_fixtures(suite: &str) -> PathBuf {
-    let workspace_root = Path::new(env!("CARGO_WORKSPACE_DIR"));
-    workspace_root
-        .join("zkevm-fixtures")
-        .join("fixtures")
-        .join(suite)
 }

@@ -40,6 +40,7 @@ struct Cli {
 #[derive(Subcommand, Clone, Debug)]
 enum SourceCommand {
     Tests {
+        #[arg(short, long, default_value = "zkevm-fixtures/fixtures")]
         directory_path: String,
     },
     Mainnet {
