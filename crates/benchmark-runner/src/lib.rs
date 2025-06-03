@@ -6,15 +6,14 @@ use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
 
 #[deprecated(note = "this function is being phased out, use run_benchmark_ere")]
-pub async fn run_benchmark<F, WG>(
+pub async fn run_benchmark<F>(
     elf_path: &'static [u8],
     metrics_path_prefix: &str,
     zkvm_executor: F,
-    wg: WG,
+    wg: &Box<dyn WitnessGenerator>,
 ) -> Result<()>
 where
     F: Fn(&BlocksAndWitnesses, &'static [u8]) -> Vec<WorkloadMetrics> + Send + Sync,
-    WG: WitnessGenerator,
 {
     let generated_corpuses = wg.generate().await?;
 
