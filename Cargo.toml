@@ -4,7 +4,7 @@ members = [
     "crates/witness-generator",
     "xtask",
     # zkm
-    "crates/zkevm-zkm/host",
+    # "crates/zkevm-zkm/host",
     # Guest programs
     "ere-guests/sp1",
     "ere-guests/risc0",
@@ -124,9 +124,12 @@ reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "
 reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "2da36a83250abbe9ebad72a6146b236a8f8b3bb6" }
 
 # alloy
 alloy-primitives = { version = "1.1.0", default-features = false }
+alloy-eips = { version = "1.0.9" }
+alloy-rpc-types-eth = "1.0.5"
 
 # misc
 bincode = "1.3"
@@ -139,5 +142,9 @@ hex = "0.4.3"
 thiserror = "2"
 serde_json = "*"
 serde_derive = "*"
+jsonrpsee = "0.25.1"
+anyhow = "1.0"
+async-trait = "0.1.88"
+tokio = { version = "1.45.1" }
 
 [patch.crates-io]

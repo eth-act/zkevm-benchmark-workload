@@ -11,8 +11,10 @@ ere-sp1.workspace = true
 ere-risczero.workspace = true
 # ere-pico.workspace = true
 zkvm-interface.workspace = true
-ere-openvm.workspace = true
+# ere-openvm.workspace = true
+witness-generator.workspace = true
 clap.workspace = true
+tokio.workspace = true
 strum.workspace = true
 
 [lints]
