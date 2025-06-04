@@ -13,6 +13,7 @@ use benchmark_runner::{Action, run_benchmark_ere};
 // use ere_openvm::{EreOpenVM, OPENVM_TARGET};
 use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
+use ere_zisk::{EreZisk, RV64_IMA_ZISK_ZKVM_ELF};
 use zkvm_interface::{Compiler, ProverResourceType};
 
 #[derive(Parser)]
@@ -63,6 +64,7 @@ enum SourceCommand {
 enum zkVM {
     Sp1,
     Risc0,
+    Zisk,
     // Openvm,
     // Pico,
 }
@@ -153,6 +155,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                 run_cargo_patch_command("risc0")?;
                 let risc0_zkvm = new_risczero_zkvm(resource)?;
                 run_benchmark_ere("risc0", risc0_zkvm, action, &block_witness_gen).await?;
+            }
+            zkVM::Zisk => {
+                run_cargo_patch_command("zisk")?;
+                let zisk_zkvm = new_zisk_zkvm(resource)?;
+                run_benchmark_ere("zisk", zisk_zkvm, action, &block_witness_gen).await?;
             } // zkVM::Openvm => {
               //     run_cargo_patch_command("openvm")?;
               //     let openvm_zkvm = new_openvm_zkvm(resource)?;
@@ -179,6 +186,14 @@ fn new_risczero_zkvm(
     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/risc0");
     let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
     Ok(EreRisc0::new(program, prover_resource))
+}
+
+fn new_zisk_zkvm(
+    prover_resource: ProverResourceType,
+) -> Result<EreZisk, Box<dyn std::error::Error>> {
+    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/zisk");
+    let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
+    Ok(EreZisk::new(program, prover_resource))
 }
 
 // fn new_openvm_zkvm(

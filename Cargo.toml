@@ -8,6 +8,7 @@ members = [
     "ere-guests/risc0",
     "ere-guests/risc0/guest", #TODO: fix so we have one crate
     "ere-guests/openvm",
+    "ere-guests/zisk",
     # Ere host crate
     "crates/ere-hosts",
 ]
@@ -113,6 +114,7 @@ ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", package =
 ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-risczero" }
 ere-pico = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-pico" }
 ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-openvm" }
+ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
