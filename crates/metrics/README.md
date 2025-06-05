@@ -34,6 +34,7 @@ use zkevm_metrics::WorkloadMetrics;
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::env::temp_dir;
+use std::time::Duration;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
@@ -45,6 +46,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 ("compute".to_string(), 800),
                 ("teardown".to_string(), 100),
             ]),
+            execution_duration: Duration::from_millis(300),
         },
         // ... other workloads
     ];

@@ -1,6 +1,6 @@
 use anyhow::*;
 use rayon::prelude::*;
-use std::{collections::HashMap, fs, panic, sync::Arc};
+use std::{fs, panic, sync::Arc};
 use witness_generator::{witness_generator::WitnessGenerator, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
@@ -189,11 +189,11 @@ where
         let workload_metrics = match action {
             Action::Execute => {
                 let report = zkvm_ref.execute(&stdin)?;
-                let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
                 WorkloadMetrics::Execution {
                     name: format!("{}-{}", bw.name, block_number),
                     total_num_cycles: report.total_num_cycles,
-                    region_cycles,
+                    region_cycles: report.region_cycles.into_iter().collect(),
+                    execution_duration: report.execution_duration,
                 }
             }
             Action::Prove => {
