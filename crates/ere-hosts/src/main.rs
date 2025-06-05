@@ -1,7 +1,10 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
 use clap::{Parser, Subcommand, ValueEnum};
-use std::{path::{Path, PathBuf}, process::Command};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 use witness_generator::{
     generate_stateless_witness::ExecSpecTestBlocksAndWitnesses, rpc::RPCBlocksAndWitnessesBuilder,
     witness_generator::WitnessGenerator,
@@ -42,9 +45,12 @@ struct Cli {
 
 /// Constructs the absolute path to a subdirectory within the `zkevm-fixtures` submodule.
 ///
-/// This is default tests directory path 
+/// This is default tests directory path
 fn path_to_zkevm_fixtures() -> &'static str {
-    concat!(env!("CARGO_WORKSPACE_DIR"), "/zkevm-fixtures/fixtures/blockchain_tests")
+    concat!(
+        env!("CARGO_WORKSPACE_DIR"),
+        "/zkevm-fixtures/fixtures/blockchain_tests"
+    )
 }
 
 #[derive(Subcommand, Clone, Debug)]
@@ -67,7 +73,6 @@ enum SourceCommand {
         rpc_header: Option<Vec<String>>,
     },
 }
-
 
 #[derive(Clone, ValueEnum)]
 enum Resource {
@@ -147,7 +152,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_benchmark_ere("sp1", sp1_zkvm, action, &block_witness_gen).await?;
         ran_any = true;
     }
-    
+
     #[cfg(feature = "risc0")]
     {
         run_cargo_patch_command("risc0")?;
@@ -155,7 +160,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_benchmark_ere("risc0", risc0_zkvm, action, &block_witness_gen).await?;
         ran_any = true;
     }
-    
+
     #[cfg(feature = "openvm")]
     {
         run_cargo_patch_command("openvm")?;
@@ -163,7 +168,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_benchmark_ere("openvm", openvm_zkvm, action, &block_witness_gen).await?;
         ran_any = true;
     }
-    
+
     #[cfg(feature = "pico")]
     {
         let pico_zkvm = new_pico_zkvm(resource)?;
