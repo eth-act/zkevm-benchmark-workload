@@ -65,7 +65,7 @@ cargo run --features sp1 -- rpc \
   --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
 # With custom headers
-cargo run --features sp1 -- mainnet \
+cargo run --features sp1 -- rpc \
   --last-n-blocks 5 \
   --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY" \
   --rpc-header "Authorization:Bearer TOKEN"
