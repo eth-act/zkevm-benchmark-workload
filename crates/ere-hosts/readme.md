@@ -103,7 +103,7 @@ Run SP1 and OpenVM with GPU proving on mainnet data:
 cargo run --features "sp1,openvm" -- \
   --resource gpu \
   --action prove \
-  mainnet --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
+  rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 ```
 
 Run all zkVMs with CPU execution on test files:
