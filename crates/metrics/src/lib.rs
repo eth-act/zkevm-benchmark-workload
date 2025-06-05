@@ -139,6 +139,7 @@ mod tests {
                     ("compute".to_string(), 800),
                     ("teardown".to_string(), 100),
                 ]),
+                execution_duration: Duration::from_millis(150),
             },
             WorkloadMetrics::Execution {
                 name: "aes".into(),
@@ -148,6 +149,7 @@ mod tests {
                     ("encrypt".to_string(), 1_600),
                     ("final".to_string(), 200),
                 ]),
+                execution_duration: Duration::from_millis(300),
             },
             WorkloadMetrics::Proving {
                 name: "rsa".into(),
@@ -202,6 +204,7 @@ mod tests {
             name: "test_execution".into(),
             total_num_cycles: 1000,
             region_cycles: HashMap::new(),
+            execution_duration: Duration::from_millis(150),
         };
 
         let proving_metric = WorkloadMetrics::Proving {
@@ -227,6 +230,7 @@ mod tests {
                 name: "mixed_execution".into(),
                 total_num_cycles: 500,
                 region_cycles: HashMap::from_iter([("phase1".to_string(), 500)]),
+                execution_duration: Duration::from_millis(200),
             },
             WorkloadMetrics::Proving {
                 name: "mixed_proving".into(),
