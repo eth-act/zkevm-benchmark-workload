@@ -1,16 +1,21 @@
 use anyhow::*;
 use rayon::prelude::*;
 use std::{collections::HashMap, fs, panic, sync::Arc};
-use witness_generator::{generate_stateless_witness, BlocksAndWitnesses};
+use witness_generator::{witness_generator::WitnessGenerator, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
 
 #[deprecated(note = "this function is being phased out, use run_benchmark_ere")]
-pub fn run_benchmark<F>(elf_path: &'static [u8], metrics_path_prefix: &str, zkvm_executor: F)
+pub async fn run_benchmark<F>(
+    elf_path: &'static [u8],
+    metrics_path_prefix: &str,
+    zkvm_executor: F,
+    wg: &Box<dyn WitnessGenerator>,
+) -> Result<()>
 where
     F: Fn(&BlocksAndWitnesses, &'static [u8]) -> Vec<WorkloadMetrics> + Send + Sync,
 {
-    let generated_corpuses = generate_stateless_witness::generate();
+    let generated_corpuses = wg.generate().await?;
 
     generated_corpuses.into_par_iter().for_each(|bw| {
         println!("{} (num_blocks={})", bw.name, bw.blocks_and_witnesses.len());
@@ -36,6 +41,7 @@ where
         );
         // dbg!(&reports);
     });
+    Ok(())
 }
 
 /// Action specifies whether we should prove or execute
@@ -45,14 +51,18 @@ pub enum Action {
     Execute,
 }
 
-pub fn run_benchmark_ere<V>(host_name: &str, zkvm_instance: V, action: Action) -> Result<()>
+pub async fn run_benchmark_ere<V>(
+    host_name: &str,
+    zkvm_instance: V,
+    action: Action,
+    wg: &Box<dyn WitnessGenerator>,
+) -> Result<()>
 where
     V: zkVM + Sync,
 {
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
-    // TODO: This only needs to be generated once and possibly passed in as a parameter or read from disk.
-    let corpuses = generate_stateless_witness::generate();
+    let corpuses = wg.generate().await?;
 
     match action {
         Action::Execute => {

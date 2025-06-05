@@ -36,7 +36,7 @@ witness-generator = { path = "../witness-generator" } # Adjust path as needed
 Example (conceptual):
 
 ```rust
-use witness_generator::generate_stateless_witness::generate;
+// use witness_generator::generate_stateless_witness::generate;
 use witness_generator::BlocksAndWitnesses;
 use std::env::temp_dir;
 
