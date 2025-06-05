@@ -1724,8 +1724,7 @@ dependencies = [
 [[package]]
 name = "blst"
 version = "0.3.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "47c79a94619fade3c0b887670333513a67ac28a6a7e653eb260bf0d4103db38d"
+source = "git+https://github.com/risc0/blst?tag=v0.3.14-risczero.0#4bb7133be362fce47525dc0c877e058e5a6db5ac"
 dependencies = [
  "cc",
  "glob",
@@ -1862,11 +1861,11 @@ dependencies = [
 [[package]]
 name = "c-kzg"
 version = "2.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7318cfa722931cb5fe0838b98d3ce5621e75f6a6408abc21721d80de9223f2e4"
+source = "git+https://github.com/kevaundray/c-kzg-4844.git?branch=kw%2F2.1.1#896141b9406b39e1381bbde318f9ec498e07a13d"
 dependencies = [
  "arbitrary",
  "blst",
+ "bytemuck",
  "cc",
  "glob",
  "hex",
@@ -2309,10 +2308,10 @@ checksum = "7a81dae078cea95a014a339291cec439d2f232ebe854a9d672b796c6afafa9b7"
 [[package]]
 name = "crypto-bigint"
 version = "0.5.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0dc92fb57ca44df6db8059111ab3af99a63d5d0f8375d9972e319a379c6bab76"
+source = "git+https://github.com/risc0/RustCrypto-crypto-bigint?tag=v0.5.5-risczero.0#3ab63a6f1048833f7047d5a50532e4a4cc789384"
 dependencies = [
  "generic-array 0.14.7",
+ "getrandom 0.2.16",
  "rand_core 0.6.4",
  "subtle",
  "zeroize",
@@ -3219,7 +3218,11 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+=======
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+>>>>>>> master
 dependencies = [
  "anyhow",
  "borsh",
@@ -3235,7 +3238,11 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+=======
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+>>>>>>> master
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -4938,13 +4945,19 @@ dependencies = [
 [[package]]
 name = "k256"
 version = "0.13.4"
+<<<<<<< HEAD
 source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-k256-13.4-sp1-4.1.0#dbb97456cb6bda207eb212011ac834582263e88b"
+=======
+source = "git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1#7d4a8d6477e258ce4169ee4669cf92aee0582c39"
+>>>>>>> master
 dependencies = [
+ "bytemuck",
  "cfg-if",
  "ecdsa 0.16.9 (git+https://github.com/sp1-patches/signatures.git?tag=patch-16.9-sp1-4.1.0)",
  "elliptic-curve",
  "hex",
  "once_cell",
+ "risc0-bigint2",
  "serdect",
  "sha2 0.10.8",
  "signature",
@@ -6849,12 +6862,20 @@ checksum = "b15813163c1d831bf4a13c3610c05c0d03b39feb07f7e09fa234dac9b15aaf39"
 [[package]]
 name = "p256"
 version = "0.13.2"
+<<<<<<< HEAD
 source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-p256-13.2-sp1-4.1.0#f527279b192e0d1b293108af2faee513495411ca"
 dependencies = [
  "ecdsa 0.16.9 (git+https://github.com/sp1-patches/signatures.git?tag=patch-16.9-sp1-4.1.0)",
+=======
+source = "git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=p256%2Fv0.13.2-risczero.1#bb0f51ad3ba81585f36ea8a1ea81093d8664b195"
+dependencies = [
+ "bytemuck",
+ "ecdsa",
+>>>>>>> master
  "elliptic-curve",
  "hex",
  "primeorder",
+ "risc0-bigint2",
  "sha2 0.10.8",
  "sp1-lib",
 ]
@@ -8269,9 +8290,15 @@ dependencies = [
 [[package]]
 name = "primeorder"
 version = "0.13.1"
+<<<<<<< HEAD
 source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-p256-13.2-sp1-4.1.0#f527279b192e0d1b293108af2faee513495411ca"
+=======
+source = "git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=p256%2Fv0.13.2-risczero.1#bb0f51ad3ba81585f36ea8a1ea81093d8664b195"
+>>>>>>> master
 dependencies = [
+ "bytemuck",
  "elliptic-curve",
+ "risc0-bigint2",
 ]
 
 [[package]]
@@ -10499,6 +10526,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "risc0-bigint2"
+version = "1.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "921e2d3d07a327750f657c0d42cf9437024583b218ad05b24b91a557f5d01979"
+dependencies = [
+ "include_bytes_aligned",
+ "stability",
+]
+
+[[package]]
 name = "risc0-binfmt"
 version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11347,7 +11384,11 @@ dependencies = [
 [[package]]
 name = "sha2"
 version = "0.10.8"
+<<<<<<< HEAD
 source = "git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.8-sp1-4.0.0#1f224388fdede7cef649bce0d63876d1a9e3f515"
+=======
+source = "git+https://github.com/risc0/RustCrypto-hashes?tag=sha2-v0.10.8-risczero.0#244dc3b08788f7a4ccce14c66896ae3b4f24c166"
+>>>>>>> master
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -12141,15 +12182,21 @@ dependencies = [
 [[package]]
 name = "substrate-bn"
 version = "0.6.0"
+<<<<<<< HEAD
 source = "git+https://github.com/sp1-patches/bn?tag=patch-0.6.0-sp1-4.0.0#1bd84110963662fae88baa5ad07c9ab92b6acdbb"
+=======
+source = "git+https://github.com/risc0/paritytech-bn?tag=v0.6.0-risczero.0#22108fe8c6ea1ebc1358fc4fd6854a6bf46e3509"
+>>>>>>> master
 dependencies = [
  "bytemuck",
  "byteorder",
  "cfg-if",
  "crunchy",
+ "crypto-bigint",
  "lazy_static",
  "num-bigint 0.4.6",
  "rand 0.8.5",
+ "risc0-bigint2",
  "rustc-hex",
  "sp1-lib",
 ]
@@ -12429,8 +12476,7 @@ dependencies = [
 [[package]]
 name = "tiny-keccak"
 version = "2.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
+source = "git+https://github.com/risc0/tiny-keccak?tag=tiny-keccak%2Fv2.0.2-risczero.0#8fcc866dc94dcec3e79c3b2bc8fbc51b22f2d5e1"
 dependencies = [
  "crunchy",
 ]
@@ -14059,7 +14105,11 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
+<<<<<<< HEAD
 source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+=======
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+>>>>>>> master
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -14097,3 +14147,8 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "bls12_381"
+version = "0.8.0"
+source = "git+https://github.com/risc0/zkcrypto-bls12_381?tag=bls12_381%2Fv0.8.0-risczero.1#a3192e1bc58921d42d03d99957abf3be55f9d435"
