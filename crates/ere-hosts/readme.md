@@ -60,7 +60,7 @@ cargo run --features sp1 -- tests --directory-path /path/to/test/files
 Pull blocks directly from mainnet via RPC:
 
 ```bash
-cargo run --features sp1 -- mainnet \
+cargo run --features sp1 -- rpc \
   --last-n-blocks 10 \
   --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
