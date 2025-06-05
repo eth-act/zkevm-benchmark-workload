@@ -3,7 +3,6 @@ members = [
     "crates/metrics",
     "crates/witness-generator",
     "xtask",
-    # zkm
     # Guest programs
     "ere-guests/sp1",
     "ere-guests/risc0",
