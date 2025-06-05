@@ -59,7 +59,7 @@ enum SourceCommand {
         #[arg(short, long, default_value = path_to_zkevm_fixtures())]
         directory_path: PathBuf,
     },
-    Mainnet {
+    Rpc {
         /// Number of last blocks to pull from mainnet (mandatory)
         #[arg(long)]
         last_n_blocks: usize,
@@ -116,7 +116,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         SourceCommand::Tests { directory_path } => {
             Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path))
         }
-        SourceCommand::Mainnet {
+        SourceCommand::Rpc {
             last_n_blocks,
             rpc_url,
             rpc_header,
@@ -142,6 +142,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
+    let corpuses = block_witness_gen.generate().await?;
+
     // Set to true once a zkvm has ran
     let mut ran_any = false;
 
@@ -149,7 +151,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("sp1")?;
         let sp1_zkvm = new_sp1_zkvm(resource)?;
-        run_benchmark_ere("sp1", sp1_zkvm, action, &block_witness_gen).await?;
+        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses).await?;
         ran_any = true;
     }
 
@@ -157,7 +159,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("risc0")?;
         let risc0_zkvm = new_risczero_zkvm(resource)?;
-        run_benchmark_ere("risc0", risc0_zkvm, action, &block_witness_gen).await?;
+        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses).await?;
         ran_any = true;
     }
 
@@ -165,14 +167,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("openvm")?;
         let openvm_zkvm = new_openvm_zkvm(resource)?;
-        run_benchmark_ere("openvm", openvm_zkvm, action, &block_witness_gen).await?;
+        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses).await?;
         ran_any = true;
     }
 
     #[cfg(feature = "pico")]
     {
         let pico_zkvm = new_pico_zkvm(resource)?;
-        run_benchmark_ere("pico", pico_zkvm, action, &block_witness_gen).await?;
+        run_benchmark_ere("pico", pico_zkvm, action, &corpuses).await?;
         ran_any = true;
     }
 
