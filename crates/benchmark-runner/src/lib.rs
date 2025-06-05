@@ -1,6 +1,6 @@
 use anyhow::*;
 use rayon::prelude::*;
-use std::{collections::HashMap, fs, panic, sync::Arc};
+use std::{fs, panic, sync::Arc};
 use witness_generator::{witness_generator::WitnessGenerator, BlocksAndWitnesses};
 use zkevm_metrics::WorkloadMetrics;
 use zkvm_interface::{zkVM, Input};
@@ -51,18 +51,16 @@ pub enum Action {
     Execute,
 }
 
-pub async fn run_benchmark_ere<V>(
+pub fn run_benchmark_ere<V>(
     host_name: &str,
     zkvm_instance: V,
     action: Action,
-    wg: &Box<dyn WitnessGenerator>,
-) -> Result<()>
-where
+    corpuses: &[BlocksAndWitnesses],
+) where
     V: zkVM + Sync,
 {
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
-    let corpuses = wg.generate().await?;
 
     match action {
         Action::Execute => {
@@ -78,12 +76,10 @@ where
             });
         }
     }
-
-    Ok(())
 }
 
 fn process_corpus_with_crash_handling<V>(
-    bw: BlocksAndWitnesses,
+    bw: &BlocksAndWitnesses,
     zkvm_ref: Arc<&V>,
     action: &Action,
     host_name: &str,
@@ -160,7 +156,7 @@ fn process_corpus_with_crash_handling<V>(
 }
 
 fn process_corpus<V>(
-    mut bw: BlocksAndWitnesses,
+    bw: &BlocksAndWitnesses,
     zkvm_ref: Arc<&V>,
     action: &Action,
     host_name: &str,
@@ -175,12 +171,12 @@ where
         None => panic!("unexpected test with no blocks {}", &bw.name),
     };
 
-    bw.blocks_and_witnesses = vec![last_block_with_witness];
+    let blocks_and_witnesses = vec![last_block_with_witness];
 
-    println!(" {} ({} blocks)", bw.name, bw.blocks_and_witnesses.len());
+    println!(" {} ({} blocks)", bw.name, blocks_and_witnesses.len());
     let mut reports = Vec::new();
 
-    for ci in bw.blocks_and_witnesses {
+    for ci in blocks_and_witnesses {
         let block_number = ci.block.number;
         let mut stdin = Input::new();
         stdin.write(ci);
@@ -189,11 +185,11 @@ where
         let workload_metrics = match action {
             Action::Execute => {
                 let report = zkvm_ref.execute(&stdin)?;
-                let region_cycles: HashMap<_, _> = report.region_cycles.into_iter().collect();
                 WorkloadMetrics::Execution {
                     name: format!("{}-{}", bw.name, block_number),
                     total_num_cycles: report.total_num_cycles,
-                    region_cycles,
+                    region_cycles: report.region_cycles.into_iter().collect(),
+                    execution_duration: report.execution_duration,
                 }
             }
             Action::Prove => {

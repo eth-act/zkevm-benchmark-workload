@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use serde_derive::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, io, path::Path};
+use std::{collections::HashMap, fs, io, path::Path, time::Duration};
 use thiserror::Error;
 
 /// Cycle-count metrics for a particular workload.
@@ -17,6 +17,8 @@ pub enum WorkloadMetrics {
         total_num_cycles: u64,
         /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
         region_cycles: HashMap<String, u64>,
+        /// Execution duration.
+        execution_duration: Duration,
     },
     /// Metrics produced when benchmarking in proving mode
     Proving {
@@ -137,6 +139,7 @@ mod tests {
                     ("compute".to_string(), 800),
                     ("teardown".to_string(), 100),
                 ]),
+                execution_duration: Duration::from_millis(150),
             },
             WorkloadMetrics::Execution {
                 name: "aes".into(),
@@ -146,6 +149,7 @@ mod tests {
                     ("encrypt".to_string(), 1_600),
                     ("final".to_string(), 200),
                 ]),
+                execution_duration: Duration::from_millis(300),
             },
             WorkloadMetrics::Proving {
                 name: "rsa".into(),
@@ -200,6 +204,7 @@ mod tests {
             name: "test_execution".into(),
             total_num_cycles: 1000,
             region_cycles: HashMap::new(),
+            execution_duration: Duration::from_millis(150),
         };
 
         let proving_metric = WorkloadMetrics::Proving {
@@ -225,6 +230,7 @@ mod tests {
                 name: "mixed_execution".into(),
                 total_num_cycles: 500,
                 region_cycles: HashMap::from_iter([("phase1".to_string(), 500)]),
+                execution_duration: Duration::from_millis(200),
             },
             WorkloadMetrics::Proving {
                 name: "mixed_proving".into(),

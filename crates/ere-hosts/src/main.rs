@@ -1,30 +1,39 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
 use clap::{Parser, Subcommand, ValueEnum};
-use std::{path::PathBuf, process::Command};
-use strum::IntoEnumIterator;
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+};
 use witness_generator::{
     generate_stateless_witness::ExecSpecTestBlocksAndWitnesses, rpc::RPCBlocksAndWitnessesBuilder,
     witness_generator::WitnessGenerator,
 };
 
-// use ere_pico::{ErePico, PICO_TARGET};
 use benchmark_runner::{Action, run_benchmark_ere};
-// use ere_openvm::{EreOpenVM, OPENVM_TARGET};
-use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
-use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
-use ere_zisk::{EreZisk, RV64_IMA_ZISK_ZKVM_ELF};
+
 use zkvm_interface::{Compiler, ProverResourceType};
+
+#[cfg(feature = "sp1")]
+use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
+
+#[cfg(feature = "risc0")]
+use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
+
+#[cfg(feature = "openvm")]
+use ere_openvm::{EreOpenVM, OPENVM_TARGET};
+
+#[cfg(feature = "pico")]
+use ere_pico::{ErePico, PICO_TARGET};
+
+#[cfg(feature = "zisk")]
+use ere_zisk::{EreZisk, RV64_IMA_ZISK_ZKVM_ELF};
 
 #[derive(Parser)]
 #[command(name = "zkvm-benchmarker")]
 #[command(about = "Benchmark different Ere compatible zkVMs")]
 #[command(version)]
 struct Cli {
-    /// zkVMs to benchmark (if none specified, runs all)
-    #[arg(short, long, value_enum)]
-    zkvm: Vec<zkVM>,
-
     /// Resource type for proving
     #[arg(short, long, value_enum, default_value = "cpu")]
     resource: Resource,
@@ -38,13 +47,23 @@ struct Cli {
     source: SourceCommand,
 }
 
+/// Constructs the absolute path to a subdirectory within the `zkevm-fixtures` submodule.
+///
+/// This is default tests directory path
+fn path_to_zkevm_fixtures() -> &'static str {
+    concat!(
+        env!("CARGO_WORKSPACE_DIR"),
+        "/zkevm-fixtures/fixtures/blockchain_tests"
+    )
+}
+
 #[derive(Subcommand, Clone, Debug)]
 enum SourceCommand {
     Tests {
-        #[arg(short, long, default_value = "zkevm-fixtures/fixtures")]
-        directory_path: String,
+        #[arg(short, long, default_value = path_to_zkevm_fixtures())]
+        directory_path: PathBuf,
     },
-    Mainnet {
+    Rpc {
         /// Number of last blocks to pull from mainnet (mandatory)
         #[arg(long)]
         last_n_blocks: usize,
@@ -57,16 +76,6 @@ enum SourceCommand {
         #[arg(long)]
         rpc_header: Option<Vec<String>>,
     },
-}
-
-#[derive(Clone, ValueEnum, strum::EnumIter)]
-#[allow(non_camel_case_types)]
-enum zkVM {
-    Sp1,
-    Risc0,
-    Zisk,
-    // Openvm,
-    // Pico,
 }
 
 #[derive(Clone, ValueEnum)]
@@ -107,18 +116,11 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let resource: ProverResourceType = cli.resource.into();
     let action: Action = cli.action.into();
 
-    // If no zkVM specified, run all
-    let zkvms = if cli.zkvm.is_empty() {
-        zkVM::iter().collect()
-    } else {
-        cli.zkvm
-    };
-
     let block_witness_gen: Box<dyn WitnessGenerator> = match cli.source {
         SourceCommand::Tests { directory_path } => {
-            Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path.into()))
+            Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path))
         }
-        SourceCommand::Mainnet {
+        SourceCommand::Rpc {
             last_n_blocks,
             rpc_url,
             rpc_header,
@@ -144,42 +146,66 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
-    for zkvm in zkvms {
-        match zkvm {
-            zkVM::Sp1 => {
-                run_cargo_patch_command("sp1")?;
-                let sp1_zkvm = new_sp1_zkvm(resource)?;
-                run_benchmark_ere("sp1", sp1_zkvm, action, &block_witness_gen).await?;
-            }
-            zkVM::Risc0 => {
-                run_cargo_patch_command("risc0")?;
-                let risc0_zkvm = new_risczero_zkvm(resource)?;
-                run_benchmark_ere("risc0", risc0_zkvm, action, &block_witness_gen).await?;
-            }
-            zkVM::Zisk => {
-                run_cargo_patch_command("zisk")?;
-                let zisk_zkvm = new_zisk_zkvm(resource)?;
-                run_benchmark_ere("zisk", zisk_zkvm, action, &block_witness_gen).await?;
-            } // zkVM::Openvm => {
-              //     run_cargo_patch_command("openvm")?;
-              //     let openvm_zkvm = new_openvm_zkvm(resource)?;
-              //     run_benchmark_ere("openvm", openvm_zkvm, action, &block_witness_gen).await?;
-              // } // zkVM::Pico => {
-              //     let pico_zkvm = new_pico_zkvm(resource)?;
-              //     run_benchmark_ere("pico", pico_zkvm, action)?;
-              // }
-        }
+    let corpuses = block_witness_gen.generate().await?;
+
+    // Set to true once a zkvm has ran
+    let mut ran_any = false;
+
+    #[cfg(feature = "sp1")]
+    {
+        run_cargo_patch_command("sp1")?;
+        let sp1_zkvm = new_sp1_zkvm(resource)?;
+        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses).await?;
+        ran_any = true;
     }
 
-    Ok(())
+    #[cfg(feature = "zisk")]
+    {
+        run_cargo_patch_command("zisk")?;
+        let zisk_zkvm = new_zisk_zkvm(resource)?;
+        run_benchmark_ere("zisk", zisk_zkvm, action, &corpuses).await?;
+        ran_any = true;
+    }
+
+    #[cfg(feature = "risc0")]
+    {
+        run_cargo_patch_command("risc0")?;
+        let risc0_zkvm = new_risczero_zkvm(resource)?;
+        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses).await?;
+        ran_any = true;
+    }
+
+    #[cfg(feature = "openvm")]
+    {
+        run_cargo_patch_command("openvm")?;
+        let openvm_zkvm = new_openvm_zkvm(resource)?;
+        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses).await?;
+        ran_any = true;
+    }
+    
+    #[cfg(feature = "pico")]
+    {
+        run_cargo_patch_command("pico")?;
+        let pico_zkvm = new_pico_zkvm(resource)?;
+        run_benchmark_ere("pico", pico_zkvm, action, &corpuses).await?;
+        ran_any = true;
+    }
+
+    if ran_any {
+        Ok(())
+    } else {
+        Err("please enable one of the zkVM's using the appropriate feature flag".into())
+    }
 }
 
+#[cfg(feature = "sp1")]
 fn new_sp1_zkvm(prover_resource: ProverResourceType) -> Result<EreSP1, Box<dyn std::error::Error>> {
     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/sp1");
     let program = RV32_IM_SUCCINCT_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
     Ok(EreSP1::new(program, prover_resource))
 }
 
+#[cfg(feature = "risc0")]
 fn new_risczero_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<EreRisc0, Box<dyn std::error::Error>> {
@@ -188,6 +214,7 @@ fn new_risczero_zkvm(
     Ok(EreRisc0::new(program, prover_resource))
 }
 
+#[cfg(feature = "zisk")]
 fn new_zisk_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<EreZisk, Box<dyn std::error::Error>> {
@@ -196,21 +223,23 @@ fn new_zisk_zkvm(
     Ok(EreZisk::new(program, prover_resource))
 }
 
-// fn new_openvm_zkvm(
-//     prover_resource: ProverResourceType,
-// ) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
-//     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
-//     let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
-//     Ok(EreOpenVM::new(program, prover_resource))
-// }
+#[cfg(feature = "openvm")]
+fn new_openvm_zkvm(
+    prover_resource: ProverResourceType,
+) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
+    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
+    let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
+    Ok(EreOpenVM::new(program, prover_resource))
+}
 
-// fn new_pico_zkvm(
-//     prover_resource: ProverResourceType,
-// ) -> Result<ErePico, Box<dyn std::error::Error>> {
-//     let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/pico");
-//     let program = PICO_TARGET::compile(&PathBuf::from(guest_dir))?;
-//     Ok(ErePico::new(program, prover_resource))
-// }
+#[cfg(feature = "pico")]
+fn new_pico_zkvm(
+    prover_resource: ProverResourceType,
+) -> Result<ErePico, Box<dyn std::error::Error>> {
+    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/pico");
+    let program = PICO_TARGET::compile(&PathBuf::from(guest_dir))?;
+    Ok(ErePico::new(program, prover_resource))
+}
 
 /// Patches the precompiles for a specific zkvm
 fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Error>> {
