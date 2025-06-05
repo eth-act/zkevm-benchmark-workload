@@ -5,17 +5,25 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 
+[features]
+default = []
+sp1 = ["dep:ere-sp1"]
+risc0 = ["dep:ere-risczero"]
+openvm = ["dep:ere-openvm"]
+pico = ["dep:ere-pico"]
+
 [dependencies]
 benchmark-runner.workspace = true
-ere-sp1.workspace = true
-ere-risczero.workspace = true
-# ere-pico.workspace = true
 zkvm-interface.workspace = true
-# ere-openvm.workspace = true
 witness-generator.workspace = true
 clap.workspace = true
 tokio.workspace = true
-strum.workspace = true
+
+# Optional dependencies based on features
+ere-sp1 = { workspace = true, optional = true }
+ere-risczero = { workspace = true, optional = true }
+ere-openvm = { workspace = true, optional = true }
+ere-pico = { workspace = true, optional = true }
 
 [lints]
 workspace = true
