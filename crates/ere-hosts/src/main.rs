@@ -43,7 +43,7 @@ enum SourceCommand {
         #[arg(short, long, default_value = "zkevm-fixtures/fixtures")]
         directory_path: String,
     },
-    Mainnet {
+    Rpc {
         /// Number of last blocks to pull from mainnet (mandatory)
         #[arg(long)]
         last_n_blocks: usize,
@@ -116,7 +116,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         SourceCommand::Tests { directory_path } => {
             Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path.into()))
         }
-        SourceCommand::Mainnet {
+        SourceCommand::Rpc {
             last_n_blocks,
             rpc_url,
             rpc_header,
@@ -142,17 +142,19 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     };
 
+    let corpuses = block_witness_gen.generate().await?;
+
     for zkvm in zkvms {
         match zkvm {
             zkVM::Sp1 => {
                 run_cargo_patch_command("sp1")?;
                 let sp1_zkvm = new_sp1_zkvm(resource)?;
-                run_benchmark_ere("sp1", sp1_zkvm, action, &block_witness_gen).await?;
+                run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses);
             }
             zkVM::Risc0 => {
                 run_cargo_patch_command("risc0")?;
                 let risc0_zkvm = new_risczero_zkvm(resource)?;
-                run_benchmark_ere("risc0", risc0_zkvm, action, &block_witness_gen).await?;
+                run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses);
             } // zkVM::Openvm => {
               //     run_cargo_patch_command("openvm")?;
               //     let openvm_zkvm = new_openvm_zkvm(resource)?;
