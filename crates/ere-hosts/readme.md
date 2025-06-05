@@ -97,7 +97,7 @@ cargo run --features sp1 -- --action prove tests
 
 ### Combined Examples
 
-Run SP1 and OpenVM with GPU proving on mainnet data:
+Run SP1 and OpenVM with GPU proving on RPC data:
 
 ```bash
 cargo run --features "sp1,openvm" -- \
