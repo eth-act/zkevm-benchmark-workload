@@ -1,7 +1,7 @@
 #![doc = include_str!("../README.md")]
 
 use serde_derive::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, io, path::Path};
+use std::{collections::HashMap, fs, io, path::Path, time::Duration};
 use thiserror::Error;
 
 /// Cycle-count metrics for a particular workload.
@@ -17,6 +17,8 @@ pub enum WorkloadMetrics {
         total_num_cycles: u64,
         /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
         region_cycles: HashMap<String, u64>,
+        /// Execution duration.
+        execution_duration: Duration,
     },
     /// Metrics produced when benchmarking in proving mode
     Proving {
