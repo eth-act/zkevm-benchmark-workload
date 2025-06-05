@@ -144,7 +144,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let corpuses = block_witness_gen.generate().await?;
 
-
     // Set to true once a zkvm has ran
     let mut ran_any = false;
 
