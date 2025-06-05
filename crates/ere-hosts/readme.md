@@ -55,7 +55,7 @@ cargo run --features sp1 -- tests
 cargo run --features sp1 -- tests --directory-path /path/to/test/files
 ```
 
-#### Mainnet Data
+#### Rpc Data
 
 Pull blocks directly from mainnet via RPC:
 
