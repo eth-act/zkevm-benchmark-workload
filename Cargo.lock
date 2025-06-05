@@ -3194,11 +3194,7 @@ dependencies = [
  "ere-pico",
  "ere-risczero",
  "ere-sp1",
-<<<<<<< HEAD
  "ere-zisk",
- "strum 0.26.3",
-=======
->>>>>>> master
  "tokio",
  "witness-generator",
  "zkvm-interface",
@@ -3232,11 +3228,7 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-<<<<<<< HEAD
-source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
-=======
 source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
->>>>>>> master
 dependencies = [
  "anyhow",
  "borsh",
@@ -3252,11 +3244,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-<<<<<<< HEAD
-source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
-=======
 source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
->>>>>>> master
 dependencies = [
  "bincode",
  "indexmap 2.9.0",
@@ -3271,7 +3259,7 @@ dependencies = [
 [[package]]
 name = "ere-zisk"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
 dependencies = [
  "bincode",
  "blake3",
@@ -5563,13 +5551,6 @@ dependencies = [
 ]
 
 [[package]]
-<<<<<<< HEAD
-name = "nix"
-version = "0.30.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "74523f3a35e05aba87a1d978330aef40f67b0304ac79c1c00b294c9830543db6"
-dependencies = [
-=======
 name = "nibble_vec"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5584,7 +5565,6 @@ version = "0.30.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "74523f3a35e05aba87a1d978330aef40f67b0304ac79c1c00b294c9830543db6"
 dependencies = [
->>>>>>> master
  "bitflags 2.9.1",
  "cfg-if",
  "cfg_aliases",
@@ -6357,7 +6337,7 @@ dependencies = [
  "serde",
  "serde-big-array",
  "strum 0.26.3",
- "tiny-keccak",
+ "tiny-keccak 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
 ]
 
@@ -6367,7 +6347,7 @@ version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
  "openvm-platform 1.2.0",
- "tiny-keccak",
+ "tiny-keccak 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -7352,7 +7332,7 @@ dependencies = [
  "p3-field 0.1.0 (git+https://github.com/brevis-network/Plonky3.git?rev=476cff48)",
  "p3-symmetric 0.1.0 (git+https://github.com/brevis-network/Plonky3.git?rev=476cff48)",
  "p3-util 0.1.0 (git+https://github.com/brevis-network/Plonky3.git?rev=476cff48)",
- "tiny-keccak",
+ "tiny-keccak 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -7364,7 +7344,7 @@ dependencies = [
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=539bbc84085efb609f4f62cb03cf49588388abdb)",
  "p3-symmetric 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=539bbc84085efb609f4f62cb03cf49588388abdb)",
  "p3-util 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=539bbc84085efb609f4f62cb03cf49588388abdb)",
- "tiny-keccak",
+ "tiny-keccak 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
 ]
 
 [[package]]
@@ -8161,7 +8141,7 @@ dependencies = [
  "strum_macros 0.26.4",
  "sysinfo 0.30.13",
  "thiserror 1.0.69",
- "tiny-keccak",
+ "tiny-keccak 2.0.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "tracing",
  "tracing-forest",
  "tracing-subscriber 0.3.19",
@@ -12341,8 +12321,6 @@ dependencies = [
  "once_cell",
  "rustix",
  "windows-sys 0.59.0",
-<<<<<<< HEAD
-=======
 ]
 
 [[package]]
@@ -12376,7 +12354,6 @@ dependencies = [
  "quote",
  "syn 2.0.101",
  "test-case-core",
->>>>>>> master
 ]
 
 [[package]]
@@ -14139,11 +14116,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-<<<<<<< HEAD
-source = "git+https://github.com/eth-applied-research-group/ere#5f4fe5e7a83c969cab160b10644330ab771ee94c"
-=======
 source = "git+https://github.com/eth-applied-research-group/ere?rev=5f4fe5e7a83c969cab160b10644330ab771ee94c#5f4fe5e7a83c969cab160b10644330ab771ee94c"
->>>>>>> master
 dependencies = [
  "anyhow",
  "auto_impl",
