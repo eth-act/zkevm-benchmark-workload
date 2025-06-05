@@ -182,7 +182,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses).await?;
         ran_any = true;
     }
-    
+
     #[cfg(feature = "pico")]
     {
         run_cargo_patch_command("pico")?;
