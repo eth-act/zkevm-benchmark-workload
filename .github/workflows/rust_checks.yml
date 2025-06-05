@@ -44,3 +44,6 @@ jobs:
       
       - name: Run tests
         run: cargo test -p zkevm-metrics -p witness-generator -p ere-hosts
+
+      - name: Cargo check (with one zkvm enabled)
+        run: cargo check --features sp1 -p ere-hosts
