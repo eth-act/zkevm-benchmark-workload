@@ -179,7 +179,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("openvm")?;
         let openvm_zkvm = new_openvm_zkvm(resource)?;
-        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses)?;
+        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses);
         ran_any = true;
     }
 
