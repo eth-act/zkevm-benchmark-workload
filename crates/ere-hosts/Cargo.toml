@@ -11,6 +11,7 @@ sp1 = ["dep:ere-sp1"]
 risc0 = ["dep:ere-risczero"]
 openvm = ["dep:ere-openvm"]
 pico = ["dep:ere-pico"]
+zisk = ["dep:ere-zisk"]
 
 [dependencies]
 benchmark-runner.workspace = true
@@ -24,6 +25,7 @@ ere-sp1 = { workspace = true, optional = true }
 ere-risczero = { workspace = true, optional = true }
 ere-openvm = { workspace = true, optional = true }
 ere-pico = { workspace = true, optional = true }
+ere-zisk = { workspace = true, optional = true }
 
 [lints]
 workspace = true
