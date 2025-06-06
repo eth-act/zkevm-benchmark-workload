@@ -83,6 +83,46 @@ This repository contains an `xtask` that will automate this process by calling `
 
 4. **Run benchmark**: Navigate to `crates/ere-hosts/` and follow the readme instructions to run benchmarks for specific zkVMs.
 
+## Viewing Metrics
+
+The repository includes tools to make benchmark results more presentable and easier to analyze:
+
+### HTML Dashboard
+
+Generate a comprehensive HTML dashboard with tables and visualizations:
+
+```bash
+python3 scripts/generate-metrics-summary.py
+```
+
+This creates `metrics-summary.html` which you can open in your browser to view:
+- Summary comparison table across all zkVMs
+- Detailed results for each zkVM platform
+- Formatted cycle counts (K/M/B notation)
+- Top most expensive test cases
+
+### CLI Viewer
+
+For quick command-line viewing of metrics:
+
+```bash
+# View summary for all zkVMs
+python3 scripts/view-metrics.py
+
+# View detailed results
+python3 scripts/view-metrics.py --detailed
+
+# View results for specific zkVM
+python3 scripts/view-metrics.py --zkvm sp1 --detailed --top 20
+```
+
+### Raw JSON Data
+
+Individual test results are stored as JSON files in `zkevm-metrics/` organized by zkVM platform. Each file contains:
+- `total_num_cycles`: Total execution cycles
+- `region_cycles`: Breakdown by execution region (validation, read_input, verify-witness)
+- Test metadata and identifiers
+
 ## Supported zkVM Benchmarks
 
 | zkVM             | Guest Path            | Host Path           | Metrics Output             |
