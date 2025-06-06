@@ -15,17 +15,17 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-      
+
       - name: Download and Extract Fixtures
         run: |
           chmod +x ./scripts/download-and-extract-fixtures.sh
           ./scripts/download-and-extract-fixtures.sh
-      
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
-      
+
       - name: Cache Rust dependencies
         uses: actions/cache@v4
         with:
@@ -38,12 +38,50 @@ jobs:
           key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
           restore-keys: |
             ${{ runner.os }}-cargo-
-      
+
       - name: Check formatting
         run: cargo fmt --check --all
-        
-      - name: Cargo check (with one zkvm enabled)
-        run: cargo check --features sp1 -p ere-hosts
-      
+
       - name: Run tests
         run: cargo test -p zkevm-metrics -p witness-generator -p ere-hosts
+
+  check-ere-host:
+    name: Checks crate ere-hosts
+    strategy:
+      matrix:
+        include:
+          - zkvm: sp1
+          - zkvm: risc0
+          - zkvm: openvm
+          - zkvm: pico
+          - zkvm: zisk
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download and Extract Fixtures
+        run: |
+          chmod +x ./scripts/download-and-extract-fixtures.sh
+          ./scripts/download-and-extract-fixtures.sh
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
+
+      - name: Cache Rust dependencies
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+
+      - name: Cargo check (with ${{ matrix.zkvm }} enabled)
+        run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
