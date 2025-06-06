@@ -151,7 +151,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("sp1")?;
         let sp1_zkvm = new_sp1_zkvm(resource)?;
-        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses).await?;
+        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses);
         ran_any = true;
     }
 
@@ -159,7 +159,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("risc0")?;
         let risc0_zkvm = new_risczero_zkvm(resource)?;
-        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses).await?;
+        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses);
         ran_any = true;
     }
 
@@ -167,14 +167,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("openvm")?;
         let openvm_zkvm = new_openvm_zkvm(resource)?;
-        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses).await?;
+        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses)?;
         ran_any = true;
     }
 
     #[cfg(feature = "pico")]
     {
         let pico_zkvm = new_pico_zkvm(resource)?;
-        run_benchmark_ere("pico", pico_zkvm, action, &corpuses).await?;
+        run_benchmark_ere("pico", pico_zkvm, action, &corpuses);
         ran_any = true;
     }
 
