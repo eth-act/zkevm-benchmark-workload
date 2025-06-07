@@ -1,0 +1,439 @@
+{
+  "zkvm_name": "risc0",
+  "generated_at": "2025-05-26T20:05:41.850766",
+  "summary": {
+    "total_tests": 26,
+    "successful_tests": 13,
+    "failed_tests": 13,
+    "success_rate_percent": 50.0
+  },
+  "performance": {
+    "has_timing_data": true,
+    "test_count": 13,
+    "proving_time_ms": {
+      "mean": 544630.77,
+      "median": 245600,
+      "min": 175800,
+      "max": 2450000,
+      "std_dev": 734415.62
+    },
+    "proving_time_seconds": {
+      "mean": 544.63,
+      "median": 245.6,
+      "min": 175.8,
+      "max": 2450.0
+    }
+  },
+  "categories": {
+    "bytecode": {
+      "total": 5,
+      "successful": 3,
+      "failed": 2,
+      "success_rate_percent": 60.0,
+      "performance": {
+        "test_count": 3,
+        "mean_ms": 1598666.67,
+        "median_ms": 1890000,
+        "min_ms": 456000,
+        "max_ms": 2450000
+      }
+    },
+    "stateful_opcodes": {
+      "total": 13,
+      "successful": 10,
+      "failed": 3,
+      "success_rate_percent": 76.92,
+      "performance": {
+        "test_count": 10,
+        "mean_ms": 228420,
+        "median_ms": 211850.0,
+        "min_ms": 175800,
+        "max_ms": 315800
+      }
+    },
+    "compute": {
+      "total": 8,
+      "successful": 0,
+      "failed": 8,
+      "success_rate_percent": 0.0,
+      "performance": {
+        "test_count": 0
+      }
+    }
+  },
+  "errors": {
+    "total_failures": 13,
+    "error_patterns": {
+      "Other": 2,
+      "Circuit Size Exceeded": 5,
+      "Timeout": 2,
+      "Memory Allocation Failed": 2,
+      "Invalid Witness": 1,
+      "Unwrap Error": 1
+    },
+    "error_distribution": [
+      {
+        "pattern": "Circuit Size Exceeded",
+        "count": 5,
+        "percentage": 38.46,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_cold[fork_Cancun-blockchain_test-64KiB]-1",
+            "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_STATICCALL]-2",
+            "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g2msm]",
+            "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+          }
+        ]
+      },
+      {
+        "pattern": "Other",
+        "count": 2,
+        "percentage": 15.38,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_False-SSTORE new value]-2",
+            "error_reason": "Error: RISC0 state access violation - unauthorized memory access"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfdestruct[fork_Prague-blockchain_test]-1",
+            "error_reason": "Error: Invalid state transition in RISC0 guest execution"
+          }
+        ]
+      },
+      {
+        "pattern": "Timeout",
+        "count": 2,
+        "percentage": 15.38,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_complex[fork_Cancun-blockchain_test-opcodes_LOOP_HEAVY]-1",
+            "error_reason": "Error: Execution timeout - proof generation exceeded time limit"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_191]",
+            "error_reason": "Error: Execution timeout - proof generation exceeded time limit"
+          }
+        ]
+      },
+      {
+        "pattern": "Memory Allocation Failed",
+        "count": 2,
+        "percentage": 15.38,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_AND-]",
+            "error_reason": "Error: Memory allocation failed during proof generation"
+          },
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_jumpdests[fork_Cancun-blockchain_test]",
+            "error_reason": "Error: Memory allocation failed during proof generation"
+          }
+        ]
+      },
+      {
+        "pattern": "Invalid Witness",
+        "count": 1,
+        "percentage": 7.69,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Prague-blockchain_test-shift_right_SHR]",
+            "error_reason": "Error: Invalid witness generation in RISC0 guest program"
+          }
+        ]
+      },
+      {
+        "pattern": "Unwrap Error",
+        "count": 1,
+        "percentage": 7.69,
+        "examples": [
+          {
+            "test_name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-point_evaluation]",
+            "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: RISC0 proving failed with exit code 1"
+          }
+        ]
+      }
+    ]
+  },
+  "rankings": {
+    "fastest": [
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE new value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 175800,
+        "proving_time_seconds": 175.8
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE same value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 180500,
+        "proving_time_seconds": 180.5
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE same value]-2",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 182300,
+        "proving_time_seconds": 182.3
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Prague-blockchain_test-absent_accounts_True-opcode_BALANCE]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 189200,
+        "proving_time_seconds": 189.2
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODEHASH]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 198700,
+        "proving_time_seconds": 198.7
+      }
+    ],
+    "slowest": [
+      {
+        "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALLCODE]-2",
+        "category": "bytecode",
+        "proving_time_ms": 2450000,
+        "proving_time_seconds": 2450.0
+      },
+      {
+        "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_DELEGATECALL]-2",
+        "category": "bytecode",
+        "proving_time_ms": 1890000,
+        "proving_time_seconds": 1890.0
+      },
+      {
+        "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_simple[fork_Cancun-blockchain_test-opcodes_PUSH_POP]-1",
+        "category": "bytecode",
+        "proving_time_ms": 456000,
+        "proving_time_seconds": 456.0
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfbalance[fork_Cancun-blockchain_test]-1",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 315800,
+        "proving_time_seconds": 315.8
+      },
+      {
+        "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_blockhash[fork_Cancun-blockchain_test]-257",
+        "category": "stateful_opcodes",
+        "proving_time_ms": 292400,
+        "proving_time_seconds": 292.4
+      }
+    ]
+  },
+  "individual_tests": [
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Cancun-blockchain_test-opcode_CALLCODE]-2",
+      "zkvm": "risc0",
+      "test_category": "bytecode",
+      "status": "success",
+      "proving_time_ms": 2450000,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_DELEGATECALL]-2",
+      "zkvm": "risc0",
+      "test_category": "bytecode",
+      "status": "success",
+      "proving_time_ms": 1890000,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_simple[fork_Cancun-blockchain_test-opcodes_PUSH_POP]-1",
+      "zkvm": "risc0",
+      "test_category": "bytecode",
+      "status": "success",
+      "proving_time_ms": 456000,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE same value]-2",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 180500,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_True-SSTORE same value]-2",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 182300,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Cancun-blockchain_test-absent_slots_True-SSTORE new value]-2",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 175800,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Prague-blockchain_test-absent_target_False-opcode_BALANCE]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 225000,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_warm[fork_Cancun-blockchain_test-absent_target_False-opcode_EXTCODEHASH]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 198700,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_warm[fork_Cancun-blockchain_test-1KiB]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 245600,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_blockhash[fork_Cancun-blockchain_test]-257",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 292400,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfbalance[fork_Cancun-blockchain_test]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 315800,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_warm[fork_Cancun-blockchain_test-SSTORE new value]-2",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 278900,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_address_state_cold[fork_Prague-blockchain_test-absent_accounts_True-opcode_BALANCE]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "success",
+      "proving_time_ms": 189200,
+      "error_reason": null
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_storage_access_cold[fork_Prague-blockchain_test-absent_slots_False-SSTORE new value]-2",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 state access violation - unauthorized memory access"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_extcodecopy_cold[fork_Cancun-blockchain_test-64KiB]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+    },
+    {
+      "name": "tests/zkevm/test_worst_stateful_opcodes.py::test_worst_selfdestruct[fork_Prague-blockchain_test]-1",
+      "zkvm": "risc0",
+      "test_category": "stateful_opcodes",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Invalid state transition in RISC0 guest execution"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_single_opcode[fork_Prague-blockchain_test-opcode_STATICCALL]-2",
+      "zkvm": "risc0",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+    },
+    {
+      "name": "tests/zkevm/test_worst_bytecode.py::test_worst_bytecode_complex[fork_Cancun-blockchain_test-opcodes_LOOP_HEAVY]-1",
+      "zkvm": "risc0",
+      "test_category": "bytecode",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Execution timeout - proof generation exceeded time limit"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-bls12_g2msm]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Prague-blockchain_test-opcode_AND-]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Memory allocation failed during proof generation"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Prague-blockchain_test-bls12_g2add]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_mod[fork_Cancun-blockchain_test-op_MOD-mod_bits_191]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Execution timeout - proof generation exceeded time limit"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_shifts[fork_Prague-blockchain_test-shift_right_SHR]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Invalid witness generation in RISC0 guest program"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_binop_simple[fork_Cancun-blockchain_test-opcode_SHR-]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: RISC0 circuit size exceeded - instruction count limit reached"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_precompile_fixed_cost[fork_Cancun-blockchain_test-point_evaluation]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Panic: called `Result::unwrap()` on an `Err` value: RISC0 proving failed with exit code 1"
+    },
+    {
+      "name": "tests/zkevm/test_worst_compute.py::test_worst_jumpdests[fork_Cancun-blockchain_test]",
+      "zkvm": "risc0",
+      "test_category": "compute",
+      "status": "crashed",
+      "proving_time_ms": null,
+      "error_reason": "Error: Memory allocation failed during proof generation"
+    }
+  ]
+}

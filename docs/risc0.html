@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RISC0 zkEVM - Detailed Results</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header class="header">
+        <nav class="nav">
+            <div class="nav-brand">
+                <h1>RISC0 zkEVM</h1>
+                <span class="subtitle">Detailed Test Results & Analysis</span>
+            </div>
+            <div class="nav-links">
+                <a href="index.html" class="nav-link">← Dashboard</a>
+                <a href="sp1.html" class="nav-link">SP1 Results</a>
+                <a href="#tests" class="nav-link">Test Results</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="main">
+        <!-- zkVM Overview -->
+        <section class="hero">
+            <div class="hero-content">
+                <h2 class="hero-title">RISC0 zkEVM</h2>
+                <p class="hero-description">
+                    Detailed test results and performance analysis for the RISC0 Zero-Knowledge Virtual Machine.
+                </p>
+                <div class="hero-stats" id="zkvm-stats">
+                    <div class="stat-card">
+                        <div class="stat-number" id="total-tests">-</div>
+                        <div class="stat-label">Total Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="successful-tests">-</div>
+                        <div class="stat-label">Successful Tests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="success-rate">-</div>
+                        <div class="stat-label">Success Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number" id="avg-time">-</div>
+                        <div class="stat-label">Avg Proving Time</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Performance Summary -->
+        <section class="zkvm-section">
+            <div class="section-header">
+                <h3 class="section-title">Performance Summary</h3>
+                <p class="section-description">Key performance metrics and category breakdown</p>
+            </div>
+            
+            <div class="performance-grid" id="performance-grid">
+                <!-- Performance cards will be populated by JavaScript -->
+            </div>
+        </section>
+
+        <!-- Individual Test Results -->
+        <section class="tests-section" id="tests">
+            <div class="section-header">
+                <h3 class="section-title">Individual Test Results</h3>
+                <p class="section-description">Detailed results for every test executed on RISC0</p>
+            </div>
+            
+            <!-- Test Filters -->
+            <div class="test-filters">
+                <button class="filter-btn active" data-filter="all">All Tests</button>
+                <button class="filter-btn" data-filter="success">Successful</button>
+                <button class="filter-btn" data-filter="crashed">Failed</button>
+                <button class="filter-btn" data-filter="bytecode">Bytecode</button>
+                <button class="filter-btn" data-filter="stateful_opcodes">Stateful Opcodes</button>
+                <button class="filter-btn" data-filter="compute">Compute</button>
+            </div>
+            
+            <div class="tests-container" id="tests-container">
+                <!-- Test results will be populated by JavaScript -->
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-content">
+            <p>&copy; 2024 zkEVM Benchmark Dashboard - RISC0 Results</p>
+            <p class="footer-timestamp">Last updated: <span id="last-updated">-</span></p>
+        </div>
+    </footer>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-spinner"></div>
+        <p>Loading RISC0 test data...</p>
+    </div>
+
+    <script src="zkvm-detail.js"></script>
+    <script>
+        // Initialize page for RISC0
+        document.addEventListener('DOMContentLoaded', () => {
+            new ZKVMDetailPage('risc0');
+        });
+    </script>
+</body>
+</html> 
