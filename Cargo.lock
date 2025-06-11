@@ -119,7 +119,7 @@ dependencies = [
  "c-kzg",
  "derive_more 2.0.1",
  "either",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "rand 0.8.5",
  "serde",
@@ -143,7 +143,7 @@ dependencies = [
  "c-kzg",
  "derive_more 2.0.1",
  "either",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "once_cell",
  "rand 0.8.5",
  "secp256k1",
@@ -235,7 +235,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "arbitrary",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.8.5",
  "serde",
  "serde_with",
@@ -467,7 +467,7 @@ dependencies = [
  "hashbrown 0.15.3",
  "indexmap 2.9.0",
  "itoa",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "keccak-asm",
  "paste",
  "proptest",
@@ -721,7 +721,7 @@ dependencies = [
  "auto_impl",
  "either",
  "elliptic-curve",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 2.0.12",
 ]
 
@@ -736,7 +736,7 @@ dependencies = [
  "auto_impl",
  "either",
  "elliptic-curve",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 2.0.12",
 ]
 
@@ -751,7 +751,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-signer 0.14.0",
  "async-trait",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.8.5",
  "thiserror 2.0.12",
 ]
@@ -767,7 +767,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-signer 1.0.9",
  "async-trait",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "rand 0.8.5",
  "thiserror 2.0.12",
 ]
@@ -2471,7 +2471,7 @@ checksum = "85078445a8dbd2e1bd21f04a816f352db8d333643f0c9b78ca7c3d1df71063e7"
 dependencies = [
  "dashu-base",
  "dashu-int",
- "num-modular",
+ "num-modular 0.6.1",
  "num-order",
  "rustversion",
  "static_assertions",
@@ -2485,7 +2485,7 @@ checksum = "ee99d08031ca34a4d044efbbb21dff9b8c54bb9d8c82a189187c0651ffdb9fbf"
 dependencies = [
  "cfg-if",
  "dashu-base",
- "num-modular",
+ "num-modular 0.6.1",
  "num-order",
  "rustversion",
  "static_assertions",
@@ -2516,7 +2516,7 @@ dependencies = [
  "dashu-base",
  "dashu-float",
  "dashu-int",
- "num-modular",
+ "num-modular 0.6.1",
  "num-order",
  "rustversion",
 ]
@@ -3071,7 +3071,7 @@ dependencies = [
  "bytes",
  "ed25519-dalek",
  "hex",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "log",
  "rand 0.8.5",
  "secp256k1",
@@ -4956,6 +4956,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "k256"
+version = "0.13.4"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "ecdsa",
+ "elliptic-curve",
+ "ff 0.13.1",
+ "hex-literal",
+ "num-bigint 0.4.6",
+ "openvm 1.2.1-rc.0",
+ "openvm-algebra-guest 1.2.1-rc.0",
+ "openvm-algebra-moduli-macros 1.2.1-rc.0",
+ "openvm-ecc-guest 1.2.1-rc.0",
+ "openvm-ecc-sw-macros 1.2.1-rc.0",
+ "serde",
+]
+
+[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5089,7 +5107,7 @@ dependencies = [
  "bs58",
  "ed25519-dalek",
  "hkdf",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "multihash",
  "quick-protobuf",
  "sha2 0.10.8",
@@ -5711,6 +5729,17 @@ dependencies = [
 
 [[package]]
 name = "num-modular"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "64a5fe11d4135c3bcdf3a95b18b194afa9608a5f6ff034f5d857bc9a27fb0119"
+dependencies = [
+ "num-bigint 0.4.6",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
+name = "num-modular"
 version = "0.6.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17bb261bf36fa7d83f4c294f834e91256769097b3cb505d44831e0a179ac647f"
@@ -5721,7 +5750,23 @@ version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "537b596b97c40fcf8056d153049eb22f481c17ebce72a513ec9286e4986d1bb6"
 dependencies = [
- "num-modular",
+ "num-modular 0.6.1",
+]
+
+[[package]]
+name = "num-prime"
+version = "0.4.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e238432a7881ec7164503ccc516c014bf009be7984cde1ba56837862543bdec3"
+dependencies = [
+ "bitvec",
+ "either",
+ "lru",
+ "num-bigint 0.4.6",
+ "num-integer",
+ "num-modular 0.5.1",
+ "num-traits",
+ "rand 0.8.5",
 ]
 
 [[package]]
@@ -5934,19 +5979,6 @@ checksum = "d05e27ee213611ffe7d6348b942e8f942b37114c00cc03cec254295a4a17852e"
 
 [[package]]
 name = "openvm"
-version = "1.1.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.1.1#2f9bf748a7e6130d530adbefb6a6507278098ff5"
-dependencies = [
- "bytemuck",
- "num-bigint 0.4.6",
- "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.1.1)",
- "openvm-platform 1.1.1",
- "openvm-rv32im-guest 1.1.1",
- "serde",
-]
-
-[[package]]
-name = "openvm"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
@@ -5955,6 +5987,20 @@ dependencies = [
  "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
  "openvm-platform 1.2.0",
  "openvm-rv32im-guest 1.2.0",
+ "serde",
+]
+
+[[package]]
+name = "openvm"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "bytemuck",
+ "getrandom 0.3.3",
+ "num-bigint 0.4.6",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-platform 1.2.1-rc.0",
+ "openvm-rv32im-guest 1.2.1-rc.0",
  "serde",
 ]
 
@@ -5991,7 +6037,17 @@ name = "openvm-algebra-complex-macros"
 version = "0.1.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-macros-common",
+ "openvm-macros-common 1.2.0",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "openvm-algebra-complex-macros"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "openvm-macros-common 1.2.1-rc.0",
  "quote",
  "syn 2.0.101",
 ]
@@ -6003,8 +6059,24 @@ source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13
 dependencies = [
  "halo2curves-axiom",
  "num-bigint 0.4.6",
- "openvm-algebra-complex-macros",
- "openvm-algebra-moduli-macros",
+ "openvm-algebra-complex-macros 0.1.0",
+ "openvm-algebra-moduli-macros 1.2.0",
+ "serde-big-array",
+ "strum_macros 0.26.4",
+]
+
+[[package]]
+name = "openvm-algebra-guest"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "halo2curves-axiom",
+ "num-bigint 0.4.6",
+ "once_cell",
+ "openvm-algebra-complex-macros 1.2.1-rc.0",
+ "openvm-algebra-moduli-macros 1.2.1-rc.0",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-rv32im-guest 1.2.1-rc.0",
  "serde-big-array",
  "strum_macros 0.26.4",
 ]
@@ -6014,7 +6086,19 @@ name = "openvm-algebra-moduli-macros"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-macros-common",
+ "openvm-macros-common 1.2.0",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "openvm-algebra-moduli-macros"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "num-bigint 0.4.6",
+ "num-prime",
+ "openvm-macros-common 1.2.1-rc.0",
  "quote",
  "syn 2.0.101",
 ]
@@ -6024,7 +6108,7 @@ name = "openvm-algebra-transpiler"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-algebra-guest",
+ "openvm-algebra-guest 1.2.0",
  "openvm-instructions",
  "openvm-instructions-derive",
  "openvm-stark-backend",
@@ -6179,7 +6263,7 @@ dependencies = [
 [[package]]
 name = "openvm-custom-insn"
 version = "0.1.0"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.1.1#2f9bf748a7e6130d530adbefb6a6507278098ff5"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6189,7 +6273,7 @@ dependencies = [
 [[package]]
 name = "openvm-custom-insn"
 version = "0.1.0"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -6209,12 +6293,12 @@ dependencies = [
  "num-traits",
  "once_cell",
  "openvm-algebra-circuit",
- "openvm-algebra-guest",
+ "openvm-algebra-guest 1.2.0",
  "openvm-circuit",
  "openvm-circuit-derive",
  "openvm-circuit-primitives",
  "openvm-circuit-primitives-derive",
- "openvm-ecc-guest",
+ "openvm-ecc-guest 1.2.0",
  "openvm-ecc-transpiler",
  "openvm-instructions",
  "openvm-mod-circuit-builder",
@@ -6237,17 +6321,36 @@ dependencies = [
  "group 0.13.0",
  "halo2curves-axiom",
  "hex-literal",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
  "num-bigint 0.4.6",
  "once_cell",
  "openvm 1.2.0",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
+ "openvm-algebra-guest 1.2.0",
+ "openvm-algebra-moduli-macros 1.2.0",
  "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
- "openvm-ecc-sw-macros",
+ "openvm-ecc-sw-macros 1.2.0",
  "openvm-rv32im-guest 1.2.0",
  "p256",
+ "serde",
+ "strum_macros 0.26.4",
+]
+
+[[package]]
+name = "openvm-ecc-guest"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "ecdsa",
+ "elliptic-curve",
+ "group 0.13.0",
+ "halo2curves-axiom",
+ "once_cell",
+ "openvm 1.2.1-rc.0",
+ "openvm-algebra-guest 1.2.1-rc.0",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-ecc-sw-macros 1.2.1-rc.0",
+ "openvm-rv32im-guest 1.2.1-rc.0",
  "serde",
  "strum_macros 0.26.4",
 ]
@@ -6257,7 +6360,17 @@ name = "openvm-ecc-sw-macros"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-macros-common",
+ "openvm-macros-common 1.2.0",
+ "quote",
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "openvm-ecc-sw-macros"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "openvm-macros-common 1.2.1-rc.0",
  "quote",
  "syn 2.0.101",
 ]
@@ -6267,7 +6380,7 @@ name = "openvm-ecc-transpiler"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-ecc-guest",
+ "openvm-ecc-guest 1.2.0",
  "openvm-instructions",
  "openvm-instructions-derive",
  "openvm-stark-backend",
@@ -6281,12 +6394,18 @@ name = "openvm-guest"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
- "openvm 1.1.1",
+ "k256 0.13.4 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm 1.2.1-rc.0",
+ "openvm-algebra-guest 1.2.1-rc.0",
+ "openvm-ecc-guest 1.2.1-rc.0",
+ "openvm-keccak256-guest 1.2.1-rc.0",
+ "openvm-pairing",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
  "reth-stateless",
+ "revm-precompile",
+ "ruint",
  "tracing",
- "tracing-subscriber 0.3.19",
 ]
 
 [[package]]
@@ -6351,13 +6470,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "openvm-keccak256-guest"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "openvm-platform 1.2.1-rc.0",
+]
+
+[[package]]
 name = "openvm-keccak256-transpiler"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
  "openvm-instructions",
  "openvm-instructions-derive",
- "openvm-keccak256-guest",
+ "openvm-keccak256-guest 1.2.0",
  "openvm-stark-backend",
  "openvm-transpiler",
  "rrs-lib",
@@ -6368,6 +6495,14 @@ dependencies = [
 name = "openvm-macros-common"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
+dependencies = [
+ "syn 2.0.101",
+]
+
+[[package]]
+name = "openvm-macros-common"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
 dependencies = [
  "syn 2.0.101",
 ]
@@ -6478,6 +6613,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "openvm-pairing"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "group 0.13.0",
+ "hex-literal",
+ "itertools 0.14.0",
+ "num-bigint 0.4.6",
+ "num-traits",
+ "openvm 1.2.1-rc.0",
+ "openvm-algebra-complex-macros 1.2.1-rc.0",
+ "openvm-algebra-guest 1.2.1-rc.0",
+ "openvm-algebra-moduli-macros 1.2.1-rc.0",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-ecc-guest 1.2.1-rc.0",
+ "openvm-ecc-sw-macros 1.2.1-rc.0",
+ "openvm-pairing-guest 1.2.1-rc.0",
+ "openvm-platform 1.2.1-rc.0",
+ "openvm-rv32im-guest 1.2.1-rc.0",
+ "rand 0.8.5",
+ "serde",
+]
+
+[[package]]
 name = "openvm-pairing-circuit"
 version = "1.2.0"
 source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
@@ -6494,10 +6653,10 @@ dependencies = [
  "openvm-circuit-primitives",
  "openvm-circuit-primitives-derive",
  "openvm-ecc-circuit",
- "openvm-ecc-guest",
+ "openvm-ecc-guest 1.2.0",
  "openvm-instructions",
  "openvm-mod-circuit-builder",
- "openvm-pairing-guest",
+ "openvm-pairing-guest 1.2.0",
  "openvm-pairing-transpiler",
  "openvm-rv32-adapters",
  "openvm-rv32im-circuit",
@@ -6520,14 +6679,34 @@ dependencies = [
  "num-bigint 0.4.6",
  "num-traits",
  "openvm 1.2.0",
- "openvm-algebra-complex-macros",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
+ "openvm-algebra-complex-macros 0.1.0",
+ "openvm-algebra-guest 1.2.0",
+ "openvm-algebra-moduli-macros 1.2.0",
  "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
- "openvm-ecc-guest",
- "openvm-ecc-sw-macros",
+ "openvm-ecc-guest 1.2.0",
+ "openvm-ecc-sw-macros 1.2.0",
  "openvm-platform 1.2.0",
  "openvm-rv32im-guest 1.2.0",
+ "rand 0.8.5",
+ "serde",
+ "strum_macros 0.26.4",
+]
+
+[[package]]
+name = "openvm-pairing-guest"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "hex-literal",
+ "itertools 0.14.0",
+ "lazy_static",
+ "num-bigint 0.4.6",
+ "num-traits",
+ "openvm 1.2.1-rc.0",
+ "openvm-algebra-guest 1.2.1-rc.0",
+ "openvm-algebra-moduli-macros 1.2.1-rc.0",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-ecc-guest 1.2.1-rc.0",
  "rand 0.8.5",
  "serde",
  "strum_macros 0.26.4",
@@ -6540,22 +6719,11 @@ source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13
 dependencies = [
  "openvm-instructions",
  "openvm-instructions-derive",
- "openvm-pairing-guest",
+ "openvm-pairing-guest 1.2.0",
  "openvm-stark-backend",
  "openvm-transpiler",
  "rrs-lib",
  "strum 0.26.3",
-]
-
-[[package]]
-name = "openvm-platform"
-version = "1.1.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.1.1#2f9bf748a7e6130d530adbefb6a6507278098ff5"
-dependencies = [
- "getrandom 0.2.16",
- "libm",
- "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.1.1)",
- "openvm-rv32im-guest 1.1.1",
 ]
 
 [[package]]
@@ -6567,6 +6735,16 @@ dependencies = [
  "libm",
  "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
  "openvm-rv32im-guest 1.2.0",
+]
+
+[[package]]
+name = "openvm-platform"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
+dependencies = [
+ "libm",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "openvm-rv32im-guest 1.2.1-rc.0",
 ]
 
 [[package]]
@@ -6631,19 +6809,20 @@ dependencies = [
 
 [[package]]
 name = "openvm-rv32im-guest"
-version = "1.1.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.1.1#2f9bf748a7e6130d530adbefb6a6507278098ff5"
+version = "1.2.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
 dependencies = [
- "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.1.1)",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
  "strum_macros 0.26.4",
 ]
 
 [[package]]
 name = "openvm-rv32im-guest"
-version = "1.2.0"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.0#bdb4831fefed13b0741d3a052d434a9c995c6d5d"
+version = "1.2.1-rc.0"
+source = "git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1#152b6b6c85eda34b367ec261f2f65b0457b9b2d9"
 dependencies = [
- "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.0)",
+ "openvm-custom-insn 0.1.0 (git+https://github.com/openvm-org/openvm.git?tag=v1.2.1-rc.1)",
+ "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=539bbc84085efb609f4f62cb03cf49588388abdb)",
  "strum_macros 0.26.4",
 ]
 
@@ -8093,7 +8272,7 @@ dependencies = [
  "hex",
  "hybrid-array",
  "itertools 0.13.0",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
  "log",
  "nohash-hasher",
@@ -10323,9 +10502,9 @@ dependencies = [
 
 [[package]]
 name = "revm-bytecode"
-version = "4.0.1"
+version = "4.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d91f9b90b3bab18942252de2d970ee8559794c49ca7452b2cc1774456040f8fb"
+checksum = "942fe4724cf552fd28db6b0a2ca5b79e884d40dd8288a4027ed1e9090e0c6f49"
 dependencies = [
  "bitvec",
  "once_cell",
@@ -10472,7 +10651,7 @@ dependencies = [
  "blst",
  "c-kzg",
  "cfg-if",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "kzg-rs",
  "libsecp256k1",
  "once_cell",
@@ -10486,9 +10665,9 @@ dependencies = [
 
 [[package]]
 name = "revm-primitives"
-version = "19.1.0"
+version = "19.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "18ea2ea0134568ee1e14281ce52f60e2710d42be316888d464c53e37ff184fd8"
+checksum = "1c1588093530ec4442461163be49c433c07a3235d1ca6f6799fef338dacc50d3"
 dependencies = [
  "alloy-primitives",
  "num_enum 0.7.3",
@@ -10822,9 +11001,9 @@ dependencies = [
 
 [[package]]
 name = "ruint"
-version = "1.15.0"
+version = "1.14.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "11256b5fe8c68f56ac6f39ef0720e592f33d2367a4782740d9c9142e889c7fb4"
+checksum = "78a46eb779843b2c4f21fac5773e25d6d5b7c8f0922876c91541790d2ca27eef"
 dependencies = [
  "alloy-rlp",
  "arbitrary",
@@ -11661,7 +11840,7 @@ dependencies = [
  "hashbrown 0.14.5",
  "hex",
  "itertools 0.13.0",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "num",
  "num_cpus",
  "p256",
@@ -11730,7 +11909,7 @@ dependencies = [
  "elliptic-curve",
  "generic-array 1.1.0",
  "itertools 0.13.0",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "num",
  "p256",
  "p3-field 0.2.2-succinct",
@@ -11985,7 +12164,7 @@ dependencies = [
  "hex",
  "indicatif",
  "itertools 0.13.0",
- "k256",
+ "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "p3-baby-bear 0.2.2-succinct",
  "p3-field 0.2.2-succinct",
  "p3-fri 0.2.2-succinct",
