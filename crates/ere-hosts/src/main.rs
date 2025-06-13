@@ -64,9 +64,13 @@ enum SourceCommand {
         directory_path: PathBuf,
     },
     Rpc {
-        /// Number of last blocks to pull from mainnet (mandatory)
-        #[arg(long)]
-        last_n_blocks: usize,
+        /// Number of last blocks to pull
+        #[arg(long, conflicts_with = "block")]
+        last_n_blocks: Option<usize>,
+
+        /// Specific block number to pull
+        #[arg(long, conflicts_with = "last_n_blocks")]
+        block: Option<u64>,
 
         /// RPC URL to use (mandatory)
         #[arg(long)]
@@ -122,6 +126,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         SourceCommand::Rpc {
             last_n_blocks,
+            block,
             rpc_url,
             rpc_header,
         } => {
@@ -137,12 +142,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
                         })
                 })
                 .collect::<Result<_, _>>()?;
-            Box::new(
-                RPCBlocksAndWitnessesBuilder::new(rpc_url)
-                    .with_headers(parsed_headers)?
-                    .last_n_blocks(last_n_blocks)
-                    .build()?,
-            )
+
+            let mut builder =
+                RPCBlocksAndWitnessesBuilder::new(rpc_url).with_headers(parsed_headers)?;
+
+            if let Some(block_num) = block {
+                builder = builder.block(block_num);
+            } else {
+                builder = builder.last_n_blocks(last_n_blocks.unwrap_or(1));
+            }
+
+            Box::new(builder.build()?)
         }
     };
 
