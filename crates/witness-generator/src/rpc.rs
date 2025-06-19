@@ -147,7 +147,7 @@ impl RPCBlocksAndWitnesses {
                 .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
             blocks_and_witnesses.push(BlocksAndWitnesses {
-                name: format!("mainnet_block_{}", block_num),
+                name: format!("rpc_block_{}", block_num),
                 blocks_and_witnesses: vec![ClientInput {
                     block: block.into_consensus(),
                     witness,
