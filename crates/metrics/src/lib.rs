@@ -22,6 +22,7 @@ pub struct CrashInfo {
 
 /// Metrics for a particular action, either execution or proving.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum ActionMetrics {
     /// Metrics produced when benchmarking in execution mode.
     Execution(ExecutionMetrics),
@@ -31,6 +32,7 @@ pub enum ActionMetrics {
 
 /// Metrics for execution workloads, either successful or crashed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum ExecutionMetrics {
     /// Metrics for a successful execution workload.
     Success {
@@ -47,6 +49,7 @@ pub enum ExecutionMetrics {
 
 /// Metrics for proving workloads, either successful or crashed.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
 pub enum ProvingMetrics {
     /// Metrics for a successful proving workload.
     Success {
