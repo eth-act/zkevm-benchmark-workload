@@ -9,8 +9,28 @@ use thiserror::Error;
 pub struct BenchmarkRun {
     /// Name of the benchmark.
     pub name: String,
+    /// Information about the hardware on which the benchmark was run.
+    pub hardware: HardwareInfo,
     /// Metrics collected during run.
     pub actions_metrics: Vec<ActionMetrics>,
+}
+
+/// Hardware specs of the benchmark runner.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct HardwareInfo {
+    /// CPU model name.
+    pub cpu_model: String,
+    /// Total RAM in bytes.
+    pub total_ram_bytes: u64,
+    /// Available GPUs.
+    pub gpus: Vec<GpuInfo>,
+}
+
+/// Information about a GPU.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct GpuInfo {
+    /// GPU model name.
+    pub model: String,
 }
 
 /// Information about a crash that occurred during a workload.
@@ -148,11 +168,20 @@ mod tests {
     use std::iter::FromIterator;
     use tempfile::NamedTempFile;
 
+    fn sample_hardware_info() -> HardwareInfo {
+        HardwareInfo {
+            cpu_model: "test_cpu".to_string(),
+            total_ram_bytes: 1,
+            gpus: vec![],
+        }
+    }
+
     // This is just a fixed sample we are using to test serde_roundtrip
     fn sample() -> Vec<BenchmarkRun> {
         vec![
             BenchmarkRun {
                 name: "fft_bench".into(),
+                hardware: sample_hardware_info(),
                 actions_metrics: vec![
                     ActionMetrics::Execution(ExecutionMetrics::Success {
                         total_num_cycles: 1_000,
@@ -170,6 +199,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
+                hardware: sample_hardware_info(),
                 actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
                     region_cycles: HashMap::from_iter([
@@ -182,6 +212,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
+                hardware: sample_hardware_info(),
                 actions_metrics: vec![
                     ActionMetrics::Proving(ProvingMetrics::Success {
                         proof_size: 512,
@@ -242,6 +273,7 @@ mod tests {
         ];
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
+            hardware: sample_hardware_info(),
             actions_metrics: mixed_workloads.clone(),
         };
         let json = BenchmarkRun::to_json(&[bench.clone()]).expect("serialize mixed");
