@@ -2,6 +2,7 @@
 
 use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, io, path::Path, time::Duration};
+use sysinfo::{CpuExt, System, SystemExt};
 use thiserror::Error;
 
 /// Represents a single benchmark run.
@@ -20,8 +21,8 @@ pub struct BenchmarkRun {
 pub struct HardwareInfo {
     /// CPU model name.
     pub cpu_model: String,
-    /// Total RAM in bytes.
-    pub total_ram_bytes: u64,
+    /// Total RAM in GiB.
+    pub total_ram_gib: u64,
     /// Available GPUs.
     pub gpus: Vec<GpuInfo>,
 }
@@ -31,6 +32,49 @@ pub struct HardwareInfo {
 pub struct GpuInfo {
     /// GPU model name.
     pub model: String,
+}
+
+impl HardwareInfo {
+    /// Detects hardware information from the current system.
+    pub fn detect() -> Self {
+        let mut system = System::new_all();
+        system.refresh_all();
+
+        HardwareInfo {
+            cpu_model: system
+                .cpus()
+                .first()
+                .map(|cpu| cpu.brand().to_string())
+                .unwrap_or_else(|| "Unknown CPU".to_string()),
+            total_ram_gib: system.total_memory() / (1024 * 1024 * 1024),
+            gpus: detect_gpus(),
+        }
+    }
+}
+
+/// Detects available GPUs on the system.
+fn detect_gpus() -> Vec<GpuInfo> {
+    let mut gpus = Vec::new();
+
+    if let Ok(output) = std::process::Command::new("nvidia-smi")
+        .arg("--query-gpu=gpu_name")
+        .arg("--format=csv,noheader,nounits")
+        .output()
+    {
+        if output.status.success() {
+            let gpu_names = String::from_utf8_lossy(&output.stdout);
+            for line in gpu_names.lines() {
+                let gpu_name = line.trim();
+                if !gpu_name.is_empty() {
+                    gpus.push(GpuInfo {
+                        model: gpu_name.to_string(),
+                    });
+                }
+            }
+        }
+    }
+
+    gpus
 }
 
 /// Information about a crash that occurred during a workload.
@@ -171,7 +215,7 @@ mod tests {
     fn sample_hardware_info() -> HardwareInfo {
         HardwareInfo {
             cpu_model: "test_cpu".to_string(),
-            total_ram_bytes: 1,
+            total_ram_gib: 1,
             gpus: vec![],
         }
     }

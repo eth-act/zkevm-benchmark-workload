@@ -1,7 +1,9 @@
 use rayon::prelude::*;
 use std::{any::Any, panic, sync::Arc};
 use witness_generator::BlocksAndWitnesses;
-use zkevm_metrics::{ActionMetrics, BenchmarkRun, CrashInfo, ExecutionMetrics, ProvingMetrics};
+use zkevm_metrics::{
+    ActionMetrics, BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics,
+};
 use zkvm_interface::{zkVM, Input};
 
 /// Action specifies whether we should prove or execute
@@ -49,6 +51,9 @@ fn process_corpus<V>(
 where
     V: zkVM + Sync,
 {
+    // Detect hardware information once per corpus
+    let hardware = HardwareInfo::detect();
+
     // Take the last element, because benchmarks are setup in such a way that
     // We only want to benchmark the last block.
     let last_block_with_witness = match bw.blocks_and_witnesses.last() {
@@ -104,6 +109,7 @@ where
         };
         reports.push(BenchmarkRun {
             name: format!("{}-{}", bw.name, block_number),
+            hardware: hardware.clone(),
             actions_metrics: vec![workload_metrics],
         });
     }
