@@ -7,12 +7,30 @@ This crate provides data structures and utilities for handling workload performa
 The core data structure is `BenchmarkRun`, which stores:
 
 - `name`: The name of the benchmark (e.g., "fft_bench", "aes_bench").
+- `hardware`: Hardware information about the system where the benchmark was run, including CPU model, RAM, and GPU details.
 - `actions_metrics`: A list of `ActionMetrics`, which can be either `Execution` or `Proving` metrics.
 
-`ExecutionMetrics` stores:
+`ActionMetrics` can be one of:
+- `Execution(ExecutionMetrics)`: Metrics from execution workloads
+- `Proving(ProvingMetrics)`: Metrics from proving workloads
+
+Both `ExecutionMetrics` and `ProvingMetrics` can be either:
+- `Success { ... }`: Contains metrics from successful runs
+- `Crashed(CrashInfo)`: Contains information about crashes that occurred
+
+`ExecutionMetrics::Success` stores:
 - `total_num_cycles`: The total cycle count for the whole execution.
 - `region_cycles`: A map associating names (e.g., "setup", "compute") with the cycle counts for specific regions within the workload.
 - `execution_duration`: The duration of the execution.
+
+`ProvingMetrics::Success` stores:
+- `proof_size`: The size of the generated proof in bytes.
+- `proving_time_ms`: The time taken to generate the proof in milliseconds.
+
+`HardwareInfo` automatically detects and stores:
+- `cpu_model`: The CPU model name.
+- `total_ram_gib`: Total system RAM in GiB.
+- `gpus`: Information about available GPUs (detected via nvidia-smi if available).
 
 The crate offers functionality to:
 
@@ -27,13 +45,13 @@ Add this crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-metrics = { path = "../metrics" } # Adjust path as needed
+zkevm-metrics = { path = "../metrics" } # Adjust path as needed
 ```
 
 Example:
 
 ```rust
-use zkevm_metrics::{ActionMetrics, BenchmarkRun, ExecutionMetrics};
+use zkevm_metrics::{ActionMetrics, BenchmarkRun, ExecutionMetrics, HardwareInfo};
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::env::temp_dir;
@@ -43,6 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
         BenchmarkRun {
             name: "workload name".into(),
+            hardware: HardwareInfo::detect(), // Automatically detect hardware
             actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
                 total_num_cycles: 1_000,
                 region_cycles: HashMap::from_iter([

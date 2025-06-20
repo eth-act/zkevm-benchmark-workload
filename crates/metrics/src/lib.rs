@@ -297,6 +297,30 @@ mod tests {
     }
 
     #[test]
+    fn test_name_accessor() {
+        let benchmark_run = BenchmarkRun {
+            name: "test_benchmark".into(),
+            hardware: sample_hardware_info(),
+            actions_metrics: vec![
+                ActionMetrics::Execution(ExecutionMetrics::Success {
+                    total_num_cycles: 1000,
+                    region_cycles: HashMap::new(),
+                    execution_duration: Duration::from_millis(150),
+                }),
+                ActionMetrics::Proving(ProvingMetrics::Success {
+                    proof_size: 256,
+                    proving_time_ms: 2000,
+                }),
+                ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
+                    reason: "Test panic".into(),
+                })),
+            ],
+        };
+
+        assert_eq!(benchmark_run.name(), "test_benchmark");
+    }
+
+    #[test]
     fn test_mixed_metrics_serialization() {
         let mixed_workloads = vec![
             ActionMetrics::Execution(ExecutionMetrics::Success {
