@@ -39,6 +39,12 @@ Run all available zkVMs:
 cargo run --features "sp1,risc0,openvm,pico" -- tests
 ```
 
+You can use the `--filter` to only run specific tests. If you use multiple filters, they will be combined 
+with a logical AND, for example:
+```bash
+cargo run --features "sp1,risc0,openvm,pico" -- tests --filter "Prague" --filter "Blockhash"
+```
+
 ### Data Sources
 
 The benchmarker supports two data sources:
