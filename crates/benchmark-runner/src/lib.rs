@@ -193,9 +193,10 @@ where
                 }
             }
             Action::Prove => {
-                let (_, report) = zkvm_ref.prove(&stdin)?;
+                let (proof, report) = zkvm_ref.prove(&stdin)?;
                 WorkloadMetrics::Proving {
                     name: format!("{}-{}", bw.name, block_number),
+                    proof_size: proof.len(),
                     proving_time_ms: report.proving_time.as_millis(),
                 }
             }

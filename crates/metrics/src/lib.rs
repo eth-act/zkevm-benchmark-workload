@@ -24,6 +24,8 @@ pub enum WorkloadMetrics {
     Proving {
         /// Name of the workload (e.g., "fft", "aes").
         name: String,
+        /// Proof size
+        proof_size: usize,
         /// Proving time in milliseconds
         proving_time_ms: u128,
     },
@@ -153,10 +155,12 @@ mod tests {
             },
             WorkloadMetrics::Proving {
                 name: "rsa".into(),
+                proof_size: 512,
                 proving_time_ms: 5_000,
             },
             WorkloadMetrics::Proving {
                 name: "ecdsa".into(),
+                proof_size: 256,
                 proving_time_ms: 3_500,
             },
             WorkloadMetrics::Crashed {
@@ -209,6 +213,7 @@ mod tests {
 
         let proving_metric = WorkloadMetrics::Proving {
             name: "test_proving".into(),
+            proof_size: 512,
             proving_time_ms: 2000,
         };
 
@@ -234,6 +239,7 @@ mod tests {
             },
             WorkloadMetrics::Proving {
                 name: "mixed_proving".into(),
+                proof_size: 300,
                 proving_time_ms: 1000,
             },
         ];
