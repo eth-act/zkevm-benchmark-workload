@@ -20,7 +20,7 @@ reth-primitives-traits = { workspace = true, features = [
 ] }
 reth-stateless.workspace = true
 revm = { version = "23", features = ["std", "c-kzg", "blst", "bn"] }
-risc0-zkvm = { version = "^2.0.2", default-features = false, features = [
+risc0-zkvm = { version = "^2.1.0", default-features = false, features = [
     "std",
     "unstable",
     "getrandom",
