@@ -68,6 +68,7 @@ where
 
     for ci in blocks_and_witnesses {
         let block_number = ci.block.number;
+        let block_used_gas = ci.block.gas_used;
         let mut stdin = Input::new();
         stdin.write(ci);
         stdin.write(bw.network);
@@ -109,6 +110,7 @@ where
         };
         reports.push(BenchmarkRun {
             name: format!("{}-{}", bw.name, block_number),
+            block_used_gas,
             hardware: hardware.clone(),
             actions_metrics: vec![workload_metrics],
         });

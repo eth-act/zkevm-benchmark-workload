@@ -7,6 +7,7 @@ This crate provides data structures and utilities for handling workload performa
 The core data structure is `BenchmarkRun`, which stores:
 
 - `name`: The name of the benchmark (e.g., "fft_bench", "aes_bench").
+- `block_used_gas`: The amount of gas used by the block in the benchmark.
 - `hardware`: Hardware information about the system where the benchmark was run, including CPU model, RAM, and GPU details.
 - `actions_metrics`: A list of `ActionMetrics`, which can be either `Execution` or `Proving` metrics.
 
@@ -61,6 +62,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
         BenchmarkRun {
             name: "workload name".into(),
+            block_used_gas: 12345,
             hardware: HardwareInfo::detect(), // Automatically detect hardware
             actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
                 total_num_cycles: 1_000,

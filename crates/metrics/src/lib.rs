@@ -10,6 +10,8 @@ use thiserror::Error;
 pub struct BenchmarkRun {
     /// Name of the benchmark.
     pub name: String,
+    /// Block used gas
+    pub block_used_gas: u64,
     /// Information about the hardware on which the benchmark was run.
     pub hardware: HardwareInfo,
     /// Metrics collected during run.
@@ -225,6 +227,7 @@ mod tests {
         vec![
             BenchmarkRun {
                 name: "fft_bench".into(),
+                block_used_gas: 12345,
                 hardware: sample_hardware_info(),
                 actions_metrics: vec![
                     ActionMetrics::Execution(ExecutionMetrics::Success {
@@ -243,6 +246,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
+                block_used_gas: 67890,
                 hardware: sample_hardware_info(),
                 actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
@@ -256,6 +260,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
+                block_used_gas: 54321,
                 hardware: sample_hardware_info(),
                 actions_metrics: vec![
                     ActionMetrics::Proving(ProvingMetrics::Success {
@@ -300,6 +305,7 @@ mod tests {
     fn test_name_accessor() {
         let benchmark_run = BenchmarkRun {
             name: "test_benchmark".into(),
+            block_used_gas: 11111,
             hardware: sample_hardware_info(),
             actions_metrics: vec![
                 ActionMetrics::Execution(ExecutionMetrics::Success {
@@ -341,6 +347,7 @@ mod tests {
         ];
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
+            block_used_gas: 22222,
             hardware: sample_hardware_info(),
             actions_metrics: mixed_workloads.clone(),
         };
