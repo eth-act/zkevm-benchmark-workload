@@ -14,6 +14,7 @@ use reth_stateless::ClientInput;
 #[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
+    filter: Option<Vec<String>>,
 }
 impl ExecSpecTestBlocksAndWitnesses {
     /// Creates a new instance of `ExecSpecTestBlocksAndWitnesses`.
@@ -21,8 +22,11 @@ impl ExecSpecTestBlocksAndWitnesses {
     /// # Arguments
     ///
     /// * `directory_path` - The path to the directory containing the blockchain test cases.
-    pub fn new(directory_path: PathBuf) -> Self {
-        Self { directory_path }
+    pub fn new(directory_path: PathBuf, filter: Option<Vec<String>>) -> Self {
+        Self {
+            directory_path,
+            filter,
+        }
     }
 }
 
@@ -69,6 +73,11 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 // This is why we have `tests`.
                 .tests
                 .iter()
+                .filter(|(name, _)| {
+                    self.filter
+                        .as_ref()
+                        .map_or(true, |filter| filter.iter().all(|f| name.contains(f)))
+                })
                 .map(|(name, case)| BlocksAndWitnesses {
                     name: name.to_string(),
                     blocks_and_witnesses: run_case(case)

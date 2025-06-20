@@ -1,10 +1,7 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
 use clap::{Parser, Subcommand, ValueEnum};
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::{path::PathBuf, process::Command};
 use witness_generator::{
     generate_stateless_witness::ExecSpecTestBlocksAndWitnesses, rpc::RPCBlocksAndWitnessesBuilder,
     witness_generator::WitnessGenerator,
@@ -62,6 +59,8 @@ enum SourceCommand {
     Tests {
         #[arg(short, long, default_value = path_to_zkevm_fixtures())]
         directory_path: PathBuf,
+        #[arg(short, long)]
+        filter: Option<Vec<String>>,
     },
     Rpc {
         /// Number of last blocks to pull
@@ -121,9 +120,10 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let action: Action = cli.action.into();
 
     let block_witness_gen: Box<dyn WitnessGenerator> = match cli.source {
-        SourceCommand::Tests { directory_path } => {
-            Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path))
-        }
+        SourceCommand::Tests {
+            directory_path,
+            filter,
+        } => Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path, filter)),
         SourceCommand::Rpc {
             last_n_blocks,
             block,
