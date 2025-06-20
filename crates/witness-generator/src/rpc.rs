@@ -133,9 +133,7 @@ impl RPCBlocksAndWitnesses {
         for (block_num, block_hash) in hashes {
             let witness = self
                 .client
-                // TODO: our current reth RPC version doesn't support calling `debug_executionWitnessByHash`.
-                // Temporarily use the "by number" version which is potentially incorrect if a reorg happens.
-                .debug_execution_witness(BlockNumberOrTag::Number(block_num))
+                .debug_execution_witness_by_block_hash(block_hash)
                 .await?;
             let block =
                 EthApiClient::<Transaction, Block<TransactionSigned>, Receipt, Header>::block_by_hash(
