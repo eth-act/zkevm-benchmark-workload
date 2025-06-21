@@ -1,9 +1,7 @@
 use rayon::prelude::*;
 use std::{any::Any, panic, sync::Arc};
 use witness_generator::BlocksAndWitnesses;
-use zkevm_metrics::{
-    ActionMetrics, BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics,
-};
+use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
 /// Action specifies whether we should prove or execute
@@ -73,46 +71,47 @@ where
         stdin.write(ci);
         stdin.write(bw.network);
 
-        let workload_metrics = match action {
+        let (execution, proving) = match action {
             Action::Execute => {
                 let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));
-                match run {
-                    Ok(Ok(report)) => ActionMetrics::Execution(ExecutionMetrics::Success {
+                let execution = match run {
+                    Ok(Ok(report)) => ExecutionMetrics::Success {
                         total_num_cycles: report.total_num_cycles,
                         region_cycles: report.region_cycles.into_iter().collect(),
                         execution_duration: report.execution_duration,
-                    }),
-                    Ok(Err(e)) => ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
+                    },
+                    Ok(Err(e)) => ExecutionMetrics::Crashed(CrashInfo {
                         reason: e.to_string(),
-                    })),
-                    Err(panic_info) => {
-                        ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
-                            reason: get_panic_msg(panic_info),
-                        }))
-                    }
-                }
+                    }),
+                    Err(panic_info) => ExecutionMetrics::Crashed(CrashInfo {
+                        reason: get_panic_msg(panic_info),
+                    }),
+                };
+                (Some(execution), None)
             }
             Action::Prove => {
                 let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.prove(&stdin)));
-                match run {
-                    Ok(Ok((proof, report))) => ActionMetrics::Proving(ProvingMetrics::Success {
+                let proving = match run {
+                    Ok(Ok((proof, report))) => ProvingMetrics::Success {
                         proof_size: proof.len(),
                         proving_time_ms: report.proving_time.as_millis(),
-                    }),
-                    Ok(Err(e)) => ActionMetrics::Proving(ProvingMetrics::Crashed(CrashInfo {
+                    },
+                    Ok(Err(e)) => ProvingMetrics::Crashed(CrashInfo {
                         reason: e.to_string(),
-                    })),
-                    Err(panic_info) => ActionMetrics::Proving(ProvingMetrics::Crashed(CrashInfo {
+                    }),
+                    Err(panic_info) => ProvingMetrics::Crashed(CrashInfo {
                         reason: get_panic_msg(panic_info),
-                    })),
-                }
+                    }),
+                };
+                (None, Some(proving))
             }
         };
         reports.push(BenchmarkRun {
             name: format!("{}-{}", bw.name, block_number),
             block_used_gas,
             hardware: hardware.clone(),
-            actions_metrics: vec![workload_metrics],
+            execution,
+            proving,
         });
     }
 

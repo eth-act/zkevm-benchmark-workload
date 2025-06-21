@@ -14,8 +14,10 @@ pub struct BenchmarkRun {
     pub block_used_gas: u64,
     /// Information about the hardware on which the benchmark was run.
     pub hardware: HardwareInfo,
-    /// Metrics collected during run.
-    pub actions_metrics: Vec<ActionMetrics>,
+    /// Execution metrics for the benchmark run.
+    pub execution: Option<ExecutionMetrics>,
+    /// Proving metrics for the benchmark run.
+    pub proving: Option<ProvingMetrics>,
 }
 
 /// Hardware specs of the benchmark runner.
@@ -84,16 +86,6 @@ fn detect_gpus() -> Vec<GpuInfo> {
 pub struct CrashInfo {
     /// The reason for the crash (e.g., panic message).
     pub reason: String,
-}
-
-/// Metrics for a particular action, either execution or proving.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-#[serde(rename_all = "snake_case")]
-pub enum ActionMetrics {
-    /// Metrics produced when benchmarking in execution mode.
-    Execution(ExecutionMetrics),
-    /// Metrics produced when benchmarking in proving mode.
-    Proving(ProvingMetrics),
 }
 
 /// Metrics for execution workloads, either successful or crashed.
@@ -229,26 +221,22 @@ mod tests {
                 name: "fft_bench".into(),
                 block_used_gas: 12345,
                 hardware: sample_hardware_info(),
-                actions_metrics: vec![
-                    ActionMetrics::Execution(ExecutionMetrics::Success {
-                        total_num_cycles: 1_000,
-                        region_cycles: HashMap::from_iter([
-                            ("setup".to_string(), 100),
-                            ("compute".to_string(), 800),
-                            ("teardown".to_string(), 100),
-                        ]),
-                        execution_duration: Duration::from_millis(150),
-                    }),
-                    ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
-                        reason: "panic in fft".into(),
-                    })),
-                ],
+                execution: Some(ExecutionMetrics::Success {
+                    total_num_cycles: 1_000,
+                    region_cycles: HashMap::from_iter([
+                        ("setup".to_string(), 100),
+                        ("compute".to_string(), 800),
+                        ("teardown".to_string(), 100),
+                    ]),
+                    execution_duration: Duration::from_millis(150),
+                }),
+                proving: None,
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
                 block_used_gas: 67890,
                 hardware: sample_hardware_info(),
-                actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
+                execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
                     region_cycles: HashMap::from_iter([
                         ("init".to_string(), 200),
@@ -256,21 +244,21 @@ mod tests {
                         ("final".to_string(), 200),
                     ]),
                     execution_duration: Duration::from_millis(300),
-                })],
+                }),
+                proving: Some(ProvingMetrics::Success {
+                    proof_size: 256,
+                    proving_time_ms: 2_000,
+                }),
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
                 block_used_gas: 54321,
                 hardware: sample_hardware_info(),
-                actions_metrics: vec![
-                    ActionMetrics::Proving(ProvingMetrics::Success {
-                        proof_size: 512,
-                        proving_time_ms: 5_000,
-                    }),
-                    ActionMetrics::Proving(ProvingMetrics::Crashed(CrashInfo {
-                        reason: "proving failed".into(),
-                    })),
-                ],
+                execution: None,
+                proving: Some(ProvingMetrics::Success {
+                    proof_size: 512,
+                    proving_time_ms: 5_000,
+                }),
             },
         ]
     }
@@ -307,20 +295,12 @@ mod tests {
             name: "test_benchmark".into(),
             block_used_gas: 11111,
             hardware: sample_hardware_info(),
-            actions_metrics: vec![
-                ActionMetrics::Execution(ExecutionMetrics::Success {
-                    total_num_cycles: 1000,
-                    region_cycles: HashMap::new(),
-                    execution_duration: Duration::from_millis(150),
-                }),
-                ActionMetrics::Proving(ProvingMetrics::Success {
-                    proof_size: 256,
-                    proving_time_ms: 2000,
-                }),
-                ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
-                    reason: "Test panic".into(),
-                })),
-            ],
+            execution: Some(ExecutionMetrics::Success {
+                total_num_cycles: 1000,
+                region_cycles: HashMap::new(),
+                execution_duration: Duration::from_millis(150),
+            }),
+            proving: None,
         };
 
         assert_eq!(benchmark_run.name(), "test_benchmark");
@@ -328,28 +308,23 @@ mod tests {
 
     #[test]
     fn test_mixed_metrics_serialization() {
-        let mixed_workloads = vec![
-            ActionMetrics::Execution(ExecutionMetrics::Success {
-                total_num_cycles: 500,
-                region_cycles: HashMap::from_iter([("phase1".to_string(), 500)]),
-                execution_duration: Duration::from_millis(200),
-            }),
-            ActionMetrics::Proving(ProvingMetrics::Success {
-                proof_size: 300,
-                proving_time_ms: 1000,
-            }),
-            ActionMetrics::Execution(ExecutionMetrics::Crashed(CrashInfo {
-                reason: "fail".into(),
-            })),
-            ActionMetrics::Proving(ProvingMetrics::Crashed(CrashInfo {
-                reason: "fail".into(),
-            })),
-        ];
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
             block_used_gas: 22222,
             hardware: sample_hardware_info(),
-            actions_metrics: mixed_workloads.clone(),
+            execution: Some(ExecutionMetrics::Success {
+                total_num_cycles: 500,
+                region_cycles: HashMap::from_iter([
+                    ("setup".to_string(), 50),
+                    ("compute".to_string(), 400),
+                    ("teardown".to_string(), 50),
+                ]),
+                execution_duration: Duration::from_millis(100),
+            }),
+            proving: Some(ProvingMetrics::Success {
+                proof_size: 128,
+                proving_time_ms: 1500,
+            }),
         };
         let json = BenchmarkRun::to_json(&[bench.clone()]).expect("serialize mixed");
         let parsed = BenchmarkRun::from_json(&json).expect("deserialize mixed");
