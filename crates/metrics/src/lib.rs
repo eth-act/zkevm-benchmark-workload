@@ -15,8 +15,10 @@ pub struct BenchmarkRun {
     /// Information about the hardware on which the benchmark was run.
     pub hardware: HardwareInfo,
     /// Execution metrics for the benchmark run.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub execution: Option<ExecutionMetrics>,
     /// Proving metrics for the benchmark run.
+    #[serde(skip_serializing_if = "Option::is_none")]
     pub proving: Option<ProvingMetrics>,
 }
 
