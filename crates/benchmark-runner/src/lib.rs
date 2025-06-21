@@ -20,6 +20,11 @@ pub fn run_benchmark_ere<V>(
 where
     V: zkVM + Sync,
 {
+    HardwareInfo::detect().to_path(format!(
+        "{}/zkevm-metrics/hardware.json",
+        env!("CARGO_WORKSPACE_DIR")
+    ))?;
+
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
 
@@ -49,9 +54,6 @@ fn process_corpus<V>(
 where
     V: zkVM + Sync,
 {
-    // Detect hardware information once per corpus
-    let hardware = HardwareInfo::detect();
-
     // Take the last element, because benchmarks are setup in such a way that
     // We only want to benchmark the last block.
     let last_block_with_witness = match bw.blocks_and_witnesses.last() {
@@ -109,7 +111,6 @@ where
         reports.push(BenchmarkRun {
             name: format!("{}-{}", bw.name, block_number),
             block_used_gas,
-            hardware: hardware.clone(),
             execution,
             proving,
         });

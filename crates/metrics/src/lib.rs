@@ -12,8 +12,6 @@ pub struct BenchmarkRun {
     pub name: String,
     /// Block used gas
     pub block_used_gas: u64,
-    /// Information about the hardware on which the benchmark was run.
-    pub hardware: HardwareInfo,
     /// Execution metrics for the benchmark run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execution: Option<ExecutionMetrics>,
@@ -55,6 +53,19 @@ impl HardwareInfo {
             total_ram_gib: system.total_memory() / (1024 * 1024 * 1024),
             gpus: detect_gpus(),
         }
+    }
+
+    /// Serializes the hardware information to a JSON string in the provided path.
+    pub fn to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
+        let path = path.as_ref();
+
+        if let Some(parent) = path.parent() {
+            std::fs::create_dir_all(parent)?;
+        }
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(path, json)?;
+
+        Ok(())
     }
 }
 
@@ -208,21 +219,12 @@ mod tests {
     use std::iter::FromIterator;
     use tempfile::NamedTempFile;
 
-    fn sample_hardware_info() -> HardwareInfo {
-        HardwareInfo {
-            cpu_model: "test_cpu".to_string(),
-            total_ram_gib: 1,
-            gpus: vec![],
-        }
-    }
-
     // This is just a fixed sample we are using to test serde_roundtrip
     fn sample() -> Vec<BenchmarkRun> {
         vec![
             BenchmarkRun {
                 name: "fft_bench".into(),
                 block_used_gas: 12345,
-                hardware: sample_hardware_info(),
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 1_000,
                     region_cycles: HashMap::from_iter([
@@ -237,7 +239,6 @@ mod tests {
             BenchmarkRun {
                 name: "aes_bench".into(),
                 block_used_gas: 67890,
-                hardware: sample_hardware_info(),
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
                     region_cycles: HashMap::from_iter([
@@ -255,7 +256,6 @@ mod tests {
             BenchmarkRun {
                 name: "proving_bench".into(),
                 block_used_gas: 54321,
-                hardware: sample_hardware_info(),
                 execution: None,
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 512,
@@ -296,7 +296,6 @@ mod tests {
         let benchmark_run = BenchmarkRun {
             name: "test_benchmark".into(),
             block_used_gas: 11111,
-            hardware: sample_hardware_info(),
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1000,
                 region_cycles: HashMap::new(),
@@ -313,7 +312,6 @@ mod tests {
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
             block_used_gas: 22222,
-            hardware: sample_hardware_info(),
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 500,
                 region_cycles: HashMap::from_iter([
