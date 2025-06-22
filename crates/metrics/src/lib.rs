@@ -58,13 +58,9 @@ impl HardwareInfo {
     /// Serializes the hardware information to a JSON string in the provided path.
     pub fn to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
         let path = path.as_ref();
-
-        if let Some(parent) = path.parent() {
-            std::fs::create_dir_all(parent)?;
-        }
+        ensure_parent_dirs(path)?;
         let json = serde_json::to_string_pretty(self)?;
         fs::write(path, json)?;
-
         Ok(())
     }
 }
@@ -156,11 +152,6 @@ impl MetricsError {
 }
 
 impl BenchmarkRun {
-    /// Returns the name of the benchmark.
-    pub fn name(&self) -> &str {
-        self.name.as_str()
-    }
-
     /// Serializes a list of `WorkloadMetrics` into a JSON string.
     ///
     /// # Errors
@@ -190,14 +181,9 @@ impl BenchmarkRun {
     /// Returns `MetricsError::Serde` if JSON serialization fails.
     pub fn to_path<P: AsRef<Path>>(path: P, items: &[Self]) -> Result<(), MetricsError> {
         let path = path.as_ref();
-
-        if let Some(parent) = path.parent() {
-            // `create_dir_all` is a no-op when the dirs are already there.
-            std::fs::create_dir_all(parent)?;
-        }
+        ensure_parent_dirs(path)?;
         let json = serde_json::to_string_pretty(items)?;
         fs::write(path, json)?;
-
         Ok(())
     }
 
@@ -211,6 +197,13 @@ impl BenchmarkRun {
         let contents = fs::read_to_string(path)?;
         Ok(serde_json::from_str(&contents)?)
     }
+}
+
+fn ensure_parent_dirs<P: AsRef<Path>>(path: P) -> Result<(), io::Error> {
+    if let Some(parent) = path.as_ref().parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    Ok(())
 }
 
 #[cfg(test)]
@@ -304,7 +297,7 @@ mod tests {
             proving: None,
         };
 
-        assert_eq!(benchmark_run.name(), "test_benchmark");
+        assert_eq!(benchmark_run.name, "test_benchmark");
     }
 
     #[test]

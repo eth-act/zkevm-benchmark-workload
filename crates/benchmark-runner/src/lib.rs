@@ -33,13 +33,13 @@ where
             // Use parallel iteration for execution
             corpuses
                 .into_par_iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), &action, host_name))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), action, host_name))?;
         }
         Action::Prove => {
             // Use sequential iteration for proving
             corpuses
                 .into_iter()
-                .try_for_each(|bw| process_corpus(bw, Arc::new(&*zkvm_ref), &action, host_name))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), action, host_name))?;
         }
     }
     Ok(())
@@ -47,8 +47,8 @@ where
 
 fn process_corpus<V>(
     bw: &BlocksAndWitnesses,
-    zkvm_ref: Arc<&V>,
-    action: &Action,
+    zkvm_ref: Arc<V>,
+    action: Action,
     host_name: &str,
 ) -> anyhow::Result<()>
 where
@@ -56,10 +56,11 @@ where
 {
     // Take the last element, because benchmarks are setup in such a way that
     // We only want to benchmark the last block.
-    let last_block_with_witness = match bw.blocks_and_witnesses.last() {
-        Some(last_block) => last_block.clone(),
-        None => panic!("unexpected test with no blocks {}", &bw.name),
-    };
+    let last_block_with_witness = bw
+        .blocks_and_witnesses
+        .last()
+        .ok_or_else(|| anyhow::anyhow!("Unexpected test with no blocks: {}", &bw.name))?
+        .clone();
 
     let blocks_and_witnesses = vec![last_block_with_witness];
 
@@ -128,11 +129,9 @@ where
 }
 
 fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
-    if let Some(s) = panic_info.downcast_ref::<&str>() {
-        s.to_string()
-    } else if let Some(s) = panic_info.downcast_ref::<String>() {
-        s.clone()
-    } else {
-        "Unknown panic occurred".to_string()
-    }
+    panic_info
+        .downcast_ref::<&str>()
+        .map(|s| s.to_string())
+        .or_else(|| panic_info.downcast_ref::<String>().cloned())
+        .unwrap_or_else(|| "Unknown panic occurred".to_string())
 }
