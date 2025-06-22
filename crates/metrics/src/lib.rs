@@ -2,17 +2,107 @@
 
 use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, io, path::Path, time::Duration};
+use sysinfo::{CpuExt, System, SystemExt};
 use thiserror::Error;
 
-/// Cycle-count metrics for a particular workload.
-///
-/// Stores the total cycle count and a breakdown of cycle count per named region.
-#[derive(Debug, Serialize, Deserialize, PartialEq, Eq)]
-pub enum WorkloadMetrics {
-    /// Metrics produced when benchmarking in execution mode
-    Execution {
-        /// Name of the workload (e.g., "fft", "aes").
-        name: String,
+/// Represents a single benchmark run.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct BenchmarkRun {
+    /// Name of the benchmark.
+    pub name: String,
+    /// Block used gas
+    pub block_used_gas: u64,
+    /// Execution metrics for the benchmark run.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub execution: Option<ExecutionMetrics>,
+    /// Proving metrics for the benchmark run.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub proving: Option<ProvingMetrics>,
+}
+
+/// Hardware specs of the benchmark runner.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct HardwareInfo {
+    /// CPU model name.
+    pub cpu_model: String,
+    /// Total RAM in GiB.
+    pub total_ram_gib: u64,
+    /// Available GPUs.
+    pub gpus: Vec<GpuInfo>,
+}
+
+/// Information about a GPU.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct GpuInfo {
+    /// GPU model name.
+    pub model: String,
+}
+
+impl HardwareInfo {
+    /// Detects hardware information from the current system.
+    pub fn detect() -> Self {
+        let mut system = System::new_all();
+        system.refresh_all();
+
+        HardwareInfo {
+            cpu_model: system
+                .cpus()
+                .first()
+                .map(|cpu| cpu.brand().to_string())
+                .unwrap_or_else(|| "Unknown CPU".to_string()),
+            total_ram_gib: system.total_memory() / (1024 * 1024 * 1024),
+            gpus: detect_gpus(),
+        }
+    }
+
+    /// Serializes the hardware information to a JSON string in the provided path.
+    pub fn to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
+        let path = path.as_ref();
+        ensure_parent_dirs(path)?;
+        let json = serde_json::to_string_pretty(self)?;
+        fs::write(path, json)?;
+        Ok(())
+    }
+}
+
+/// Detects available GPUs on the system.
+fn detect_gpus() -> Vec<GpuInfo> {
+    let mut gpus = Vec::new();
+
+    if let Ok(output) = std::process::Command::new("nvidia-smi")
+        .arg("--query-gpu=gpu_name")
+        .arg("--format=csv,noheader,nounits")
+        .output()
+    {
+        if output.status.success() {
+            let gpu_names = String::from_utf8_lossy(&output.stdout);
+            for line in gpu_names.lines() {
+                let gpu_name = line.trim();
+                if !gpu_name.is_empty() {
+                    gpus.push(GpuInfo {
+                        model: gpu_name.to_string(),
+                    });
+                }
+            }
+        }
+    }
+
+    gpus
+}
+
+/// Information about a crash that occurred during a workload.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CrashInfo {
+    /// The reason for the crash (e.g., panic message).
+    pub reason: String,
+}
+
+/// Metrics for execution workloads, either successful or crashed.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ExecutionMetrics {
+    /// Metrics for a successful execution workload.
+    Success {
         /// Total number of cycles for the entire workload execution.
         total_num_cycles: u64,
         /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
@@ -20,22 +110,23 @@ pub enum WorkloadMetrics {
         /// Execution duration.
         execution_duration: Duration,
     },
-    /// Metrics produced when benchmarking in proving mode
-    Proving {
-        /// Name of the workload (e.g., "fft", "aes").
-        name: String,
-        /// Proving time in milliseconds
+    /// Metrics for a crashed execution workload.
+    Crashed(CrashInfo),
+}
+
+/// Metrics for proving workloads, either successful or crashed.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum ProvingMetrics {
+    /// Metrics for a successful proving workload.
+    Success {
+        /// Proof size in bytes.
+        proof_size: usize,
+        /// Proving time in milliseconds.
         proving_time_ms: u128,
     },
-    /// Metrics produced when a benchmark crashes/errors
-    Crashed {
-        /// Name of the workload that crashed
-        name: String,
-        /// Action being performed when crash occurred (e.g., "execute", "prove")
-        action: String,
-        /// Reason for the crash (panic message)
-        reason: String,
-    },
+    /// Metrics for a crashed proving workload.
+    Crashed(CrashInfo),
 }
 
 /// Errors that can occur during metrics processing.
@@ -60,16 +151,7 @@ impl MetricsError {
     }
 }
 
-impl WorkloadMetrics {
-    /// Returns the name of the workload regardless of the variant.
-    pub fn name(&self) -> &str {
-        match self {
-            WorkloadMetrics::Execution { name, .. } => name,
-            WorkloadMetrics::Proving { name, .. } => name,
-            WorkloadMetrics::Crashed { name, .. } => name,
-        }
-    }
-
+impl BenchmarkRun {
     /// Serializes a list of `WorkloadMetrics` into a JSON string.
     ///
     /// # Errors
@@ -99,14 +181,9 @@ impl WorkloadMetrics {
     /// Returns `MetricsError::Serde` if JSON serialization fails.
     pub fn to_path<P: AsRef<Path>>(path: P, items: &[Self]) -> Result<(), MetricsError> {
         let path = path.as_ref();
-
-        if let Some(parent) = path.parent() {
-            // `create_dir_all` is a no-op when the dirs are already there.
-            std::fs::create_dir_all(parent)?;
-        }
+        ensure_parent_dirs(path)?;
         let json = serde_json::to_string_pretty(items)?;
         fs::write(path, json)?;
-
         Ok(())
     }
 
@@ -122,6 +199,13 @@ impl WorkloadMetrics {
     }
 }
 
+fn ensure_parent_dirs<P: AsRef<Path>>(path: P) -> Result<(), io::Error> {
+    if let Some(parent) = path.as_ref().parent() {
+        std::fs::create_dir_all(parent)?;
+    }
+    Ok(())
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -129,117 +213,114 @@ mod tests {
     use tempfile::NamedTempFile;
 
     // This is just a fixed sample we are using to test serde_roundtrip
-    fn sample() -> Vec<WorkloadMetrics> {
+    fn sample() -> Vec<BenchmarkRun> {
         vec![
-            WorkloadMetrics::Execution {
-                name: "fft".into(),
-                total_num_cycles: 1_000,
-                region_cycles: HashMap::from_iter([
-                    ("setup".to_string(), 100),
-                    ("compute".to_string(), 800),
-                    ("teardown".to_string(), 100),
-                ]),
-                execution_duration: Duration::from_millis(150),
+            BenchmarkRun {
+                name: "fft_bench".into(),
+                block_used_gas: 12345,
+                execution: Some(ExecutionMetrics::Success {
+                    total_num_cycles: 1_000,
+                    region_cycles: HashMap::from_iter([
+                        ("setup".to_string(), 100),
+                        ("compute".to_string(), 800),
+                        ("teardown".to_string(), 100),
+                    ]),
+                    execution_duration: Duration::from_millis(150),
+                }),
+                proving: None,
             },
-            WorkloadMetrics::Execution {
-                name: "aes".into(),
-                total_num_cycles: 2_000,
-                region_cycles: HashMap::from_iter([
-                    ("init".to_string(), 200),
-                    ("encrypt".to_string(), 1_600),
-                    ("final".to_string(), 200),
-                ]),
-                execution_duration: Duration::from_millis(300),
+            BenchmarkRun {
+                name: "aes_bench".into(),
+                block_used_gas: 67890,
+                execution: Some(ExecutionMetrics::Success {
+                    total_num_cycles: 2_000,
+                    region_cycles: HashMap::from_iter([
+                        ("init".to_string(), 200),
+                        ("encrypt".to_string(), 1_600),
+                        ("final".to_string(), 200),
+                    ]),
+                    execution_duration: Duration::from_millis(300),
+                }),
+                proving: Some(ProvingMetrics::Success {
+                    proof_size: 256,
+                    proving_time_ms: 2_000,
+                }),
             },
-            WorkloadMetrics::Proving {
-                name: "rsa".into(),
-                proving_time_ms: 5_000,
-            },
-            WorkloadMetrics::Proving {
-                name: "ecdsa".into(),
-                proving_time_ms: 3_500,
-            },
-            WorkloadMetrics::Crashed {
-                name: "sha256".into(),
-                action: "execute".into(),
-                reason: "Out of memory panic".into(),
+            BenchmarkRun {
+                name: "proving_bench".into(),
+                block_used_gas: 54321,
+                execution: None,
+                proving: Some(ProvingMetrics::Success {
+                    proof_size: 512,
+                    proving_time_ms: 5_000,
+                }),
             },
         ]
     }
 
     #[test]
     fn round_trip_json() {
-        let workloads = sample();
-        let json = WorkloadMetrics::to_json(&workloads).expect("serialize");
-        let parsed = WorkloadMetrics::from_json(&json).expect("deserialize");
-        assert_eq!(workloads, parsed);
+        let runs = sample();
+        let json = BenchmarkRun::to_json(&runs).expect("serialize");
+        let parsed = BenchmarkRun::from_json(&json).expect("deserialize");
+        assert_eq!(runs, parsed);
     }
 
     #[test]
     fn bad_json_is_error() {
         let bad = "{this is not valid json}";
-        let err = WorkloadMetrics::from_json(bad).unwrap_err();
+        let err = BenchmarkRun::from_json(bad).unwrap_err();
         assert!(err.into_serde_err().is_data());
     }
 
     #[test]
     fn file_round_trip() -> Result<(), MetricsError> {
-        // Create a named temporary file.
         let temp_file = NamedTempFile::new()?;
         let path = temp_file.path();
-
-        let workloads = sample();
-
-        // Write → read → compare using the temp file's path.
-        WorkloadMetrics::to_path(path, &workloads)?;
-        let read_back = WorkloadMetrics::from_path(path)?;
-        assert_eq!(workloads, read_back);
-
+        let runs = sample();
+        BenchmarkRun::to_path(path, &runs)?;
+        let read_back = BenchmarkRun::from_path(path)?;
+        assert_eq!(runs, read_back);
         Ok(())
     }
 
     #[test]
     fn test_name_accessor() {
-        let execution_metric = WorkloadMetrics::Execution {
-            name: "test_execution".into(),
-            total_num_cycles: 1000,
-            region_cycles: HashMap::new(),
-            execution_duration: Duration::from_millis(150),
+        let benchmark_run = BenchmarkRun {
+            name: "test_benchmark".into(),
+            block_used_gas: 11111,
+            execution: Some(ExecutionMetrics::Success {
+                total_num_cycles: 1000,
+                region_cycles: HashMap::new(),
+                execution_duration: Duration::from_millis(150),
+            }),
+            proving: None,
         };
 
-        let proving_metric = WorkloadMetrics::Proving {
-            name: "test_proving".into(),
-            proving_time_ms: 2000,
-        };
-
-        let crashed_metric = WorkloadMetrics::Crashed {
-            name: "test_crashed".into(),
-            action: "execute".into(),
-            reason: "Test panic".into(),
-        };
-
-        assert_eq!(execution_metric.name(), "test_execution");
-        assert_eq!(proving_metric.name(), "test_proving");
-        assert_eq!(crashed_metric.name(), "test_crashed");
+        assert_eq!(benchmark_run.name, "test_benchmark");
     }
 
     #[test]
     fn test_mixed_metrics_serialization() {
-        let mixed_workloads = vec![
-            WorkloadMetrics::Execution {
-                name: "mixed_execution".into(),
+        let bench = BenchmarkRun {
+            name: "mixed_bench".into(),
+            block_used_gas: 22222,
+            execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 500,
-                region_cycles: HashMap::from_iter([("phase1".to_string(), 500)]),
-                execution_duration: Duration::from_millis(200),
-            },
-            WorkloadMetrics::Proving {
-                name: "mixed_proving".into(),
-                proving_time_ms: 1000,
-            },
-        ];
-
-        let json = WorkloadMetrics::to_json(&mixed_workloads).expect("serialize mixed");
-        let parsed = WorkloadMetrics::from_json(&json).expect("deserialize mixed");
-        assert_eq!(mixed_workloads, parsed);
+                region_cycles: HashMap::from_iter([
+                    ("setup".to_string(), 50),
+                    ("compute".to_string(), 400),
+                    ("teardown".to_string(), 50),
+                ]),
+                execution_duration: Duration::from_millis(100),
+            }),
+            proving: Some(ProvingMetrics::Success {
+                proof_size: 128,
+                proving_time_ms: 1500,
+            }),
+        };
+        let json = BenchmarkRun::to_json(&[bench.clone()]).expect("serialize mixed");
+        let parsed = BenchmarkRun::from_json(&json).expect("deserialize mixed");
+        assert_eq!(vec![bench], parsed);
     }
 }
