@@ -8,12 +8,8 @@ The core data structure is `BenchmarkRun`, which stores:
 
 - `name`: The name of the benchmark (e.g., "fft_bench", "aes_bench").
 - `block_used_gas`: The amount of gas used by the block in the benchmark.
-- `hardware`: Hardware information about the system where the benchmark was run, including CPU model, RAM, and GPU details.
-- `actions_metrics`: A list of `ActionMetrics`, which can be either `Execution` or `Proving` metrics.
-
-`ActionMetrics` can be one of:
-- `Execution(ExecutionMetrics)`: Metrics from execution workloads
-- `Proving(ProvingMetrics)`: Metrics from proving workloads
+- `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
+- `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
 
 Both `ExecutionMetrics` and `ProvingMetrics` can be either:
 - `Success { ... }`: Contains metrics from successful runs
@@ -28,10 +24,12 @@ Both `ExecutionMetrics` and `ProvingMetrics` can be either:
 - `proof_size`: The size of the generated proof in bytes.
 - `proving_time_ms`: The time taken to generate the proof in milliseconds.
 
-`HardwareInfo` automatically detects and stores:
+`HardwareInfo` is a separate utility struct that automatically detects and stores:
 - `cpu_model`: The CPU model name.
 - `total_ram_gib`: Total system RAM in GiB.
 - `gpus`: Information about available GPUs (detected via nvidia-smi if available).
+
+This struct can be used independently to capture system information and can be serialized to JSON files.
 
 The crate offers functionality to:
 
@@ -52,7 +50,7 @@ zkevm-metrics = { path = "../metrics" } # Adjust path as needed
 Example:
 
 ```rust
-use zkevm_metrics::{ActionMetrics, BenchmarkRun, ExecutionMetrics, HardwareInfo};
+use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::env::temp_dir;
@@ -63,8 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         BenchmarkRun {
             name: "workload name".into(),
             block_used_gas: 12345,
-            hardware: HardwareInfo::detect(), // Automatically detect hardware
-            actions_metrics: vec![ActionMetrics::Execution(ExecutionMetrics::Success {
+            execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1_000,
                 region_cycles: HashMap::from_iter([
                     ("setup".to_string(), 100),
@@ -72,7 +69,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                     ("teardown".to_string(), 100),
                 ]),
                 execution_duration: Duration::from_millis(300),
-            })],
+            }),
+            proving: None,
+        },
+        BenchmarkRun {
+            name: "proving workload".into(),
+            block_used_gas: 67890,
+            execution: None,
+            proving: Some(ProvingMetrics::Success {
+                proof_size: 256,
+                proving_time_ms: 2_000,
+            }),
         },
         // ... other workloads
     ];
