@@ -124,6 +124,7 @@ reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "11
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "11c277622ead0ecb1958eaea06ad6ea79c9ee223" }
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "11c277622ead0ecb1958eaea06ad6ea79c9ee223" }
 reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "11c277622ead0ecb1958eaea06ad6ea79c9ee223" }
+reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "11c277622ead0ecb1958eaea06ad6ea79c9ee223" }
 
 # alloy
 alloy-primitives = { version = "1.2.0", default-features = false }
@@ -147,3 +148,22 @@ async-trait = "0.1.88"
 tokio = { version = "1.45.1" }
 
 [patch.crates-io]
+alloy-consensus = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-eips = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-genesis = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-network = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-network-primitives = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-admin = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-anvil = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-beacon = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-debug = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-engine = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-eth = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-mev = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-trace = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-rpc-types-txpool = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-serde = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-signer = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
+alloy-signer-local = { git = "https://github.com/alloy-rs/alloy", rev = "08fa016ed950b6e65f810fc9cdef7cf38fbc63f6" }
