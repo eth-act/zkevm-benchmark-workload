@@ -19,3 +19,5 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "serde",
     "sha3-keccak",
 ] }
+reth-evm-ethereum = { workspace = true }
+reth-chainspec = { workspace = true }

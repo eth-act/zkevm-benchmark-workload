@@ -6088,7 +6088,9 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "openvm 1.1.1",
+ "reth-chainspec",
  "reth-ethereum-primitives",
+ "reth-evm-ethereum",
  "reth-primitives-traits",
  "reth-stateless",
  "tracing",
@@ -10490,7 +10492,9 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "c-kzg",
+ "reth-chainspec",
  "reth-ethereum-primitives",
+ "reth-evm-ethereum",
  "reth-primitives-traits",
  "reth-stateless",
  "revm",
@@ -13895,7 +13899,9 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bincode",
+ "reth-chainspec",
  "reth-ethereum-primitives",
+ "reth-evm-ethereum",
  "reth-primitives-traits",
  "reth-stateless",
  "ziskos",
