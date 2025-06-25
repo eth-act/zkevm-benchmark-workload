@@ -126,7 +126,7 @@ reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "11c277622e
 reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "11c277622ead0ecb1958eaea06ad6ea79c9ee223" }
 
 # alloy
-alloy-primitives = { version = "1.1.0", default-features = false }
+alloy-primitives = { version = "1.2.0", default-features = false }
 alloy-eips = { version = "1.0.12" }
 alloy-rpc-types-eth = "1.0.12"
 
