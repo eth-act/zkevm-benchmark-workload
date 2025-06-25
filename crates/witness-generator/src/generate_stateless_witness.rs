@@ -3,7 +3,6 @@ use async_trait::async_trait;
 use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
-    models::State,
 };
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
