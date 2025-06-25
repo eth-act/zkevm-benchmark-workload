@@ -9,4 +9,4 @@ pub mod rpc;
 pub mod witness_generator;
 
 pub use blocks_and_witnesses::{BlocksAndWitnesses, BwError};
-pub use reth_stateless::ClientInput;
+pub use reth_stateless::StatelessInput;
