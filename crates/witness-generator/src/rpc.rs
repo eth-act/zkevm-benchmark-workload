@@ -135,14 +135,15 @@ impl RPCBlocksAndWitnesses {
                 .client
                 .debug_execution_witness_by_block_hash(block_hash)
                 .await?;
-            let block =
-                EthApiClient::<TransactionRequest, Transaction, Block<TransactionSigned>, Receipt, Header>::block_by_hash(
-                    &self.client,
-                    block_hash,
-                    true,
-                )
-                .await?
-                .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
+            let block = EthApiClient::<
+                TransactionRequest,
+                Transaction,
+                Block<TransactionSigned>,
+                Receipt,
+                Header,
+            >::block_by_hash(&self.client, block_hash, true)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
             blocks_and_witnesses.push(BlocksAndWitnesses {
                 name: format!("rpc_block_{}", block_num),
@@ -169,13 +170,16 @@ impl RPCBlocksAndWitnesses {
             .await?;
 
         // Fetch the block details
-        let block = EthApiClient::<TransactionRequest, Transaction, Block<TransactionSigned>, Receipt, Header>::block_by_number(
-            &self.client,
-            BlockNumberOrTag::Number(block_num),
-            true,
-        )
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
+        let block =
+            EthApiClient::<
+                TransactionRequest,
+                Transaction,
+                Block<TransactionSigned>,
+                Receipt,
+                Header,
+            >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
         let blocks_and_witnesses = vec![BlocksAndWitnesses {
             name: format!("rpc_block_{}", block_num),
