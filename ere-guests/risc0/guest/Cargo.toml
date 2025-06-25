@@ -19,7 +19,7 @@ reth-primitives-traits = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 reth-stateless.workspace = true
-revm = { version = "23", features = ["std", "c-kzg", "blst", "bn"] }
+revm = { version = "26.0.1", features = ["std", "c-kzg", "blst", "bn"] }
 risc0-zkvm = { version = "^2.1.0", default-features = false, features = [
     "std",
     "unstable",
