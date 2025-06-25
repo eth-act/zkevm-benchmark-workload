@@ -16,7 +16,10 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-revm = { version = "23.1.0", default-features = false, features = [
+reth-evm-ethereum = { workspace = true }
+reth-chainspec = { workspace = true }
+
+revm = { version = "26.0.1", default-features = false, features = [
     "kzg-rs",
     "bn",
 ] }

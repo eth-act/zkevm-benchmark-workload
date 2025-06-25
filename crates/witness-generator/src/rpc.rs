@@ -1,6 +1,6 @@
 use crate::{BlocksAndWitnesses, witness_generator::WitnessGenerator};
 use alloy_eips::BlockNumberOrTag;
-use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction};
+use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::Result;
 use async_trait::async_trait;
 use http::HeaderName;
@@ -10,7 +10,7 @@ use jsonrpsee::{
 };
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
-use reth_stateless::{ClientInput, fork_spec::ForkSpec};
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use std::{cmp::max, str::FromStr};
 
 /// Builder for configuring an RPC client that fetches blocks and witnesses.
@@ -102,7 +102,7 @@ impl RPCBlocksAndWitnesses {
             return Ok(vec![]);
         }
 
-        let latest_block = EthApiClient::<Transaction, Block, Receipt, Header>::block_by_number(
+        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
             &self.client,
             BlockNumberOrTag::Latest,
             false,
@@ -119,7 +119,7 @@ impl RPCBlocksAndWitnesses {
         hashes.push((latest_block.header.number, latest_block.header.hash));
         for n in (block_num_start..block_num_end).rev() {
             let block_hash = hashes.last().unwrap().1;
-            let block = EthApiClient::<Transaction, Block, Receipt, Header>::block_by_hash(
+            let block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_hash(
                 &self.client,
                 block_hash,
                 true,
@@ -135,18 +135,19 @@ impl RPCBlocksAndWitnesses {
                 .client
                 .debug_execution_witness_by_block_hash(block_hash)
                 .await?;
-            let block =
-                EthApiClient::<Transaction, Block<TransactionSigned>, Receipt, Header>::block_by_hash(
-                    &self.client,
-                    block_hash,
-                    true,
-                )
-                .await?
-                .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
+            let block = EthApiClient::<
+                TransactionRequest,
+                Transaction,
+                Block<TransactionSigned>,
+                Receipt,
+                Header,
+            >::block_by_hash(&self.client, block_hash, true)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
             blocks_and_witnesses.push(BlocksAndWitnesses {
                 name: format!("rpc_block_{}", block_num),
-                blocks_and_witnesses: vec![ClientInput {
+                blocks_and_witnesses: vec![StatelessInput {
                     block: block.into_consensus(),
                     witness,
                 }],
@@ -169,17 +170,20 @@ impl RPCBlocksAndWitnesses {
             .await?;
 
         // Fetch the block details
-        let block = EthApiClient::<Transaction, Block<TransactionSigned>, Receipt, Header>::block_by_number(
-            &self.client,
-            BlockNumberOrTag::Number(block_num),
-            true,
-        )
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
+        let block =
+            EthApiClient::<
+                TransactionRequest,
+                Transaction,
+                Block<TransactionSigned>,
+                Receipt,
+                Header,
+            >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
         let blocks_and_witnesses = vec![BlocksAndWitnesses {
             name: format!("rpc_block_{}", block_num),
-            blocks_and_witnesses: vec![ClientInput {
+            blocks_and_witnesses: vec![StatelessInput {
                 block: block.into_consensus(),
                 witness,
             }],

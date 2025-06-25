@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlocksAndWitnesses, witness_generator::WitnessGenerator};
-use reth_stateless::ClientInput;
+use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
 #[derive(Debug, Clone)]
@@ -83,7 +83,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                     blocks_and_witnesses: run_case(case)
                         .unwrap()
                         .into_iter()
-                        .map(|(recovered_block, witness)| ClientInput {
+                        .map(|(recovered_block, witness)| StatelessInput {
                             block: recovered_block.into_block(),
                             witness,
                         })

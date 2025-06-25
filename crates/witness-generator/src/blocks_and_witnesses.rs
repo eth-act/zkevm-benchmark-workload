@@ -1,6 +1,6 @@
 use std::{fs, io, path::Path};
 
-use reth_stateless::{ClientInput, fork_spec::ForkSpec};
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -14,7 +14,7 @@ pub struct BlocksAndWitnesses {
     /// Name of the blockchain test case (e.g., "`ModExpAttackContract`").
     pub name: String,
     /// Sequentially ordered blocks, each coupled with its corresponding execution witness.
-    pub blocks_and_witnesses: Vec<ClientInput>,
+    pub blocks_and_witnesses: Vec<StatelessInput>,
     /// The network fork specification (e.g., Shanghai, Cancun, Prague) active for this test case.
     // TODO: Don't think we want to pass this through maybe ForkSpec
     // TODO: Also Genesis file is wrong in chainspec

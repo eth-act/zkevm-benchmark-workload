@@ -17,7 +17,7 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: Generates the necessary inputs (`ClientInput`: block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures.
+- **`crates/witness-generator`**: Generates the necessary inputs (`StatelessInput`: block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures.
 - **`crates/ere-hosts`**: Contains the host implementation that orchestrates benchmarking across different zkVM platforms.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
 - **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
