@@ -5,14 +5,14 @@
 extern crate alloc;
 
 use alloc::sync::Arc;
-use reth_stateless::{ClientInput, fork_spec::ForkSpec, validation::stateless_validation};
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec, validation::stateless_validation};
 
 ziskos::entrypoint!(main);
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
-    let (input, fork_spec): (ClientInput, ForkSpec) =
+    let (input, fork_spec): (StatelessInput, ForkSpec) =
         bincode::deserialize(&ziskos::read_input()).unwrap();
     let chain_spec = Arc::new(fork_spec.into());
     println!("end read_input");

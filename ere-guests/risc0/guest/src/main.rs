@@ -3,13 +3,13 @@ use risc0_zkvm::guest::env;
 extern crate alloc;
 
 use alloc::sync::Arc;
-use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, ClientInput};
+use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, StatelessInput};
 
 /// Entry point.
 pub fn main() {
     println!("start reading input");
     let start = env::cycle_count();
-    let input = env::read::<ClientInput>();
+    let input = env::read::<StatelessInput>();
     let fork_spec = env::read::<ForkSpec>();
     let chain_spec = Arc::new(fork_spec.into());
     let end = env::cycle_count();
