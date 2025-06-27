@@ -8,7 +8,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-jobs:
+jobs: 
   check:
     name: Minimal checks on non-zkvm crates
     runs-on: ubuntu-latest
@@ -16,28 +16,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download and Extract Fixtures
-        run: |
-          chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
+      
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          key: base 
 
       - name: Check formatting
         run: cargo fmt --check --all
@@ -45,43 +32,39 @@ jobs:
       - name: Run tests
         run: cargo test -p zkevm-metrics -p witness-generator -p ere-hosts
 
-  check-ere-host:
-    name: Checks crate ere-hosts
-    strategy:
-      matrix:
-        include:
-          - zkvm: sp1
-          - zkvm: risc0
-          - zkvm: openvm
-          - zkvm: pico
-          - zkvm: zisk
+  download-eest-fixtures:
+    name: Download and Extract Fixtures
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Download and Extract Fixtures
         run: |
           chmod +x ./scripts/download-and-extract-fixtures.sh
           ./scripts/download-and-extract-fixtures.sh
 
+  check-ere-host:
+    name: Checks crate ere-hosts
+    strategy:
+      fail-fast: false
+      matrix:
+        zkvm: [sp1, risc0, openvm, pico, zisk]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
 
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          key: ${{ matrix.zkvm }}
 
       - name: Cargo check (with ${{ matrix.zkvm }} enabled)
         run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
