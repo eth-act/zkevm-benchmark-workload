@@ -1,6 +1,6 @@
 use std::{fs, io, path::Path};
 
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::{Genesis, StatelessInput};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -15,11 +15,10 @@ pub struct BlocksAndWitnesses {
     pub name: String,
     /// Sequentially ordered blocks, each coupled with its corresponding execution witness.
     pub blocks_and_witnesses: Vec<StatelessInput>,
-    /// The network fork specification (e.g., Shanghai, Cancun, Prague) active for this test case.
-    // TODO: Don't think we want to pass this through maybe ForkSpec
+    /// The genesis file for the network
     // TODO: Also Genesis file is wrong in chainspec
     // TODO: We can keep this initially and don't measure the time it takes to deserialize
-    pub network: ForkSpec,
+    pub genesis: Genesis,
 }
 
 /// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.

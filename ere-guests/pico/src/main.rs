@@ -8,14 +8,14 @@ extern crate alloc;
 use alloc::sync::Arc;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, StatelessInput};
+use reth_stateless::{validation::stateless_validation, Genesis, StatelessInput};
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
     let input: StatelessInput = read_as();
-    let network: ForkSpec = read_as();
-    let chain_spec: Arc<ChainSpec> = Arc::new(network.into());
+    let genesis: Genesis = read_as();
+    let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
 
     println!("end read_input");
