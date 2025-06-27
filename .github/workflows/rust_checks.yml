@@ -1,7 +1,7 @@
 name: Rust Checks
 on:
   push:
-    branches: [ main, master, jsign-ci-cache ]
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
