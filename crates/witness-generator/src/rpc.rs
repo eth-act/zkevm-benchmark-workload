@@ -8,9 +8,10 @@ use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder}, // Added HeaderMap here
     ws_client::HeaderValue,
 };
+use reth_chainspec::MAINNET;
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::StatelessInput;
 use std::{cmp::max, str::FromStr};
 
 /// Builder for configuring an RPC client that fetches blocks and witnesses.
@@ -151,10 +152,7 @@ impl RPCBlocksAndWitnesses {
                     block: block.into_consensus(),
                     witness,
                 }],
-                // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
-                // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
-                // HardForks enum.
-                network: ForkSpec::Prague,
+                genesis: MAINNET.genesis.clone(),
             })
         }
 
@@ -187,10 +185,7 @@ impl RPCBlocksAndWitnesses {
                 block: block.into_consensus(),
                 witness,
             }],
-            // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
-            // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
-            // HardForks enum.
-            network: ForkSpec::Prague,
+            genesis: MAINNET.genesis.clone(),
         }];
 
         Ok(blocks_and_witnesses)

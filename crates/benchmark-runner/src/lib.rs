@@ -72,7 +72,7 @@ where
         let block_used_gas = ci.block.gas_used;
         let mut stdin = Input::new();
         stdin.write(ci);
-        stdin.write(bw.network);
+        stdin.write(bw.genesis.clone());
 
         let (execution, proving) = match action {
             Action::Execute => {

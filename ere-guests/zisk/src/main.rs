@@ -7,16 +7,16 @@ extern crate alloc;
 use alloc::sync::Arc;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec, validation::stateless_validation};
+use reth_stateless::{Genesis, StatelessInput, validation::stateless_validation};
 
 ziskos::entrypoint!(main);
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
-    let (input, fork_spec): (StatelessInput, ForkSpec) =
+    let (input, genesis): (StatelessInput, Genesis) =
         bincode::deserialize(&ziskos::read_input()).unwrap();
-    let chain_spec: Arc<ChainSpec> = Arc::new(fork_spec.into());
+    let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
 
     println!("end read_input");

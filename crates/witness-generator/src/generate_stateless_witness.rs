@@ -4,6 +4,7 @@ use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
 };
+use reth_chainspec::ChainSpec;
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
@@ -78,17 +79,24 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                         .as_ref()
                         .map_or(true, |filter| filter.iter().all(|f| name.contains(f)))
                 })
-                .map(|(name, case)| BlocksAndWitnesses {
-                    name: name.to_string(),
-                    blocks_and_witnesses: run_case(case)
-                        .unwrap()
-                        .into_iter()
-                        .map(|(recovered_block, witness)| StatelessInput {
-                            block: recovered_block.into_block(),
-                            witness,
-                        })
-                        .collect(),
-                    network: reth_stateless::fork_spec::ForkSpec::from(case.network),
+                .map(|(name, case)| {
+                    let chain_spec: ChainSpec = case.network.into();
+                    let mut genesis = chain_spec.genesis;
+                    // Empty alloc since it is not needed for block validation
+                    genesis.alloc = Default::default();
+
+                    BlocksAndWitnesses {
+                        name: name.to_string(),
+                        blocks_and_witnesses: run_case(case)
+                            .unwrap()
+                            .into_iter()
+                            .map(|(recovered_block, witness)| StatelessInput {
+                                block: recovered_block.into_block(),
+                                witness,
+                            })
+                            .collect(),
+                        genesis,
+                    }
                 })
                 .collect();
             blocks_and_witnesses.extend(blockchain_case);
