@@ -2999,7 +2999,7 @@ dependencies = [
 [[package]]
 name = "ere-openvm"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "openvm-build",
  "openvm-circuit",
@@ -3013,7 +3013,7 @@ dependencies = [
 [[package]]
 name = "ere-pico"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "bincode",
  "pico-sdk",
@@ -3024,7 +3024,7 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "anyhow",
  "borsh",
@@ -3040,7 +3040,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "bincode",
  "sp1-sdk",
@@ -3054,7 +3054,7 @@ dependencies = [
 [[package]]
 name = "ere-zisk"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "bincode",
  "blake3",
@@ -13989,7 +13989,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.2#ac3eb134a1a2324715be08ed126cbf7b53fc602f"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.3#5d58bc67246becff7ca5ca1670efc79d82deb241"
 dependencies = [
  "anyhow",
  "auto_impl",
