@@ -20,19 +20,11 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
-
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
+      
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          key: base 
 
       - name: Check formatting
         run: cargo fmt --check --all
@@ -56,13 +48,9 @@ jobs:
   check-ere-host:
     name: Checks crate ere-hosts
     strategy:
+      fail-fast: false
       matrix:
-        include:
-          - zkvm: sp1
-          - zkvm: risc0
-          - zkvm: openvm
-          - zkvm: pico
-          - zkvm: zisk
+        zkvm: [sp1, risc0, openvm, pico, zisk]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -73,18 +61,10 @@ jobs:
         with:
           components: clippy, rustfmt
 
-      - name: Cache Rust dependencies
-        uses: actions/cache@v4
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
         with:
-          path: |
-            ~/.cargo/bin/
-            ~/.cargo/registry/index/
-            ~/.cargo/registry/cache/
-            ~/.cargo/git/db/
-            target/
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-cargo-
+          key: ${{ matrix.zkvm }}
 
       - name: Cargo check (with ${{ matrix.zkvm }} enabled)
         run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
