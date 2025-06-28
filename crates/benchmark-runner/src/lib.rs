@@ -1,5 +1,5 @@
 use rayon::prelude::*;
-use std::{any::Any, panic, sync::Arc};
+use std::{any::Any, panic, path::PathBuf, str::FromStr, sync::Arc};
 use witness_generator::BlocksAndWitnesses;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
@@ -16,6 +16,7 @@ pub fn run_benchmark_ere<V>(
     zkvm_instance: V,
     action: Action,
     corpuses: &[BlocksAndWitnesses],
+    force_rerun: bool,
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -31,15 +32,15 @@ where
     match action {
         Action::Execute => {
             // Use parallel iteration for execution
-            corpuses
-                .into_par_iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), action, host_name))?;
+            corpuses.into_par_iter().try_for_each(|bw| {
+                process_corpus(bw, zkvm_ref.clone(), action, host_name, force_rerun)
+            })?;
         }
         Action::Prove => {
             // Use sequential iteration for proving
-            corpuses
-                .into_iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), action, host_name))?;
+            corpuses.into_iter().try_for_each(|bw| {
+                process_corpus(bw, zkvm_ref.clone(), action, host_name, force_rerun)
+            })?;
         }
     }
     Ok(())
@@ -50,6 +51,7 @@ fn process_corpus<V>(
     zkvm_ref: Arc<V>,
     action: Action,
     host_name: &str,
+    force_rerun: bool,
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -67,7 +69,19 @@ where
     println!(" {} ({} blocks)", bw.name, blocks_and_witnesses.len());
     let mut reports = Vec::new();
 
+    let out_path = PathBuf::from_str(&format!(
+        "{}/zkevm-metrics/{}/{}.json",
+        env!("CARGO_WORKSPACE_DIR"),
+        host_name,
+        bw.name
+    ))?;
+
     for ci in blocks_and_witnesses {
+        if !force_rerun && out_path.exists() {
+            println!("Skipping {}-{} (already exists)", bw.name, ci.block.number);
+            continue;
+        }
+
         let block_number = ci.block.number;
         let block_used_gas = ci.block.gas_used;
         let mut stdin = Input::new();
@@ -117,12 +131,6 @@ where
         });
     }
 
-    let out_path = format!(
-        "{}/zkevm-metrics/{}/{}.json",
-        env!("CARGO_WORKSPACE_DIR"),
-        host_name,
-        bw.name
-    );
     BenchmarkRun::to_path(out_path, &reports)?;
     println!("wrote {} reports", reports.len());
     Ok(())

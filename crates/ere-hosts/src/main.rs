@@ -39,6 +39,10 @@ struct Cli {
     #[arg(short, long, value_enum, default_value = "execute")]
     action: BenchmarkAction,
 
+    /// Rerun the benchmarks even if the output folder already contains results
+    #[arg(long, default_value_t = false)]
+    force_rerun: bool,
+
     /// Source of blocks and witnesses
     #[command(subcommand)]
     source: SourceCommand,
@@ -165,7 +169,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("sp1")?;
         let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
-        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses)?;
+        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses, cli.force_rerun)?;
         ran_any = true;
     }
 
@@ -181,7 +185,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("risc0")?;
         let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
-        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses)?;
+        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses, cli.force_rerun)?;
         ran_any = true;
     }
 
@@ -189,7 +193,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("openvm")?;
         let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
-        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses)?;
+        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses, cli.force_rerun)?;
         ran_any = true;
     }
 
@@ -197,7 +201,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("pico")?;
         let pico_zkvm = new_pico_zkvm(resource.clone())?;
-        run_benchmark_ere("pico", pico_zkvm, action, &corpuses)?;
+        run_benchmark_ere("pico", pico_zkvm, action, &corpuses, cli.force_rerun)?;
         ran_any = true;
     }
 
