@@ -4,6 +4,11 @@ use witness_generator::BlocksAndWitnesses;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
+pub struct RunConfig {
+    pub action: Action,
+    pub force_rerun: bool,
+}
+
 /// Action specifies whether we should prove or execute
 #[derive(Clone, Copy)]
 pub enum Action {
@@ -14,9 +19,8 @@ pub enum Action {
 pub fn run_benchmark_ere<V>(
     host_name: &str,
     zkvm_instance: V,
-    action: Action,
+    run_config: &RunConfig,
     corpuses: &[BlocksAndWitnesses],
-    force_rerun: bool,
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -29,18 +33,18 @@ where
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
 
-    match action {
+    match run_config.action {
         Action::Execute => {
             // Use parallel iteration for execution
-            corpuses.into_par_iter().try_for_each(|bw| {
-                process_corpus(bw, zkvm_ref.clone(), action, host_name, force_rerun)
-            })?;
+            corpuses
+                .into_par_iter()
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
         }
         Action::Prove => {
             // Use sequential iteration for proving
-            corpuses.into_iter().try_for_each(|bw| {
-                process_corpus(bw, zkvm_ref.clone(), action, host_name, force_rerun)
-            })?;
+            corpuses
+                .into_iter()
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
         }
     }
     Ok(())
@@ -49,9 +53,8 @@ where
 fn process_corpus<V>(
     bw: &BlocksAndWitnesses,
     zkvm_ref: Arc<V>,
-    action: Action,
     host_name: &str,
-    force_rerun: bool,
+    run_config: &RunConfig,
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -77,7 +80,7 @@ where
     ))?;
 
     for ci in blocks_and_witnesses {
-        if !force_rerun && out_path.exists() {
+        if !run_config.force_rerun && out_path.exists() {
             println!("Skipping {}-{} (already exists)", bw.name, ci.block.number);
             continue;
         }
@@ -88,7 +91,7 @@ where
         stdin.write(ci);
         stdin.write(bw.network);
 
-        let (execution, proving) = match action {
+        let (execution, proving) = match run_config.action {
             Action::Execute => {
                 let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));
                 let execution = match run {
