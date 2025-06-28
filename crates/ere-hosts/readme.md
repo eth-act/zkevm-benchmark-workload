@@ -113,6 +113,23 @@ cargo run --features sp1 -- tests
 cargo run --features sp1 -- --force-rerun tests
 ```
 
+### Output Folder Configuration
+
+By default, benchmark results are saved to the `zkevm-metrics/` directory. You can specify a custom output directory using the `--output-folder` flag:
+
+```bash
+# Use default output folder (zkevm-metrics/)
+cargo run --features sp1 -- tests
+
+# Use custom output folder
+cargo run --features sp1 -- --output-folder my-custom-results tests
+
+# Use absolute path
+cargo run --features sp1 -- --output-folder /tmp/benchmark-results tests
+```
+
+The benchmark results will be organized by zkVM type within the specified folder (e.g., `my-custom-results/sp1/`, `my-custom-results/risc0/`, etc.).
+
 ### Combined Examples
 
 Run SP1 and OpenVM with GPU proving on RPC data:
@@ -142,12 +159,22 @@ cargo run --features "sp1,risc0" -- \
   tests
 ```
 
+Run SP1 with custom output directory:
+
+```bash
+cargo run --features sp1 -- \
+  --output-folder custom-benchmarks \
+  --action execute \
+  tests
+```
+
 ## Command Line Options
 
 | Option | Short | Description | Default | Values |
 |--------|-------|-------------|---------|---------|
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
+| `--output-folder` | `-o` | Output folder for benchmark results | `zkevm-metrics` | Any valid directory path |
 | `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |
 | `--help` | `-h` | Show help information | - | - |
 | `--version` | `-V` | Show version information | - | - |
