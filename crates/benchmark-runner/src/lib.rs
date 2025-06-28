@@ -1,12 +1,16 @@
 use rayon::prelude::*;
-use std::{any::Any, panic, path::PathBuf, str::FromStr, sync::Arc};
+use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use witness_generator::BlocksAndWitnesses;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
+/// RunConfig holds the configuration for running benchmarks
 pub struct RunConfig {
+    /// Output folder where benchmark results will be stored
     pub output_folder: PathBuf,
+    /// Action to perform: either proving or executing
     pub action: Action,
+    /// Force rerun benchmarks even if output files already exist
     pub force_rerun: bool,
 }
 
