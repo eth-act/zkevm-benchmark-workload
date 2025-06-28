@@ -7,7 +7,7 @@ use witness_generator::{
     witness_generator::WitnessGenerator,
 };
 
-use benchmark_runner::{Action, run_benchmark_ere};
+use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
 use zkvm_interface::{Compiler, ProverResourceType};
 
@@ -38,6 +38,14 @@ struct Cli {
     /// Action to perform
     #[arg(short, long, value_enum, default_value = "execute")]
     action: BenchmarkAction,
+
+    /// Rerun the benchmarks even if the output folder already contains results
+    #[arg(long, default_value_t = false)]
+    force_rerun: bool,
+
+    /// Output folder for benchmark results
+    #[arg(short, long, default_value = "zkevm-metrics")]
+    output_folder: PathBuf,
 
     /// Source of blocks and witnesses
     #[command(subcommand)]
@@ -161,11 +169,17 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Set to true once a zkvm has ran
     let mut ran_any = false;
 
+    let run_config = RunConfig {
+        output_folder: cli.output_folder,
+        action,
+        force_rerun: cli.force_rerun,
+    };
+
     #[cfg(feature = "sp1")]
     {
         run_cargo_patch_command("sp1")?;
         let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
-        run_benchmark_ere("sp1", sp1_zkvm, action, &corpuses)?;
+        run_benchmark_ere("sp1", sp1_zkvm, &run_config, &corpuses)?;
         ran_any = true;
     }
 
@@ -173,7 +187,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("zisk")?;
         let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
-        run_benchmark_ere("zisk", zisk_zkvm, action, &corpuses)?;
+        run_benchmark_ere("zisk", zisk_zkvm, &run_config, &corpuses)?;
         ran_any = true;
     }
 
@@ -181,7 +195,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("risc0")?;
         let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
-        run_benchmark_ere("risc0", risc0_zkvm, action, &corpuses)?;
+        run_benchmark_ere("risc0", risc0_zkvm, &run_config, &corpuses)?;
         ran_any = true;
     }
 
@@ -189,7 +203,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("openvm")?;
         let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
-        run_benchmark_ere("openvm", openvm_zkvm, action, &corpuses)?;
+        run_benchmark_ere("openvm", openvm_zkvm, &run_config, &corpuses)?;
         ran_any = true;
     }
 
@@ -197,7 +211,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("pico")?;
         let pico_zkvm = new_pico_zkvm(resource.clone())?;
-        run_benchmark_ere("pico", pico_zkvm, action, &corpuses)?;
+        run_benchmark_ere("pico", pico_zkvm, &run_config, &corpuses)?;
         ran_any = true;
     }
 
