@@ -43,6 +43,10 @@ struct Cli {
     #[arg(long, default_value_t = false)]
     force_rerun: bool,
 
+    /// Output folder for benchmark results
+    #[arg(short, long, default_value = "zkevm-metrics")]
+    output_folder: PathBuf,
+
     /// Source of blocks and witnesses
     #[command(subcommand)]
     source: SourceCommand,
@@ -166,6 +170,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let mut ran_any = false;
 
     let run_config = RunConfig {
+        output_folder: cli.output_folder,
         action,
         force_rerun: cli.force_rerun,
     };

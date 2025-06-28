@@ -5,6 +5,7 @@ use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, Pro
 use zkvm_interface::{zkVM, Input};
 
 pub struct RunConfig {
+    pub output_folder: PathBuf,
     pub action: Action,
     pub force_rerun: bool,
 }
@@ -25,10 +26,7 @@ pub fn run_benchmark_ere<V>(
 where
     V: zkVM + Sync,
 {
-    HardwareInfo::detect().to_path(format!(
-        "{}/zkevm-metrics/hardware.json",
-        env!("CARGO_WORKSPACE_DIR")
-    ))?;
+    HardwareInfo::detect().to_path(run_config.output_folder.join(&format!("hardware.json",)))?;
 
     println!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
@@ -72,12 +70,9 @@ where
     println!(" {} ({} blocks)", bw.name, blocks_and_witnesses.len());
     let mut reports = Vec::new();
 
-    let out_path = PathBuf::from_str(&format!(
-        "{}/zkevm-metrics/{}/{}.json",
-        env!("CARGO_WORKSPACE_DIR"),
-        host_name,
-        bw.name
-    ))?;
+    let out_path = run_config
+        .output_folder
+        .join(&format!("{}/{}.json", host_name, bw.name));
 
     for ci in blocks_and_witnesses {
         if !run_config.force_rerun && out_path.exists() {
