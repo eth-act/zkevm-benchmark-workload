@@ -68,7 +68,9 @@ enum SourceCommand {
         #[arg(short, long, default_value = path_to_zkevm_fixtures())]
         directory_path: PathBuf,
         #[arg(short, long)]
-        filter: Option<Vec<String>>,
+        include: Option<Vec<String>>,
+        #[arg(short, long)]
+        exclude: Option<Vec<String>>,
     },
     Rpc {
         /// Number of last blocks to pull
@@ -130,8 +132,13 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     let block_witness_gen: Box<dyn WitnessGenerator> = match cli.source {
         SourceCommand::Tests {
             directory_path,
-            filter,
-        } => Box::new(ExecSpecTestBlocksAndWitnesses::new(directory_path, filter)),
+            include,
+            exclude,
+        } => Box::new(ExecSpecTestBlocksAndWitnesses::new(
+            directory_path,
+            include.unwrap_or_default(),
+            exclude.unwrap_or_default(),
+        )),
         SourceCommand::Rpc {
             last_n_blocks,
             block,

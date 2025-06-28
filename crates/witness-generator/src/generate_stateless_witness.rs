@@ -14,7 +14,8 @@ use reth_stateless::StatelessInput;
 #[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
-    filter: Option<Vec<String>>,
+    include: Vec<String>,
+    exclude: Vec<String>,
 }
 impl ExecSpecTestBlocksAndWitnesses {
     /// Creates a new instance of `ExecSpecTestBlocksAndWitnesses`.
@@ -22,10 +23,13 @@ impl ExecSpecTestBlocksAndWitnesses {
     /// # Arguments
     ///
     /// * `directory_path` - The path to the directory containing the blockchain test cases.
-    pub fn new(directory_path: PathBuf, filter: Option<Vec<String>>) -> Self {
+    /// * `include` - A list of strings to filter test cases by name (only those containing these strings will be included).
+    /// * `exclude` - A list of strings to filter test cases by name (those containing these strings will be excluded).
+    pub fn new(directory_path: PathBuf, include: Vec<String>, exclude: Vec<String>) -> Self {
         Self {
             directory_path,
-            filter,
+            include,
+            exclude,
         }
     }
 }
@@ -73,11 +77,8 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 // This is why we have `tests`.
                 .tests
                 .iter()
-                .filter(|(name, _)| {
-                    self.filter
-                        .as_ref()
-                        .map_or(true, |filter| filter.iter().all(|f| name.contains(f)))
-                })
+                .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
+                .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
                 .map(|(name, case)| BlocksAndWitnesses {
                     name: name.to_string(),
                     blocks_and_witnesses: run_case(case)
