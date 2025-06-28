@@ -39,10 +39,19 @@ Run all available zkVMs:
 cargo run --features "sp1,risc0,openvm,pico" -- tests
 ```
 
-You can use the `--filter` to only run specific tests. If you use multiple filters, they will be combined 
-with a logical AND, for example:
+You can use `--include` to only run specific tests and `--exclude` to skip specific tests. If you use multiple include filters, they will be combined with a logical AND, for example:
 ```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests --filter "Prague" --filter "Blockhash"
+cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --include "Blockhash"
+```
+
+You can also exclude certain tests:
+```bash
+cargo run --features "sp1,risc0,openvm,pico" -- tests --exclude "Shanghai" --exclude "London"
+```
+
+Or combine both include and exclude filters:
+```bash
+cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --exclude "Shanghai"
 ```
 
 ### Data Sources
