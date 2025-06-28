@@ -51,7 +51,7 @@ cargo run --features "sp1,risc0,openvm,pico" -- tests --exclude "Shanghai" --exc
 
 Or combine both include and exclude filters:
 ```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --exclude "Shanghai"
+cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --exclude "SSTORE"
 ```
 
 ### Data Sources
