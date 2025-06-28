@@ -177,7 +177,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     {
         run_cargo_patch_command("zisk")?;
         let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
-        run_benchmark_ere("zisk", zisk_zkvm, action, &corpuses)?;
+        run_benchmark_ere("zisk", zisk_zkvm, action, &corpuses, cli.force_rerun)?;
         ran_any = true;
     }
 

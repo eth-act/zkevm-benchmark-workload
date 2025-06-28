@@ -101,6 +101,18 @@ cargo run --features sp1 -- --action execute tests
 cargo run --features sp1 -- --action prove tests
 ```
 
+### Force Rerun
+
+By default, the benchmarker will skip tests that already have output files in the `zkevm-metrics/` directory to avoid redundant computation. Use `--force-rerun` to override this behavior:
+
+```bash
+# Skip tests that already have results (default behavior)
+cargo run --features sp1 -- tests
+
+# Rerun all tests, overwriting existing results
+cargo run --features sp1 -- --force-rerun tests
+```
+
 ### Combined Examples
 
 Run SP1 and OpenVM with GPU proving on RPC data:
@@ -121,12 +133,22 @@ cargo run --features "sp1,risc0,openvm,pico" -- \
   tests --directory-path ./my-test-files
 ```
 
+Force rerun all benchmarks for SP1 and RISC0, overwriting existing results:
+
+```bash
+cargo run --features "sp1,risc0" -- \
+  --force-rerun \
+  --action execute \
+  tests
+```
+
 ## Command Line Options
 
 | Option | Short | Description | Default | Values |
 |--------|-------|-------------|---------|---------|
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
+| `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |
 | `--help` | `-h` | Show help information | - | - |
 | `--version` | `-V` | Show version information | - | - |
 
