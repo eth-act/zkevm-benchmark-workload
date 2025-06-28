@@ -133,8 +133,10 @@ where
         });
     }
 
-    BenchmarkRun::to_path(out_path, &reports)?;
-    println!("wrote {} reports", reports.len());
+    if !reports.is_empty() {
+        BenchmarkRun::to_path(out_path, &reports)?;
+        println!("wrote {} reports", reports.len());
+    }
     Ok(())
 }
 
