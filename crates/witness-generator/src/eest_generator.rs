@@ -118,6 +118,15 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             let file_tests: Vec<(String, BlockchainTest)> = test_case
                 .tests
                 .into_iter()
+                .map(|(name, case)| {
+                    (
+                        name.split('/')
+                            .last()
+                            .expect("Failed to extract test name")
+                            .to_string(),
+                        case,
+                    )
+                })
                 .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
                 .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
                 .map(|(name, case)| (name, case))
