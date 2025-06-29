@@ -2,7 +2,7 @@
 target
 
 # zkevm fixtures file
-zkevm-fixtures
+zkevm-fixtures*
 # zkevm metrics file
 zkevm-metrics
 
