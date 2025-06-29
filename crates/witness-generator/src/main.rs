@@ -119,7 +119,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Writing fixtures to output folder...");
     for bw in bws {
         let output_path = cli.output_folder.join(format!("{}.json", bw.name));
-        let output_data = serde_json::to_string(&bw)?;
+        let output_data = serde_json::to_string_pretty(&bw)?;
         if !output_path.exists() {
             std::fs::create_dir_all(output_path.parent().unwrap())
                 .map_err(|e| anyhow!("Failed to create directory for {:?}: {}", output_path, e))?;

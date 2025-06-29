@@ -14,11 +14,16 @@ pico = ["dep:ere-pico"]
 zisk = ["dep:ere-zisk"]
 
 [dependencies]
+rayon.workspace = true
+clap.workspace = true
+walkdir.workspace = true
+anyhow.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+
 benchmark-runner.workspace = true
 zkvm-interface.workspace = true
 witness-generator.workspace = true
-clap.workspace = true
-tokio.workspace = true
 
 # Optional dependencies based on features
 ere-sp1 = { workspace = true, optional = true }
