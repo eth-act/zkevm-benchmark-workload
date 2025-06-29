@@ -4,7 +4,11 @@ use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
 };
-use std::path::{Path, PathBuf};
+use std::{
+    path::{Path, PathBuf},
+    process::Command,
+    str::FromStr,
+};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
@@ -12,65 +16,100 @@ use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
 #[derive(Debug, Clone)]
+pub struct ExecSpecTestBlocksAndWitnessBuilder {
+    tag: Option<String>,
+    include: Option<Vec<String>>,
+    exclude: Option<Vec<String>>,
+}
+
+impl ExecSpecTestBlocksAndWitnessBuilder {
+    /// Creates a new `ExecSpecTestBlocksAndWitnessBuilder` with default values.
+    pub fn new() -> Self {
+        Self {
+            tag: None,
+            include: None,
+            exclude: None,
+        }
+    }
+
+    /// Sets the tag for the execution-spec-test fixtures.
+    pub fn with_tag(mut self, tag: String) -> Self {
+        self.tag = Some(tag);
+        self
+    }
+
+    /// Includes only test names that contain the provided strings.
+    pub fn with_includes(mut self, includes: Vec<String>) -> Self {
+        self.include = Some(includes);
+        self
+    }
+
+    /// Excludes all test names that contain the provided strings.
+    pub fn with_excludes(mut self, exclude: Vec<String>) -> Self {
+        self.exclude = Some(exclude);
+        self
+    }
+
+    /// Builds the `ExecSpecTestBlocksAndWitnesses` instance.
+    pub fn build(self) -> Result<ExecSpecTestBlocksAndWitnesses> {
+        let tag = self.tag;
+        let include = self.include.unwrap_or_default();
+        let exclude = self.exclude.unwrap_or_default();
+
+        let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
+        if let Some(tag) = tag {
+            cmd.arg(tag);
+        }
+        let output = cmd.output()?;
+
+        if !output.status.success() {
+            anyhow::bail!(
+                "Failed to download EEST benchmark fixtures: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+
+        Ok(ExecSpecTestBlocksAndWitnesses {
+            directory_path: PathBuf::from_str("./zkevm-fixtures")?,
+            include,
+            exclude,
+        })
+    }
+}
+
+/// Witness generator that produces `BlocksAndWitnesses` for EEST fixtures.
+#[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
     include: Vec<String>,
     exclude: Vec<String>,
 }
-impl ExecSpecTestBlocksAndWitnesses {
-    /// Creates a new instance of `ExecSpecTestBlocksAndWitnesses`.
-    ///
-    /// # Arguments
-    ///
-    /// * `directory_path` - The path to the directory containing the blockchain test cases.
-    /// * `include` - A list of strings to filter test cases by name (only those containing these strings will be included).
-    /// * `exclude` - A list of strings to filter test cases by name (those containing these strings will be excluded).
-    pub fn new(directory_path: PathBuf, include: Vec<String>, exclude: Vec<String>) -> Self {
-        Self {
-            directory_path,
-            include,
-            exclude,
-        }
+
+impl Drop for ExecSpecTestBlocksAndWitnesses {
+    fn drop(&mut self) {
+        let _ = std::fs::remove_dir_all(&self.directory_path);
     }
 }
 
 #[async_trait]
 impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
-    /// Generates `BlocksAndWitnesses` for all valid blockchain test cases found
-    /// within the specified `BLOCKCHAIN_TEST_DIR` directory in `zkevm-fixtures`.
-    ///
-    /// It walks the target directory, parses each JSON test file, executes the test
-    /// using `ef_tests`, collects the resulting block/witness pairs, and packages them.
-    ///
-    /// Uses `rayon` for parallel processing of test cases within a single file.
-    ///
-    /// # Panics
-    ///
-    /// - If the `zkevm-fixtures` directory cannot be located relative to the crate root.
-    /// - If the target `BLOCKCHAIN_TEST_DIR` directory does not exist.
-    /// - If a JSON test case file cannot be parsed.
-    /// - If `ef_tests::cases::blockchain_test::run_case` fails for a test.
+    // Generates blocks and witnesses from the EEST fixtures located in the specified directory,
+    // filtering by the provided include and exclude patterns.
     async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>> {
-        let suite_path = &self.directory_path;
-        // Verify that the path exists
-        assert!(
-            suite_path.exists(),
-            "Test suite path does not exist: {suite_path:?}"
-        );
+        let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
-        // Find all files with the ".json" extension in the test suite directory
-        // Each Json file corresponds to a BlockchainTestCase
-        let test_cases: Vec<_> = find_all_files_with_extension(&suite_path, ".json")
-            .into_iter()
-            .map(|test_case_path| {
-                let case =
-                    BlockchainTestCase::load(&test_case_path).expect("test case should load");
-                (test_case_path, case)
-            })
-            .collect();
+        if !suite_path.exists() {
+            anyhow::bail!("Test suite path does not exist: {suite_path:?}.");
+        }
+
+        let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
 
         let mut blocks_and_witnesses = Vec::new();
-        for (_, test_case) in test_cases {
+        for test_file_path in test_file_paths {
+            let test_case = BlockchainTestCase::load(&test_file_path).map_err(|e| {
+                anyhow::anyhow!("Failed to load test case from {:?}: {}", test_file_path, e)
+            })?;
+
             let blockchain_case: Vec<BlocksAndWitnesses> = test_case
                 // Inside of a JSON file, we can have multiple tests, for example testopcode_Cancun,
                 // testopcode_Prague
@@ -108,4 +147,26 @@ fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
         .filter(|e| e.file_name().to_string_lossy().ends_with(extension))
         .map(DirEntry::into_path)
         .collect()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_eest_generator_deletes_directory_on_drop() {
+        let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
+        std::fs::create_dir_all(&directory_path).unwrap();
+        assert!(directory_path.exists());
+
+        let eest_generator = ExecSpecTestBlocksAndWitnesses {
+            directory_path: directory_path.clone(),
+            include: vec![],
+            exclude: vec![],
+        };
+
+        drop(eest_generator);
+
+        assert!(!directory_path.exists());
+    }
 }

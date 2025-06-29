@@ -32,16 +32,8 @@ impl RPCBlocksAndWitnessesBuilder {
     }
 
     /// Adds the provided HTTP headers to the RPC client.
-    pub fn with_headers<S: AsRef<str>>(mut self, headers: Vec<(S, S)>) -> Result<Self> {
-        self.header_map = headers
-            .into_iter()
-            .map(|(name, value)| {
-                Ok((
-                    HeaderName::from_str(name.as_ref())?,
-                    HeaderValue::from_str(value.as_ref())?,
-                ))
-            })
-            .collect::<Result<HeaderMap>>()?;
+    pub fn with_headers(mut self, headers: HeaderMap) -> Result<Self> {
+        self.header_map = headers;
         Ok(self)
     }
 
@@ -194,5 +186,47 @@ impl RPCBlocksAndWitnesses {
         }];
 
         Ok(blocks_and_witnesses)
+    }
+}
+
+/// Represents a flat structure for HTTP headers, where each header is a string in the format "key: value".
+#[derive(Debug, Clone, Default)]
+pub struct RpcFlatHeaderKeyValues {
+    headers: Vec<String>,
+}
+
+impl RpcFlatHeaderKeyValues {
+    /// Creates a new `RpcFlatHeaderKeyValues` from a vector of header strings.
+    pub fn new(headers: Vec<String>) -> Self {
+        Self { headers }
+    }
+}
+
+impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
+    type Error = anyhow::Error;
+
+    fn try_from(flat_headers: RpcFlatHeaderKeyValues) -> Result<Self, Self::Error> {
+        let a = flat_headers
+            .headers
+            .into_iter()
+            .map(|header| {
+                let (key, value) = header.split_once(':').ok_or_else(|| {
+                    anyhow::anyhow!("invalid header format: '{}'. expected 'key:value'", header)
+                })?;
+
+                let name = HeaderName::from_str(key.trim())
+                    .map_err(|e| anyhow::anyhow!("invalid header name '{}': {}", key, e))?;
+                let value = HeaderValue::from_str(value.trim())
+                    .map_err(|e| anyhow::anyhow!("invalid header value '{}': {}", value, e))?;
+
+                Ok((name, value))
+            })
+            .collect::<Result<Vec<_>, Self::Error>>()?;
+
+        let mut header_map = HeaderMap::new();
+        for (name, value) in a {
+            header_map.insert(name, value);
+        }
+        Ok(header_map)
     }
 }
