@@ -1,3 +1,4 @@
+use anyhow::anyhow;
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use witness_generator::{
@@ -61,7 +62,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Generating fixtures in folder: {:?}", cli.output_folder);
     if !cli.output_folder.exists() {
         std::fs::create_dir_all(&cli.output_folder).map_err(|e| {
-            anyhow::anyhow!(
+            anyhow!(
                 "Failed to create output folder {:?}: {}",
                 cli.output_folder,
                 e
@@ -119,7 +120,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     for bw in bws {
         let output_path = cli.output_folder.join(format!("{}.json", bw.name));
         let output_data = serde_json::to_string(&bw)?;
-        std::fs::write(output_path, output_data)?;
+        if !output_path.exists() {
+            std::fs::create_dir_all(output_path.parent().unwrap())
+                .map_err(|e| anyhow!("Failed to create directory for {:?}: {}", output_path, e))?;
+        }
+        std::fs::write(&output_path, output_data)
+            .map_err(|e| anyhow!("Failed to write fixture to {:?}: {}", output_path, e))?;
     }
     println!("Fixtures written successfully.");
 

@@ -1,9 +1,11 @@
-use anyhow::Result;
+use anyhow::{Result, bail};
 use async_trait::async_trait;
 use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
+    models::BlockchainTest,
 };
+use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
     process::Command,
@@ -63,7 +65,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         let output = cmd.output()?;
 
         if !output.status.success() {
-            anyhow::bail!(
+            bail!(
                 "Failed to download EEST benchmark fixtures: {}",
                 String::from_utf8_lossy(&output.stderr)
             );
@@ -99,29 +101,36 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
-            anyhow::bail!("Test suite path does not exist: {suite_path:?}.");
+            bail!("Test suite path does not exist: {suite_path:?}.");
         }
 
         let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
+        let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
+        for path in test_file_paths {
+            let test_case = match BlockchainTestCase::load(&path) {
+                Ok(case) => case,
+                Err(e) => {
+                    eprintln!("Failed to load test case from {path:?}: {e}");
+                    continue;
+                }
+            };
 
-        let mut blocks_and_witnesses = Vec::new();
-        for test_file_path in test_file_paths {
-            let test_case = BlockchainTestCase::load(&test_file_path).map_err(|e| {
-                anyhow::anyhow!("Failed to load test case from {:?}: {}", test_file_path, e)
-            })?;
-
-            let blockchain_case: Vec<BlocksAndWitnesses> = test_case
-                // Inside of a JSON file, we can have multiple tests, for example testopcode_Cancun,
-                // testopcode_Prague
-                // This is why we have `tests`.
+            let file_tests: Vec<(String, BlockchainTest)> = test_case
                 .tests
-                .iter()
+                .into_iter()
                 .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
                 .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
-                .map(|(name, case)| BlocksAndWitnesses {
+                .map(|(name, case)| (name, case))
+                .collect();
+            tests.extend(file_tests);
+        }
+
+        let bws: Result<Vec<_>> = tests
+            .par_iter()
+            .map(|(name, case)| {
+                Ok(BlocksAndWitnesses {
                     name: name.to_string(),
-                    blocks_and_witnesses: run_case(case)
-                        .unwrap()
+                    blocks_and_witnesses: run_case(case)?
                         .into_iter()
                         .map(|(recovered_block, witness)| StatelessInput {
                             block: recovered_block.into_block(),
@@ -130,11 +139,10 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                         .collect(),
                     network: reth_stateless::fork_spec::ForkSpec::from(case.network),
                 })
-                .collect();
-            blocks_and_witnesses.extend(blockchain_case);
-        }
+            })
+            .collect();
 
-        Ok(blocks_and_witnesses)
+        bws
     }
 }
 
