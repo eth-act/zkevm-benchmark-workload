@@ -1,5 +1,7 @@
 use std::{fs, io, path::Path};
 
+use anyhow::Result;
+use async_trait::async_trait;
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -82,4 +84,11 @@ impl BlocksAndWitnesses {
         let contents = fs::read_to_string(path)?;
         Self::from_json(&contents)
     }
+}
+
+/// Trait for generating blocks and witnesses.
+#[async_trait]
+pub trait WitnessGenerator {
+    /// Generates `BlocksAndWitnesses`.
+    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
 }

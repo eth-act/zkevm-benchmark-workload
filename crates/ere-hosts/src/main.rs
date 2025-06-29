@@ -3,8 +3,8 @@
 use clap::{Parser, Subcommand, ValueEnum};
 use std::{path::PathBuf, process::Command};
 use witness_generator::{
-    generate_stateless_witness::ExecSpecTestBlocksAndWitnesses, rpc::RPCBlocksAndWitnessesBuilder,
-    witness_generator::WitnessGenerator,
+    blocks_and_witnesses::WitnessGenerator, eest_generator::ExecSpecTestBlocksAndWitnesses,
+    rpc_generator::RPCBlocksAndWitnessesBuilder,
 };
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};

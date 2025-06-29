@@ -1,4 +1,4 @@
-use crate::{BlocksAndWitnesses, witness_generator::WitnessGenerator};
+use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
 use alloy_eips::BlockNumberOrTag;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::Result;

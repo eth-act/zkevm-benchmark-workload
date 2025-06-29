@@ -7,7 +7,7 @@ use ef_tests::{
 use std::path::{Path, PathBuf};
 use walkdir::{DirEntry, WalkDir};
 
-use crate::{BlocksAndWitnesses, witness_generator::WitnessGenerator};
+use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
 use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
