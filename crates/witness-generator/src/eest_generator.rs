@@ -89,7 +89,16 @@ pub struct ExecSpecTestBlocksAndWitnesses {
 
 impl Drop for ExecSpecTestBlocksAndWitnesses {
     fn drop(&mut self) {
-        let _ = std::fs::remove_dir_all(&self.directory_path);
+        if self.directory_path.exists() {
+            match std::fs::remove_dir_all(&self.directory_path) {
+                Ok(_) => {}
+                Err(e) => eprintln!(
+                    "Failed to remove directory {}: {}",
+                    self.directory_path.display(),
+                    e
+                ),
+            }
+        }
     }
 }
 
@@ -101,7 +110,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
-            bail!("Test suite path does not exist: {suite_path:?}.");
+            bail!("Test suite path does not exist: {}.", suite_path.display());
         }
 
         let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
@@ -110,7 +119,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             let test_case = match BlockchainTestCase::load(&path) {
                 Ok(case) => case,
                 Err(e) => {
-                    eprintln!("Failed to load test case from {path:?}: {e}");
+                    eprintln!("Failed to load test case from {}: {e}", path.display());
                     continue;
                 }
             };
@@ -118,15 +127,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             let file_tests: Vec<(String, BlockchainTest)> = test_case
                 .tests
                 .into_iter()
-                .map(|(name, case)| {
-                    (
-                        name.split('/')
-                            .last()
-                            .expect("Failed to extract test name")
-                            .to_string(),
-                        case,
-                    )
-                })
+                .map(|(name, case)| (name.split('/').last().unwrap_or(&name).to_string(), case))
                 .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
                 .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
                 .map(|(name, case)| (name, case))

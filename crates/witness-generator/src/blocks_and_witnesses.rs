@@ -68,7 +68,7 @@ impl BlocksAndWitnesses {
     /// Returns `BwError::Serde` if JSON serialization fails.
     pub fn to_path<P: AsRef<Path>>(path: P, items: &[Self]) -> Result<(), BwError> {
         let json = Self::to_json(items)?;
-        fs::write(path, json)?;
+        fs::write(path, json).map_err(BwError::Io)?;
         Ok(())
     }
 
@@ -81,14 +81,23 @@ impl BlocksAndWitnesses {
     /// Returns `BwError::Io` if reading the file fails.
     /// Returns `BwError::Serde` if JSON deserialization fails.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Vec<Self>, BwError> {
-        let contents = fs::read_to_string(path)?;
+        let path = path.as_ref();
+        let contents = fs::read_to_string(path).map_err(BwError::Io)?;
         Self::from_json(&contents)
     }
 }
 
 /// Trait for generating blocks and witnesses.
+///
+/// Implementors of this trait provide different strategies for generating
+/// `BlocksAndWitnesses` collections, such as from test fixtures or RPC endpoints.
 #[async_trait]
 pub trait WitnessGenerator {
     /// Generates `BlocksAndWitnesses`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the generation process fails, including network issues,
+    /// file I/O problems, or data processing errors.
     async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
 }
