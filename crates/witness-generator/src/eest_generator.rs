@@ -14,7 +14,7 @@ use std::{
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
 #[derive(Debug, Clone)]
@@ -153,7 +153,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                             witness,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    network: reth_stateless::fork_spec::ForkSpec::from(case.network),
+                    network: ForkSpec::from(case.network),
                 })
             })
             .collect();
