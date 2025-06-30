@@ -3,27 +3,27 @@ use alloy_eips::BlockNumberOrTag;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::Result;
 use async_trait::async_trait;
-use http::HeaderName;
-use jsonrpsee::{
-    http_client::{HeaderMap, HttpClient, HttpClientBuilder}, // Added HeaderMap here
-    ws_client::HeaderValue,
-};
+use http::{HeaderName, HeaderValue};
+use jsonrpsee::http_client::{HeaderMap, HttpClient, HttpClientBuilder};
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
-use std::{cmp::max, str::FromStr};
+use std::str::FromStr;
 
 /// Builder for configuring an RPC client that fetches blocks and witnesses.
 #[derive(Debug, Clone, Default)]
-pub struct RPCBlocksAndWitnessesBuilder {
+pub struct RpcBlocksAndWitnessesBuilder {
     url: String,
     header_map: HeaderMap,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
 }
 
-impl RPCBlocksAndWitnessesBuilder {
-    /// Creates a new `RPCBlocksAndWitnessesBuilder` with the specified RPC URL.
+impl RpcBlocksAndWitnessesBuilder {
+    /// Creates a new `RpcBlocksAndWitnessesBuilder` with the specified RPC URL.
+    ///
+    /// # Arguments
+    /// * `url` - The RPC endpoint URL to connect to
     pub fn new(url: String) -> Self {
         Self {
             url,
@@ -32,30 +32,40 @@ impl RPCBlocksAndWitnessesBuilder {
     }
 
     /// Adds the provided HTTP headers to the RPC client.
-    pub fn with_headers(mut self, headers: HeaderMap) -> Result<Self> {
+    ///
+    /// # Arguments
+    /// * `headers` - HTTP headers to include in RPC requests
+    pub fn with_headers(mut self, headers: HeaderMap) -> Self {
         self.header_map = headers;
-        Ok(self)
+        self
     }
 
     /// Sets the number of last blocks to fetch.
+    ///
+    /// # Arguments
+    /// * `n` - Number of recent blocks to fetch (starting from the latest block)
     pub const fn last_n_blocks(mut self, n: usize) -> Self {
         self.last_n_blocks = Some(n);
         self
     }
 
-    /// Sets a block number to fetch.
+    /// Sets a specific block number to fetch.
+    ///
+    /// # Arguments
+    /// * `block` - The block number to fetch
     pub const fn block(mut self, block: u64) -> Self {
         self.block = Some(block);
         self
     }
 
-    /// Builds the configured `RPCBlocksAndWitnesses`.
-    pub fn build(self) -> Result<RPCBlocksAndWitnesses> {
+    /// Builds the configured `RpcBlocksAndWitnesses`.
+    pub fn build(self) -> Result<RpcBlocksAndWitnesses> {
         let client = HttpClientBuilder::default()
             .set_headers(self.header_map)
             .max_response_size(1 << 30)
             .build(&self.url)?;
-        Ok(RPCBlocksAndWitnesses {
+
+        Ok(RpcBlocksAndWitnesses {
             client,
             last_n_blocks: self.last_n_blocks,
             block: self.block,
@@ -63,16 +73,19 @@ impl RPCBlocksAndWitnessesBuilder {
     }
 }
 
-/// RPCBlocksAndWitnesses is a witness generator that fetches blocks and witnesses
+/// RPC-based witness generator that fetches blocks and witnesses from an Ethereum node.
 #[derive(Debug, Clone)]
-pub struct RPCBlocksAndWitnesses {
+pub struct RpcBlocksAndWitnesses {
     client: HttpClient,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
 }
 
 #[async_trait]
-impl WitnessGenerator for RPCBlocksAndWitnesses {
+impl WitnessGenerator for RpcBlocksAndWitnesses {
+    /// Generates blocks and witnesses based on the configuration.
+    ///
+    /// Returns either the last N blocks or a specific block with their execution witnesses.
     async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>> {
         // Handle last_n_blocks case
         if let Some(last_n_blocks) = self.last_n_blocks {
@@ -88,7 +101,14 @@ impl WitnessGenerator for RPCBlocksAndWitnesses {
     }
 }
 
-impl RPCBlocksAndWitnesses {
+impl RpcBlocksAndWitnesses {
+    /// Fetches the last N blocks and their execution witnesses.
+    ///
+    /// # Arguments
+    /// * `last_n_blocks` - Number of recent blocks to fetch
+    ///
+    /// # Errors
+    /// Returns an error if any RPC call fails or if blocks cannot be found.
     async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BlocksAndWitnesses>> {
         if last_n_blocks == 0 {
             return Ok(vec![]);
@@ -100,10 +120,10 @@ impl RPCBlocksAndWitnesses {
             false,
         )
         .await?
-        .ok_or_else(|| anyhow::anyhow!("No block found"))?;
+        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
 
         let (block_num_start, block_num_end) = (
-            max(0, latest_block.header.number - (last_n_blocks as u64 - 1)),
+            std::cmp::max(0, latest_block.header.number - (last_n_blocks as u64 - 1)),
             latest_block.header.number,
         );
 
@@ -138,7 +158,7 @@ impl RPCBlocksAndWitnesses {
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
             blocks_and_witnesses.push(BlocksAndWitnesses {
-                name: format!("rpc_block_{}", block_num),
+                name: format!("rpc_block_{block_num}"),
                 blocks_and_witnesses: vec![StatelessInput {
                     block: block.into_consensus(),
                     witness,
@@ -147,13 +167,19 @@ impl RPCBlocksAndWitnesses {
                 // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
                 // HardForks enum.
                 network: ForkSpec::Prague,
-            })
+            });
         }
 
         Ok(blocks_and_witnesses)
     }
 
-    /// Fetches one block and its execution witness.
+    /// Fetches a specific block and its execution witness.
+    ///
+    /// # Arguments
+    /// * `block_num` - The block number to fetch
+    ///
+    /// # Errors
+    /// Returns an error if the RPC call fails or if the block cannot be found.
     async fn fetch_specific_block(&self, block_num: u64) -> Result<Vec<BlocksAndWitnesses>> {
         // Fetch the execution witness for the given block
         let witness = self
@@ -189,7 +215,9 @@ impl RPCBlocksAndWitnesses {
     }
 }
 
-/// Represents a flat structure for HTTP headers, where each header is a string in the format "key: value".
+/// Represents HTTP headers in a flat string format for easier configuration.
+///
+/// Each header should be in the format "key:value" or "key: value".
 #[derive(Debug, Clone, Default)]
 pub struct RpcFlatHeaderKeyValues {
     headers: Vec<String>,
@@ -197,6 +225,9 @@ pub struct RpcFlatHeaderKeyValues {
 
 impl RpcFlatHeaderKeyValues {
     /// Creates a new `RpcFlatHeaderKeyValues` from a vector of header strings.
+    ///
+    /// # Arguments
+    /// * `headers` - Vector of header strings in "key:value" format
     pub fn new(headers: Vec<String>) -> Self {
         Self { headers }
     }
@@ -206,27 +237,29 @@ impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
     type Error = anyhow::Error;
 
     fn try_from(flat_headers: RpcFlatHeaderKeyValues) -> Result<Self, Self::Error> {
-        let a = flat_headers
+        let header_pairs = flat_headers
             .headers
             .into_iter()
             .map(|header| {
                 let (key, value) = header.split_once(':').ok_or_else(|| {
-                    anyhow::anyhow!("invalid header format: '{}'. expected 'key:value'", header)
+                    anyhow::anyhow!("Invalid header format: '{header}'. Expected 'key:value'")
                 })?;
 
                 let name = HeaderName::from_str(key.trim())
-                    .map_err(|e| anyhow::anyhow!("invalid header name '{}': {}", key, e))?;
+                    .map_err(|e| anyhow::anyhow!("Invalid header name '{key}': {e}"))?;
+
                 let value = HeaderValue::from_str(value.trim())
-                    .map_err(|e| anyhow::anyhow!("invalid header value '{}': {}", value, e))?;
+                    .map_err(|e| anyhow::anyhow!("Invalid header value '{value}': {e}"))?;
 
                 Ok((name, value))
             })
             .collect::<Result<Vec<_>, Self::Error>>()?;
 
-        let mut header_map = HeaderMap::new();
-        for (name, value) in a {
+        let mut header_map = HeaderMap::with_capacity(header_pairs.len());
+        for (name, value) in header_pairs {
             header_map.insert(name, value);
         }
+
         Ok(header_map)
     }
 }
