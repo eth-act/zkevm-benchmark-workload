@@ -1,4 +1,4 @@
-use anyhow::{Result, bail};
+use anyhow::{Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{
     Case,
@@ -145,13 +145,14 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             .map(|(name, case)| {
                 Ok(BlocksAndWitnesses {
                     name: name.to_string(),
-                    blocks_and_witnesses: run_case(case)?
+                    block_and_witness: run_case(case)?
                         .into_iter()
+                        .next_back()
                         .map(|(recovered_block, witness)| StatelessInput {
                             block: recovered_block.into_block(),
                             witness,
                         })
-                        .collect(),
+                        .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
                     network: reth_stateless::fork_spec::ForkSpec::from(case.network),
                 })
             })

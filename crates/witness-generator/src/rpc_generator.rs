@@ -159,10 +159,10 @@ impl RpcBlocksAndWitnesses {
 
             blocks_and_witnesses.push(BlocksAndWitnesses {
                 name: format!("rpc_block_{block_num}"),
-                blocks_and_witnesses: vec![StatelessInput {
+                block_and_witness: StatelessInput {
                     block: block.into_consensus(),
                     witness,
-                }],
+                },
                 // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
                 // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
                 // HardForks enum.
@@ -201,10 +201,10 @@ impl RpcBlocksAndWitnesses {
 
         let blocks_and_witnesses = vec![BlocksAndWitnesses {
             name: format!("rpc_block_{}", block_num),
-            blocks_and_witnesses: vec![StatelessInput {
+            block_and_witness: StatelessInput {
                 block: block.into_consensus(),
                 witness,
-            }],
+            },
             // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
             // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
             // HardForks enum.
