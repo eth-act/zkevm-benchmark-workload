@@ -17,8 +17,8 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: Generates the necessary inputs (`StatelessInput`: block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures.
-- **`crates/ere-hosts`**: Contains the host implementation that orchestrates benchmarking across different zkVM platforms.
+- **`crates/witness-generator`**: A standalone binary and library that generates benchmark fixture files (`BlocksAndWitnesses`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints. These are saved in the `zkevm-fixtures-input` folder.
+- **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
 - **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
 - **`ere-guests/`**: Directory containing guest program implementations for different zkVM platforms:
@@ -28,9 +28,21 @@ The workspace is organized into several key components:
   - `ere-guests/zkm/`: zkMIPS guest implementation
   - `ere-guests/pico/`: Pico guest implementation
 - **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator`.
+- **`zkevm-fixtures-input`**: Default directory where `witness-generator` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
 - **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs, organized by zkVM type.
 - **`scripts`**: Contains helper scripts (e.g., fetching fixtures).
 - **`xtask`**: Cargo xtask runner for automating tasks.
+
+## Workflow Overview
+
+The benchmarking process is decoupled into two distinct phases:
+
+1. **Fixture Generation** (`witness-generator`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlocksAndWitnesses` fixtures as JSON files saved in `zkevm-fixtures-input/`.
+2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
+
+This decoupling provides several benefits:
+- Independent fixture generation and benchmark execution
+- Reuse of generated fixtures across multiple benchmark runs
 
 ## Core Concepts
 
@@ -45,8 +57,8 @@ Each zkVM benchmark implementation follows a common pattern:
 
 2. **Host Program:**
     - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
-    - A standard Rust binary that orchestrates the benchmarking.
-    - Uses `witness-generator` to get test data and generate input data.
+    - A standalone Rust binary that orchestrates the benchmarking.
+    - Consumes pre-generated fixture files from `crates/witness-generator`.
     - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
     - Collects cycle count metrics reported by the zkVM SDK.
     - Saves the results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
@@ -76,18 +88,43 @@ Each zkVM benchmark implementation follows a common pattern:
     ./scripts/download-and-extract-fixtures.sh
     ```
 
-3. **(Optionally)Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
+3. **Generate Benchmark Input Files:**
+
+    Navigate to `crates/witness-generator/` and generate fixture files:
+
+    ```bash
+    cd crates/witness-generator
+    cargo run --release -- tests --include Prague --include cold
+    
+    # Or generate from RPC
+    cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
+    ```
+
+    This creates individual `.json` files in the `zkevm-fixtures-input/` directory that will be consumed by the benchmark runner.
+
+4. **(Optionally) Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
 This repository contains an `xtask` that will automate this process by calling `cargo <zkvm-name>`. See `.config/cargo.toml` for how this is setup and `precompile-patches` for the patches that each zkVM requires.
 
 > Note: This is optional as it should be automatically done when the benchmarks are ran.
 
-4. **Run benchmark**: Navigate to `crates/ere-hosts/` and follow the readme instructions to run benchmarks for specific zkVMs.
+5. **Run Benchmarks:**
+
+    Navigate to `crates/ere-hosts/` and run benchmarks using the generated fixture files:
+
+    ```bash
+    cd crates/ere-hosts
+    cargo run --release --features sp1
+    cargo run --release --features "sp1,risc0"
+    ```
+
+    See the respective README files in each crate for detailed usage instructions.
 
 ## Supported zkVM Benchmarks
 
 | zkVM             | Guest Path            | Host Path           | Metrics Output             |
 | ---------------- | --------------------- | ------------------- | -------------------------- |
 | **Succinct SP1** | `ere-guests/sp1/`     | `crates/ere-hosts/` | `zkevm-metrics/sp1/`       |
-| **zkMIPS**       | `ere-guests/zkm/`     | `crates/zkevm-zkm/` | `zkevm-metrics/zkm/`       |
-| **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
 | **RISC0**        | `ere-guests/risc0/`   | `crates/ere-hosts/` | `zkevm-metrics/risc0/`     |
+| **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
+| **Pico**         | `ere-guests/pico/`    | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
+| **Zisk**         | `ere-guests/zisk/`    | `crates/ere-hosts/` | `zkevm-metrics/zisk/`      |
