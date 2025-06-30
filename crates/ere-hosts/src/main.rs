@@ -1,11 +1,11 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
-use clap::{Parser, Subcommand, ValueEnum};
+use clap::{Parser, ValueEnum};
+use rayon::prelude::*;
 use std::{path::PathBuf, process::Command};
-use witness_generator::{
-    generate_stateless_witness::ExecSpecTestBlocksAndWitnesses, rpc::RPCBlocksAndWitnessesBuilder,
-    witness_generator::WitnessGenerator,
-};
+use walkdir::WalkDir;
+
+use witness_generator::BlocksAndWitnesses;
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
@@ -43,52 +43,13 @@ struct Cli {
     #[arg(long, default_value_t = false)]
     force_rerun: bool,
 
+    /// Input folder for benchmark results
+    #[arg(short, long, default_value = "zkevm-fixtures-input")]
+    input_folder: PathBuf,
+
     /// Output folder for benchmark results
     #[arg(short, long, default_value = "zkevm-metrics")]
     output_folder: PathBuf,
-
-    /// Source of blocks and witnesses
-    #[command(subcommand)]
-    source: SourceCommand,
-}
-
-/// Constructs the absolute path to a subdirectory within the `zkevm-fixtures` submodule.
-///
-/// This is default tests directory path
-fn path_to_zkevm_fixtures() -> &'static str {
-    concat!(
-        env!("CARGO_WORKSPACE_DIR"),
-        "/zkevm-fixtures/fixtures/blockchain_tests"
-    )
-}
-
-#[derive(Subcommand, Clone, Debug)]
-enum SourceCommand {
-    Tests {
-        #[arg(short, long, default_value = path_to_zkevm_fixtures())]
-        directory_path: PathBuf,
-        #[arg(short, long)]
-        include: Option<Vec<String>>,
-        #[arg(short, long)]
-        exclude: Option<Vec<String>>,
-    },
-    Rpc {
-        /// Number of last blocks to pull
-        #[arg(long, conflicts_with = "block")]
-        last_n_blocks: Option<usize>,
-
-        /// Specific block number to pull
-        #[arg(long, conflicts_with = "last_n_blocks")]
-        block: Option<u64>,
-
-        /// RPC URL to use (mandatory)
-        #[arg(long)]
-        rpc_url: String,
-
-        /// Optional RPC headers to use (e.g., "Key:Value")
-        #[arg(long)]
-        rpc_header: Option<Vec<String>>,
-    },
 }
 
 #[derive(Clone, ValueEnum)]
@@ -122,56 +83,30 @@ impl From<BenchmarkAction> for Action {
 }
 
 /// Main entry point for the host benchmarker
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let cli = Cli::parse();
 
     let resource: ProverResourceType = cli.resource.into();
     let action: Action = cli.action.into();
 
-    let block_witness_gen: Box<dyn WitnessGenerator> = match cli.source {
-        SourceCommand::Tests {
-            directory_path,
-            include,
-            exclude,
-        } => Box::new(ExecSpecTestBlocksAndWitnesses::new(
-            directory_path,
-            include.unwrap_or_default(),
-            exclude.unwrap_or_default(),
-        )),
-        SourceCommand::Rpc {
-            last_n_blocks,
-            block,
-            rpc_url,
-            rpc_header,
-        } => {
-            let parsed_headers: Vec<(String, String)> = rpc_header
-                .unwrap_or_default()
-                .into_iter()
-                .map(|header| {
-                    header
-                        .split_once(':')
-                        .map(|(k, v)| (k.to_string(), v.to_string()))
-                        .ok_or_else(|| {
-                            format!("invalid header format: '{}'. expected 'key:value'", header)
-                        })
-                })
-                .collect::<Result<_, _>>()?;
-
-            let mut builder =
-                RPCBlocksAndWitnessesBuilder::new(rpc_url).with_headers(parsed_headers)?;
-
-            if let Some(block_num) = block {
-                builder = builder.block(block_num);
+    println!("Loading corpuses from: {}", cli.input_folder.display());
+    let corpuses = WalkDir::new(&cli.input_folder)
+        .min_depth(1)
+        .into_iter()
+        .collect::<Result<Vec<_>, _>>()?
+        .into_par_iter()
+        .map(|entry| {
+            if entry.file_type().is_file() {
+                let content = std::fs::read(entry.path())?;
+                let blocks_and_witnesses = serde_json::from_slice(&content).map_err(|e| {
+                    anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
+                })?;
+                Ok(blocks_and_witnesses)
             } else {
-                builder = builder.last_n_blocks(last_n_blocks.unwrap_or(1));
+                anyhow::bail!("Invalid input folder structure: expected files only")
             }
-
-            Box::new(builder.build()?)
-        }
-    };
-
-    let corpuses = block_witness_gen.generate().await?;
+        })
+        .collect::<Result<Vec<BlocksAndWitnesses>, _>>()?;
 
     // Set to true once a zkvm has ran
     let mut ran_any = false;
@@ -182,6 +117,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         force_rerun: cli.force_rerun,
     };
 
+    println!("Running benchmarks with resource: {:?}", resource);
     #[cfg(feature = "sp1")]
     {
         run_cargo_patch_command("sp1")?;

@@ -1,10 +1,22 @@
 # zkVM Benchmarker
 
-A command-line tool for benchmarking different Ere compatible zero-knowledge virtual machines (zkVMs).
+A command-line tool for benchmarking different Ere compatible zero-knowledge virtual machines (zkVMs) using pre-generated fixture files.
 
 ## Overview
 
-This benchmarker allows you to compare the performance of various zkVM implementations including SP1, Risc Zero, OpenVM, and Pico. You can select which zkVMs to compile using feature flags, choose between CPU and GPU resources, and either execute or prove.
+This benchmarker consumes pre-generated fixture files (created by the `witness-generator` binary) and runs performance benchmarks across various zkVM implementations including SP1, Risc Zero, OpenVM, and Pico. You can select which zkVMs to compile using feature flags, choose between CPU and GPU resources, and either execute or prove.
+
+## Prerequisites
+
+Before running benchmarks, you must first generate fixture files using the `witness-generator` binary:
+
+```bash
+cd ../witness-generator
+cargo run -- tests  # or use rpc source
+cd ../ere-hosts
+```
+
+The benchmarker expects fixture files to be available in the input directory (default: `zkevm-fixtures-input/`).
 
 ## Feature Flags
 
@@ -19,71 +31,38 @@ The benchmarker uses Cargo feature flags to control which zkVMs are compiled int
 
 ### Basic Usage
 
-**Note:** Unlike the previous version, you must explicitly specify which zkVMs to include via feature flags.
+**Note:** Unlike the previous version, you must:
+1. First generate fixture files using the `witness-generator` binary
+2. Explicitly specify which zkVMs to include via feature flags
 
 Build and run with SP1 only:
 
 ```bash
-cargo run --features sp1 -- tests
+cargo run --features sp1
 ```
 
 Build and run with multiple zkVMs:
 
 ```bash
-cargo run --features "sp1,risc0" -- tests
+cargo run --features "sp1,risc0"
 ```
 
 Run all available zkVMs:
 
 ```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests
+cargo run --features "sp1,risc0,openvm,pico"
 ```
 
-You can use `--include` to only run specific tests and `--exclude` to skip specific tests. If you use multiple include filters, they will be combined with a logical AND, for example:
-```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --include "Blockhash"
-```
+### Input Source Configuration
 
-You can also exclude certain tests:
-```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests --exclude "Shanghai" --exclude "London"
-```
-
-Or combine both include and exclude filters:
-```bash
-cargo run --features "sp1,risc0,openvm,pico" -- tests --include "Prague" --exclude "SSTORE"
-```
-
-### Data Sources
-
-The benchmarker supports two data sources:
-
-#### Test Files (Default)
-
-Uses pre-generated test files from the workspace:
+The benchmarker reads pre-generated fixture files from an input directory:
 
 ```bash
-# Uses default test directory: <workspace>/zkevm-fixtures/fixtures/blockchain_tests
-cargo run --features sp1 -- tests
+# Use default input directory (zkevm-fixtures-input/)
+cargo run --features sp1
 
-# Specify custom test directory
-cargo run --features sp1 -- tests --directory-path /path/to/test/files
-```
-
-#### Rpc Data
-
-Pull blocks directly from RPC:
-
-```bash
-cargo run --features sp1 -- rpc \
-  --last-n-blocks 10 \
-  --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
-
-# With custom headers
-cargo run --features sp1 -- rpc \
-  --last-n-blocks 5 \
-  --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY" \
-  --rpc-header "Authorization:Bearer TOKEN"
+# Specify custom input directory
+cargo run --features sp1 -- --input-folder my-fixtures
 ```
 
 ### Resource Configuration
@@ -92,10 +71,10 @@ Choose compute resource type:
 
 ```bash
 # Use CPU resources (default)
-cargo run --features sp1 -- --resource cpu tests
+cargo run --features sp1 -- --resource cpu
 
 # Use GPU resources
-cargo run --features sp1 -- --resource gpu tests
+cargo run --features sp1 -- --resource gpu
 ```
 
 ### Action Types
@@ -104,10 +83,10 @@ Select benchmark operation:
 
 ```bash
 # Execute programs (default)
-cargo run --features sp1 -- --action execute tests
+cargo run --features sp1 -- --action execute
 
 # Generate proofs
-cargo run --features sp1 -- --action prove tests
+cargo run --features sp1 -- --action prove
 ```
 
 ### Force Rerun
@@ -116,10 +95,10 @@ By default, the benchmarker will skip tests that already have output files in th
 
 ```bash
 # Skip tests that already have results (default behavior)
-cargo run --features sp1 -- tests
+cargo run --features sp1
 
 # Rerun all tests, overwriting existing results
-cargo run --features sp1 -- --force-rerun tests
+cargo run --features sp1 -- --force-rerun
 ```
 
 ### Output Folder Configuration
@@ -128,35 +107,33 @@ By default, benchmark results are saved to the `zkevm-metrics/` directory. You c
 
 ```bash
 # Use default output folder (zkevm-metrics/)
-cargo run --features sp1 -- tests
+cargo run --features sp1
 
 # Use custom output folder
-cargo run --features sp1 -- --output-folder my-custom-results tests
+cargo run --features sp1 -- --output-folder my-custom-results
 
 # Use absolute path
-cargo run --features sp1 -- --output-folder /tmp/benchmark-results tests
+cargo run --features sp1 -- --output-folder /tmp/benchmark-results
 ```
 
 The benchmark results will be organized by zkVM type within the specified folder (e.g., `my-custom-results/sp1/`, `my-custom-results/risc0/`, etc.).
 
 ### Combined Examples
 
-Run SP1 and OpenVM with GPU proving on RPC data:
+Run SP1 and OpenVM with GPU proving:
 
 ```bash
 cargo run --features "sp1,openvm" -- \
   --resource gpu \
-  --action prove \
-  rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
+  --action prove
 ```
 
-Run all zkVMs with CPU execution on test files:
+Run all zkVMs with CPU execution:
 
 ```bash
 cargo run --features "sp1,risc0,openvm,pico" -- \
   --resource cpu \
-  --action execute \
-  tests --directory-path ./my-test-files
+  --action execute
 ```
 
 Force rerun all benchmarks for SP1 and RISC0, overwriting existing results:
@@ -164,17 +141,16 @@ Force rerun all benchmarks for SP1 and RISC0, overwriting existing results:
 ```bash
 cargo run --features "sp1,risc0" -- \
   --force-rerun \
-  --action execute \
-  tests
+  --action execute
 ```
 
-Run SP1 with custom output directory:
+Run SP1 with custom input and output directories:
 
 ```bash
 cargo run --features sp1 -- \
+  --input-folder custom-fixtures \
   --output-folder custom-benchmarks \
-  --action execute \
-  tests
+  --action execute
 ```
 
 ## Command Line Options
@@ -183,6 +159,7 @@ cargo run --features sp1 -- \
 |--------|-------|-------------|---------|---------|
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
+| `--input-folder` | `-i` | Input folder containing fixture files | `zkevm-fixtures-input` | Any valid directory path |
 | `--output-folder` | `-o` | Output folder for benchmark results | `zkevm-metrics` | Any valid directory path |
 | `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |
 | `--help` | `-h` | Show help information | - | - |

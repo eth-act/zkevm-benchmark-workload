@@ -1,5 +1,7 @@
 use std::{fs, io, path::Path};
 
+use anyhow::Result;
+use async_trait::async_trait;
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
@@ -13,8 +15,8 @@ use thiserror::Error;
 pub struct BlocksAndWitnesses {
     /// Name of the blockchain test case (e.g., "`ModExpAttackContract`").
     pub name: String,
-    /// Sequentially ordered blocks, each coupled with its corresponding execution witness.
-    pub blocks_and_witnesses: Vec<StatelessInput>,
+    /// The block and witness pair for the test case.
+    pub block_and_witness: StatelessInput,
     /// The network fork specification (e.g., Shanghai, Cancun, Prague) active for this test case.
     // TODO: Don't think we want to pass this through maybe ForkSpec
     // TODO: Also Genesis file is wrong in chainspec
@@ -66,7 +68,7 @@ impl BlocksAndWitnesses {
     /// Returns `BwError::Serde` if JSON serialization fails.
     pub fn to_path<P: AsRef<Path>>(path: P, items: &[Self]) -> Result<(), BwError> {
         let json = Self::to_json(items)?;
-        fs::write(path, json)?;
+        fs::write(path, json).map_err(BwError::Io)?;
         Ok(())
     }
 
@@ -79,7 +81,23 @@ impl BlocksAndWitnesses {
     /// Returns `BwError::Io` if reading the file fails.
     /// Returns `BwError::Serde` if JSON deserialization fails.
     pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Vec<Self>, BwError> {
-        let contents = fs::read_to_string(path)?;
+        let path = path.as_ref();
+        let contents = fs::read_to_string(path).map_err(BwError::Io)?;
         Self::from_json(&contents)
     }
+}
+
+/// Trait for generating blocks and witnesses.
+///
+/// Implementors of this trait provide different strategies for generating
+/// `BlocksAndWitnesses` collections, such as from test fixtures or RPC endpoints.
+#[async_trait]
+pub trait WitnessGenerator {
+    /// Generates `BlocksAndWitnesses`.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the generation process fails, including network issues,
+    /// file I/O problems, or data processing errors.
+    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
 }
