@@ -67,7 +67,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
 
-        let (directory_path, remove_eest_folder) = if let Some(input_folder) = input_folder {
+        let (directory_path, delete_eest_folder) = if let Some(input_folder) = input_folder {
             (input_folder, false)
         } else {
             let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
@@ -89,7 +89,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
             directory_path,
             include,
             exclude,
-            delete_eest_folder: remove_eest_folder,
+            delete_eest_folder,
         })
     }
 }
