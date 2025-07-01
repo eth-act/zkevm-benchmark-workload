@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow, bail};
+use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{
     Case,
@@ -9,7 +9,6 @@ use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
     process::Command,
-    str::FromStr,
 };
 use walkdir::{DirEntry, WalkDir};
 
@@ -17,27 +16,36 @@ use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ExecSpecTestBlocksAndWitnessBuilder {
+    input_folder: Option<PathBuf>,
     tag: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
 }
 
 impl ExecSpecTestBlocksAndWitnessBuilder {
-    /// Creates a new `ExecSpecTestBlocksAndWitnessBuilder` with default values.
-    pub fn new() -> Self {
-        Self {
-            tag: None,
-            include: None,
-            exclude: None,
-        }
-    }
-
     /// Sets the tag for the execution-spec-test fixtures.
     pub fn with_tag(mut self, tag: String) -> Self {
         self.tag = Some(tag);
         self
+    }
+
+    /// Sets the input folder for the execution-spec-test fixtures.
+    /// Returns an error if the path doesn't exist or isn't a directory.
+    pub fn with_input_folder(mut self, path: PathBuf) -> Result<Self> {
+        if !path.exists() {
+            bail!("EEST fixtures path '{}' does not exist", path.display());
+        }
+        if !path.is_dir() {
+            bail!("EEST fixtures path '{}' is not a directory", path.display());
+        }
+        let canonical_path = path
+            .canonicalize()
+            .with_context(|| format!("Failed to resolve path '{}'", path.display()))?;
+
+        self.input_folder = Some(canonical_path);
+        Ok(self)
     }
 
     /// Includes only test names that contain the provided strings.
@@ -54,27 +62,36 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
 
     /// Builds the `ExecSpecTestBlocksAndWitnesses` instance.
     pub fn build(self) -> Result<ExecSpecTestBlocksAndWitnesses> {
+        let input_folder = self.input_folder;
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
 
-        let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
-        if let Some(tag) = tag {
-            cmd.arg(tag);
-        }
-        let output = cmd.output()?;
+        // delete_eest_folder indicates if the EEST folder will be automatically deleted after witness generation.
+        // If this folder was explicitly provided, we do not delete it.
+        let (directory_path, delete_eest_folder) = if let Some(input_folder) = input_folder {
+            (input_folder, false)
+        } else {
+            let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
+            if let Some(tag) = tag {
+                cmd.arg(tag);
+            }
+            let output = cmd.output().context("Failed to execute download script")?;
 
-        if !output.status.success() {
-            bail!(
-                "Failed to download EEST benchmark fixtures: {}",
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
+            if !output.status.success() {
+                bail!(
+                    "Failed to download EEST benchmark fixtures: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+            (PathBuf::from("./zkevm-fixtures"), true)
+        };
 
         Ok(ExecSpecTestBlocksAndWitnesses {
-            directory_path: PathBuf::from_str("./zkevm-fixtures")?,
+            directory_path,
             include,
             exclude,
+            delete_eest_folder,
         })
     }
 }
@@ -85,11 +102,12 @@ pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
     include: Vec<String>,
     exclude: Vec<String>,
+    delete_eest_folder: bool,
 }
 
 impl Drop for ExecSpecTestBlocksAndWitnesses {
     fn drop(&mut self) {
-        if self.directory_path.exists() {
+        if self.delete_eest_folder && self.directory_path.exists() {
             match std::fs::remove_dir_all(&self.directory_path) {
                 Ok(_) => {}
                 Err(e) => eprintln!(
@@ -179,18 +197,26 @@ mod tests {
 
     #[test]
     fn test_eest_generator_deletes_directory_on_drop() {
-        let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
-        std::fs::create_dir_all(&directory_path).unwrap();
-        assert!(directory_path.exists());
+        for delete_eest_folder in [false, true] {
+            let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
+            std::fs::create_dir_all(&directory_path).unwrap();
+            assert!(directory_path.exists());
 
-        let eest_generator = ExecSpecTestBlocksAndWitnesses {
-            directory_path: directory_path.clone(),
-            include: vec![],
-            exclude: vec![],
-        };
+            let eest_generator = ExecSpecTestBlocksAndWitnesses {
+                directory_path: directory_path.clone(),
+                include: vec![],
+                exclude: vec![],
+                delete_eest_folder,
+            };
 
-        drop(eest_generator);
+            drop(eest_generator);
 
-        assert!(!directory_path.exists());
+            assert_eq!(
+                !directory_path.exists(),
+                delete_eest_folder,
+                "Directory should {}exist after drop",
+                if delete_eest_folder { "" } else { "not " }
+            );
+        }
     }
 }
