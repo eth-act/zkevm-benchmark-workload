@@ -96,6 +96,9 @@ Each zkVM benchmark implementation follows a common pattern:
     cd crates/witness-generator
     cargo run --release -- tests --include Prague --include cold
     
+    # Or generate from local EEST fixtures
+    cargo run --release -- tests --eest-fixtures-path /path/to/local/eest/fixtures
+    
     # Or generate from RPC
     cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
     ```

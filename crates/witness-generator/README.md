@@ -13,7 +13,7 @@ It defines the `BlocksAndWitnesses` struct which encapsulates:
 - The `ForkSpec` indicating the network rules under which the test was executed. It is needed for guest execution since we want to execute blocks on a particular network (Mainnet, Hoodi, etc).
 
 The binary provides different data sources:
-- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`
+- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path.
 - **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses
 
 Each test case generates an individual JSON fixture file that can be consumed by the `ere-hosts` benchmark runner.
@@ -34,6 +34,9 @@ cargo run -- tests --tag v0.1.0
 # Include/exclude specific tests
 cargo run -- tests --include "Prague" --exclude "SSTORE"
 
+# Generate from local EEST fixtures path
+cargo run -- tests --eest-fixtures-path /path/to/local/eest/fixtures
+
 # Generate from RPC (last 5 blocks)
 cargo run -- rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
@@ -43,6 +46,15 @@ cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_K
 # Custom output folder
 cargo run -- --output-folder my-fixtures tests
 ```
+
+### EEST Fixture Sources
+
+When using the `tests` subcommand, you have two options for specifying the source of EEST fixtures:
+
+1. **Release Tag** (default): Use `--tag` to specify a particular EEST release tag (e.g., "v0.1.0"). If no tag is specified, the latest release will be used.
+2. **Local Path**: Use `--eest-fixtures-path` to point to a local directory containing EEST fixture files.
+
+Note: The `--tag` and `--eest-fixtures-path` options are mutually exclusive - you can only use one at a time.
 
 ### Library Usage
 
