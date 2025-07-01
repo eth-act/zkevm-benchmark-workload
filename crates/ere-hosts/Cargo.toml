@@ -20,6 +20,8 @@ walkdir.workspace = true
 anyhow.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
 
 benchmark-runner.workspace = true
 zkvm-interface.workspace = true

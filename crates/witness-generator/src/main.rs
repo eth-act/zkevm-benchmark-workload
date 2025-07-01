@@ -68,9 +68,12 @@ enum SourceCommand {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
     let cli = Cli::parse();
 
-    println!("Generating fixtures in folder: {:?}", cli.output_folder);
+    info!("Generating fixtures in folder: {:?}", cli.output_folder);
     if !cli.output_folder.exists() {
         std::fs::create_dir_all(&cli.output_folder)
             .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
@@ -78,13 +81,13 @@ async fn main() -> Result<()> {
 
     let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
 
-    println!("Generating fixtures...");
+    info!("Generating fixtures...");
     let count = generator
         .generate_to_path(&cli.output_folder)
         .await
         .context("Failed to generate blocks and witnesses")?;
 
-    println!("Generated {} blocks and witnesses", count);
+    info!("Generated {} blocks and witnesses", count);
 
     Ok(())
 }
