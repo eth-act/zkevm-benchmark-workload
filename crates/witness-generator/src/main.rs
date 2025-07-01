@@ -1,6 +1,7 @@
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
-use std::path::{Path, PathBuf};
+use std::path::PathBuf;
+use tokio_util::sync::CancellationToken;
 use witness_generator::{
     WitnessGenerator,
     eest_generator::ExecSpecTestBlocksAndWitnessBuilder,
@@ -44,12 +45,16 @@ enum SourceCommand {
     /// Generate fixtures from an RPC endpoint
     Rpc {
         /// Number of last blocks to pull
-        #[arg(long, conflicts_with = "block")]
+        #[arg(long, conflicts_with_all = ["block", "follow"])]
         last_n_blocks: Option<usize>,
 
         /// Specific block number to pull
-        #[arg(long, conflicts_with = "last_n_blocks")]
+        #[arg(long, conflicts_with_all = ["last_n_blocks", "follow"])]
         block: Option<u64>,
+
+        /// Listen for new blocks
+        #[arg(long, default_value_t = false, conflicts_with_all = ["last_n_blocks", "block"])]
+        follow: bool,
 
         /// RPC URL to use (mandatory)
         #[arg(long)]
@@ -74,21 +79,13 @@ async fn main() -> Result<()> {
     let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
 
     println!("Generating fixtures...");
-    let bws = generator
-        .generate()
+    let count = generator
+        .generate_to_path(&cli.output_folder)
         .await
         .context("Failed to generate blocks and witnesses")?;
 
-    println!("Generated {} blocks and witnesses", bws.len());
+    println!("Generated {} blocks and witnesses", count);
 
-    if bws.is_empty() {
-        println!("No blocks and witnesses generated. Exiting.");
-        return Ok(());
-    }
-
-    write_fixtures_to_disk(&cli.output_folder, &bws).context("Failed to write fixtures to disk")?;
-
-    println!("Fixtures written successfully.");
     Ok(())
 }
 
@@ -124,6 +121,7 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             block,
             rpc_url,
             rpc_header,
+            follow: listen,
         } => {
             let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
 
@@ -134,7 +132,19 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
                 builder = builder.with_headers(headers);
             }
 
-            if let Some(block_num) = block {
+            if listen {
+                let stop = CancellationToken::new();
+                builder = builder.listen(stop.clone());
+
+                tokio::spawn(async move {
+                    tokio::select! {
+                        _ = tokio::signal::ctrl_c() => {
+                            println!("Stopping...");
+                            stop.cancel();
+                        }
+                    }
+                });
+            } else if let Some(block_num) = block {
                 builder = builder.block(block_num);
             } else {
                 let n_blocks = last_n_blocks.unwrap_or(1);
@@ -149,28 +159,4 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             ))
         }
     }
-}
-
-fn write_fixtures_to_disk(
-    output_folder: &Path,
-    bws: &[witness_generator::BlocksAndWitnesses],
-) -> Result<()> {
-    println!("Writing fixtures to output folder...");
-
-    for bw in bws {
-        let output_path = output_folder.join(format!("{}.json", bw.name));
-        let output_data = serde_json::to_string_pretty(bw)
-            .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
-
-        // Ensure parent directory exists
-        if let Some(parent) = output_path.parent() {
-            std::fs::create_dir_all(parent)
-                .with_context(|| format!("Failed to create directory for: {output_path:?}"))?;
-        }
-
-        std::fs::write(&output_path, output_data)
-            .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
-    }
-
-    Ok(())
 }

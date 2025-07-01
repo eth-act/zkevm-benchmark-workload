@@ -100,4 +100,11 @@ pub trait WitnessGenerator {
     /// Returns an error if the generation process fails, including network issues,
     /// file I/O problems, or data processing errors.
     async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
+
+    /// Generates `BlocksAndWitnesses` and writes them to the specified path.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the generation fails or if writing to the path fails.
+    async fn generate_to_path(&self, path: &Path) -> Result<usize>;
 }

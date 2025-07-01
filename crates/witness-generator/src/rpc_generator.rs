@@ -1,14 +1,18 @@
 use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
 use alloy_eips::BlockNumberOrTag;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
-use anyhow::Result;
+use anyhow::{Context, Result};
 use async_trait::async_trait;
 use http::{HeaderName, HeaderValue};
-use jsonrpsee::http_client::{HeaderMap, HttpClient, HttpClientBuilder};
+use jsonrpsee::{
+    http_client::{HeaderMap, HttpClient, HttpClientBuilder},
+    tracing::{error, info},
+};
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
-use std::str::FromStr;
+use std::{path::Path, str::FromStr};
+use tokio_util::sync::CancellationToken;
 
 /// Builder for configuring an RPC client that fetches blocks and witnesses.
 #[derive(Debug, Clone, Default)]
@@ -17,6 +21,7 @@ pub struct RpcBlocksAndWitnessesBuilder {
     header_map: HeaderMap,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
+    stop: Option<CancellationToken>,
 }
 
 impl RpcBlocksAndWitnessesBuilder {
@@ -49,6 +54,15 @@ impl RpcBlocksAndWitnessesBuilder {
         self
     }
 
+    /// Listens to RPC blocks
+    ///
+    /// # Arguments
+    /// * `stop` - A cancellation token to stop the block listener
+    pub fn listen(mut self, stop: CancellationToken) -> Self {
+        self.stop = Some(stop);
+        self
+    }
+
     /// Sets a specific block number to fetch.
     ///
     /// # Arguments
@@ -69,6 +83,7 @@ impl RpcBlocksAndWitnessesBuilder {
             client,
             last_n_blocks: self.last_n_blocks,
             block: self.block,
+            stop: self.stop,
         })
     }
 }
@@ -79,6 +94,7 @@ pub struct RpcBlocksAndWitnesses {
     client: HttpClient,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
+    stop: Option<CancellationToken>,
 }
 
 #[async_trait]
@@ -94,10 +110,24 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
 
         // Handle one block case
         if let Some(block) = self.block {
-            return self.fetch_specific_block(block).await;
+            return Ok(vec![self.fetch_specific_block(block).await?]);
         }
 
         Ok(vec![])
+    }
+
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let count = if self.last_n_blocks.is_some() || self.block.is_some() {
+            let bws = self.generate().await?;
+            self.save_to_path(&bws, path)?;
+            1
+        } else {
+            self.fetch_live(path)
+                .await
+                .with_context(|| "Failed to fetch live blocks and witnesses")?
+        };
+
+        Ok(count)
     }
 }
 
@@ -180,7 +210,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if the RPC call fails or if the block cannot be found.
-    async fn fetch_specific_block(&self, block_num: u64) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn fetch_specific_block(&self, block_num: u64) -> Result<BlocksAndWitnesses> {
         // Fetch the execution witness for the given block
         let witness = self
             .client
@@ -199,7 +229,7 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
-        let blocks_and_witnesses = vec![BlocksAndWitnesses {
+        let bw = BlocksAndWitnesses {
             name: format!("rpc_block_{}", block_num),
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
@@ -209,9 +239,99 @@ impl RpcBlocksAndWitnesses {
             // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
             // HardForks enum.
             network: ForkSpec::Prague,
-        }];
+        };
 
-        Ok(blocks_and_witnesses)
+        Ok(bw)
+    }
+
+    /// Fetches blocks from a specific block number to the latest block and their execution witnesses.
+    ///
+    /// # Arguments
+    /// * `block_num` - The starting block number to fetch
+    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlocksAndWitnesses>> {
+        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
+            &self.client,
+            BlockNumberOrTag::Latest,
+            false,
+        )
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
+
+        let mut bws = Vec::new();
+        for n in block_num..=latest_block.header.number {
+            bws.push(self.fetch_specific_block(n).await?);
+        }
+
+        Ok(bws)
+    }
+
+    /// Fetches the live blocks and their execution witnesses.
+    async fn fetch_live(&self, path: &Path) -> Result<usize> {
+        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
+            &self.client,
+            BlockNumberOrTag::Latest,
+            false,
+        )
+        .await?
+        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
+
+        let mut count: usize = 0;
+        let mut next_block_num = latest_block.header.number;
+
+        // The main loop for polling.
+        let stop_signal = self
+            .stop
+            .as_ref()
+            .ok_or_else(|| anyhow::anyhow!("Cancellation token is required for live polling"))?;
+        loop {
+            tokio::select! {
+                _ = stop_signal.cancelled() => {
+                    info!("Stopped listening for new blocks.");
+                    break;
+                }
+                res = self.fetch_from_block(next_block_num) => {
+                    match res {
+                        Ok(bws) => {
+                            if !bws.is_empty() {
+                                match self.save_to_path(&bws, path) {
+                                 Ok(_) => {
+                                    count += bws.len();
+                                    next_block_num = bws.last().unwrap().block_and_witness.block.number + 1;
+                                },
+                                Err(e) => error!("Failed to save data: {e}"),
+                            }
+                            }
+                        }
+                        Err(e) => {
+                            error!("RPC call from block {next_block_num} failed: {e}");
+                        }
+                    }
+                }
+            }
+
+            tokio::select! {
+                _ = stop_signal.cancelled() => {
+                    info!("Stopped listening for new blocks.");
+                    break;
+                }
+                _ = tokio::time::sleep(std::time::Duration::from_secs(6)) => {
+                }
+            }
+        }
+
+        Ok(count)
+    }
+
+    fn save_to_path(&self, bws: &[BlocksAndWitnesses], path: &Path) -> Result<()> {
+        for bw in bws {
+            let output_path = path.join(format!("{}.json", bw.name));
+            let output_data = serde_json::to_string_pretty(&bw)
+                .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
+
+            std::fs::write(&output_path, output_data)
+                .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
+        }
+        Ok(())
     }
 }
 

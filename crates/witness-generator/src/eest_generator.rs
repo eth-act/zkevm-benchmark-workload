@@ -178,6 +178,19 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
 
         bws
     }
+
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let bws = self.generate().await?;
+        for bw in &bws {
+            let output_path = path.join(format!("{}.json", bw.name));
+            let output_data = serde_json::to_string_pretty(&bw)
+                .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
+
+            std::fs::write(&output_path, output_data)
+                .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
+        }
+        Ok(bws.len())
+    }
 }
 
 /// Recursively finds all files within `path` that end with `extension`.
