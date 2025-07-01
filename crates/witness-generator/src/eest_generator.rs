@@ -9,7 +9,6 @@ use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
     process::Command,
-    str::FromStr,
 };
 use walkdir::{DirEntry, WalkDir};
 
@@ -17,26 +16,24 @@ use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Default)]
 pub struct ExecSpecTestBlocksAndWitnessBuilder {
+    input_folder: Option<PathBuf>,
     tag: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
 }
 
 impl ExecSpecTestBlocksAndWitnessBuilder {
-    /// Creates a new `ExecSpecTestBlocksAndWitnessBuilder` with default values.
-    pub fn new() -> Self {
-        Self {
-            tag: None,
-            include: None,
-            exclude: None,
-        }
-    }
-
     /// Sets the tag for the execution-spec-test fixtures.
     pub fn with_tag(mut self, tag: String) -> Self {
         self.tag = Some(tag);
+        self
+    }
+
+    /// Sets the input folder for the execution-spec-test fixtures.
+    pub fn with_input_folder(mut self, path: PathBuf) -> Self {
+        self.input_folder = Some(path);
         self
     }
 
@@ -54,27 +51,38 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
 
     /// Builds the `ExecSpecTestBlocksAndWitnesses` instance.
     pub fn build(self) -> Result<ExecSpecTestBlocksAndWitnesses> {
+        let input_folder = self.input_folder;
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
 
-        let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
-        if let Some(tag) = tag {
-            cmd.arg(tag);
+        if input_folder.is_some() && tag.is_some() {
+            bail!("Cannot provide both input_folder and tag.");
         }
-        let output = cmd.output()?;
 
-        if !output.status.success() {
-            bail!(
-                "Failed to download EEST benchmark fixtures: {}",
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
+        let (directory_path, remove_eest_folder) = if let Some(input_folder) = input_folder {
+            (input_folder, false)
+        } else {
+            let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
+            if let Some(tag) = tag {
+                cmd.arg(tag);
+            }
+            let output = cmd.output()?;
+
+            if !output.status.success() {
+                bail!(
+                    "Failed to download EEST benchmark fixtures: {}",
+                    String::from_utf8_lossy(&output.stderr)
+                );
+            }
+            (PathBuf::from("./zkevm-fixtures"), true)
+        };
 
         Ok(ExecSpecTestBlocksAndWitnesses {
-            directory_path: PathBuf::from_str("./zkevm-fixtures")?,
+            directory_path,
             include,
             exclude,
+            delete_eest_folder: remove_eest_folder,
         })
     }
 }
@@ -85,11 +93,12 @@ pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
     include: Vec<String>,
     exclude: Vec<String>,
+    delete_eest_folder: bool,
 }
 
 impl Drop for ExecSpecTestBlocksAndWitnesses {
     fn drop(&mut self) {
-        if self.directory_path.exists() {
+        if self.delete_eest_folder && self.directory_path.exists() {
             match std::fs::remove_dir_all(&self.directory_path) {
                 Ok(_) => {}
                 Err(e) => eprintln!(
@@ -187,6 +196,7 @@ mod tests {
             directory_path: directory_path.clone(),
             include: vec![],
             exclude: vec![],
+            delete_eest_folder: false,
         };
 
         drop(eest_generator);

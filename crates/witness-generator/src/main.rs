@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow};
+use anyhow::{Context, Result, anyhow, bail};
 use clap::{Parser, Subcommand};
 use std::path::{Path, PathBuf};
 use witness_generator::{
@@ -26,7 +26,7 @@ enum SourceCommand {
     /// Generate fixtures from execution specification tests
     Tests {
         /// EEST release tag to use (e.g., "v0.1.0"). If empty, the latest release will be used.
-        #[arg(short, long)]
+        #[arg(short, long, conflicts_with = "eest_fixtures_path")]
         tag: Option<String>,
 
         /// Include only test names containing the provided strings.   
@@ -36,6 +36,10 @@ enum SourceCommand {
         /// Exclude all test names containing the provided strings.
         #[arg(short, long)]
         exclude: Option<Vec<String>>,
+
+        /// Optional input folder for EEST files. If not provided, the tag rule will be used.
+        #[arg(short, long, conflicts_with = "tag")]
+        eest_fixtures_path: Option<PathBuf>,
     },
     /// Generate fixtures from an RPC endpoint
     Rpc {
@@ -94,12 +98,23 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             tag,
             include,
             exclude,
+            eest_fixtures_path,
         } => {
-            let mut builder = ExecSpecTestBlocksAndWitnessBuilder::new();
+            let mut builder = ExecSpecTestBlocksAndWitnessBuilder::default();
 
-            if let Some(tag) = tag {
-                builder = builder.with_tag(tag);
+            match (tag, eest_fixtures_path) {
+                (Some(tag), None) => {
+                    builder = builder.with_tag(tag);
+                }
+                (None, None) => {} // No tag or input folder provided, use latest release
+                (None, Some(input_folder)) => {
+                    builder = builder.with_input_folder(input_folder);
+                }
+                (Some(_), Some(_)) => {
+                    bail!("Cannot provide both tag and eest_input_folder")
+                }
             }
+
             if let Some(include) = include {
                 builder = builder.with_includes(include);
             }
