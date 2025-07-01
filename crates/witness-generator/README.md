@@ -54,7 +54,12 @@ When using the `tests` subcommand, you have two options for specifying the sourc
 1. **Release Tag** (default): Use `--tag` to specify a particular EEST release tag (e.g., "v0.1.0"). If no tag is specified, the latest release will be used.
 2. **Local Path**: Use `--eest-fixtures-path` to point to a local directory containing EEST fixture files.
 
-Note: The `--tag` and `--eest-fixtures-path` options are mutually exclusive - you can only use one at a time.
+**Note:** The `--tag` and `--eest-fixtures-path` options are mutually exclusive - you can only use one at a time.
+
+**Example with local path:**
+```bash
+cargo run -- tests --eest-fixtures-path ./my-local-fixtures --include "Prague"
+```
 
 ### Library Usage
 

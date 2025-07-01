@@ -1,4 +1,4 @@
-use anyhow::{Context, Result, anyhow, bail};
+use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::{Path, PathBuf};
 use witness_generator::{
@@ -38,7 +38,7 @@ enum SourceCommand {
         exclude: Option<Vec<String>>,
 
         /// Optional input folder for EEST files. If not provided, the tag rule will be used.
-        #[arg(short, long, conflicts_with = "tag")]
+        #[arg(long, conflicts_with = "tag")]
         eest_fixtures_path: Option<PathBuf>,
     },
     /// Generate fixtures from an RPC endpoint
@@ -102,17 +102,10 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
         } => {
             let mut builder = ExecSpecTestBlocksAndWitnessBuilder::default();
 
-            match (tag, eest_fixtures_path) {
-                (Some(tag), None) => {
-                    builder = builder.with_tag(tag);
-                }
-                (None, None) => {} // No tag or input folder provided, use latest release
-                (None, Some(input_folder)) => {
-                    builder = builder.with_input_folder(input_folder);
-                }
-                (Some(_), Some(_)) => {
-                    bail!("Cannot provide both tag and eest_input_folder")
-                }
+            if let Some(tag) = tag {
+                builder = builder.with_tag(tag);
+            } else if let Some(input_folder) = eest_fixtures_path {
+                builder = builder.with_input_folder(input_folder)?;
             }
 
             if let Some(include) = include {

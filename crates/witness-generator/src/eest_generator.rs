@@ -1,4 +1,4 @@
-use anyhow::{Result, anyhow, bail};
+use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{
     Case,
@@ -32,9 +32,20 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
     }
 
     /// Sets the input folder for the execution-spec-test fixtures.
-    pub fn with_input_folder(mut self, path: PathBuf) -> Self {
-        self.input_folder = Some(path);
-        self
+    /// Returns an error if the path doesn't exist or isn't a directory.
+    pub fn with_input_folder(mut self, path: PathBuf) -> Result<Self> {
+        if !path.exists() {
+            bail!("EEST fixtures path '{}' does not exist", path.display());
+        }
+        if !path.is_dir() {
+            bail!("EEST fixtures path '{}' is not a directory", path.display());
+        }
+        let canonical_path = path
+            .canonicalize()
+            .with_context(|| format!("Failed to resolve path '{}'", path.display()))?;
+
+        self.input_folder = Some(canonical_path);
+        Ok(self)
     }
 
     /// Includes only test names that contain the provided strings.
@@ -56,10 +67,6 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
 
-        if input_folder.is_some() && tag.is_some() {
-            bail!("Cannot provide both input_folder and tag.");
-        }
-
         let (directory_path, remove_eest_folder) = if let Some(input_folder) = input_folder {
             (input_folder, false)
         } else {
@@ -67,7 +74,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
             if let Some(tag) = tag {
                 cmd.arg(tag);
             }
-            let output = cmd.output()?;
+            let output = cmd.output().context("Failed to execute download script")?;
 
             if !output.status.success() {
                 bail!(
