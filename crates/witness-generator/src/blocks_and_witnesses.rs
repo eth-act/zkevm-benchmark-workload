@@ -12,7 +12,7 @@ use thiserror::Error;
 /// `ethereum/tests` fixtures (however we are using `zkevm-fixtures`)
 ///  containing all the sequential block transitions within that test.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BlocksAndWitnesses {
+pub struct BlockAndWitness {
     /// Name of the blockchain test case (e.g., "`ModExpAttackContract`").
     pub name: String,
     /// The block and witness pair for the test case.
@@ -36,7 +36,7 @@ pub enum BwError {
     Io(#[from] io::Error),
 }
 
-impl BlocksAndWitnesses {
+impl BlockAndWitness {
     /// Serializes a list of `BlocksAndWitnesses` test cases to a JSON pretty-printed string.
     ///
     /// # Errors
@@ -99,7 +99,7 @@ pub trait WitnessGenerator {
     ///
     /// Returns an error if the generation process fails, including network issues,
     /// file I/O problems, or data processing errors.
-    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
+    async fn generate(&self) -> Result<Vec<BlockAndWitness>>;
 
     /// Generates `BlocksAndWitnesses` and writes them to the specified path.
     ///

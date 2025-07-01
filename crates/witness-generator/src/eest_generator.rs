@@ -13,7 +13,7 @@ use std::{
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
+use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
 /// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
@@ -125,7 +125,7 @@ impl Drop for ExecSpecTestBlocksAndWitnesses {
 impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
     // Generates blocks and witnesses from the EEST fixtures located in the specified directory,
     // filtering by the provided include and exclude patterns.
-    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
         let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
@@ -162,7 +162,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let bws: Result<Vec<_>> = tests
             .par_iter()
             .map(|(name, case)| {
-                Ok(BlocksAndWitnesses {
+                Ok(BlockAndWitness {
                     name: name.to_string(),
                     block_and_witness: run_case(case)?
                         .into_iter()

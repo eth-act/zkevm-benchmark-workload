@@ -1,4 +1,4 @@
-use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
+use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
 use alloy_eips::BlockNumberOrTag;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::{Context, Result};
@@ -102,7 +102,7 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
     /// Generates blocks and witnesses based on the configuration.
     ///
     /// Returns either the last N blocks or a specific block with their execution witnesses.
-    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
         // Handle last_n_blocks case
         if let Some(last_n_blocks) = self.last_n_blocks {
             return self.fetch_last_n_blocks(last_n_blocks).await;
@@ -139,7 +139,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if any RPC call fails or if blocks cannot be found.
-    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BlockAndWitness>> {
         if last_n_blocks == 0 {
             return Ok(vec![]);
         }
@@ -187,7 +187,7 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
-            blocks_and_witnesses.push(BlocksAndWitnesses {
+            blocks_and_witnesses.push(BlockAndWitness {
                 name: format!("rpc_block_{block_num}"),
                 block_and_witness: StatelessInput {
                     block: block.into_consensus(),
@@ -210,7 +210,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if the RPC call fails or if the block cannot be found.
-    async fn fetch_specific_block(&self, block_num: u64) -> Result<BlocksAndWitnesses> {
+    async fn fetch_specific_block(&self, block_num: u64) -> Result<BlockAndWitness> {
         // Fetch the execution witness for the given block
         let witness = self
             .client
@@ -229,7 +229,7 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
-        let bw = BlocksAndWitnesses {
+        let bw = BlockAndWitness {
             name: format!("rpc_block_{}", block_num),
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
@@ -248,7 +248,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Arguments
     /// * `block_num` - The starting block number to fetch
-    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlockAndWitness>> {
         let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
             &self.client,
             BlockNumberOrTag::Latest,
@@ -322,7 +322,7 @@ impl RpcBlocksAndWitnesses {
         Ok(count)
     }
 
-    fn save_to_path(&self, bws: &[BlocksAndWitnesses], path: &Path) -> Result<()> {
+    fn save_to_path(&self, bws: &[BlockAndWitness], path: &Path) -> Result<()> {
         for bw in bws {
             let output_path = path.join(format!("{}.json", bw.name));
             let output_data = serde_json::to_string_pretty(&bw)

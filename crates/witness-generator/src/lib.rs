@@ -7,5 +7,5 @@ pub mod eest_generator;
 /// Generate block and witnesses from an RPC endpoint
 pub mod rpc_generator;
 
-pub use blocks_and_witnesses::{BlocksAndWitnesses, BwError, WitnessGenerator};
+pub use blocks_and_witnesses::{BlockAndWitness, BwError, WitnessGenerator};
 pub use reth_stateless::StatelessInput;
