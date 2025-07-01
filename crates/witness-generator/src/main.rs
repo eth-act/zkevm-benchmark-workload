@@ -2,6 +2,7 @@ use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::{Path, PathBuf};
 use tracing::info;
+use tracing_subscriber::EnvFilter;
 use witness_generator::{
     WitnessGenerator,
     eest_generator::ExecSpecTestBlocksAndWitnessBuilder,
@@ -64,7 +65,9 @@ enum SourceCommand {
 
 #[tokio::main]
 async fn main() -> Result<()> {
-    tracing_subscriber::fmt().with_env_filter("info").init();
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
     let cli = Cli::parse();
 
     info!("Generating fixtures in folder: {:?}", cli.output_folder);

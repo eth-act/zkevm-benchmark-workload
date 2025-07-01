@@ -4,6 +4,7 @@ use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use std::{path::PathBuf, process::Command};
 use tracing::{error, info};
+use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
 
 use witness_generator::BlocksAndWitnesses;
@@ -86,7 +87,7 @@ impl From<BenchmarkAction> for Action {
 /// Main entry point for the host benchmarker
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
-        .with_env_filter("info,sp1_core_executor=warn,sp1_prover=warn")
+        .with_env_filter(EnvFilter::from_default_env())
         .init();
     let cli = Cli::parse();
 
