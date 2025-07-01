@@ -2,6 +2,8 @@ use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;
 use tokio_util::sync::CancellationToken;
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 use witness_generator::{
     WitnessGenerator,
     eest_generator::ExecSpecTestBlocksAndWitnessBuilder,
@@ -142,7 +144,7 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
                 tokio::spawn(async move {
                     tokio::select! {
                         _ = tokio::signal::ctrl_c() => {
-                            println!("Stopping...");
+                            info!("Stopping...");
                             stop.cancel();
                         }
                     }

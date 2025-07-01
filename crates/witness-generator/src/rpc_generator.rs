@@ -330,6 +330,7 @@ impl RpcBlocksAndWitnesses {
 
             std::fs::write(&output_path, output_data)
                 .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
+            info!("Saved block and witness to: {}", output_path.display());
         }
         Ok(())
     }
