@@ -1,5 +1,6 @@
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
+use tracing::info;
 use witness_generator::BlocksAndWitnesses;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
@@ -32,7 +33,7 @@ where
 {
     HardwareInfo::detect().to_path(run_config.output_folder.join(&format!("hardware.json",)))?;
 
-    println!("Benchmarking `{}`…", host_name);
+    info!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
 
     match run_config.action {
@@ -66,7 +67,7 @@ where
         .join(&format!("{}/{}.json", host_name, bw.name));
 
     if !run_config.force_rerun && out_path.exists() {
-        println!("Skipping {} (already exists)", bw.name);
+        info!("Skipping {} (already exists)", bw.name);
         return Ok(());
     }
 
@@ -76,7 +77,7 @@ where
     stdin.write(bw.block_and_witness.clone());
     stdin.write(bw.network);
 
-    println!("Running {}", bw.name);
+    info!("Running {}", bw.name);
     let (execution, proving) = match run_config.action {
         Action::Execute => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));
@@ -119,7 +120,7 @@ where
         proving,
     };
 
-    println!("Saving report for {}", bw.name);
+    info!("Saving report for {}", bw.name);
     BenchmarkRun::to_path(out_path, &vec![report])?;
 
     Ok(())

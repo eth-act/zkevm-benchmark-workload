@@ -1,6 +1,8 @@
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::{Path, PathBuf};
+use tracing::info;
+use tracing_subscriber::EnvFilter;
 use witness_generator::{
     WitnessGenerator,
     eest_generator::ExecSpecTestBlocksAndWitnessBuilder,
@@ -63,9 +65,12 @@ enum SourceCommand {
 
 #[tokio::main]
 async fn main() -> Result<()> {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
     let cli = Cli::parse();
 
-    println!("Generating fixtures in folder: {:?}", cli.output_folder);
+    info!("Generating fixtures in folder: {:?}", cli.output_folder);
     if !cli.output_folder.exists() {
         std::fs::create_dir_all(&cli.output_folder)
             .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
@@ -73,22 +78,22 @@ async fn main() -> Result<()> {
 
     let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
 
-    println!("Generating fixtures...");
+    info!("Generating fixtures...");
     let bws = generator
         .generate()
         .await
         .context("Failed to generate blocks and witnesses")?;
 
-    println!("Generated {} blocks and witnesses", bws.len());
+    info!("Generated {} blocks and witnesses", bws.len());
 
     if bws.is_empty() {
-        println!("No blocks and witnesses generated. Exiting.");
+        info!("No blocks and witnesses generated. Exiting.");
         return Ok(());
     }
 
     write_fixtures_to_disk(&cli.output_folder, &bws).context("Failed to write fixtures to disk")?;
 
-    println!("Fixtures written successfully.");
+    info!("Fixtures written successfully.");
     Ok(())
 }
 
@@ -155,7 +160,7 @@ fn write_fixtures_to_disk(
     output_folder: &Path,
     bws: &[witness_generator::BlocksAndWitnesses],
 ) -> Result<()> {
-    println!("Writing fixtures to output folder...");
+    info!("Writing fixtures to output folder...");
 
     for bw in bws {
         let output_path = output_folder.join(format!("{}.json", bw.name));

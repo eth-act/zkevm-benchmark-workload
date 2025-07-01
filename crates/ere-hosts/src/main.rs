@@ -3,6 +3,8 @@
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use std::{path::PathBuf, process::Command};
+use tracing::{error, info};
+use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
 
 use witness_generator::BlocksAndWitnesses;
@@ -84,12 +86,15 @@ impl From<BenchmarkAction> for Action {
 
 /// Main entry point for the host benchmarker
 fn main() -> Result<(), Box<dyn std::error::Error>> {
+    tracing_subscriber::fmt()
+        .with_env_filter(EnvFilter::from_default_env())
+        .init();
     let cli = Cli::parse();
 
     let resource: ProverResourceType = cli.resource.into();
     let action: Action = cli.action.into();
 
-    println!("Loading corpuses from: {}", cli.input_folder.display());
+    info!("Loading corpuses from: {}", cli.input_folder.display());
     let corpuses = WalkDir::new(&cli.input_folder)
         .min_depth(1)
         .into_iter()
@@ -117,7 +122,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         force_rerun: cli.force_rerun,
     };
 
-    println!("Running benchmarks with resource: {:?}", resource);
+    info!("Running benchmarks with resource: {:?}", resource);
     #[cfg(feature = "sp1")]
     {
         run_cargo_patch_command("sp1")?;
@@ -210,7 +215,7 @@ fn new_pico_zkvm(
 
 /// Patches the precompiles for a specific zkvm
 fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Error>> {
-    println!("Running cargo {}...", zkvm_name);
+    info!("Running cargo {}...", zkvm_name);
 
     let output = Command::new("cargo").arg(zkvm_name).output()?;
 
@@ -218,17 +223,17 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
         let stderr = String::from_utf8_lossy(&output.stderr);
         let stdout = String::from_utf8_lossy(&output.stdout);
 
-        eprintln!(
+        error!(
             "cargo {} failed with exit code: {:?}",
             zkvm_name,
             output.status.code()
         );
-        eprintln!("stdout: {}", stdout);
-        eprintln!("stderr: {}", stderr);
+        error!("stdout: {}", stdout);
+        error!("stderr: {}", stderr);
 
         return Err(format!("cargo {} command failed", zkvm_name).into());
     }
 
-    println!("cargo {} completed successfully", zkvm_name);
+    info!("cargo {} completed successfully", zkvm_name);
     Ok(())
 }
