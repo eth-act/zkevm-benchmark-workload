@@ -10,6 +10,7 @@ use std::{
     path::{Path, PathBuf},
     process::Command,
 };
+use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
@@ -110,7 +111,7 @@ impl Drop for ExecSpecTestBlocksAndWitnesses {
         if self.delete_eest_folder && self.directory_path.exists() {
             match std::fs::remove_dir_all(&self.directory_path) {
                 Ok(_) => {}
-                Err(e) => eprintln!(
+                Err(e) => error!(
                     "Failed to remove directory {}: {}",
                     self.directory_path.display(),
                     e
@@ -137,7 +138,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             let test_case = match BlockchainTestCase::load(&path) {
                 Ok(case) => case,
                 Err(e) => {
-                    eprintln!("Failed to load test case from {}: {e}", path.display());
+                    error!("Failed to load test case from {}: {e}", path.display());
                     continue;
                 }
             };
