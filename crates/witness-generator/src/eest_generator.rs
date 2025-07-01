@@ -67,6 +67,8 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
 
+        // delete_eest_folder indicates if the EEST folder will be automatically deleted after witness generation.
+        // If this folder was explicitly provided, we do not delete it.
         let (directory_path, delete_eest_folder) = if let Some(input_folder) = input_folder {
             (input_folder, false)
         } else {
