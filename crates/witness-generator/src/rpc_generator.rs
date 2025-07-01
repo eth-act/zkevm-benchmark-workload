@@ -294,12 +294,12 @@ impl RpcBlocksAndWitnesses {
                         Ok(bws) => {
                             if !bws.is_empty() {
                                 match self.save_to_path(&bws, path) {
-                                 Ok(_) => {
-                                    count += bws.len();
-                                    next_block_num = bws.last().unwrap().block_and_witness.block.number + 1;
-                                },
-                                Err(e) => error!("Failed to save data: {e}"),
-                            }
+                                    Ok(_) => {
+                                        count += bws.len();
+                                        next_block_num = bws.last().unwrap().block_and_witness.block.number + 1;
+                                    },
+                                    Err(e) => error!("Failed to save data: {e}"),
+                                }
                             }
                         }
                         Err(e) => {
