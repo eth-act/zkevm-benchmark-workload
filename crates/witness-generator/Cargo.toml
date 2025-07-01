@@ -19,6 +19,7 @@ tokio.workspace = true
 clap.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
+tokio-util = "0.7.15"
 
 alloy-eips = { workspace = true }
 alloy-rpc-types-eth.workspace = true

@@ -1,7 +1,7 @@
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use tracing::info;
-use witness_generator::BlocksAndWitnesses;
+use witness_generator::BlockAndWitness;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
@@ -26,7 +26,7 @@ pub fn run_benchmark_ere<V>(
     host_name: &str,
     zkvm_instance: V,
     run_config: &RunConfig,
-    corpuses: &[BlocksAndWitnesses],
+    corpuses: &[BlockAndWitness],
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -54,7 +54,7 @@ where
 }
 
 fn process_corpus<V>(
-    bw: &BlocksAndWitnesses,
+    bw: &BlockAndWitness,
     zkvm_ref: Arc<V>,
     host_name: &str,
     run_config: &RunConfig,

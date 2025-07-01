@@ -17,7 +17,7 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: A standalone binary and library that generates benchmark fixture files (`BlocksAndWitnesses`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints. These are saved in the `zkevm-fixtures-input` folder.
+- **`crates/witness-generator`**: A standalone binary and library that generates benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints. These are saved in the `zkevm-fixtures-input` folder. The crate now includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
 - **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
@@ -37,7 +37,7 @@ The workspace is organized into several key components:
 
 The benchmarking process is decoupled into two distinct phases:
 
-1. **Fixture Generation** (`witness-generator`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlocksAndWitnesses` fixtures as JSON files saved in `zkevm-fixtures-input/`.
+1. **Fixture Generation** (`witness-generator`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
 2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
 
 This decoupling provides several benefits:
@@ -101,6 +101,9 @@ Each zkVM benchmark implementation follows a common pattern:
     
     # Or generate from RPC
     cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
+    
+    # Or listen for new blocks continuously
+    cargo run --release -- rpc --follow --rpc-url <your-rpc-url>
     ```
 
     This creates individual `.json` files in the `zkevm-fixtures-input/` directory that will be consumed by the benchmark runner.
@@ -131,3 +134,19 @@ This repository contains an `xtask` that will automate this process by calling `
 | **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
 | **Pico**         | `ere-guests/pico/`    | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
 | **Zisk**         | `ere-guests/zisk/`    | `crates/ere-hosts/` | `zkevm-metrics/zisk/`      |
+
+## CI/CD and Docker Support
+
+The repository includes automated Docker image building through GitHub Actions:
+
+- **Automated Builds**: Docker images are automatically built and pushed to GitHub Container Registry (`ghcr.io`) on pushes to the master branch
+- **Manual Builds**: Docker builds can be triggered manually via GitHub Actions workflow dispatch  
+- **Container Registry**: Pre-built images are available at `ghcr.io/<repository>/witness-generator`
+- **Multi-platform Support**: Images are built for multiple architectures and cached for efficient builds
+
+The Docker workflow (`.github/workflows/docker-build.yml`) provides:
+- Automatic tagging with git SHA and `latest` for the default branch
+- Docker layer caching for faster subsequent builds
+- Integration with GitHub's container registry with proper authentication
+
+The Docker image provides a self-contained environment for running the witness generator without local Rust toolchain setup.

@@ -12,7 +12,7 @@ use thiserror::Error;
 /// `ethereum/tests` fixtures (however we are using `zkevm-fixtures`)
 ///  containing all the sequential block transitions within that test.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BlocksAndWitnesses {
+pub struct BlockAndWitness {
     /// Name of the blockchain test case (e.g., "`ModExpAttackContract`").
     pub name: String,
     /// The block and witness pair for the test case.
@@ -36,8 +36,8 @@ pub enum BwError {
     Io(#[from] io::Error),
 }
 
-impl BlocksAndWitnesses {
-    /// Serializes a list of `BlocksAndWitnesses` test cases to a JSON pretty-printed string.
+impl BlockAndWitness {
+    /// Serializes a list of `BlockAndWitness` test cases to a JSON pretty-printed string.
     ///
     /// # Errors
     ///
@@ -46,7 +46,7 @@ impl BlocksAndWitnesses {
         serde_json::to_string_pretty(items).map_err(BwError::from)
     }
 
-    /// Deserializes a list of `BlocksAndWitnesses` test cases from a JSON string.
+    /// Deserializes a list of `BlockAndWitness` test cases from a JSON string.
     ///
     /// Assumes the input JSON was produced by [`Self::to_json`].
     ///
@@ -93,11 +93,24 @@ impl BlocksAndWitnesses {
 /// `BlocksAndWitnesses` collections, such as from test fixtures or RPC endpoints.
 #[async_trait]
 pub trait WitnessGenerator {
-    /// Generates `BlocksAndWitnesses`.
+    /// Generates `BlockAndWitness` fixtures.
     ///
     /// # Errors
     ///
     /// Returns an error if the generation process fails, including network issues,
     /// file I/O problems, or data processing errors.
-    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>>;
+    async fn generate(&self) -> Result<Vec<BlockAndWitness>>;
+
+    /// Generates `BlockAndWitness` fixtures and writes them to the specified path.
+    ///
+    /// # Arguments
+    /// * `path` - The directory path where fixture files will be written
+    ///
+    /// # Returns
+    /// The number of fixture files successfully generated and written
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the generation fails or if writing to the path fails.
+    async fn generate_to_path(&self, path: &Path) -> Result<usize>;
 }

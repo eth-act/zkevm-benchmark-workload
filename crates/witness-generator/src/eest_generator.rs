@@ -13,10 +13,10 @@ use std::{
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::{BlocksAndWitnesses, blocks_and_witnesses::WitnessGenerator};
+use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
-/// Witness generator that produces `BlocksAndWitnesses` for execution-spec-test fixtures.
+/// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
 pub struct ExecSpecTestBlocksAndWitnessBuilder {
     input_folder: Option<PathBuf>,
@@ -97,7 +97,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
     }
 }
 
-/// Witness generator that produces `BlocksAndWitnesses` for EEST fixtures.
+/// Witness generator that produces `BlockAndWitness` fixtures for EEST fixtures.
 #[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
@@ -125,7 +125,7 @@ impl Drop for ExecSpecTestBlocksAndWitnesses {
 impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
     // Generates blocks and witnesses from the EEST fixtures located in the specified directory,
     // filtering by the provided include and exclude patterns.
-    async fn generate(&self) -> Result<Vec<BlocksAndWitnesses>> {
+    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
         let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
@@ -162,7 +162,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let bws: Result<Vec<_>> = tests
             .par_iter()
             .map(|(name, case)| {
-                Ok(BlocksAndWitnesses {
+                Ok(BlockAndWitness {
                     name: name.to_string(),
                     block_and_witness: run_case(case)?
                         .into_iter()
@@ -178,6 +178,32 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             .collect();
 
         bws
+    }
+
+    /// Generates `BlockAndWitness` fixtures from EEST test cases and writes them to the specified path.
+    ///
+    /// This method processes all matching EEST test cases, generates the corresponding
+    /// witness data, and writes each fixture as a separate JSON file in the output directory.
+    ///
+    /// # Arguments
+    /// * `path` - The directory path where JSON fixture files will be written
+    ///
+    /// # Returns
+    /// The number of fixture files successfully generated and written
+    ///
+    /// # Errors
+    /// Returns an error if fixture generation fails, serialization fails, or file writing fails.
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let bws = self.generate().await?;
+        for bw in &bws {
+            let output_path = path.join(format!("{}.json", bw.name));
+            let output_data = serde_json::to_string_pretty(&bw)
+                .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
+
+            std::fs::write(&output_path, output_data)
+                .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
+        }
+        Ok(bws.len())
     }
 }
 

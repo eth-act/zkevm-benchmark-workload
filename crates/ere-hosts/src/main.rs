@@ -7,7 +7,7 @@ use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
 
-use witness_generator::BlocksAndWitnesses;
+use witness_generator::BlockAndWitness;
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
@@ -111,7 +111,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 anyhow::bail!("Invalid input folder structure: expected files only")
             }
         })
-        .collect::<Result<Vec<BlocksAndWitnesses>, _>>()?;
+        .collect::<Result<Vec<BlockAndWitness>, _>>()?;
 
     // Set to true once a zkvm has ran
     let mut ran_any = false;
