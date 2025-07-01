@@ -16,7 +16,7 @@ cargo run -- tests  # or use rpc source
 cd ../ere-hosts
 ```
 
-The benchmarker expects fixture files to be available in the input directory (default: `zkevm-fixtures-input/`).
+The benchmarker expects fixture files to be available in the input directory (default: `zkevm-fixtures-input/`). Each file should contain a `BlockAndWitness` object.
 
 ## Feature Flags
 
