@@ -37,7 +37,7 @@ pub enum BwError {
 }
 
 impl BlockAndWitness {
-    /// Serializes a list of `BlocksAndWitnesses` test cases to a JSON pretty-printed string.
+    /// Serializes a list of `BlockAndWitness` test cases to a JSON pretty-printed string.
     ///
     /// # Errors
     ///
@@ -46,7 +46,7 @@ impl BlockAndWitness {
         serde_json::to_string_pretty(items).map_err(BwError::from)
     }
 
-    /// Deserializes a list of `BlocksAndWitnesses` test cases from a JSON string.
+    /// Deserializes a list of `BlockAndWitness` test cases from a JSON string.
     ///
     /// Assumes the input JSON was produced by [`Self::to_json`].
     ///
@@ -93,7 +93,7 @@ impl BlockAndWitness {
 /// `BlocksAndWitnesses` collections, such as from test fixtures or RPC endpoints.
 #[async_trait]
 pub trait WitnessGenerator {
-    /// Generates `BlocksAndWitnesses`.
+    /// Generates `BlockAndWitness` fixtures.
     ///
     /// # Errors
     ///
@@ -101,7 +101,13 @@ pub trait WitnessGenerator {
     /// file I/O problems, or data processing errors.
     async fn generate(&self) -> Result<Vec<BlockAndWitness>>;
 
-    /// Generates `BlocksAndWitnesses` and writes them to the specified path.
+    /// Generates `BlockAndWitness` fixtures and writes them to the specified path.
+    ///
+    /// # Arguments
+    /// * `path` - The directory path where fixture files will be written
+    ///
+    /// # Returns
+    /// The number of fixture files successfully generated and written
     ///
     /// # Errors
     ///

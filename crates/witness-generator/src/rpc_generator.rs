@@ -248,6 +248,13 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Arguments
     /// * `block_num` - The starting block number to fetch
+    ///
+    /// # Returns
+    /// A vector of `BlockAndWitness` objects for all blocks in the range
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if any RPC call fails or if blocks cannot be found.
     async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlockAndWitness>> {
         let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
             &self.client,
@@ -265,7 +272,22 @@ impl RpcBlocksAndWitnesses {
         Ok(bws)
     }
 
-    /// Fetches the live blocks and their execution witnesses.
+    /// Continuously fetches new blocks and their execution witnesses, writing them to the specified path.
+    ///
+    /// This method polls for new blocks starting from the latest block and continues until
+    /// the cancellation token is triggered. Each new block is processed and saved as a
+    /// JSON fixture file.
+    ///
+    /// # Arguments
+    /// * `path` - The directory path where JSON fixture files will be written
+    ///
+    /// # Returns
+    /// The total number of blocks processed and saved
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the cancellation token is not set, if RPC calls fail,
+    /// or if file writing fails.
     async fn fetch_live(&self, path: &Path) -> Result<usize> {
         let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
             &self.client,
@@ -322,6 +344,17 @@ impl RpcBlocksAndWitnesses {
         Ok(count)
     }
 
+    /// Saves a collection of `BlockAndWitness` objects to JSON files in the specified directory.
+    ///
+    /// Each fixture is written to a separate JSON file named after the fixture's name.
+    ///
+    /// # Arguments
+    /// * `bws` - The slice of `BlockAndWitness` objects to save
+    /// * `path` - The directory path where JSON files will be written
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if serialization fails or if any file cannot be written.
     fn save_to_path(&self, bws: &[BlockAndWitness], path: &Path) -> Result<()> {
         for bw in bws {
             let output_path = path.join(format!("{}.json", bw.name));
