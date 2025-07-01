@@ -195,19 +195,26 @@ mod tests {
 
     #[test]
     fn test_eest_generator_deletes_directory_on_drop() {
-        let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
-        std::fs::create_dir_all(&directory_path).unwrap();
-        assert!(directory_path.exists());
+        for delete_eest_folder in [false, true] {
+            let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
+            std::fs::create_dir_all(&directory_path).unwrap();
+            assert!(directory_path.exists());
 
-        let eest_generator = ExecSpecTestBlocksAndWitnesses {
-            directory_path: directory_path.clone(),
-            include: vec![],
-            exclude: vec![],
-            delete_eest_folder: false,
-        };
+            let eest_generator = ExecSpecTestBlocksAndWitnesses {
+                directory_path: directory_path.clone(),
+                include: vec![],
+                exclude: vec![],
+                delete_eest_folder,
+            };
 
-        drop(eest_generator);
+            drop(eest_generator);
 
-        assert!(!directory_path.exists());
+            assert_eq!(
+                !directory_path.exists(),
+                delete_eest_folder,
+                "Directory should {}exist after drop",
+                if delete_eest_folder { "" } else { "not " }
+            );
+        }
     }
 }

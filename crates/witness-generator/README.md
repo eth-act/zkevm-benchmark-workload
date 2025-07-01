@@ -80,7 +80,7 @@ use std::env::temp_dir;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Generating witnesses...");
     
-    let generator = ExecSpecTestBlocksAndWitnessBuilder::new().build()?;
+    let generator = ExecSpecTestBlocksAndWitnessBuilder::default().build()?;
     let all_test_witnesses = generator.generate().await?;
     
     println!("Generated witness data for {} test cases.", all_test_witnesses.len());
