@@ -26,6 +26,8 @@ pub struct ExecSpecTestBlocksAndWitnessBuilder {
 }
 
 impl ExecSpecTestBlocksAndWitnessBuilder {
+    const TEMP_EEST_FIXTURES_PATH: &str = "./zkevm-fixtures";
+
     /// Sets the tag for the execution-spec-test fixtures.
     pub fn with_tag(mut self, tag: String) -> Self {
         self.tag = Some(tag);
@@ -85,7 +87,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
                     String::from_utf8_lossy(&output.stderr)
                 );
             }
-            (PathBuf::from("./zkevm-fixtures"), true)
+            (PathBuf::from(&Self::TEMP_EEST_FIXTURES_PATH), true)
         };
 
         Ok(ExecSpecTestBlocksAndWitnesses {
@@ -220,46 +222,45 @@ fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
 
 #[cfg(test)]
 mod tests {
-    use std::str::FromStr;
+    use flate2::bufread::GzDecoder;
+    use tar::Archive;
 
     use super::*;
+    use std::{fs::File, str::FromStr};
 
-    fn run_download_script(tag: Option<&str>, dest_dir: Option<&Path>) -> Result<()> {
-        let path = PathBuf::from(std::env::var("CARGO_WORKSPACE_DIR")?)
-            .join("scripts/download-and-extract-fixtures.sh");
-        let mut cmd = Command::new(path);
-        cmd.arg(tag.unwrap_or("latest"));
-        if let Some(dest_dir) = dest_dir {
-            cmd.arg(dest_dir);
-        }
-        let output = cmd.output()?;
-        if !output.status.success() {
-            bail!(
-                "Failed to download EEST benchmark fixtures: {}",
-                String::from_utf8_lossy(&output.stderr)
-            );
-        }
+    fn decompress_eest_release(dest_dir: &Path) -> Result<()> {
+        let path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("testdata/zkevm_fixtures_v0.1.0.tar.gz");
+        let file = File::open(path)?;
+        let buf_reader = std::io::BufReader::new(file);
+        let tar = GzDecoder::new(buf_reader);
+        let mut archive = Archive::new(tar);
+        archive.unpack(dest_dir)?;
         Ok(())
     }
 
-    #[tokio::test]
-    async fn test_custom_input_folder() -> Result<()> {
-        let download_dir = tempfile::tempdir()?;
-        let download_path = download_dir.path();
-        run_download_script(None, Some(download_path)).context("Failed running download script")?;
-
-        // Copy a single fixture to the EEST fixtures directory, to be sure that in our last assertion
-        // we know for sure that the fixture was generated from a custom input folder and not other unexpected source.
-        let target_dir = tempfile::tempdir()?;
-        let target_path = target_dir.path();
+    fn prepare_downgraded_eest_fixtures(target_path: &Path) -> Result<()> {
+        let decompress_dir = tempfile::tempdir()?;
+        let decompress_path = decompress_dir.path();
+        decompress_eest_release(decompress_path)?;
 
         let single_fixture_path =
             PathBuf::from_str("fixtures/blockchain_tests/zkevm/worst_compute/worst_jumps.json")?;
         std::fs::create_dir_all(&target_path.join(single_fixture_path.parent().unwrap()))?;
         std::fs::copy(
-            download_path.join(&single_fixture_path),
+            decompress_path
+                .join("zkevm-fixtures")
+                .join(&single_fixture_path),
             target_path.join(&single_fixture_path),
         )?;
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_custom_input_folder() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        prepare_downgraded_eest_fixtures(&target_path)?;
 
         let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
             .with_input_folder(target_path.to_path_buf())?
@@ -272,31 +273,86 @@ mod tests {
             "Only two fixtures are expected for the keccak EEST fixture"
         );
 
+        // Then the `input_folder` is used, the folder must not be deleted.
+        drop(wg);
+        assert!(
+            target_path.exists(),
+            "Directory should still exist after drop"
+        );
+
         Ok(())
     }
 
-    #[test]
-    fn test_eest_directory_deletion() {
-        for delete_eest_folder in [false, true] {
-            let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
-            std::fs::create_dir_all(&directory_path).unwrap();
-            assert!(directory_path.exists());
+    #[tokio::test]
+    async fn test_filters() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        prepare_downgraded_eest_fixtures(&target_path)?;
 
-            let eest_generator = ExecSpecTestBlocksAndWitnesses {
-                directory_path: directory_path.clone(),
-                include: vec![],
-                exclude: vec![],
-                delete_eest_folder,
-            };
+        let bw_with_include = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .with_includes(vec!["Prague".to_string()])
+            .build()?
+            .generate()
+            .await?;
+        assert_eq!(
+            bw_with_include.len(),
+            1,
+            "Only one fixture should match the include filter"
+        );
+        assert!(
+            bw_with_include[0].name.contains("Prague"),
+            "The fixture should contain 'Prague' in its name"
+        );
 
-            drop(eest_generator);
+        let bw_with_exclude = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .with_excludes(vec!["Prague".to_string()])
+            .build()?
+            .generate()
+            .await?;
+        assert_eq!(
+            bw_with_exclude.len(),
+            1,
+            "Only one fixture should match the exclude filter"
+        );
+        assert!(
+            !bw_with_exclude[0].name.contains("Prague"),
+            "The fixture should not contain 'Prague' in its name"
+        );
 
-            assert_eq!(
-                !directory_path.exists(),
-                delete_eest_folder,
-                "Directory should {}exist after drop",
-                if delete_eest_folder { "" } else { "not " }
-            );
-        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    #[cfg(feature = "slow-tests")]
+    async fn test_generate_latest_release() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        decompress_eest_release(target_path)?;
+
+        let mut bw = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.join("zkevm-fixtures").to_path_buf())?
+            .with_includes(vec!["Prague".to_string()])
+            .build()?;
+
+        let generated = bw.generate().await?;
+        assert!(
+            !generated.is_empty(),
+            "Expected to generate at least one fixture from the latest EEST release"
+        );
+
+        // Simulate that the EEST fixures were downloaded using the script.
+        bw.delete_eest_folder = true;
+
+        // Since we downloaded using the script, the temporary directory of EEST fixtures created by the script
+        // should be deleted when the `ExecSpecTestBlocksAndWitnesses` is dropped.
+        drop(bw);
+        assert!(
+            !PathBuf::from(ExecSpecTestBlocksAndWitnessBuilder::TEMP_EEST_FIXTURES_PATH).exists(),
+            "Directory should be deleted after drop"
+        );
+
+        Ok(())
     }
 }
