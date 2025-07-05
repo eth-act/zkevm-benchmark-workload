@@ -23,18 +23,12 @@ tokio-util = "0.7.15"
 
 alloy-eips = { workspace = true }
 alloy-rpc-types-eth.workspace = true
-alloy-primitives = { workspace = true, features = ["serde"] }
 ef-tests.workspace = true
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-primitives-traits = { workspace = true, features = [
-    "serde",
-    "serde-bincode-compat",
-] }
-reth-chainspec.workspace = true
 reth-rpc-api = { workspace = true, features = ["client"] }
 
 [dev-dependencies]
