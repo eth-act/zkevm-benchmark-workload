@@ -270,7 +270,7 @@ mod tests {
         assert_eq!(
             wg.generate().await?.len(),
             2,
-            "Only two fixtures are expected for the keccak EEST fixture"
+            "Only two fixtures are expected for the worst_jumps EEST fixture"
         );
 
         // Then the `input_folder` is used, the folder must not be deleted.
@@ -319,6 +319,32 @@ mod tests {
         assert!(
             !bw_with_exclude[0].name.contains("Prague"),
             "The fixture should not contain 'Prague' in its name"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_generate_to_path() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        prepare_downgraded_eest_fixtures(&target_path)?;
+
+        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .build()?;
+
+        let generation_dir = tempfile::tempdir()?;
+        let generation_path = generation_dir.path();
+        let count = wg.generate_to_path(generation_path).await?;
+        assert_eq!(
+            count, 2,
+            "Only two fixtures are expected for the worst_jumps EEST fixture"
+        );
+        assert_eq!(
+            generation_path.read_dir()?.count(),
+            2,
+            "There should be two generated fixture files in the output directory"
         );
 
         Ok(())
