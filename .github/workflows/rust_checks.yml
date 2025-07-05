@@ -9,8 +9,21 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs: 
-  check:
-    name: Minimal checks on non-zkvm crates
+  check-scripts:
+    name: Check bash scripts
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Download and Extract Fixtures
+        run: |
+          chmod +x ./scripts/download-and-extract-fixtures.sh
+          ./scripts/download-and-extract-fixtures.sh
+
+  check-non-ere-hosts:
+    name: Checks on non ere-hosts crates
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -30,21 +43,8 @@ jobs:
         run: cargo fmt --check --all
 
       - name: Run tests
-        run: cargo test -p zkevm-metrics -p witness-generator -p ere-hosts
-
-  download-eest-fixtures:
-    name: Download and Extract Fixtures
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download and Extract Fixtures
-        run: |
-          chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh
-
+        run: cargo test -p zkevm-metrics -p witness-generator
+ 
   check-ere-host:
     name: Checks crate ere-hosts
     strategy:
@@ -68,3 +68,6 @@ jobs:
 
       - name: Cargo check (with ${{ matrix.zkvm }} enabled)
         run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
+
+      - name: Run tests
+        run: cargo test -p ere-hosts
