@@ -220,10 +220,63 @@ fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
 
 #[cfg(test)]
 mod tests {
+    use std::str::FromStr;
+
     use super::*;
 
+    fn run_download_script(tag: Option<&str>, dest_dir: Option<&Path>) -> Result<()> {
+        let path = PathBuf::from(std::env::var("CARGO_WORKSPACE_DIR")?)
+            .join("scripts/download-and-extract-fixtures.sh");
+        let mut cmd = Command::new(path);
+        cmd.arg(tag.unwrap_or("latest"));
+        if let Some(dest_dir) = dest_dir {
+            cmd.arg(dest_dir);
+        }
+        let output = cmd.output()?;
+        if !output.status.success() {
+            bail!(
+                "Failed to download EEST benchmark fixtures: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_custom_input_folder() -> Result<()> {
+        let download_dir = tempfile::tempdir()?;
+        let download_path = download_dir.path();
+        run_download_script(None, Some(download_path)).context("Failed running download script")?;
+
+        // Copy a single fixture to the EEST fixtures directory, to be sure that in our last assertion
+        // we know for sure that the fixture was generated from a custom input folder and not other unexpected source.
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+
+        let single_fixture_path =
+            PathBuf::from_str("fixtures/blockchain_tests/zkevm/worst_compute/worst_jumps.json")?;
+        std::fs::create_dir_all(&target_path.join(single_fixture_path.parent().unwrap()))?;
+        std::fs::copy(
+            download_path.join(&single_fixture_path),
+            target_path.join(&single_fixture_path),
+        )?;
+
+        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .build()?;
+
+        // The worst_jumps.json suite has two fixtures.
+        assert_eq!(
+            wg.generate().await?.len(),
+            2,
+            "Only two fixtures are expected for the keccak EEST fixture"
+        );
+
+        Ok(())
+    }
+
     #[test]
-    fn test_eest_generator_deletes_directory_on_drop() {
+    fn test_eest_directory_deletion() {
         for delete_eest_folder in [false, true] {
             let directory_path = PathBuf::from("./zkevm-fixtures/test-123");
             std::fs::create_dir_all(&directory_path).unwrap();
