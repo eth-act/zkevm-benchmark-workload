@@ -4,29 +4,38 @@
 #
 # Downloads execution spec test fixtures for zkevm.
 # By default, it fetches the latest release tag starting with 'zkevm@'.
-# An optional argument can be provided to specify an exact tag.
+# You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest tag.
+# The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
 # Usage:
-#   ./scripts/download-and-extract-fixtures.sh [TAG]
+#   ./scripts/download-and-extract-fixtures.sh [TAG|latest] [DEST_DIR]
 #
-# Example (latest):
+# Examples:
+#   # Download latest release to default directory
 #   ./scripts/download-and-extract-fixtures.sh
-# Example (specific tag):
+#   # Download latest release to a custom directory
+#   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
+#   # Download a specific tag to default directory
 #   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1
+#   # Download a specific tag to a custom directory
+#   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1 /tmp/fixtures
 #
-
-DEST_DIR="./zkevm-fixtures"  # Folder where the tarball will be extracted
-#
-# ─────────────────────────────────────────────────────────────────────
 
 set -euo pipefail
 
 REPO="ethereum/execution-spec-tests"
 ASSET_NAME="fixtures_zkevm.tar.gz"
 
+# Set DEST_DIR from second argument, or default
+if [ -n "${2:-}" ]; then
+  DEST_DIR="$2"
+else
+  DEST_DIR="./zkevm-fixtures"
+fi
+
 # Determine the tag to use
-if [ -n "${1:-}" ]; then
-  # Use the tag provided as the first argument
+if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
+  # Use the tag provided as the first argument (unless it's 'latest')
   TAG="$1"
   echo "ℹ️  Using specified tag: ${TAG}"
 else
@@ -62,14 +71,18 @@ if [[ -z "${DOWNLOAD_URL}" || "${DOWNLOAD_URL}" == "null" ]]; then
   exit 1
 fi
 
-echo "⬇️  Downloading ${ASSET_NAME} …"
-curl -L -o "${ASSET_NAME}" "${DOWNLOAD_URL}"
+TMP_DIR=$(mktemp -d)
+cleanup() {
+  rm -rf "${TMP_DIR}"
+}
+trap cleanup EXIT
+TMP_TAR="${TMP_DIR}/${ASSET_NAME}"
+
+echo "⬇️  Downloading ${ASSET_NAME} to temporary directory …"
+curl -L -o "${TMP_TAR}" "${DOWNLOAD_URL}"
 
 echo "📂  Extracting to ${DEST_DIR}/"
 mkdir -p "${DEST_DIR}"
-tar -xzf "${ASSET_NAME}" -C "${DEST_DIR}"
-
-echo "🗑️  Cleaning up ${ASSET_NAME}"
-rm -f "${ASSET_NAME}"
+tar -xzf "${TMP_TAR}" -C "${DEST_DIR}"
 
 echo "✅  Fixtures ready in ${DEST_DIR}"
