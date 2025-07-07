@@ -389,7 +389,7 @@ impl RpcFlatHeaderKeyValues {
     ///
     /// # Arguments
     /// * `headers` - Vector of header strings in "key:value" format
-    pub fn new(headers: Vec<String>) -> Self {
+    pub const fn new(headers: Vec<String>) -> Self {
         Self { headers }
     }
 }
@@ -416,7 +416,7 @@ impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
             })
             .collect::<Result<Vec<_>, Self::Error>>()?;
 
-        let mut header_map = HeaderMap::with_capacity(header_pairs.len());
+        let mut header_map = Self::with_capacity(header_pairs.len());
         for (name, value) in header_pairs {
             header_map.insert(name, value);
         }

@@ -39,3 +39,6 @@ flate2 = "1.0"
 
 [features]
 slow-tests = []
+
+[lints]
+workspace = true

@@ -1,3 +1,5 @@
+//! Benchmark runner for zkVM workloads
+
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 use rayon::prelude::*;
@@ -7,7 +9,8 @@ use witness_generator::BlockAndWitness;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
-/// RunConfig holds the configuration for running benchmarks
+/// Holds the configuration for running benchmarks
+#[derive(Debug, Clone)]
 pub struct RunConfig {
     /// Output folder where benchmark results will be stored
     pub output_folder: PathBuf,
@@ -18,12 +21,15 @@ pub struct RunConfig {
 }
 
 /// Action specifies whether we should prove or execute
-#[derive(Clone, Copy)]
+#[derive(Debug, Clone, Copy)]
 pub enum Action {
+    /// Generate a proof for the zkVM execution
     Prove,
+    /// Only execute the zkVM without proving
     Execute,
 }
 
+/// Runs the benchmark for a given zkVM instance and corpus of blocks and witnesses
 pub fn run_benchmark_ere<V>(
     host_name: &str,
     zkvm_instance: V,

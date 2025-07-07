@@ -357,7 +357,7 @@ mod tests {
         decompress_eest_release(target_path)?;
 
         let mut bw = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.join("zkevm-fixtures").to_path_buf())?
+            .with_input_folder(target_path.join("zkevm-fixtures"))?
             .with_includes(vec!["Prague".to_string()])
             .build()?;
 
