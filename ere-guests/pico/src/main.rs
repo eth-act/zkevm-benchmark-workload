@@ -1,4 +1,5 @@
 #![no_main]
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 pico_sdk::entrypoint!(main);
 use pico_sdk::io::read_as;
@@ -8,7 +9,7 @@ extern crate alloc;
 use alloc::sync::Arc;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, StatelessInput};
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec, validation::stateless_validation};
 
 /// Entry point.
 pub fn main() {

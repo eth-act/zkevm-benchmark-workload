@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use risc0_zkvm::guest::env;
 
 extern crate alloc;

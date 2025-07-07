@@ -1,5 +1,7 @@
 //! OpenVM guest program
 
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use openvm::io::read;
 
 extern crate alloc;
