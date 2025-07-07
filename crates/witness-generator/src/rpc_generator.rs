@@ -417,3 +417,107 @@ impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
         Ok(header_map)
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn build_base_rpc() -> RpcBlocksAndWitnessesBuilder {
+        let rpc_url = std::env::var("RPC_URL").expect("RPC_URL not set");
+        let rpc_headers = std::env::var("RPC_HEADERS").ok();
+
+        let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
+        if let Some(rpc_headers) = rpc_headers {
+            let rpc_headers: RpcFlatHeaderKeyValues = RpcFlatHeaderKeyValues::new(
+                rpc_headers
+                    .split(',')
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>(),
+            );
+            builder =
+                builder.with_headers(rpc_headers.try_into().expect("Failed to parse headers"));
+        }
+        builder
+    }
+
+    #[tokio::test]
+    async fn test_last_n_blocks() {
+        let rpc_bw = build_base_rpc()
+            .last_n_blocks(2)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses");
+
+        // Generate to Vector
+        let bws = rpc_bw
+            .generate()
+            .await
+            .expect("Failed to generate blocks and witnesses");
+
+        assert_eq!(bws.len(), 2, "Expected 2 blocks and witnesses");
+
+        // Generate to path
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+        rpc_bw
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert_eq!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count(),
+            2,
+            "Expected 2 files in temporary directory"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_concrete_block_num() {
+        // Leverage the last_block_n API to get the latest block number.
+        let rpc_bw = build_base_rpc()
+            .last_n_blocks(1)
+            .block(1)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses");
+        let block_number = rpc_bw
+            .generate()
+            .await
+            .expect("Failed to generate blocks and witnesses")[0]
+            .block_and_witness
+            .block
+            .number;
+
+        // Generate to Vector
+        let bws = build_base_rpc()
+            .block(block_number - 1)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses")
+            .generate()
+            .await
+            .expect("Failed to generate blocks and witnesses");
+
+        assert_eq!(bws.len(), 1, "Expected 1 block and witness");
+        assert_eq!(
+            bws[0].block_and_witness.block.number,
+            block_number - 1,
+            "Expected block number to match"
+        );
+
+        // Generate to path
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+        rpc_bw
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert_eq!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count(),
+            1,
+            "Expected 1 files in temporary directory"
+        );
+    }
+}
