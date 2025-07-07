@@ -116,6 +116,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         .collect::<Result<Vec<BlockAndWitness>, _>>()?;
 
     #[allow(unused_assignments)]
+    #[allow(clippy::redundant_clone)]
     {
         // Set to true once a zkvm has ran
         let mut ran_any = false;
