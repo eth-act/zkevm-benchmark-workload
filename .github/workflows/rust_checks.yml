@@ -76,7 +76,7 @@ jobs:
         run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
 
       - name: Check clippy
-        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p ere-hosts 
+        run: cargo clippy --bins --examples --tests --benches --all-features --locked -p ere-hosts 
 
       - name: Run tests
         run: cargo test -p ere-hosts
