@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 /// API definitions for generating blocks and witnesses.
 mod blocks_and_witnesses;

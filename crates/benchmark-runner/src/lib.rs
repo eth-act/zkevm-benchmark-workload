@@ -1,3 +1,5 @@
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use tracing::info;

@@ -1,5 +1,7 @@
 //! Binary for benchmarking different Ere compatible zkVMs
 
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use std::{path::PathBuf, process::Command};
