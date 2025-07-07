@@ -1,3 +1,5 @@
+//! Generate fixtures for zkEVM benchmarking tool
+
 use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{

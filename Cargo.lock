@@ -13925,7 +13925,6 @@ dependencies = [
  "alloy-rpc-types-eth",
  "anyhow",
  "async-trait",
- "clap",
  "ef-tests",
  "flate2",
  "http",
@@ -13942,8 +13941,20 @@ dependencies = [
  "tokio",
  "tokio-util",
  "tracing",
- "tracing-subscriber 0.3.19",
  "walkdir",
+]
+
+[[package]]
+name = "witness-generator-cli"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "clap",
+ "tokio",
+ "tokio-util",
+ "tracing",
+ "tracing-subscriber 0.3.19",
+ "witness-generator",
 ]
 
 [[package]]

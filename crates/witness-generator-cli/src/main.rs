@@ -1,4 +1,4 @@
-//! Generate fixtures for zkEVM benchmarking tool
+//! CLI to generate fixtures for zkEVM benchmarking tool
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
