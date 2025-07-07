@@ -1,7 +1,7 @@
 name: Rust Checks
 on:
   push:
-    branches: [ main, master, jsign-lints]
+    branches: [ main, master ]
   pull_request:
     branches: [ main, master ]
 
@@ -43,7 +43,7 @@ jobs:
         run: cargo fmt --check --all
 
       - name: Check clippy
-        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p witness-generator -p ere-hosts -p zkevm-metrics -p benchmark-runner
+        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p witness-generator -p zkevm-metrics -p benchmark-runner
 
       - name: Run tests
         env:
@@ -74,6 +74,9 @@ jobs:
 
       - name: Cargo check (with ${{ matrix.zkvm }} enabled)
         run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
+
+      - name: Check clippy
+        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p ere-hosts 
 
       - name: Run tests
         run: cargo test -p ere-hosts
