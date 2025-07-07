@@ -237,7 +237,7 @@ impl RpcBlocksAndWitnesses {
             .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
         let bw = BlockAndWitness {
-            name: format!("rpc_block_{}", block_num),
+            name: format!("rpc_block_{block_num}"),
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
                 witness,

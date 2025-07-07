@@ -71,8 +71,8 @@ enum BenchmarkAction {
 impl From<Resource> for ProverResourceType {
     fn from(resource: Resource) -> Self {
         match resource {
-            Resource::Cpu => ProverResourceType::Cpu,
-            Resource::Gpu => ProverResourceType::Gpu,
+            Resource::Cpu => Self::Cpu,
+            Resource::Gpu => Self::Gpu,
         }
     }
 }
@@ -80,8 +80,8 @@ impl From<Resource> for ProverResourceType {
 impl From<BenchmarkAction> for Action {
     fn from(action: BenchmarkAction) -> Self {
         match action {
-            BenchmarkAction::Execute => Action::Execute,
-            BenchmarkAction::Prove => Action::Prove,
+            BenchmarkAction::Execute => Self::Execute,
+            BenchmarkAction::Prove => Self::Prove,
         }
     }
 }
@@ -115,60 +115,63 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .collect::<Result<Vec<BlockAndWitness>, _>>()?;
 
-    // Set to true once a zkvm has ran
-    let mut ran_any = false;
-
-    let run_config = RunConfig {
-        output_folder: cli.output_folder,
-        action,
-        force_rerun: cli.force_rerun,
-    };
-
-    info!("Running benchmarks with resource: {:?}", resource);
-    #[cfg(feature = "sp1")]
+    #[allow(unused_assignments)]
     {
-        run_cargo_patch_command("sp1")?;
-        let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
-        run_benchmark_ere("sp1", sp1_zkvm, &run_config, &corpuses)?;
-        ran_any = true;
-    }
+        // Set to true once a zkvm has ran
+        let mut ran_any = false;
 
-    #[cfg(feature = "zisk")]
-    {
-        run_cargo_patch_command("zisk")?;
-        let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
-        run_benchmark_ere("zisk", zisk_zkvm, &run_config, &corpuses)?;
-        ran_any = true;
-    }
+        let run_config = RunConfig {
+            output_folder: cli.output_folder,
+            action,
+            force_rerun: cli.force_rerun,
+        };
 
-    #[cfg(feature = "risc0")]
-    {
-        run_cargo_patch_command("risc0")?;
-        let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
-        run_benchmark_ere("risc0", risc0_zkvm, &run_config, &corpuses)?;
-        ran_any = true;
-    }
+        info!("Running benchmarks with resource: {:?}", resource);
+        #[cfg(feature = "sp1")]
+        {
+            run_cargo_patch_command("sp1")?;
+            let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
+            run_benchmark_ere("sp1", sp1_zkvm, &run_config, &corpuses)?;
+            ran_any = true;
+        }
 
-    #[cfg(feature = "openvm")]
-    {
-        run_cargo_patch_command("openvm")?;
-        let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
-        run_benchmark_ere("openvm", openvm_zkvm, &run_config, &corpuses)?;
-        ran_any = true;
-    }
+        #[cfg(feature = "zisk")]
+        {
+            run_cargo_patch_command("zisk")?;
+            let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
+            run_benchmark_ere("zisk", zisk_zkvm, &run_config, &corpuses)?;
+            ran_any = true;
+        }
 
-    #[cfg(feature = "pico")]
-    {
-        run_cargo_patch_command("pico")?;
-        let pico_zkvm = new_pico_zkvm(resource.clone())?;
-        run_benchmark_ere("pico", pico_zkvm, &run_config, &corpuses)?;
-        ran_any = true;
-    }
+        #[cfg(feature = "risc0")]
+        {
+            run_cargo_patch_command("risc0")?;
+            let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
+            run_benchmark_ere("risc0", risc0_zkvm, &run_config, &corpuses)?;
+            ran_any = true;
+        }
 
-    if ran_any {
-        Ok(())
-    } else {
-        Err("please enable one of the zkVM's using the appropriate feature flag".into())
+        #[cfg(feature = "openvm")]
+        {
+            run_cargo_patch_command("openvm")?;
+            let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
+            run_benchmark_ere("openvm", openvm_zkvm, &run_config, &corpuses)?;
+            ran_any = true;
+        }
+
+        #[cfg(feature = "pico")]
+        {
+            run_cargo_patch_command("pico")?;
+            let pico_zkvm = new_pico_zkvm(resource)?;
+            run_benchmark_ere("pico", pico_zkvm, &run_config, &corpuses)?;
+            ran_any = true;
+        }
+
+        if ran_any {
+            Ok(())
+        } else {
+            Err("please enable one of the zkVM's using the appropriate feature flag".into())
+        }
     }
 }
 
@@ -233,9 +236,9 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
         error!("stdout: {}", stdout);
         error!("stderr: {}", stderr);
 
-        return Err(format!("cargo {} command failed", zkvm_name).into());
+        return Err(format!("cargo {zkvm_name} command failed").into());
     }
 
-    info!("cargo {} completed successfully", zkvm_name);
+    info!("cargo {zkvm_name} completed successfully");
     Ok(())
 }

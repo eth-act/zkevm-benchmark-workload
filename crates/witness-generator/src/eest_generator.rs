@@ -156,7 +156,6 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 })
                 .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
                 .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
-                .map(|(name, case)| (name, case))
                 .collect();
             tests.extend(file_tests);
         }
@@ -246,7 +245,7 @@ mod tests {
 
         let single_fixture_path =
             PathBuf::from_str("fixtures/blockchain_tests/zkevm/worst_compute/worst_jumps.json")?;
-        std::fs::create_dir_all(&target_path.join(single_fixture_path.parent().unwrap()))?;
+        std::fs::create_dir_all(target_path.join(single_fixture_path.parent().unwrap()))?;
         std::fs::copy(
             decompress_path
                 .join("zkevm-fixtures")
@@ -260,7 +259,7 @@ mod tests {
     async fn test_custom_input_folder() -> Result<()> {
         let target_dir = tempfile::tempdir()?;
         let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(&target_path)?;
+        prepare_downgraded_eest_fixtures(target_path)?;
 
         let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
             .with_input_folder(target_path.to_path_buf())?
@@ -287,7 +286,7 @@ mod tests {
     async fn test_filters() -> Result<()> {
         let target_dir = tempfile::tempdir()?;
         let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(&target_path)?;
+        prepare_downgraded_eest_fixtures(target_path)?;
 
         let bw_with_include = ExecSpecTestBlocksAndWitnessBuilder::default()
             .with_input_folder(target_path.to_path_buf())?
@@ -328,7 +327,7 @@ mod tests {
     async fn test_generate_to_path() -> Result<()> {
         let target_dir = tempfile::tempdir()?;
         let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(&target_path)?;
+        prepare_downgraded_eest_fixtures(target_path)?;
 
         let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
             .with_input_folder(target_path.to_path_buf())?

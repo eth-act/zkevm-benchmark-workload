@@ -33,7 +33,7 @@ pub fn run_benchmark_ere<V>(
 where
     V: zkVM + Sync,
 {
-    HardwareInfo::detect().to_path(run_config.output_folder.join(&format!("hardware.json",)))?;
+    HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
 
     info!("Benchmarking `{}`…", host_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
@@ -48,7 +48,7 @@ where
         Action::Prove => {
             // Use sequential iteration for proving
             corpuses
-                .into_iter()
+                .iter()
                 .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
         }
     }
@@ -66,7 +66,7 @@ where
 {
     let out_path = run_config
         .output_folder
-        .join(&format!("{}/{}.json", host_name, bw.name));
+        .join(format!("{}/{}.json", host_name, bw.name));
 
     if !run_config.force_rerun && out_path.exists() {
         info!("Skipping {} (already exists)", bw.name);
@@ -123,7 +123,7 @@ where
     };
 
     info!("Saving report for {}", bw.name);
-    BenchmarkRun::to_path(out_path, &vec![report])?;
+    BenchmarkRun::to_path(out_path, &[report])?;
 
     Ok(())
 }

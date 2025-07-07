@@ -6,7 +6,7 @@ This crate provides data structures and utilities for handling workload performa
 
 The core data structure is `BenchmarkRun`, which stores:
 
-- `name`: The name of the benchmark (e.g., "fft_bench", "aes_bench").
+- `name`: The name of the benchmark (e.g., `fft_bench`, `aes_bench`).
 - `block_used_gas`: The amount of gas used by the block in the benchmark.
 - `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
 - `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
