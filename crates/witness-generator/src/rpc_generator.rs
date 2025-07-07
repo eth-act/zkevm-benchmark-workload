@@ -103,6 +103,13 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
     ///
     /// Returns either the last N blocks or a specific block with their execution witnesses.
     async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
+        // If live polling is enabled, we return an error here
+        if self.stop.is_some() {
+            return Err(anyhow::anyhow!(
+                "Live polling is not supported in generate method. Use generate_to_path instead."
+            ));
+        }
+
         // Handle last_n_blocks case
         if let Some(last_n_blocks) = self.last_n_blocks {
             return self.fetch_last_n_blocks(last_n_blocks).await;
@@ -442,6 +449,11 @@ mod test {
 
     #[tokio::test]
     async fn test_last_n_blocks() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
         let rpc_bw = build_base_rpc()
             .last_n_blocks(2)
             .build()
@@ -474,6 +486,11 @@ mod test {
 
     #[tokio::test]
     async fn test_concrete_block_num() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
         let latest_block_number = EthApiClient::<
             TransactionRequest,
             Transaction,
@@ -525,6 +542,45 @@ mod test {
                 .count(),
             1,
             "Expected 1 files in temporary directory"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_live_blocks() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
+        let stop_token = CancellationToken::new();
+
+        // Spawn a task to cancel the token after ~12s which should be enough time to fetch at least one block.
+        tokio::spawn({
+            let stop_token = stop_token.clone();
+            async move {
+                tokio::time::sleep(std::time::Duration::from_secs(12)).await;
+                stop_token.cancel();
+                info!("Sent cancellation signal");
+            }
+        });
+
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+
+        build_base_rpc()
+            .listen(stop_token)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses")
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert_eq!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count(),
+            1,
+            "Expected at least one block"
         );
     }
 }
