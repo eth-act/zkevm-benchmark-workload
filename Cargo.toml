@@ -2,12 +2,14 @@
 members = [
     "crates/metrics",
     "crates/witness-generator",
+    "crates/witness-generator-cli",
     "xtask",
     # Guest programs
     "ere-guests/sp1",
     "ere-guests/risc0",
-    "ere-guests/risc0/guest", #TODO: fix so we have one crate
+    "ere-guests/risc0/guest", # TODO: fix so we have one crate
     "ere-guests/openvm",
+    # "ere-guests/pico", # See https://github.com/eth-act/zkevm-benchmark-workload/issues/43
     "ere-guests/zisk",
     # Ere host crate
     "crates/ere-hosts",
@@ -26,6 +28,7 @@ rust.missing_docs = "warn"
 rust.rust_2018_idioms = { level = "deny", priority = -1 }
 rust.unreachable_pub = "warn"
 rust.unused_must_use = "deny"
+rust.unused_crate_dependencies = "deny"
 rustdoc.all = "warn"
 
 [workspace.lints.clippy]
@@ -146,6 +149,7 @@ jsonrpsee = "0.25.1"
 anyhow = "1.0"
 async-trait = "0.1.88"
 tokio = { version = "1.45.1" }
+tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 

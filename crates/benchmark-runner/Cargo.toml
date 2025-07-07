@@ -10,3 +10,6 @@ zkevm-metrics.workspace = true
 zkvm-interface.workspace = true
 tracing.workspace = true
 anyhow = "*"
+
+[lints]
+workspace = true

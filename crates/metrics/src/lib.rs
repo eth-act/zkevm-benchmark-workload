@@ -1,4 +1,5 @@
 #![doc = include_str!("../README.md")]
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
 use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, io, path::Path, time::Duration};
@@ -44,7 +45,7 @@ impl HardwareInfo {
         let mut system = System::new_all();
         system.refresh_all();
 
-        HardwareInfo {
+        Self {
             cpu_model: system
                 .cpus()
                 .first()
@@ -145,8 +146,8 @@ impl MetricsError {
     #[cfg(test)]
     fn into_serde_err(self) -> serde_json::Error {
         match self {
-            MetricsError::Serde(e) => e,
-            MetricsError::Io(e) => panic!("unexpected IO error in test: {e}"),
+            Self::Serde(e) => e,
+            Self::Io(e) => panic!("unexpected IO error in test: {e}"),
         }
     }
 }
@@ -319,7 +320,7 @@ mod tests {
                 proving_time_ms: 1500,
             }),
         };
-        let json = BenchmarkRun::to_json(&[bench.clone()]).expect("serialize mixed");
+        let json = BenchmarkRun::to_json(std::slice::from_ref(&bench)).expect("serialize mixed");
         let parsed = BenchmarkRun::from_json(&json).expect("deserialize mixed");
         assert_eq!(vec![bench], parsed);
     }

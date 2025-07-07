@@ -29,6 +29,3 @@ reth-chainspec = { workspace = true }
 
 tracing-subscriber = "*"
 tracing = "*"
-
-[lints]
-workspace = true

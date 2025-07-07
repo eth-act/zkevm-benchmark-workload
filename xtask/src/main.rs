@@ -5,6 +5,8 @@
 //!
 //! (or add aliases in .cargo/config.toml, see README)
 
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use anyhow::{Context, Result, bail};
 use clap::Parser;
 use std::{collections::HashSet, fs, path::PathBuf, process::Command};

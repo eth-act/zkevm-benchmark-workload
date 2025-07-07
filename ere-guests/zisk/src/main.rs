@@ -1,5 +1,6 @@
 //! ZisK guest program
 
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 #![no_main]
 
 extern crate alloc;

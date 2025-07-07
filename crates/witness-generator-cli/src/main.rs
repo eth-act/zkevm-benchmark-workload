@@ -1,3 +1,7 @@
+//! CLI to generate fixtures for zkEVM benchmarking tool
+
+#![cfg_attr(not(test), warn(unused_crate_dependencies))]
+
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
 use std::path::PathBuf;

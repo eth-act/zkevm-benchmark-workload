@@ -17,7 +17,8 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: A standalone binary and library that generates benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints. These are saved in the `zkevm-fixtures-input` folder. The crate now includes Docker support for containerized deployment.
+- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
+- **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder. The crate includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
 - **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
@@ -27,8 +28,8 @@ The workspace is organized into several key components:
   - `ere-guests/risc0/`: RISC0 guest implementation
   - `ere-guests/zkm/`: zkMIPS guest implementation
   - `ere-guests/pico/`: Pico guest implementation
-- **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator`.
-- **`zkevm-fixtures-input`**: Default directory where `witness-generator` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
+- **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator-cli`.
+- **`zkevm-fixtures-input`**: Default directory where `witness-generator-cli` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
 - **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs, organized by zkVM type.
 - **`scripts`**: Contains helper scripts (e.g., fetching fixtures).
 - **`xtask`**: Cargo xtask runner for automating tasks.
@@ -37,7 +38,7 @@ The workspace is organized into several key components:
 
 The benchmarking process is decoupled into two distinct phases:
 
-1. **Fixture Generation** (`witness-generator`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
+1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
 2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
 
 This decoupling provides several benefits:
@@ -58,7 +59,7 @@ Each zkVM benchmark implementation follows a common pattern:
 2. **Host Program:**
     - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
     - A standalone Rust binary that orchestrates the benchmarking.
-    - Consumes pre-generated fixture files from `crates/witness-generator`.
+    - Consumes pre-generated fixture files from `crates/witness-generator-cli`.
     - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
     - Collects cycle count metrics reported by the zkVM SDK.
     - Saves the results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
@@ -90,10 +91,10 @@ Each zkVM benchmark implementation follows a common pattern:
 
 3. **Generate Benchmark Input Files:**
 
-    Navigate to `crates/witness-generator/` and generate fixture files:
+    Navigate to `crates/witness-generator-cli/` and generate fixture files:
 
     ```bash
-    cd crates/witness-generator
+    cd crates/witness-generator-cli
     cargo run --release -- tests --include Prague --include cold
     
     # Or generate from local EEST fixtures
@@ -141,7 +142,7 @@ The repository includes automated Docker image building through GitHub Actions:
 
 - **Automated Builds**: Docker images are automatically built and pushed to GitHub Container Registry (`ghcr.io`) on pushes to the master branch
 - **Manual Builds**: Docker builds can be triggered manually via GitHub Actions workflow dispatch  
-- **Container Registry**: Pre-built images are available at `ghcr.io/<repository>/witness-generator`
+- **Container Registry**: Pre-built images are available at `ghcr.io/<repository>/witness-generator-cli`
 - **Multi-platform Support**: Images are built for multiple architectures and cached for efficient builds
 
 The Docker workflow (`.github/workflows/docker-build.yml`) provides:
