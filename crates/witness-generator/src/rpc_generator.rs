@@ -575,11 +575,11 @@ mod test {
             .await
             .expect("Failed to generate blocks and witnesses to path");
 
-        assert_eq!(
+        assert!(
             std::fs::read_dir(target_dir.path())
                 .expect("Failed to read directory")
-                .count(),
-            1,
+                .count()
+                > 0,
             "Expected at least one block"
         );
     }
