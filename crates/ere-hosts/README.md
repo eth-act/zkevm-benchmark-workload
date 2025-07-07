@@ -4,14 +4,14 @@ A command-line tool for benchmarking different Ere compatible zero-knowledge vir
 
 ## Overview
 
-This benchmarker consumes pre-generated fixture files (created by the `witness-generator` binary) and runs performance benchmarks across various zkVM implementations including SP1, Risc Zero, OpenVM, and Pico. You can select which zkVMs to compile using feature flags, choose between CPU and GPU resources, and either execute or prove.
+This benchmarker consumes pre-generated fixture files (created by the `witness-generator-cli` binary) and runs performance benchmarks across various zkVM implementations including SP1, Risc Zero, OpenVM, and Pico. You can select which zkVMs to compile using feature flags, choose between CPU and GPU resources, and either execute or prove.
 
 ## Prerequisites
 
-Before running benchmarks, you must first generate fixture files using the `witness-generator` binary:
+Before running benchmarks, you must first generate fixture files using the `witness-generator-cli` binary:
 
 ```bash
-cd ../witness-generator
+cd ../witness-generator-cli
 cargo run -- tests  # or use rpc source
 cd ../ere-hosts
 ```
@@ -32,7 +32,7 @@ The benchmarker uses Cargo feature flags to control which zkVMs are compiled int
 ### Basic Usage
 
 **Note:** Unlike the previous version, you must:
-1. First generate fixture files using the `witness-generator` binary
+1. First generate fixture files using the `witness-generator-cli` binary
 2. Explicitly specify which zkVMs to include via feature flags
 
 Build and run with SP1 only:
