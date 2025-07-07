@@ -43,7 +43,7 @@ jobs:
         run: cargo fmt --check --all
 
       - name: Check clippy
-        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p witness-generator -p zkevm-metrics -p benchmark-runner
+        run: cargo clippy --bins --lib --examples --tests --benches --all-features --locked -p witness-generator -p zkevm-metrics -p benchmark-runner
 
       - name: Run tests
         env:
