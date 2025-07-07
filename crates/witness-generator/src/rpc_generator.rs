@@ -474,33 +474,40 @@ mod test {
 
     #[tokio::test]
     async fn test_concrete_block_num() {
-        // Leverage the last_block_n API to get the latest block number.
+        let latest_block_number = EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block,
+            Receipt,
+            Header,
+        >::block_by_number(
+            &build_base_rpc().build().unwrap().client,
+            BlockNumberOrTag::Latest,
+            false,
+        )
+        .await
+        .expect("Failed to fetch latest block")
+        .unwrap()
+        .header
+        .number;
+
+        // Fetch a non-tip block number
+        let block_number = latest_block_number - 1;
+
         let rpc_bw = build_base_rpc()
-            .last_n_blocks(1)
-            .block(1)
+            .block(block_number)
             .build()
             .expect("Failed to build RPC Blocks and Witnesses");
-        let block_number = rpc_bw
-            .generate()
-            .await
-            .expect("Failed to generate blocks and witnesses")[0]
-            .block_and_witness
-            .block
-            .number;
 
         // Generate to Vector
-        let bws = build_base_rpc()
-            .block(block_number - 1)
-            .build()
-            .expect("Failed to build RPC Blocks and Witnesses")
+        let bws = rpc_bw
             .generate()
             .await
             .expect("Failed to generate blocks and witnesses");
 
         assert_eq!(bws.len(), 1, "Expected 1 block and witness");
         assert_eq!(
-            bws[0].block_and_witness.block.number,
-            block_number - 1,
+            bws[0].block_and_witness.block.number, block_number,
             "Expected block number to match"
         );
 
