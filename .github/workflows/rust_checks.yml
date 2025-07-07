@@ -1,7 +1,7 @@
 name: Rust Checks
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, jsign-lints]
   pull_request:
     branches: [ main, master ]
 
@@ -41,6 +41,9 @@ jobs:
 
       - name: Check formatting
         run: cargo fmt --check --all
+
+      - name: Check clippy
+        run: cargo clippy --lib --examples --tests --benches --all-features --locked -p witness-generator -p ere-hosts -p zkevm-metrics -p benchmark-runner
 
       - name: Run tests
         env:
