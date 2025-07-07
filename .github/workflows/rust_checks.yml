@@ -43,6 +43,9 @@ jobs:
         run: cargo fmt --check --all
 
       - name: Run tests
+        env:
+          RPC_URL: ${{ secrets.RPC_URL }}
+          RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
         run: cargo test -p zkevm-metrics -p witness-generator -- --no-capture
  
   check-ere-host:
