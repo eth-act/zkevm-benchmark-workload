@@ -103,6 +103,13 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
     ///
     /// Returns either the last N blocks or a specific block with their execution witnesses.
     async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
+        // If live polling is enabled, we return an error here
+        if self.stop.is_some() {
+            return Err(anyhow::anyhow!(
+                "Live polling is not supported in generate method. Use generate_to_path instead."
+            ));
+        }
+
         // Handle last_n_blocks case
         if let Some(last_n_blocks) = self.last_n_blocks {
             return self.fetch_last_n_blocks(last_n_blocks).await;
@@ -415,5 +422,165 @@ impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
         }
 
         Ok(header_map)
+    }
+}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    fn build_base_rpc() -> RpcBlocksAndWitnessesBuilder {
+        let rpc_url = std::env::var("RPC_URL").expect("RPC_URL not set");
+        let rpc_headers = std::env::var("RPC_HEADERS").ok();
+
+        let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
+        if let Some(rpc_headers) = rpc_headers {
+            let rpc_headers: RpcFlatHeaderKeyValues = RpcFlatHeaderKeyValues::new(
+                rpc_headers
+                    .split(',')
+                    .map(|s| s.to_string())
+                    .collect::<Vec<String>>(),
+            );
+            builder =
+                builder.with_headers(rpc_headers.try_into().expect("Failed to parse headers"));
+        }
+        builder
+    }
+
+    #[tokio::test]
+    async fn test_last_n_blocks() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
+        let rpc_bw = build_base_rpc()
+            .last_n_blocks(2)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses");
+
+        // Generate to Vector
+        let bws = rpc_bw
+            .generate()
+            .await
+            .expect("Failed to generate blocks and witnesses");
+
+        assert_eq!(bws.len(), 2, "Expected 2 blocks and witnesses");
+
+        // Generate to path
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+        rpc_bw
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert_eq!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count(),
+            2,
+            "Expected 2 files in temporary directory"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_concrete_block_num() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
+        let latest_block_number = EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block,
+            Receipt,
+            Header,
+        >::block_by_number(
+            &build_base_rpc().build().unwrap().client,
+            BlockNumberOrTag::Latest,
+            false,
+        )
+        .await
+        .expect("Failed to fetch latest block")
+        .unwrap()
+        .header
+        .number;
+
+        // Fetch a non-tip block number
+        let block_number = latest_block_number - 1;
+
+        let rpc_bw = build_base_rpc()
+            .block(block_number)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses");
+
+        // Generate to Vector
+        let bws = rpc_bw
+            .generate()
+            .await
+            .expect("Failed to generate blocks and witnesses");
+
+        assert_eq!(bws.len(), 1, "Expected 1 block and witness");
+        assert_eq!(
+            bws[0].block_and_witness.block.number, block_number,
+            "Expected block number to match"
+        );
+
+        // Generate to path
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+        rpc_bw
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert_eq!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count(),
+            1,
+            "Expected 1 files in temporary directory"
+        );
+    }
+
+    #[tokio::test]
+    async fn test_live_blocks() {
+        if std::env::var("RPC_URL").is_err() {
+            eprintln!("skipping test: set RPC_URL to run this test");
+            return;
+        }
+
+        let stop_token = CancellationToken::new();
+
+        // Spawn a task to cancel the token after ~12s which should be enough time to fetch at least one block.
+        tokio::spawn({
+            let stop_token = stop_token.clone();
+            async move {
+                tokio::time::sleep(std::time::Duration::from_secs(12)).await;
+                stop_token.cancel();
+                info!("Sent cancellation signal");
+            }
+        });
+
+        let target_dir = tempfile::tempdir()
+            .expect("Failed to create temporary directory for blocks and witnesses");
+
+        build_base_rpc()
+            .listen(stop_token)
+            .build()
+            .expect("Failed to build RPC Blocks and Witnesses")
+            .generate_to_path(target_dir.path())
+            .await
+            .expect("Failed to generate blocks and witnesses to path");
+
+        assert!(
+            std::fs::read_dir(target_dir.path())
+                .expect("Failed to read directory")
+                .count()
+                > 0,
+            "Expected at least one block"
+        );
     }
 }
