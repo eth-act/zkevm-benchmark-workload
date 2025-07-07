@@ -8,3 +8,6 @@ zkevm-metrics
 
 # vscode settings
 .vscode
+
+# private envrc file
+.envrc
