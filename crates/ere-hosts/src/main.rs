@@ -133,7 +133,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             run_cargo_patch_command("sp1")?;
             let zkvm = new_sp1_zkvm(resource.clone())?;
             let fullname = zkvm_fullname(ere_sp1::NAME, ere_sp1::SDK_VERSION);
-            info!("zkVM full name: {:?}", fullname);
             run_benchmark_ere(&fullname, zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
