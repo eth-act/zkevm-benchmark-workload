@@ -131,8 +131,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[cfg(feature = "sp1")]
         {
             run_cargo_patch_command("sp1")?;
-            let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
-            run_benchmark_ere("sp1", sp1_zkvm, &run_config, &corpuses)?;
+            let zkvm = new_sp1_zkvm(resource.clone())?;
+            let fullname = zkvm_fullname(ere_sp1::NAME, ere_sp1::SDK_VERSION);
+            info!("zkVM full name: {:?}", fullname);
+            run_benchmark_ere(&fullname, zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -242,4 +244,8 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
 
     info!("cargo {zkvm_name} completed successfully");
     Ok(())
+}
+
+fn zkvm_fullname(zkvm_name: &str, zkvm_version: &str) -> String {
+    format!("{}-v{}", zkvm_name, zkvm_version)
 }
