@@ -11,6 +11,8 @@ use thiserror::Error;
 pub struct BenchmarkRun {
     /// Name of the benchmark.
     pub name: String,
+    /// Timestamp when the benchmark run ended.
+    pub end_timestamp: chrono::DateTime<chrono::Utc>,
     /// Block used gas
     pub block_used_gas: u64,
     /// Execution metrics for the benchmark run.
@@ -218,6 +220,7 @@ mod tests {
         vec![
             BenchmarkRun {
                 name: "fft_bench".into(),
+                end_timestamp: chrono::Utc::now(),
                 block_used_gas: 12345,
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 1_000,
@@ -232,6 +235,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
+                end_timestamp: chrono::Utc::now(),
                 block_used_gas: 67890,
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
@@ -249,6 +253,7 @@ mod tests {
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
+                end_timestamp: chrono::Utc::now(),
                 block_used_gas: 54321,
                 execution: None,
                 proving: Some(ProvingMetrics::Success {
@@ -289,6 +294,7 @@ mod tests {
     fn test_name_accessor() {
         let benchmark_run = BenchmarkRun {
             name: "test_benchmark".into(),
+            end_timestamp: chrono::Utc::now(),
             block_used_gas: 11111,
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1000,
@@ -305,6 +311,7 @@ mod tests {
     fn test_mixed_metrics_serialization() {
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
+            end_timestamp: chrono::Utc::now(),
             block_used_gas: 22222,
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 500,

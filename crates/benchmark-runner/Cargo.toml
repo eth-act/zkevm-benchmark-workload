@@ -10,6 +10,7 @@ zkevm-metrics.workspace = true
 zkvm-interface.workspace = true
 tracing.workspace = true
 anyhow = "*"
+chrono = "0.4.41"
 
 [lints]
 workspace = true

@@ -123,6 +123,7 @@ where
     };
     let report = BenchmarkRun {
         name: format!("{}-{}", bw.name, block_number),
+        end_timestamp: chrono::Utc::now(),
         block_used_gas,
         execution,
         proving,
