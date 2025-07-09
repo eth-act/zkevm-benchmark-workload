@@ -123,6 +123,7 @@ where
     };
     let report = BenchmarkRun {
         name: format!("{}-{}", bw.name, block_number),
+        timestamp_completed: zkevm_metrics::chrono::Utc::now(),
         block_used_gas,
         execution,
         proving,
