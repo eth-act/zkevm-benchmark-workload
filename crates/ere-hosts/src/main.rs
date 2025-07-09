@@ -13,7 +13,7 @@ use witness_generator::BlockAndWitness;
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
-use zkvm_interface::{Compiler, ProverResourceType};
+use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 
 #[cfg(feature = "sp1")]
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
@@ -132,7 +132,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("sp1")?;
             let zkvm = new_sp1_zkvm(resource.clone())?;
-            let fullname = zkvm_fullname(ere_sp1::NAME, ere_sp1::SDK_VERSION);
+            let fullname = zkvm_fullname(EreSP1::name(), EreSP1::sdk_version());
             run_benchmark_ere(&fullname, zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
