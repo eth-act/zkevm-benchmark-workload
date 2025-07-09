@@ -1,6 +1,8 @@
 #![doc = include_str!("../README.md")]
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+pub use chrono;
+
 use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, io, path::Path, time::Duration};
 use sysinfo::{CpuExt, System, SystemExt};

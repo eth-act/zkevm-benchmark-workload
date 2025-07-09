@@ -7,6 +7,7 @@ This crate provides data structures and utilities for handling workload performa
 The core data structure is `BenchmarkRun`, which stores:
 
 - `name`: The name of the benchmark (e.g., `fft_bench`, `aes_bench`).
+- `timestamp_completed`: Timestamp when the benchmark run ended.
 - `block_used_gas`: The amount of gas used by the block in the benchmark.
 - `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
 - `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
@@ -60,6 +61,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
         BenchmarkRun {
             name: "workload name".into(),
+            timestamp_completed: zkevm_metrics::chrono::Utc::now(),
             block_used_gas: 12345,
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1_000,
@@ -74,6 +76,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         BenchmarkRun {
             name: "proving workload".into(),
+            timestamp_completed: zkevm_metrics::chrono::Utc::now(),
             block_used_gas: 67890,
             execution: None,
             proving: Some(ProvingMetrics::Success {
