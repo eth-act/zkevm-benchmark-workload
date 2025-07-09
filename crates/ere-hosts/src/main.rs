@@ -141,7 +141,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("zisk")?;
             let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
-            run_benchmark_ere("zisk", zisk_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreZisk::name(), EreZisk::sdk_version());
+            run_benchmark_ere(&fullname, zisk_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -149,7 +150,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("risc0")?;
             let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
-            run_benchmark_ere("risc0", risc0_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreRisc0::name(), EreRisc0::sdk_version());
+            run_benchmark_ere(&fullname, risc0_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -157,7 +159,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("openvm")?;
             let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
-            run_benchmark_ere("openvm", openvm_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreOpenVM::name(), EreOpenVM::sdk_version());
+            run_benchmark_ere(&fullname, openvm_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -165,7 +168,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("pico")?;
             let pico_zkvm = new_pico_zkvm(resource)?;
-            run_benchmark_ere("pico", pico_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(ErePico::name(), ErePico::sdk_version());
+            run_benchmark_ere(&fullname, pico_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
