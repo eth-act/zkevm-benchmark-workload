@@ -250,5 +250,5 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
 }
 
 fn zkvm_fullname(zkvm_name: &str, zkvm_version: &str) -> String {
-    format!("{}-v{}", zkvm_name, zkvm_version)
+    format!("{zkvm_name}-v{zkvm_version}")
 }
