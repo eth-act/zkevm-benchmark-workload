@@ -13,7 +13,7 @@ use witness_generator::BlockAndWitness;
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
-use zkvm_interface::{Compiler, ProverResourceType};
+use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 
 #[cfg(feature = "sp1")]
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
@@ -131,8 +131,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         #[cfg(feature = "sp1")]
         {
             run_cargo_patch_command("sp1")?;
-            let sp1_zkvm = new_sp1_zkvm(resource.clone())?;
-            run_benchmark_ere("sp1", sp1_zkvm, &run_config, &corpuses)?;
+            let zkvm = new_sp1_zkvm(resource.clone())?;
+            let fullname = zkvm_fullname(EreSP1::name(), EreSP1::sdk_version());
+            run_benchmark_ere(&fullname, zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -140,7 +141,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("zisk")?;
             let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
-            run_benchmark_ere("zisk", zisk_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreZisk::name(), EreZisk::sdk_version());
+            run_benchmark_ere(&fullname, zisk_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -148,7 +150,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("risc0")?;
             let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
-            run_benchmark_ere("risc0", risc0_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreRisc0::name(), EreRisc0::sdk_version());
+            run_benchmark_ere(&fullname, risc0_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -156,7 +159,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("openvm")?;
             let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
-            run_benchmark_ere("openvm", openvm_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(EreOpenVM::name(), EreOpenVM::sdk_version());
+            run_benchmark_ere(&fullname, openvm_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -164,7 +168,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         {
             run_cargo_patch_command("pico")?;
             let pico_zkvm = new_pico_zkvm(resource)?;
-            run_benchmark_ere("pico", pico_zkvm, &run_config, &corpuses)?;
+            let fullname = zkvm_fullname(ErePico::name(), ErePico::sdk_version());
+            run_benchmark_ere(&fullname, pico_zkvm, &run_config, &corpuses)?;
             ran_any = true;
         }
 
@@ -242,4 +247,8 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
 
     info!("cargo {zkvm_name} completed successfully");
     Ok(())
+}
+
+fn zkvm_fullname(zkvm_name: &str, zkvm_version: &str) -> String {
+    format!("{zkvm_name}-v{zkvm_version}")
 }
