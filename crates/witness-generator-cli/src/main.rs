@@ -23,6 +23,10 @@ struct Cli {
     #[arg(short, long, default_value = "zkevm-fixtures-input")]
     output_folder: PathBuf,
 
+    /// Generate EVM traces for each block
+    #[arg(long, default_value_t = false)]
+    evm_traces: bool,
+
     /// Source of blocks and witnesses
     #[command(subcommand)]
     source: SourceCommand,
@@ -85,7 +89,7 @@ async fn main() -> Result<()> {
             .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
     }
 
-    let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
+    let generator: Box<dyn WitnessGenerator> = build_generator(cli.source, cli.evm_traces).await?;
 
     info!("Generating fixtures...");
     let count = generator
@@ -98,7 +102,15 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerator>> {
+/// Builds a witness generator based on the provided source command and configuration.
+///
+/// # Arguments
+/// * `source` - The source configuration for generating witnesses (EEST tests or RPC)
+/// * `evm_traces` - Whether to generate EVM execution traces for each block
+async fn build_generator(
+    source: SourceCommand,
+    evm_traces: bool,
+) -> Result<Box<dyn WitnessGenerator>> {
     match source {
         SourceCommand::Tests {
             tag,
@@ -106,7 +118,8 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             exclude,
             eest_fixtures_path,
         } => {
-            let mut builder = ExecSpecTestBlocksAndWitnessBuilder::default();
+            let mut builder =
+                ExecSpecTestBlocksAndWitnessBuilder::default().with_evm_traces(evm_traces);
 
             if let Some(tag) = tag {
                 builder = builder.with_tag(tag);
@@ -132,7 +145,8 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             rpc_header,
             follow: listen,
         } => {
-            let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
+            let mut builder =
+                RpcBlocksAndWitnessesBuilder::new(rpc_url).with_evm_traces(evm_traces);
 
             if let Some(rpc_header) = rpc_header {
                 let headers = RpcFlatHeaderKeyValues::new(rpc_header)

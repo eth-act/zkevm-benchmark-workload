@@ -26,7 +26,7 @@ pub struct RpcBlocksAndWitnessesBuilder {
     last_n_blocks: Option<usize>,
     block: Option<u64>,
     stop: Option<CancellationToken>,
-    gen_evm_traces: bool,
+    evm_traces: bool,
 }
 
 impl RpcBlocksAndWitnessesBuilder {
@@ -51,8 +51,11 @@ impl RpcBlocksAndWitnessesBuilder {
     }
 
     /// Sets whether to generate the EVM execution traces for each test case.
-    pub const fn with_gen_evm_traces(mut self, gen_evm_traces: bool) -> Self {
-        self.gen_evm_traces = gen_evm_traces;
+    ///
+    /// # Arguments
+    /// * `evm_traces` - Whether to generate EVM execution traces
+    pub const fn with_evm_traces(mut self, evm_traces: bool) -> Self {
+        self.evm_traces = evm_traces;
         self
     }
 
@@ -95,7 +98,7 @@ impl RpcBlocksAndWitnessesBuilder {
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
-            generate_evm_traces: self.gen_evm_traces,
+            evm_traces: self.evm_traces,
         })
     }
 }
@@ -106,7 +109,7 @@ pub struct RpcBlocksAndWitnesses {
     client: HttpClient,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
-    generate_evm_traces: bool,
+    evm_traces: bool,
     stop: Option<CancellationToken>,
 }
 
@@ -207,7 +210,7 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
-            let evm_traces = if self.generate_evm_traces {
+            let evm_traces = if self.evm_traces {
                 let evm_traces = self
                     .client
                     .debug_trace_block_by_hash(block_hash, None)
@@ -274,7 +277,7 @@ impl RpcBlocksAndWitnesses {
             .debug_execution_witness_by_block_hash(block.hash())
             .await?;
 
-        let evm_traces = if self.generate_evm_traces {
+        let evm_traces = if self.evm_traces {
             let evm_traces = self
                 .client
                 .debug_trace_block_by_hash(block.hash(), None)

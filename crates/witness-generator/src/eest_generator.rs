@@ -29,7 +29,7 @@ pub struct ExecSpecTestBlocksAndWitnessBuilder {
     tag: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
-    gen_execution_trace: bool,
+    evm_traces: bool,
 }
 
 impl ExecSpecTestBlocksAndWitnessBuilder {
@@ -70,9 +70,12 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         self
     }
 
-    /// Sets whether to generate the EVM execution trace for each test case.
-    pub const fn with_gen_execution_trace(mut self, gen_execution_trace: bool) -> Self {
-        self.gen_execution_trace = gen_execution_trace;
+    /// Sets whether to generate the EVM execution traces for each test case.
+    ///
+    /// # Arguments
+    /// * `gen_evm_traces` - Whether to generate EVM execution traces
+    pub const fn with_evm_traces(mut self, gen_evm_traces: bool) -> Self {
+        self.evm_traces = gen_evm_traces;
         self
     }
 
@@ -82,7 +85,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
-        let gen_execution_trace = self.gen_execution_trace;
+        let evm_traces = self.evm_traces;
 
         // delete_eest_folder indicates if the EEST folder will be automatically deleted after witness generation.
         // If this folder was explicitly provided, we do not delete it.
@@ -109,7 +112,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
             include,
             exclude,
             delete_eest_folder,
-            gen_execution_trace,
+            evm_traces,
         })
     }
 }
@@ -120,7 +123,7 @@ pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
     include: Vec<String>,
     exclude: Vec<String>,
-    gen_execution_trace: bool,
+    evm_traces: bool,
     delete_eest_folder: bool,
 }
 
@@ -188,7 +191,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                     })
                     .ok_or_else(|| anyhow!("No target block found for test case {}", name))?;
 
-                let evm_traces = if self.gen_execution_trace {
+                let evm_traces = if self.evm_traces {
                     let traces = trace_case(case)?
                         .into_iter()
                         .next_back()
