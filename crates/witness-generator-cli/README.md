@@ -7,8 +7,8 @@ This crate provides a standalone binary for generating execution witnesses for E
 The witness generator CLI is a command-line interface that processes standard Ethereum test suites (specifically blockchain tests found in `zkevm-fixtures`) or RPC endpoints and produces execution witnesses as individual fixture files for use by the benchmark runner.
 
 The binary provides different data sources:
-- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path.
-- **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks.
+- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path. Supports optional EVM trace generation for detailed execution analysis.
+- **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks. Can optionally generate EVM execution traces via debug RPC calls.
 
 Each test case generates an individual JSON fixture file that can be consumed by the `ere-hosts` benchmark runner.
 
@@ -43,11 +43,14 @@ cargo run -- tests --include "Prague" --exclude "SSTORE"
 # Generate from local EEST fixtures path
 cargo run -- tests --eest-fixtures-path /path/to/local/eest/fixtures
 
+# Generate with EVM execution traces
+cargo run -- tests --evm-traces --include "Prague"
+
 # Generate from RPC (last 5 blocks)
 cargo run -- rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
-# Generate specific block from RPC
-cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
+# Generate specific block from RPC with traces
+cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY" --evm-traces
 
 # Listen for new blocks continuously
 cargo run -- rpc --follow --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
@@ -95,6 +98,7 @@ When using `--follow`, the generator will:
 | `--eest-fixtures-path` | Use local EEST fixtures | `--eest-fixtures-path ./fixtures` |
 | `--include` | Include tests matching pattern | `--include "Prague"` |
 | `--exclude` | Exclude tests matching pattern | `--exclude "SSTORE"` |
+| `--evm-traces` | Generate EVM execution traces | `--evm-traces` |
 | `--last-n-blocks` | Process last N blocks from RPC | `--last-n-blocks 5` |
 | `--block` | Process specific block number | `--block 20000000` |
 | `--follow` | Continuously stream new blocks | `--follow` |

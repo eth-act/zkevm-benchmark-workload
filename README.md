@@ -17,7 +17,7 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BenchmarkFixture`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
+- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BenchmarkFixture`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints. Supports optional EVM execution trace generation for detailed transaction-level analysis.
 - **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder. The crate includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
@@ -97,11 +97,17 @@ Each zkVM benchmark implementation follows a common pattern:
     cd crates/witness-generator-cli
     cargo run --release -- tests --include Prague --include cold
     
+    # Generate with EVM execution traces for detailed analysis
+    cargo run --release -- tests --include Prague --evm-traces
+    
     # Or generate from local EEST fixtures
     cargo run --release -- tests --eest-fixtures-path /path/to/local/eest/fixtures
     
     # Or generate from RPC
     cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
+    
+    # Or generate from RPC with EVM traces
+    cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url> --evm-traces
     
     # Or listen for new blocks continuously
     cargo run --release -- rpc --follow --rpc-url <your-rpc-url>

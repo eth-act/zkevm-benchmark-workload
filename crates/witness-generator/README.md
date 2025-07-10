@@ -11,10 +11,11 @@ It defines the `BenchmarkFixture` struct which encapsulates:
 - The name of a specific test case.
 - A single `StatelessInput` object containing an Ethereum block with its corresponding execution witness.
 - The `ForkSpec` indicating the network rules under which the test was executed. It is needed for guest execution since we want to execute blocks on a particular network (Mainnet, Hoodi, etc).
+- Optional EVM execution traces for detailed transaction-level debugging and analysis.
 
 The library provides different data sources:
-- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path.
-- **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks.
+- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path. Supports optional EVM trace generation for detailed execution analysis.
+- **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks. Can optionally generate EVM execution traces via debug RPC calls.
 
 Each test case generates an individual JSON fixture file that can be consumed by the `ere-hosts` benchmark runner.
 
@@ -39,7 +40,9 @@ use std::env::temp_dir;
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Generating witnesses...");
     
-    let generator = ExecSpecTestBlocksAndWitnessBuilder::default().build()?;
+    let generator = ExecSpecTestBlocksAndWitnessBuilder::default()
+        .with_evm_traces(true)  // Include EVM execution traces
+        .build()?;
     
     // Create a path in the system's temp directory
     let output_path = temp_dir().join("generated_witnesses");
