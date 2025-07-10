@@ -1,6 +1,6 @@
 //! Generate fixtures for zkEVM benchmarking tool
 
-use alloy_rpc_types_trace::geth::{DefaultFrame, GethTrace};
+use alloy_rpc_types_trace::geth::GethTrace;
 use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{
@@ -71,7 +71,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
     }
 
     /// Sets whether to generate the EVM execution trace for each test case.
-    pub fn with_gen_execution_trace(mut self, gen_execution_trace: bool) -> Self {
+    pub const fn with_gen_execution_trace(mut self, gen_execution_trace: bool) -> Self {
         self.gen_execution_trace = gen_execution_trace;
         self
     }

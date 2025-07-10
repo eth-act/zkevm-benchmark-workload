@@ -51,7 +51,7 @@ impl RpcBlocksAndWitnessesBuilder {
     }
 
     /// Sets whether to generate the EVM execution traces for each test case.
-    pub fn with_gen_evm_traces(mut self, gen_evm_traces: bool) -> Self {
+    pub const fn with_gen_evm_traces(mut self, gen_evm_traces: bool) -> Self {
         self.gen_evm_traces = gen_evm_traces;
         self
     }
