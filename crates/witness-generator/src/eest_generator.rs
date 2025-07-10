@@ -323,6 +323,40 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn test_evm_trace() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        prepare_downgraded_eest_fixtures(target_path)?;
+
+        let bfs = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .with_includes(vec!["Prague".to_string()])
+            .with_evm_traces(true)
+            .build()?
+            .generate()
+            .await?;
+
+        let traces = bfs
+            .into_iter()
+            .next()
+            .unwrap()
+            .evm_traces
+            .expect("Expected EVM traces to be generated for the fixture");
+        assert_eq!(
+            traces.len(),
+            1,
+            "Expected exactly one trace for the fixture"
+        );
+
+        assert!(
+            !traces.first().unwrap().struct_logs.is_empty(),
+            "Expected at least one struct log in the trace"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn test_filters() -> Result<()> {
         let target_dir = tempfile::tempdir()?;
         let target_path = target_dir.path();
