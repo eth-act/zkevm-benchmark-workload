@@ -6,7 +6,7 @@ This crate provides a library for generating execution witnesses for Ethereum bl
 
 The primary purpose of this crate is to provide library functionality for processing standard Ethereum test suites (specifically blockchain tests found in `zkevm-fixtures`) or RPC endpoints and produce execution witnesses as individual fixture files for use by the benchmark runner.
 
-It defines the `BlockAndWitness` struct which encapsulates:
+It defines the `BenchmarkFixture` struct which encapsulates:
 
 - The name of a specific test case.
 - A single `StatelessInput` object containing an Ethereum block with its corresponding execution witness.

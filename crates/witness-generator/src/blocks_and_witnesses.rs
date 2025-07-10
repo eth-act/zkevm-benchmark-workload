@@ -30,7 +30,7 @@ pub struct BenchmarkFixture {
     pub evm_traces: Option<BlockExecutionTraces>,
 }
 
-/// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.
+/// Errors that can occur during serialization or deserialization of `BenchmarkFixture`.
 #[derive(Error, Debug)]
 pub enum BwError {
     /// Serde JSON (de)serialization error.
@@ -43,7 +43,7 @@ pub enum BwError {
 }
 
 impl BenchmarkFixture {
-    /// Serializes a list of `BlockAndWitness` test cases to a JSON pretty-printed string.
+    /// Serializes a list of `BenchmarkFixture` test cases to a JSON pretty-printed string.
     ///
     /// # Errors
     ///
@@ -52,7 +52,7 @@ impl BenchmarkFixture {
         serde_json::to_string_pretty(items).map_err(BwError::from)
     }
 
-    /// Deserializes a list of `BlockAndWitness` test cases from a JSON string.
+    /// Deserializes a list of `BenchmarkFixture` test cases from a JSON string.
     ///
     /// Assumes the input JSON was produced by [`Self::to_json`].
     ///
@@ -78,7 +78,7 @@ impl BenchmarkFixture {
         Ok(())
     }
 
-    /// Reads the file at `path` and deserializes a `Vec<BlocksAndWitnesses>` from its JSON content.
+    /// Reads the file at `path` and deserializes a `Vec<BenchmarkFixture>` from its JSON content.
     ///
     /// Assumes the file contains JSON compatible with [`Self::from_json`].
     ///
@@ -96,10 +96,10 @@ impl BenchmarkFixture {
 /// Trait for generating blocks and witnesses.
 ///
 /// Implementors of this trait provide different strategies for generating
-/// `BlocksAndWitnesses` collections, such as from test fixtures or RPC endpoints.
+/// `BenchmarkFixture` collections, such as from test fixtures or RPC endpoints.
 #[async_trait]
 pub trait WitnessGenerator {
-    /// Generates `BlockAndWitness` fixtures.
+    /// Generates `BenchmarkFixture` fixtures.
     ///
     /// # Errors
     ///
@@ -107,7 +107,7 @@ pub trait WitnessGenerator {
     /// file I/O problems, or data processing errors.
     async fn generate(&self) -> Result<Vec<BenchmarkFixture>>;
 
-    /// Generates `BlockAndWitness` fixtures and writes them to the specified path.
+    /// Generates `BenchmarkFixture` fixtures and writes them to the specified path.
     ///
     /// # Arguments
     /// * `path` - The directory path where fixture files will be written

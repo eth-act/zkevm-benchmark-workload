@@ -17,7 +17,7 @@ The primary goal is to measure and compare the performance (currently in cycle c
 The workspace is organized into several key components:
 
 - **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
-- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
+- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BenchmarkFixture`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
 - **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder. The crate includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
@@ -38,7 +38,7 @@ The workspace is organized into several key components:
 
 The benchmarking process is decoupled into two distinct phases:
 
-1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
+1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum test fixtures (EEST) or RPC data to generate individual `BenchmarkFixture` fixtures as JSON files saved in `zkevm-fixtures-input/`.
 2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
 
 This decoupling provides several benefits:

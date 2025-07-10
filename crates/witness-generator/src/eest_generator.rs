@@ -22,7 +22,7 @@ use crate::{
 };
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
-/// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
+/// Witness generator that produces `BenchmarkFixture` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
 pub struct ExecSpecTestBlocksAndWitnessBuilder {
     input_folder: Option<PathBuf>,
@@ -114,7 +114,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
     }
 }
 
-/// Witness generator that produces `BlockAndWitness` fixtures for EEST fixtures.
+/// Witness generator that produces `BenchmarkFixture` fixtures for EEST fixtures.
 #[derive(Debug, Clone)]
 pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
@@ -218,7 +218,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         bfs
     }
 
-    /// Generates `BlockAndWitness` fixtures from EEST test cases and writes them to the specified path.
+    /// Generates `BenchmarkFixture` fixtures from EEST test cases and writes them to the specified path.
     ///
     /// This method processes all matching EEST test cases, generates the corresponding
     /// witness data, and writes each fixture as a separate JSON file in the output directory.
