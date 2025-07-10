@@ -1,7 +1,11 @@
-use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
+use crate::{
+    BenchmarkFixture,
+    blocks_and_witnesses::{BlockExecutionTraces, WitnessGenerator},
+};
 use alloy_eips::BlockNumberOrTag;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
-use anyhow::{Context, Result};
+use alloy_rpc_types_trace::{common::TraceResult, geth::GethTrace};
+use anyhow::{Context, Result, bail};
 use async_trait::async_trait;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
@@ -22,6 +26,7 @@ pub struct RpcBlocksAndWitnessesBuilder {
     last_n_blocks: Option<usize>,
     block: Option<u64>,
     stop: Option<CancellationToken>,
+    gen_evm_traces: bool,
 }
 
 impl RpcBlocksAndWitnessesBuilder {
@@ -42,6 +47,12 @@ impl RpcBlocksAndWitnessesBuilder {
     /// * `headers` - HTTP headers to include in RPC requests
     pub fn with_headers(mut self, headers: HeaderMap) -> Self {
         self.header_map = headers;
+        self
+    }
+
+    /// Sets whether to generate the EVM execution traces for each test case.
+    pub fn with_gen_evm_traces(mut self, gen_evm_traces: bool) -> Self {
+        self.gen_evm_traces = gen_evm_traces;
         self
     }
 
@@ -84,6 +95,7 @@ impl RpcBlocksAndWitnessesBuilder {
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
+            generate_evm_traces: self.gen_evm_traces,
         })
     }
 }
@@ -94,6 +106,7 @@ pub struct RpcBlocksAndWitnesses {
     client: HttpClient,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
+    generate_evm_traces: bool,
     stop: Option<CancellationToken>,
 }
 
@@ -102,7 +115,7 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
     /// Generates blocks and witnesses based on the configuration.
     ///
     /// Returns either the last N blocks or a specific block with their execution witnesses.
-    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
+    async fn generate(&self) -> Result<Vec<BenchmarkFixture>> {
         // If live polling is enabled, we return an error here
         if self.stop.is_some() {
             return Err(anyhow::anyhow!(
@@ -146,7 +159,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if any RPC call fails or if blocks cannot be found.
-    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BlockAndWitness>> {
+    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BenchmarkFixture>> {
         if last_n_blocks == 0 {
             return Ok(vec![]);
         }
@@ -194,9 +207,33 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
-            blocks_and_witnesses.push(BlockAndWitness {
+            let evm_traces = if self.generate_evm_traces {
+                let evm_traces = self
+                    .client
+                    .debug_trace_block_by_hash(block_hash, None)
+                    .await?
+                    .into_iter()
+                    .map(|trace_result| match trace_result {
+                        TraceResult::Success { result, tx_hash: _ } => Ok(result),
+                        TraceResult::Error { error, tx_hash: _ } => {
+                            Err(anyhow::anyhow!("Trace error: {}", error))
+                        }
+                    })
+                    .map(|trace| {
+                        let GethTrace::Default(trace) = trace? else {
+                            bail!("Unsupported trace format for test case");
+                        };
+                        Ok(trace)
+                    })
+                    .collect::<Result<BlockExecutionTraces>>()?;
+                Some(evm_traces)
+            } else {
+                None
+            };
+
+            blocks_and_witnesses.push(BenchmarkFixture {
                 name: format!("rpc_block_{block_num}"),
-                block_and_witness: StatelessInput {
+                stateless_input: StatelessInput {
                     block: block.into_consensus(),
                     witness,
                 },
@@ -204,6 +241,7 @@ impl RpcBlocksAndWitnesses {
                 // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
                 // HardForks enum.
                 network: ForkSpec::Prague,
+                evm_traces,
             });
         }
 
@@ -217,13 +255,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if the RPC call fails or if the block cannot be found.
-    async fn fetch_specific_block(&self, block_num: u64) -> Result<BlockAndWitness> {
-        // Fetch the execution witness for the given block
-        let witness = self
-            .client
-            .debug_execution_witness(BlockNumberOrTag::Number(block_num))
-            .await?;
-
+    async fn fetch_specific_block(&self, block_num: u64) -> Result<BenchmarkFixture> {
         // Fetch the block details
         let block =
             EthApiClient::<
@@ -236,9 +268,39 @@ impl RpcBlocksAndWitnesses {
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
 
-        let bw = BlockAndWitness {
+        // Fetch the execution witness for the given block
+        let witness = self
+            .client
+            .debug_execution_witness_by_block_hash(block.hash())
+            .await?;
+
+        let evm_traces = if self.generate_evm_traces {
+            let evm_traces = self
+                .client
+                .debug_trace_block_by_hash(block.hash(), None)
+                .await?
+                .into_iter()
+                .map(|trace_result| match trace_result {
+                    TraceResult::Success { result, tx_hash: _ } => Ok(result),
+                    TraceResult::Error { error, tx_hash: _ } => {
+                        Err(anyhow::anyhow!("Trace error: {}", error))
+                    }
+                })
+                .map(|trace| {
+                    let GethTrace::Default(trace) = trace? else {
+                        bail!("Unsupported trace format for test case");
+                    };
+                    Ok(trace)
+                })
+                .collect::<Result<BlockExecutionTraces>>()?;
+            Some(evm_traces)
+        } else {
+            None
+        };
+
+        let bw = BenchmarkFixture {
             name: format!("rpc_block_{block_num}"),
-            block_and_witness: StatelessInput {
+            stateless_input: StatelessInput {
                 block: block.into_consensus(),
                 witness,
             },
@@ -246,6 +308,7 @@ impl RpcBlocksAndWitnesses {
             // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
             // HardForks enum.
             network: ForkSpec::Prague,
+            evm_traces,
         };
 
         Ok(bw)
@@ -262,7 +325,7 @@ impl RpcBlocksAndWitnesses {
     /// # Errors
     ///
     /// Returns an error if any RPC call fails or if blocks cannot be found.
-    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlockAndWitness>> {
+    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BenchmarkFixture>> {
         let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
             &self.client,
             BlockNumberOrTag::Latest,
@@ -325,7 +388,7 @@ impl RpcBlocksAndWitnesses {
                                 match self.save_to_path(&bws, path) {
                                     Ok(_) => {
                                         count += bws.len();
-                                        next_block_num = bws.last().unwrap().block_and_witness.block.number + 1;
+                                        next_block_num = bws.last().unwrap().stateless_input.block.number + 1;
                                     },
                                     Err(e) => error!("Failed to save data: {e}"),
                                 }
@@ -362,7 +425,7 @@ impl RpcBlocksAndWitnesses {
     /// # Errors
     ///
     /// Returns an error if serialization fails or if any file cannot be written.
-    fn save_to_path(&self, bws: &[BlockAndWitness], path: &Path) -> Result<()> {
+    fn save_to_path(&self, bws: &[BenchmarkFixture], path: &Path) -> Result<()> {
         for bw in bws {
             let output_path = path.join(format!("{}.json", bw.name));
             let output_data = serde_json::to_string_pretty(&bw)
@@ -524,7 +587,7 @@ mod test {
 
         assert_eq!(bws.len(), 1, "Expected 1 block and witness");
         assert_eq!(
-            bws[0].block_and_witness.block.number, block_number,
+            bws[0].stateless_input.block.number, block_number,
             "Expected block number to match"
         );
 

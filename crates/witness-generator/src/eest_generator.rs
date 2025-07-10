@@ -1,10 +1,11 @@
 //! Generate fixtures for zkEVM benchmarking tool
 
+use alloy_rpc_types_trace::geth::{DefaultFrame, GethTrace};
 use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{
     Case,
-    cases::blockchain_test::{BlockchainTestCase, run_case},
+    cases::blockchain_test::{BlockchainTestCase, run_case, trace_case},
     models::BlockchainTest,
 };
 use rayon::prelude::*;
@@ -15,7 +16,10 @@ use std::{
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
+use crate::{
+    BenchmarkFixture,
+    blocks_and_witnesses::{BlockExecutionTraces, WitnessGenerator},
+};
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
@@ -25,6 +29,7 @@ pub struct ExecSpecTestBlocksAndWitnessBuilder {
     tag: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
+    gen_execution_trace: bool,
 }
 
 impl ExecSpecTestBlocksAndWitnessBuilder {
@@ -65,12 +70,19 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
         self
     }
 
+    /// Sets whether to generate the EVM execution trace for each test case.
+    pub fn with_gen_execution_trace(mut self, gen_execution_trace: bool) -> Self {
+        self.gen_execution_trace = gen_execution_trace;
+        self
+    }
+
     /// Builds the `ExecSpecTestBlocksAndWitnesses` instance.
     pub fn build(self) -> Result<ExecSpecTestBlocksAndWitnesses> {
         let input_folder = self.input_folder;
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
         let exclude = self.exclude.unwrap_or_default();
+        let gen_execution_trace = self.gen_execution_trace;
 
         // delete_eest_folder indicates if the EEST folder will be automatically deleted after witness generation.
         // If this folder was explicitly provided, we do not delete it.
@@ -97,6 +109,7 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
             include,
             exclude,
             delete_eest_folder,
+            gen_execution_trace,
         })
     }
 }
@@ -107,6 +120,7 @@ pub struct ExecSpecTestBlocksAndWitnesses {
     directory_path: PathBuf,
     include: Vec<String>,
     exclude: Vec<String>,
+    gen_execution_trace: bool,
     delete_eest_folder: bool,
 }
 
@@ -129,7 +143,7 @@ impl Drop for ExecSpecTestBlocksAndWitnesses {
 impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
     // Generates blocks and witnesses from the EEST fixtures located in the specified directory,
     // filtering by the provided include and exclude patterns.
-    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
+    async fn generate(&self) -> Result<Vec<BenchmarkFixture>> {
         let suite_path = self.directory_path.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
@@ -162,25 +176,46 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             tests.extend(file_tests);
         }
 
-        let bws: Result<Vec<_>> = tests
+        let bfs: Result<Vec<_>> = tests
             .par_iter()
             .map(|(name, case)| {
-                Ok(BlockAndWitness {
-                    name: name.to_string(),
-                    block_and_witness: run_case(case)?
+                let stateless_input = run_case(case)?
+                    .into_iter()
+                    .next_back()
+                    .map(|(recovered_block, witness)| StatelessInput {
+                        block: recovered_block.into_block(),
+                        witness,
+                    })
+                    .ok_or_else(|| anyhow!("No target block found for test case {}", name))?;
+
+                let evm_traces = if self.gen_execution_trace {
+                    let traces = trace_case(case)?
                         .into_iter()
                         .next_back()
-                        .map(|(recovered_block, witness)| StatelessInput {
-                            block: recovered_block.into_block(),
-                            witness,
+                        .ok_or_else(|| anyhow!("No execution trace found for test case {}", name))?
+                        .into_iter()
+                        .map(|trace| {
+                            let GethTrace::Default(trace) = trace else {
+                                bail!("Unsupported trace format for test case {}", name);
+                            };
+                            Ok(trace)
                         })
-                        .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
+                        .collect::<Result<BlockExecutionTraces>>()?;
+                    Some(traces)
+                } else {
+                    None
+                };
+
+                Ok(BenchmarkFixture {
+                    name: name.to_string(),
+                    stateless_input,
+                    evm_traces,
                     network: ForkSpec::from(case.network),
                 })
             })
             .collect();
 
-        bws
+        bfs
     }
 
     /// Generates `BlockAndWitness` fixtures from EEST test cases and writes them to the specified path.

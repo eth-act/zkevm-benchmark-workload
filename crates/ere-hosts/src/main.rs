@@ -9,7 +9,7 @@ use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
 
-use witness_generator::BlockAndWitness;
+use witness_generator::BenchmarkFixture;
 
 use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
@@ -113,7 +113,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 anyhow::bail!("Invalid input folder structure: expected files only")
             }
         })
-        .collect::<Result<Vec<BlockAndWitness>, _>>()?;
+        .collect::<Result<Vec<BenchmarkFixture>, _>>()?;
 
     #[allow(unused_assignments)]
     #[allow(clippy::redundant_clone)]

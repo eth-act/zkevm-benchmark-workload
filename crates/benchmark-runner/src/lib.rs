@@ -5,7 +5,7 @@
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use tracing::info;
-use witness_generator::BlockAndWitness;
+use witness_generator::BenchmarkFixture;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Input};
 
@@ -34,7 +34,7 @@ pub fn run_benchmark_ere<V>(
     host_name: &str,
     zkvm_instance: V,
     run_config: &RunConfig,
-    corpuses: &[BlockAndWitness],
+    corpuses: &[BenchmarkFixture],
 ) -> anyhow::Result<()>
 where
     V: zkVM + Sync,
@@ -62,7 +62,7 @@ where
 }
 
 fn process_corpus<V>(
-    bw: &BlockAndWitness,
+    bw: &BenchmarkFixture,
     zkvm_ref: Arc<V>,
     host_name: &str,
     run_config: &RunConfig,
@@ -79,10 +79,10 @@ where
         return Ok(());
     }
 
-    let block_number = bw.block_and_witness.block.number;
-    let block_used_gas = bw.block_and_witness.block.gas_used;
+    let block_number = bw.stateless_input.block.number;
+    let block_used_gas = bw.stateless_input.block.gas_used;
     let mut stdin = Input::new();
-    stdin.write(bw.block_and_witness.clone());
+    stdin.write(bw.stateless_input.clone());
     stdin.write(bw.network);
 
     info!("Running {}", bw.name);

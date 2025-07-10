@@ -1,10 +1,13 @@
 use std::{fs, io, path::Path};
 
+use alloy_rpc_types_trace::geth::DefaultFrame;
 use anyhow::Result;
 use async_trait::async_trait;
 use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
+
+pub type BlockExecutionTraces = Vec<DefaultFrame>;
 
 /// Represents a named collection of block/witness pairs for a specific Ethereum test case.
 ///
@@ -12,16 +15,18 @@ use thiserror::Error;
 /// `ethereum/tests` fixtures (however we are using `zkevm-fixtures`)
 ///  containing all the sequential block transitions within that test.
 #[derive(Debug, Serialize, Deserialize)]
-pub struct BlockAndWitness {
-    /// Name of the blockchain test case (e.g., "`ModExpAttackContract`").
+pub struct BenchmarkFixture {
+    /// Name of the block test case (e.g., "`ModExpAttackContract`").
     pub name: String,
-    /// The block and witness pair for the test case.
-    pub block_and_witness: StatelessInput,
+    /// The required input for stateless validation.
+    pub stateless_input: StatelessInput,
     /// The network fork specification (e.g., Shanghai, Cancun, Prague) active for this test case.
     // TODO: Don't think we want to pass this through maybe ForkSpec
     // TODO: Also Genesis file is wrong in chainspec
     // TODO: We can keep this initially and don't measure the time it takes to deserialize
     pub network: ForkSpec,
+    /// The EVM execution trace
+    pub evm_traces: Option<BlockExecutionTraces>,
 }
 
 /// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.
@@ -36,7 +41,7 @@ pub enum BwError {
     Io(#[from] io::Error),
 }
 
-impl BlockAndWitness {
+impl BenchmarkFixture {
     /// Serializes a list of `BlockAndWitness` test cases to a JSON pretty-printed string.
     ///
     /// # Errors
@@ -99,7 +104,7 @@ pub trait WitnessGenerator {
     ///
     /// Returns an error if the generation process fails, including network issues,
     /// file I/O problems, or data processing errors.
-    async fn generate(&self) -> Result<Vec<BlockAndWitness>>;
+    async fn generate(&self) -> Result<Vec<BenchmarkFixture>>;
 
     /// Generates `BlockAndWitness` fixtures and writes them to the specified path.
     ///
