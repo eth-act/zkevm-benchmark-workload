@@ -7,6 +7,7 @@ use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+/// Represents a collection of EVM execution traces for a block.
 pub type BlockExecutionTraces = Vec<DefaultFrame>;
 
 /// Represents a named collection of block/witness pairs for a specific Ethereum test case.
