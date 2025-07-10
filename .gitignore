@@ -11,3 +11,6 @@ zkevm-metrics
 
 # private envrc file
 .envrc
+
+# results
+results/

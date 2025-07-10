@@ -6,13 +6,20 @@ members = [
     "xtask",
     # Guest programs
     "ere-guests/sp1",
-    "ere-guests/risc0",
-    "ere-guests/risc0/guest", # TODO: fix so we have one crate
+    # TODO: currently have build issues and will be uncommented when fixed
+    # "ere-guests/risc0",
+    # "ere-guests/risc0/guest", # TODO: fix so we have one crate
     "ere-guests/openvm",
     # "ere-guests/pico", # See https://github.com/eth-act/zkevm-benchmark-workload/issues/43
     "ere-guests/zisk",
     # Ere host crate
     "crates/ere-hosts",
+
+    # zkProfiling Guest Programs
+    "profiling-guests/risc0",
+
+    # zkProfiling Host Programs
+    "profiling-crates/profile-runner",
 ]
 resolver = "2"
 
