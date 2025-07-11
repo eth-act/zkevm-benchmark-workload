@@ -56,7 +56,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1, risc0, openvm, pico, zisk]
+        zkvm: [sp1, risc0, openvm, zisk] # Skip `pico`, see https://github.com/eth-act/zkevm-benchmark-workload/issues/43.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
