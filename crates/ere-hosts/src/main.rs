@@ -2,17 +2,23 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+#[cfg(not(any(
+    feature = "sp1",
+    feature = "risc0",
+    feature = "openvm",
+    feature = "pico",
+    feature = "zisk"
+)))]
+compile_error!("please enable one of the zkVM's using the appropriate feature flag");
+
+use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 use clap::{Parser, ValueEnum};
 use rayon::prelude::*;
 use std::{path::PathBuf, process::Command};
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
-
 use witness_generator::BlockAndWitness;
-
-use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
-
 use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 
 #[cfg(feature = "sp1")]
@@ -118,9 +124,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     #[allow(unused_assignments)]
     #[allow(clippy::redundant_clone)]
     {
-        // Set to true once a zkvm has ran
-        let mut ran_any = false;
-
         let run_config = RunConfig {
             output_folder: cli.output_folder,
             action,
@@ -134,7 +137,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let zkvm = new_sp1_zkvm(resource.clone())?;
             let fullname = zkvm_fullname(EreSP1::name(), EreSP1::sdk_version());
             run_benchmark_ere(&fullname, zkvm, &run_config, &corpuses)?;
-            ran_any = true;
         }
 
         #[cfg(feature = "zisk")]
@@ -143,7 +145,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let zisk_zkvm = new_zisk_zkvm(resource.clone())?;
             let fullname = zkvm_fullname(EreZisk::name(), EreZisk::sdk_version());
             run_benchmark_ere(&fullname, zisk_zkvm, &run_config, &corpuses)?;
-            ran_any = true;
         }
 
         #[cfg(feature = "risc0")]
@@ -152,7 +153,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let risc0_zkvm = new_risczero_zkvm(resource.clone())?;
             let fullname = zkvm_fullname(EreRisc0::name(), EreRisc0::sdk_version());
             run_benchmark_ere(&fullname, risc0_zkvm, &run_config, &corpuses)?;
-            ran_any = true;
         }
 
         #[cfg(feature = "openvm")]
@@ -161,7 +161,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let openvm_zkvm = new_openvm_zkvm(resource.clone())?;
             let fullname = zkvm_fullname(EreOpenVM::name(), EreOpenVM::sdk_version());
             run_benchmark_ere(&fullname, openvm_zkvm, &run_config, &corpuses)?;
-            ran_any = true;
         }
 
         #[cfg(feature = "pico")]
@@ -170,21 +169,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let pico_zkvm = new_pico_zkvm(resource)?;
             let fullname = zkvm_fullname(ErePico::name(), ErePico::sdk_version());
             run_benchmark_ere(&fullname, pico_zkvm, &run_config, &corpuses)?;
-            ran_any = true;
         }
 
-        if ran_any {
-            Ok(())
-        } else {
-            Err("please enable one of the zkVM's using the appropriate feature flag".into())
-        }
+        Ok(())
     }
 }
 
 #[cfg(feature = "sp1")]
 fn new_sp1_zkvm(prover_resource: ProverResourceType) -> Result<EreSP1, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/sp1");
-    let program = RV32_IM_SUCCINCT_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
+    let guest_dir = workspace_root().join("ere-guests/sp1");
+    let program = RV32_IM_SUCCINCT_ZKVM_ELF::compile(&guest_dir)?;
     Ok(EreSP1::new(program, prover_resource))
 }
 
@@ -192,8 +186,8 @@ fn new_sp1_zkvm(prover_resource: ProverResourceType) -> Result<EreSP1, Box<dyn s
 fn new_risczero_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<EreRisc0, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/risc0");
-    let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
+    let guest_dir = workspace_root().join("ere-guests/risc0");
+    let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&guest_dir)?;
     Ok(EreRisc0::new(program, prover_resource))
 }
 
@@ -201,8 +195,8 @@ fn new_risczero_zkvm(
 fn new_zisk_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<EreZisk, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/zisk");
-    let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&PathBuf::from(guest_dir))?;
+    let guest_dir = workspace_root().join("ere-guests/zisk");
+    let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&guest_dir)?;
     Ok(EreZisk::new(program, prover_resource))
 }
 
@@ -210,8 +204,8 @@ fn new_zisk_zkvm(
 fn new_openvm_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<EreOpenVM, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/openvm");
-    let program = OPENVM_TARGET::compile(&PathBuf::from(guest_dir))?;
+    let guest_dir = workspace_root().join("ere-guests/openvm");
+    let program = OPENVM_TARGET::compile(&guest_dir)?;
     Ok(EreOpenVM::new(program, prover_resource))
 }
 
@@ -219,8 +213,8 @@ fn new_openvm_zkvm(
 fn new_pico_zkvm(
     prover_resource: ProverResourceType,
 ) -> Result<ErePico, Box<dyn std::error::Error>> {
-    let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "ere-guests/pico");
-    let program = PICO_TARGET::compile(&PathBuf::from(guest_dir))?;
+    let guest_dir = workspace_root().join("ere-guests/pico");
+    let program = PICO_TARGET::compile(&guest_dir)?;
     Ok(ErePico::new(program, prover_resource))
 }
 
@@ -251,4 +245,12 @@ fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Er
 
 fn zkvm_fullname(zkvm_name: &str, zkvm_version: &str) -> String {
     format!("{zkvm_name}-v{zkvm_version}")
+}
+
+/// Repository root (assumes `ere-hosts` lives in `<root>/crates/ere-hosts`).
+fn workspace_root() -> PathBuf {
+    let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
+    p.pop();
+    p.pop();
+    p
 }
