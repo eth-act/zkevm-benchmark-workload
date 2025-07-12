@@ -1,11 +1,11 @@
 [workspace]
 members = [
-    "crates/metrics",
-    "crates/witness-generator",
-    "crates/witness-generator-cli",
-    "xtask",
-    # Ere host crate
-    "crates/ere-hosts",
+    "openvm",
+    "pico",
+    "risc0",
+    "risc0/guest",
+    "sp1",
+    "zisk",
 ]
 resolver = "2"
 
@@ -97,51 +97,22 @@ useless_let_if_seq = "warn"
 while_float = "warn"
 zero_sized_map_values = "warn"
 
-
 [workspace.dependencies]
-
-# local dependencies
-witness-generator = { path = "crates/witness-generator" }
-zkevm-metrics = { path = "crates/metrics" }
-benchmark-runner = { path = "crates/benchmark-runner" }
-
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "zkvm-interface" }
-ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "ere-sp1" }
-ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "ere-risczero" }
-ere-pico = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "ere-pico" }
-ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "ere-openvm" }
-ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.4", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-ethereum-primitives = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-primitives-traits = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-stateless = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-chainspec = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-rpc-api = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
-reth-evm-ethereum = { git = "https://github.com/jsign/reth", rev = "53a0f5e76f86a65dd582b8022d7be63144e37b2f" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
+reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
 
 # alloy
-alloy-eips = { version = "1.0.13" }
-alloy-rpc-types-eth = "1.0.12"
-alloy-rpc-types-trace = "1.0.12"
+alloy-primitives = { version = "1.2.0", default-features = false }
 
 # misc
 bincode = "1.3"
-clap = { version = "4.0", features = ["derive"] }
-serde = { version = "1.0", default-features = false }
-strum = { version = "0.26", features = ["derive"] }
-walkdir = "2.3.3"
-rayon = "1.7"
-hex = "0.4.3"
-thiserror = "2"
-serde_json = "*"
-serde_derive = "*"
-jsonrpsee = "0.25.1"
-anyhow = "1.0"
-async-trait = "0.1.88"
-tokio = { version = "1.45.1" }
-tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+
+[patch.crates-io]

@@ -35,8 +35,9 @@ fn main() -> Result<()> {
     let cli = Cli::parse();
 
     // workspace-root/Cargo.toml  (xtask is at <root>/xtask)
-    let ws_root = workspace_root()?;
-    let manifest_path = ws_root.join("Cargo.toml");
+    let ws_root = workspace_root();
+    let ere_guests_dir = ws_root.join("ere-guests");
+    let manifest_path = ere_guests_dir.join("Cargo.toml");
 
     // 1 ── read root manifest
     let manifest_src = fs::read_to_string(&manifest_path)
@@ -86,6 +87,7 @@ fn main() -> Result<()> {
 
     // 5 ── forward to Cargo
     let status = Command::new("cargo")
+        .current_dir(ere_guests_dir)
         .args(&cli.cargo_args)
         .status()
         .context("failed to invoke cargo")?;
@@ -93,10 +95,10 @@ fn main() -> Result<()> {
 }
 
 /// repo root (assumes xtask lives in <root>/xtask)
-fn workspace_root() -> Result<PathBuf> {
+fn workspace_root() -> PathBuf {
     let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
     p.pop();
-    Ok(p)
+    p
 }
 
 /// All crate-keys that occur in any precompile-patches/*.toml
