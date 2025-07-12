@@ -18,10 +18,7 @@ use std::{path::PathBuf, process::Command};
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
 use walkdir::WalkDir;
-
 use witness_generator::BenchmarkFixture;
-
-use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
 
 use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 
