@@ -14,7 +14,7 @@ use jsonrpsee::{
 };
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::{StatelessInput, fork_spec::ForkSpec, trace::trace_from_witness};
 use std::{path::Path, str::FromStr};
 use tokio_util::sync::CancellationToken;
 
@@ -211,19 +211,10 @@ impl RpcBlocksAndWitnesses {
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
 
             let evm_traces = if self.evm_traces {
-                let evm_traces = self
-                    .client
-                    .debug_trace_block_by_hash(block_hash, None)
-                    .await?
+                let evm_traces = trace_from_witness(block.clone().try_into()?, witness.clone())?
                     .into_iter()
-                    .map(|trace_result| match trace_result {
-                        TraceResult::Success { result, tx_hash: _ } => Ok(result),
-                        TraceResult::Error { error, tx_hash: _ } => {
-                            Err(anyhow::anyhow!("Trace error: {}", error))
-                        }
-                    })
                     .map(|trace| {
-                        let GethTrace::Default(trace) = trace? else {
+                        let GethTrace::Default(trace) = trace else {
                             bail!("Unsupported trace format for test case");
                         };
                         Ok(trace)
