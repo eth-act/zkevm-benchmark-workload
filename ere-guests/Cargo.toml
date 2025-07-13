@@ -1,5 +1,16 @@
 [workspace]
-members = ["openvm", "pico", "risc0", "risc0/guest", "sp1", "zisk"]
+members = [
+    # Ethereum stateless validator
+    "stateless-validator/openvm",
+    "stateless-validator/pico",
+    "stateless-validator/risc0",
+    "stateless-validator/risc0/guest",
+    "stateless-validator/sp1",
+    "stateless-validator/zisk",
+
+    # Empty program
+    "empty-program/sp1",
+]
 resolver = "2"
 
 [workspace.package]
@@ -110,3 +121,8 @@ tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 
 [patch.crates-io]
+sha2 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", tag = "patch-sha2-0.10.8-sp1-4.0.0", package = "sha2" }
+bn = { git = "https://github.com/sp1-patches/bn", tag = "patch-0.6.0-sp1-5.0.0", package = "substrate-bn" }
+sha3 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", tag = "patch-sha3-0.10.8-sp1-4.0.0" }
+k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k256-13.4-sp1-5.0.0" }
+p256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-p256-13.2-sp1-5.0.0" }
