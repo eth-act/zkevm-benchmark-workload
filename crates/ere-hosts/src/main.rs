@@ -11,7 +11,9 @@
 )))]
 compile_error!("please enable one of the zkVM's using the appropriate feature flag");
 
-use benchmark_runner::{Action, RunConfig, run_benchmark_ere};
+use benchmark_runner::{
+    Action, RunConfig, run_benchmark_empty_program, run_benchmark_stateless_validator,
+};
 use clap::{Parser, Subcommand, ValueEnum};
 use rayon::prelude::*;
 use std::{
@@ -156,7 +158,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let zkvms_instances =
                 get_zkvm_instances(&guest_programs_dir.join("stateless-validator"), resource)?;
             for instance in zkvms_instances {
-                run_benchmark_ere(&instance.name, instance.instance, &run_config, &corpuses)?;
+                run_benchmark_stateless_validator(
+                    &instance.name,
+                    instance.instance,
+                    &run_config,
+                    &corpuses,
+                )?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
@@ -164,7 +171,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let zkvms_instances =
                 get_zkvm_instances(&guest_programs_dir.join("empty-program"), resource)?;
             for instance in zkvms_instances {
-                // run_benchmark_ere(&instance.name, instance.instance, &run_config)?;
+                run_benchmark_empty_program(&instance.name, instance.instance, &run_config)?;
             }
         }
     }
