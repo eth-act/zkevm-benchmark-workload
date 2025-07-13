@@ -1,22 +1,33 @@
 # zkVM Benchmarker
 
-A command-line tool for benchmarking different Ere compatible zero-knowledge virtual machines (zkVMs) using pre-generated fixture files.
+A command-line tool for benchmarking different Ere compatible zero-knowledge virtual machines (zkVMs) using pre-generated fixture files. The tool supports multiple guest program types, allowing for comprehensive performance evaluation across different use cases.
 
 ## Overview
 
-This benchmarker consumes pre-generated fixture files (created by the `witness-generator-cli` binary) and runs performance benchmarks across various zkVM implementations including SP1, Risc Zero, OpenVM, and Pico. You can select which zkVMs to compile using feature flags, choose between CPU and GPU resources, and either execute or prove.
+This benchmarker consumes pre-generated fixture files (created by the `witness-generator-cli` binary) and runs performance benchmarks across various zkVM implementations including SP1, Risc Zero, OpenVM, Pico, and Zisk. You can select which zkVMs to compile using feature flags, choose between different guest program types, select CPU or GPU resources, and either execute or prove.
+
+## Guest Program Types
+
+The benchmarker supports multiple guest program types:
+
+- **`stateless-validator`**: Runs Ethereum stateless block validation logic. Requires input fixture files containing `BlockAndWitness` data.
+- **`empty-program`**: Runs minimal programs to measure zkVM overhead without the computational complexity of Ethereum validation.
 
 ## Prerequisites
 
-Before running benchmarks, you must first generate fixture files using the `witness-generator-cli` binary:
+Before running benchmarks:
 
-```bash
-cd ../witness-generator-cli
-cargo run -- tests  # or use rpc source
-cd ../ere-hosts
-```
+1. **For `stateless-validator` benchmarks:** You must first generate fixture files using the `witness-generator-cli` binary:
 
-The benchmarker expects fixture files to be available in the input directory (default: `zkevm-fixtures-input/`). Each file should contain a `BlockAndWitness` object.
+   ```bash
+   cd ../witness-generator-cli
+   cargo run -- tests  # or use rpc source
+   cd ../ere-hosts
+   ```
+
+   The benchmarker expects fixture files to be available in the input directory (default: `zkevm-fixtures-input/`). Each file should contain a `BlockAndWitness` object.
+
+2. **For `empty-program` benchmarks:** No fixture files are required as these programs don't process external input data.
 
 ## Feature Flags
 
@@ -25,44 +36,59 @@ The benchmarker uses Cargo feature flags to control which zkVMs are compiled int
 ### Available Features
 
 - `sp1` - Enable SP1 zkVM support
-- `risc0` - Enable Risc Zero zkVM support  
+- `risc0` - Enable Risc Zero zkVM support
 - `openvm` - Enable OpenVM zkVM support
 - `pico` - Enable Pico zkVM support
+- `zisk` - Enable Zisk zkVM support
 
 ### Basic Usage
 
 **Note:** Unlike the previous version, you must:
-1. First generate fixture files using the `witness-generator-cli` binary
-2. Explicitly specify which zkVMs to include via feature flags
+1. Specify which guest program type to benchmark
+2. For `stateless-validator`: Generate fixture files using the `witness-generator-cli` binary
+3. Explicitly specify which zkVMs to include via feature flags
 
-Build and run with SP1 only:
+Run stateless validator benchmarks with SP1:
 
 ```bash
-cargo run --features sp1
+cargo run --features sp1 -- stateless-validator
 ```
 
-Build and run with multiple zkVMs:
+Run empty program benchmarks with SP1:
 
 ```bash
-cargo run --features "sp1,risc0"
+cargo run --features sp1 -- empty-program
 ```
 
-Run all available zkVMs:
+Build and run with multiple zkVMs for stateless validation:
 
 ```bash
-cargo run --features "sp1,risc0,openvm,pico"
+cargo run --features "sp1,risc0" -- stateless-validator
+```
+
+Run all available zkVMs for empty programs:
+
+```bash
+cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
 ```
 
 ### Input Source Configuration
 
-The benchmarker reads pre-generated fixture files from an input directory:
+For `stateless-validator` benchmarks, the tool reads pre-generated fixture files from an input directory:
 
 ```bash
 # Use default input directory (zkevm-fixtures-input/)
-cargo run --features sp1
+cargo run --features sp1 -- stateless-validator
 
 # Specify custom input directory
-cargo run --features sp1 -- --input-folder my-fixtures
+cargo run --features sp1 -- stateless-validator --input-folder my-fixtures
+```
+
+For `empty-program` benchmarks, no input files are required:
+
+```bash
+# Empty programs don't require input files
+cargo run --features sp1 -- empty-program
 ```
 
 ### Resource Configuration
@@ -71,10 +97,10 @@ Choose compute resource type:
 
 ```bash
 # Use CPU resources (default)
-cargo run --features sp1 -- --resource cpu
+cargo run --features sp1 -- stateless-validator --resource cpu
 
 # Use GPU resources
-cargo run --features sp1 -- --resource gpu
+cargo run --features sp1 -- stateless-validator --resource gpu
 ```
 
 ### Action Types
@@ -83,10 +109,10 @@ Select benchmark operation:
 
 ```bash
 # Execute programs (default)
-cargo run --features sp1 -- --action execute
+cargo run --features sp1 -- stateless-validator --action execute
 
 # Generate proofs
-cargo run --features sp1 -- --action prove
+cargo run --features sp1 -- stateless-validator --action prove
 ```
 
 ### Force Rerun
@@ -95,10 +121,10 @@ By default, the benchmarker will skip tests that already have output files in th
 
 ```bash
 # Skip tests that already have results (default behavior)
-cargo run --features sp1
+cargo run --features sp1 -- stateless-validator
 
 # Rerun all tests, overwriting existing results
-cargo run --features sp1 -- --force-rerun
+cargo run --features sp1 -- stateless-validator --force-rerun
 ```
 
 ### Output Folder Configuration
@@ -107,50 +133,56 @@ By default, benchmark results are saved to the `zkevm-metrics/` directory. You c
 
 ```bash
 # Use default output folder (zkevm-metrics/)
-cargo run --features sp1
+cargo run --features sp1 -- stateless-validator
 
 # Use custom output folder
-cargo run --features sp1 -- --output-folder my-custom-results
+cargo run --features sp1 -- stateless-validator --output-folder my-custom-results
 
 # Use absolute path
-cargo run --features sp1 -- --output-folder /tmp/benchmark-results
+cargo run --features sp1 -- stateless-validator --output-folder /tmp/benchmark-results
 ```
 
 The benchmark results will be organized by zkVM type within the specified folder (e.g., `my-custom-results/sp1/`, `my-custom-results/risc0/`, etc.).
 
 ### Combined Examples
 
-Run SP1 and OpenVM with GPU proving:
+Run SP1 and OpenVM stateless validator with GPU proving:
 
 ```bash
-cargo run --features "sp1,openvm" -- \
+cargo run --features "sp1,openvm" -- stateless-validator \
   --resource gpu \
   --action prove
 ```
 
-Run all zkVMs with CPU execution:
+Run all zkVMs for empty program benchmarks with CPU execution:
 
 ```bash
-cargo run --features "sp1,risc0,openvm,pico" -- \
+cargo run --features "sp1,risc0,openvm,pico" -- empty-program \
   --resource cpu \
   --action execute
 ```
 
-Force rerun all benchmarks for SP1 and RISC0, overwriting existing results:
+Force rerun all stateless validator benchmarks for SP1 and RISC0, overwriting existing results:
 
 ```bash
-cargo run --features "sp1,risc0" -- \
+cargo run --features "sp1,risc0" -- stateless-validator \
   --force-rerun \
   --action execute
 ```
 
-Run SP1 with custom input and output directories:
+Run SP1 stateless validator with custom input and output directories:
 
 ```bash
-cargo run --features sp1 -- \
+cargo run --features sp1 -- stateless-validator \
   --input-folder custom-fixtures \
   --output-folder custom-benchmarks \
   --action execute
+```
+
+Compare zkVM overhead by running empty programs across all platforms:
+
+```bash
+cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
 ```
 
 ## Command Line Options
@@ -159,7 +191,7 @@ cargo run --features sp1 -- \
 |--------|-------|-------------|---------|---------|
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
-| `--input-folder` | `-i` | Input folder containing fixture files | `zkevm-fixtures-input` | Any valid directory path |
+| `--input-folder` | `-i` | Input folder containing fixture files (stateless-validator only) | `zkevm-fixtures-input` | Any valid directory path |
 | `--output-folder` | `-o` | Output folder for benchmark results | `zkevm-metrics` | Any valid directory path |
 | `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |
 | `--help` | `-h` | Show help information | - | - |
@@ -209,18 +241,28 @@ To add a new zkVM to the benchmarker:
    }
    ```
 
-4. Add the constructor function:
+4. Add the constructor function to the `get_zkvm_instances` function:
 
    ```rust
    #[cfg(feature = "your_zkvm")]
-   fn new_your_zkvm(prover_resource: ProverResourceType) -> Result<EreYourZkVM, Box<dyn std::error::Error>> {
-       let guest_dir = concat!(env!("CARGO_WORKSPACE_DIR"), "/ere-guests/your_zkvm");
-       let program = YOUR_ZKVM_TARGET::compile(&PathBuf::from(guest_dir))?;
-       Ok(EreYourZkVM::new(program, prover_resource))
+   {
+       run_cargo_patch_command("your_zkvm")?;
+       let program = YOUR_ZKVM_TARGET::compile(&guest_program_folder.join("your_zkvm"))?;
+       let zkvm = EreYourZkVM::new(program, resource.clone());
+       name_zkvms.push(zkVMInstance {
+           name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
+           instance: Box::new(zkvm),
+       });
    }
    ```
 
-5. Add your zkVM's guest program into the `ere-guests/your_zkvm` directory.
+   Note: `guest_program_folder` is passed as a parameter to `get_zkvm_instances` and will automatically point to the correct guest program type directory (e.g., `ere-guests/stateless-validator/` or `ere-guests/empty-program/`).
+
+5. Add your zkVM's guest program implementations into the appropriate guest program directories:
+   - For stateless validator support: `ere-guests/stateless-validator/your_zkvm/`
+   - For empty program support: `ere-guests/empty-program/your_zkvm/`
+   
+   You can implement either one or both depending on what guest program types you want to support.
 
 ## Error Handling
 

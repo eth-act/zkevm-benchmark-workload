@@ -206,7 +206,7 @@ fn get_zkvm_instances(
         #[cfg(feature = "zisk")]
         {
             run_cargo_patch_command("zisk")?;
-            let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&guest_dir.join("zisk"))?;
+            let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&guest_program_folder.join("zisk"))?;
             let zkvm = EreZisk::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
                 name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
@@ -228,7 +228,7 @@ fn get_zkvm_instances(
         #[cfg(feature = "openvm")]
         {
             run_cargo_patch_command("openvm")?;
-            let program = OPENVM_TARGET::compile(&guest_dir.join("openvm"))?;
+            let program = OPENVM_TARGET::compile(&guest_program_folder.join("openvm"))?;
             let zkvm = EreOpenVM::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
                 name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
@@ -239,7 +239,7 @@ fn get_zkvm_instances(
         #[cfg(feature = "pico")]
         {
             run_cargo_patch_command("pico")?;
-            let program = PICO_TARGET::compile(&guest_dir.join("pico"))?;
+            let program = PICO_TARGET::compile(&guest_program_folder.join("pico"))?;
             let zkvm = ErePico::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
                 name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
