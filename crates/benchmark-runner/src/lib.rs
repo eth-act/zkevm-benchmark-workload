@@ -30,18 +30,15 @@ pub enum Action {
 }
 
 /// Runs the benchmark for a given zkVM instance and corpus of blocks and witnesses
-pub fn run_benchmark_ere<V>(
-    host_name: &str,
-    zkvm_instance: V,
+pub fn run_benchmark_ere(
+    zkvm_name: &str,
+    zkvm_instance: Box<dyn zkVM + Sync>,
     run_config: &RunConfig,
     corpuses: &[BlockAndWitness],
-) -> anyhow::Result<()>
-where
-    V: zkVM + Sync,
-{
+) -> anyhow::Result<()> {
     HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
 
-    info!("Benchmarking `{}`…", host_name);
+    info!("Benchmarking `{}`…", zkvm_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
 
     match run_config.action {
@@ -49,13 +46,13 @@ where
             // Use parallel iteration for execution
             corpuses
                 .into_par_iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), zkvm_name, run_config))?;
         }
         Action::Prove => {
             // Use sequential iteration for proving
             corpuses
                 .iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), zkvm_name, run_config))?;
         }
     }
     Ok(())
