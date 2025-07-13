@@ -29,19 +29,70 @@ pub enum Action {
     Execute,
 }
 
-/// Runs the benchmark for a given zkVM instance and corpus of blocks and witnesses
-pub fn run_benchmark_ere<V>(
-    host_name: &str,
-    zkvm_instance: V,
+/// Runs the benchmark for a given zkVM instance and empty program.
+pub fn run_benchmark_empty_program(
+    zkvm_name: &str,
+    zkvm_instance: Box<dyn zkVM + Sync>,
     run_config: &RunConfig,
-    corpuses: &[BlockAndWitness],
-) -> anyhow::Result<()>
-where
-    V: zkVM + Sync,
-{
+) -> anyhow::Result<()> {
     HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
 
-    info!("Benchmarking `{}`…", host_name);
+    info!("Benchmarking `{}`…", zkvm_name);
+    let (execution, proving) = match run_config.action {
+        Action::Execute => {
+            let run = zkvm_instance.execute(&Input::new());
+            let execution = match run {
+                Ok(report) => ExecutionMetrics::Success {
+                    total_num_cycles: report.total_num_cycles,
+                    region_cycles: report.region_cycles.into_iter().collect(),
+                    execution_duration: report.execution_duration,
+                },
+                Err(e) => ExecutionMetrics::Crashed(CrashInfo {
+                    reason: e.to_string(),
+                }),
+            };
+            (Some(execution), None)
+        }
+        Action::Prove => {
+            let run = zkvm_instance.prove(&Input::new());
+            let proving = match run {
+                Ok((proof, report)) => ProvingMetrics::Success {
+                    proof_size: proof.len(),
+                    proving_time_ms: report.proving_time.as_millis(),
+                },
+                Err(e) => ProvingMetrics::Crashed(CrashInfo {
+                    reason: e.to_string(),
+                }),
+            };
+            (None, Some(proving))
+        }
+    };
+    let out_path = run_config
+        .output_folder
+        .join(format!("{zkvm_name}/empty_program.json"));
+
+    let report = BenchmarkRun {
+        name: "empty_program".to_string(),
+        timestamp_completed: zkevm_metrics::chrono::Utc::now(),
+        block_used_gas: 0,
+        execution,
+        proving,
+    };
+    BenchmarkRun::to_path(out_path, &[report])?;
+
+    Ok(())
+}
+
+/// Runs the benchmark for a given zkVM instance and corpus of blocks and witnesses
+pub fn run_benchmark_stateless_validator(
+    zkvm_name: &str,
+    zkvm_instance: Box<dyn zkVM + Sync>,
+    run_config: &RunConfig,
+    corpuses: &[BlockAndWitness],
+) -> anyhow::Result<()> {
+    HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
+
+    info!("Benchmarking `{}`…", zkvm_name);
     let zkvm_ref = Arc::new(&zkvm_instance);
 
     match run_config.action {
@@ -49,15 +100,16 @@ where
             // Use parallel iteration for execution
             corpuses
                 .into_par_iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), zkvm_name, run_config))?;
         }
         Action::Prove => {
             // Use sequential iteration for proving
             corpuses
                 .iter()
-                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), host_name, run_config))?;
+                .try_for_each(|bw| process_corpus(bw, zkvm_ref.clone(), zkvm_name, run_config))?;
         }
     }
+
     Ok(())
 }
 

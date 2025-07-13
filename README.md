@@ -22,12 +22,15 @@ The workspace is organized into several key components:
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
 - **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
-- **`ere-guests/`**: Directory containing guest program implementations for different zkVM platforms:
-  - `ere-guests/sp1/`: Succinct SP1 guest implementation
-  - `ere-guests/openvm/`: OpenVM guest implementation  
-  - `ere-guests/risc0/`: RISC0 guest implementation
-  - `ere-guests/zkm/`: zkMIPS guest implementation
-  - `ere-guests/pico/`: Pico guest implementation
+- **`ere-guests/`**: Directory containing guest program implementations organized by program type, with each type containing implementations for different zkVM platforms:
+  - `ere-guests/stateless-validator/`: Contains Ethereum stateless validator implementations for different zkVMs:
+    - `ere-guests/stateless-validator/sp1/`: Succinct SP1 implementation
+    - `ere-guests/stateless-validator/openvm/`: OpenVM implementation  
+    - `ere-guests/stateless-validator/risc0/`: RISC0 implementation
+    - `ere-guests/stateless-validator/pico/`: Pico implementation
+    - `ere-guests/stateless-validator/zisk/`: Zisk implementation
+  - `ere-guests/empty-program/`: Contains minimal empty program implementations for benchmarking overhead:
+    - `ere-guests/empty-program/sp1/`: SP1 empty program implementation
 - **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator-cli`.
 - **`zkevm-fixtures-input`**: Default directory where `witness-generator-cli` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
 - **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs, organized by zkVM type.
@@ -50,16 +53,19 @@ This decoupling provides several benefits:
 Each zkVM benchmark implementation follows a common pattern:
 
 1. **Guest Program:**
-    - Located within the `ere-guests/` directory for the specific zkVM (e.g., `ere-guests/sp1/`, `ere-guests/openvm/`).
-    - Contains the Rust code that executes the Ethereum state transition function(`reth_stateless::validation::stateless_validation`).
+    - Located within the `ere-guests/` directory, organized by guest program type (e.g., `ere-guests/stateless-validator/sp1/`, `ere-guests/empty-program/sp1/`).
+    - Each guest program type contains implementations for specific zkVMs.
+    - For stateless validator programs: Contains the Rust code that executes the Ethereum state transition function (`reth_stateless::validation::stateless_validation`).
+    - For empty programs: Contains minimal code to benchmark zkVM overhead.
     - This code is compiled specifically for the target zkVM's architecture (e.g., RISC-V for SP1, MIPS for zkMIPS).
     - It reads block/witness data from its zkVM environment's standard input.
     - Uses platform-specific mechanisms (often `println!` markers) to delineate code regions for cycle counting.
 
 2. **Host Program:**
     - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
-    - A standalone Rust binary that orchestrates the benchmarking.
+    - A standalone Rust binary that orchestrates the benchmarking for different guest program types.
     - Consumes pre-generated fixture files from `crates/witness-generator-cli`.
+    - Supports multiple guest program types via command-line arguments (e.g., `stateless-validator`, `empty-program`).
     - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
     - Collects cycle count metrics reported by the zkVM SDK.
     - Saves the results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
@@ -70,7 +76,7 @@ Each zkVM benchmark implementation follows a common pattern:
 ## Prerequisites
 
 1. **Rust Toolchain:** A standard Rust installation managed by `rustup`.
-2. **zkVM-Specific Toolchains:** Each zkVM requires its own SDK and potentially a custom Rust toolchain/target. Please refer to the specific zkVM guest directory in `ere-guests/` (e.g., `ere-guests/sp1/README.md`, `ere-guests/openvm/README.md`) for detailed setup instructions for that platform.
+2. **zkVM-Specific Toolchains:** Each zkVM requires its own SDK and potentially a custom Rust toolchain/target. Please refer to the specific zkVM guest directory in `ere-guests/` (e.g., `ere-guests/stateless-validator/sp1/README.md`, `ere-guests/stateless-validator/openvm/README.md`) for detailed setup instructions for that platform.
 3. **Git:** Required for cloning the repository :)
 4. **Common Shell Utilities:** The scripts in the `./scripts` directory require a `bash`-compatible shell and standard utilities like `curl`, `jq`, and `tar`.
 
@@ -116,25 +122,54 @@ This repository contains an `xtask` that will automate this process by calling `
 
 5. **Run Benchmarks:**
 
-    Navigate to `crates/ere-hosts/` and run benchmarks using the generated fixture files:
+    Navigate to `crates/ere-hosts/` and run benchmarks using the generated fixture files. You must specify which guest program type to benchmark:
 
     ```bash
     cd crates/ere-hosts
-    cargo run --release --features sp1
-    cargo run --release --features "sp1,risc0"
+    
+    # Run Ethereum stateless validator benchmarks
+    cargo run --release --features sp1 -- stateless-validator
+    cargo run --release --features "sp1,risc0" -- stateless-validator
+    
+    # Run empty program benchmarks (for measuring zkVM overhead)
+    cargo run --release --features sp1 -- empty-program
+    
+    # Use custom input folder for stateless validator benchmarks
+    cargo run --release --features sp1 -- stateless-validator --input-folder my-fixtures
     ```
 
     See the respective README files in each crate for detailed usage instructions.
 
 ## Supported zkVM Benchmarks
 
-| zkVM             | Guest Path            | Host Path           | Metrics Output             |
-| ---------------- | --------------------- | ------------------- | -------------------------- |
-| **Succinct SP1** | `ere-guests/sp1/`     | `crates/ere-hosts/` | `zkevm-metrics/sp1/`       |
-| **RISC0**        | `ere-guests/risc0/`   | `crates/ere-hosts/` | `zkevm-metrics/risc0/`     |
-| **OpenVM**       | `ere-guests/openvm/`  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
-| **Pico**         | `ere-guests/pico/`    | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
-| **Zisk**         | `ere-guests/zisk/`    | `crates/ere-hosts/` | `zkevm-metrics/zisk/`      |
+| zkVM             | Stateless Validator Path                    | Empty Program Path                 | Host Path           | Metrics Output             |
+| ---------------- | ------------------------------------------- | ---------------------------------- | ------------------- | -------------------------- |
+| **Succinct SP1** | `ere-guests/stateless-validator/sp1/`       | `ere-guests/empty-program/sp1/`    | `crates/ere-hosts/` | `zkevm-metrics/sp1/`       |
+| **RISC0**        | `ere-guests/stateless-validator/risc0/`     | *Not implemented*                  | `crates/ere-hosts/` | `zkevm-metrics/risc0/`     |
+| **OpenVM**       | `ere-guests/stateless-validator/openvm/`    | *Not implemented*                  | `crates/ere-hosts/` | `zkevm-metrics/openvm/`    |
+| **Pico**         | `ere-guests/stateless-validator/pico/`      | *Not implemented*                  | `crates/ere-hosts/` | `zkevm-metrics/pico/`      |
+| **Zisk**         | `ere-guests/stateless-validator/zisk/`      | *Not implemented*                  | `crates/ere-hosts/` | `zkevm-metrics/zisk/`      |
+
+## Adding New Guest Program Types
+
+The architecture is designed to be extensible. To add a new guest program type:
+
+1. **Create the guest program directory structure:**
+   ```
+   ere-guests/your-new-program-type/
+   ├── sp1/
+   │   ├── Cargo.toml
+   │   └── src/main.rs
+   ├── risc0/
+   │   ├── Cargo.toml
+   │   └── src/main.rs
+   └── ... (other zkVMs)
+   ```
+
+2. **Add the new command to `ere-hosts`:**
+   - Add a new variant to the `GuestProgramCommand` enum in `crates/ere-hosts/src/main.rs`
+   - Add corresponding logic to handle the new guest program type
+   - Update the `get_zkvm_instances` function to point to the correct subdirectory
 
 ## CI/CD and Docker Support
 
