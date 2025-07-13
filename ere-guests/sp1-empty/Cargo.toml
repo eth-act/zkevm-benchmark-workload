@@ -1,0 +1,9 @@
+[package]
+name = "succinct-empty-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+sp1-zkvm.workspace = true
