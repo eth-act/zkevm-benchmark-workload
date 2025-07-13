@@ -121,7 +121,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         })
         .collect::<Result<Vec<BlockAndWitness>, _>>()?;
 
-    #[allow(unused_assignments)]
     #[allow(clippy::redundant_clone)]
     {
         let run_config = RunConfig {
