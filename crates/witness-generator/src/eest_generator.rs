@@ -16,7 +16,8 @@ use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_chainspec::ChainSpec;
+use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
@@ -165,6 +166,9 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let bws: Result<Vec<_>> = tests
             .par_iter()
             .map(|(name, case)| {
+                let chain_spec: ChainSpec = case.network.into();
+                let config = chain_spec.genesis.config;
+
                 Ok(BlockAndWitness {
                     name: name.to_string(),
                     block_and_witness: run_case(case)?
@@ -175,7 +179,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                             witness,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    network: ForkSpec::from(case.network),
+                    network: config,
                 })
             })
             .collect();
