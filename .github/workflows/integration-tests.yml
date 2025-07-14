@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ main, master, jsign-integration-test ]
+    branches: [ main, master ]
     schedule:
       - cron: '0 0 * * *'
 env:
