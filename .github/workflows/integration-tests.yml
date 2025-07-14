@@ -1,0 +1,89 @@
+name: Integration tests
+on:
+  push:
+    branches: [ main, master ]
+    schedule:
+      - cron: '0 0 * * *'
+  workflow_dispatch:
+env:
+  CARGO_TERM_COLOR: always
+
+jobs: 
+  witness-generator:
+    name: Generate EEST benchmark fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
+      
+      - name: Download and Extract Fixtures
+        run: |
+          chmod +x ./scripts/download-and-extract-fixtures.sh
+          ./scripts/download-and-extract-fixtures.sh
+      
+      # This step is temporary until a new benchmark release is done.
+      - name: Delete prague fixtures
+        run: rm -rf ./zkevm-fixtures/fixtures/blockchain_tests/prague
+
+      - name: Generate benchmark fixtures
+        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include keccak --include Prague
+
+      - name: Check zkevm-fixtures-input folder has at least 1 file
+        run: |
+          echo "Files in zkevm-fixtures-input folder:"
+          ls -l ./zkevm-fixtures-input
+          if [ -z "$(ls -A ./zkevm-fixtures-input)" ]; then
+            echo "zkevm-fixtures-input folder is empty"
+            exit 1
+          fi
+
+  sp1-empty-program:
+    name: SP1 - Run empty program
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        action: [execute, prove]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install SP1
+        run: |
+          curl -L https://sp1up.succinct.xyz | bash
+          echo "$HOME/.sp1/bin" >> $GITHUB_PATH
+
+      - name: Run sp1up
+        run: sp1up
+
+      - name: Run benchmark
+        run: RUST_LOG=info cargo run -p ere-hosts --release --features sp1 -- --action ${{ matrix.action }} empty-program
+      
+      - name: Check zkevm-metrics folder
+        run: |
+          find ./zkevm-metrics
+          if [ ! -d "./zkevm-metrics" ]; then
+            echo "zkevm-metrics folder does not exist"
+            exit 1
+          fi
+          if [ ! -f "./zkevm-metrics/hardware.json" ]; then
+            echo "hardware.json file does not exist in zkevm-metrics folder"
+            exit 1
+          fi
+          sp1_folder=$(find ./zkevm-metrics -type d -name "sp1-*" | head -n 1)
+          if [ -z "$sp1_folder" ]; then
+            echo "No SP1 folder found in zkevm-metrics"
+            exit 1
+          fi
+          if [ ! -f "$sp1_folder/empty_program.json" ]; then
+            echo "empty_program.json file does not exist in SP1 folder"
+            exit 1
+          fi
