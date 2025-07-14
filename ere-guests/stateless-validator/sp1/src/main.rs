@@ -19,10 +19,10 @@ pub fn main() {
 
     println!("cycle-tracker-report-start: read_input");
     let input = sp1_zkvm::io::read::<StatelessInput>();
-    let chain_config = sp1_zkvm::io::read::<ChainConfig>();
+    let config = sp1_zkvm::io::read::<ChainConfig>();
     let genesis = Genesis {
         config,
-        ... Default::default()
+        ..Default::default()
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
