@@ -34,6 +34,8 @@ jobs:
 
       - name: Check zkevm-fixtures-input folder has at least 1 file
         run: |
+          echo "Files in zkevm-fixtures-input folder:"
+          ls -l ./zkevm-fixtures-input
           if [ -z "$(ls -A ./zkevm-fixtures-input)" ]; then
             echo "zkevm-fixtures-input folder is empty"
             exit 1
@@ -62,6 +64,7 @@ jobs:
       
       - name: Check zkevm-metrics folder
         run: |
+          find ./zkevm-metrics
           if [ ! -d "./zkevm-metrics" ]; then
             echo "zkevm-metrics folder does not exist"
             exit 1
