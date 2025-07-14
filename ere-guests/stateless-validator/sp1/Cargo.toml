@@ -19,7 +19,7 @@ reth-primitives-traits = { workspace = true, features = [
 reth-evm-ethereum = { workspace = true }
 reth-chainspec = { workspace = true }
 
-revm = { version = "26.0.1", default-features = false, features = [
+revm = { version = "27.0.2", default-features = false, features = [
     "kzg-rs",
     "bn",
 ] }
