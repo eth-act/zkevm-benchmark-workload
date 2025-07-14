@@ -41,9 +41,13 @@ jobs:
             exit 1
           fi
 
-  sp1-execute-empty-program:
+  sp1-empty-program:
     name: SP1- Execute empty program
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        action: [execute, prove]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -60,7 +64,7 @@ jobs:
         run: sp1up
 
       - name: Execute
-        run: RUST_LOG=info cargo run -p ere-hosts --release --features sp1 -- --action execute empty-program
+        run: RUST_LOG=info cargo run -p ere-hosts --release --features sp1 -- --action ${{ matrix.action }} empty-program
       
       - name: Check zkevm-metrics folder
         run: |
