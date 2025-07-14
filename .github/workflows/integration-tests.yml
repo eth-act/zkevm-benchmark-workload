@@ -1,0 +1,61 @@
+name: Integration tests
+on:
+  push:
+    branches: [ main, master, jsign-integration-test ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs: 
+  # witness-generator:
+  #   name: Checks on non ere-hosts crates
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v4
+
+  #     - name: Install Rust toolchain
+  #       uses: dtolnay/rust-toolchain@nightly
+  #       with:
+  #         components: clippy, rustfmt
+      
+  #     - name: Cache dependencies
+  #       uses: Swatinem/rust-cache@v2
+  #       with:
+  #         key: base 
+
+  #     - name: Check formatting
+  #       run: cargo fmt --check --all
+
+  #     - name: Check clippy
+  #       run: cargo clippy --bins --lib --examples --tests --benches --all-features -p witness-generator -p zkevm-metrics -p benchmark-runner
+
+  #     - name: Run tests
+  #       env:
+  #         RPC_URL: ${{ secrets.RPC_URL }}
+  #         RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
+  #       run: cargo test -p zkevm-metrics -p witness-generator -- --no-capture
+ 
+  sp1-execute-empty-program:
+    name: SP1- Execute empty program
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
+      - name: Install SP1
+        run: curl -L https://sp1up.succinct.xyz | bash
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.zkvm }}
+
+      - name: Execute
+        run: RUST_LOG=info cargo run -p ere-hosts --release --features sp1 -- --action execute empty-program
