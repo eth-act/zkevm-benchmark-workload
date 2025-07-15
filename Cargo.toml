@@ -105,12 +105,12 @@ witness-generator = { path = "crates/witness-generator" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "zkvm-interface" }
-ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "ere-sp1" }
-ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "ere-risczero" }
-ere-pico = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "ere-pico" }
-ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "ere-openvm" }
-ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.5", package = "ere-zisk" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "zkvm-interface" }
+ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "ere-sp1" }
+ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "ere-risczero" }
+ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "ere-pico" }
+ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "ere-openvm" }
+ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "82e9f9aae06f045eda21d79940aaf1f1981265b1", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
@@ -141,11 +141,3 @@ tokio = { version = "1.45.1" }
 tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-
-[patch."https://github.com/eth-applied-research-group/ere"]
-zkvm-interface = { path = "../ere/crates/zkvm-interface" }
-ere-sp1 = { path = "../ere/crates/ere-sp1" }
-ere-risczero = { path = "../ere/crates/ere-risczero" }
-ere-pico = { path = "../ere/crates/ere-pico" }
-ere-openvm = { path = "../ere/crates/ere-openvm" }
-ere-zisk = { path = "../ere/crates/ere-zisk" }
