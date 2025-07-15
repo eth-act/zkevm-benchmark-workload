@@ -135,7 +135,6 @@ where
     let block_used_gas = bw.block_and_witness.block.gas_used;
     let mut stdin = Input::new();
     stdin.write(bw.block_and_witness.clone());
-    stdin.write(bw.network.clone());
 
     info!("Running {}", bw.name);
     let (execution, proving) = match run_config.action {

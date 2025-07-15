@@ -177,9 +177,9 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                         .map(|(recovered_block, witness)| StatelessInput {
                             block: recovered_block.into_block(),
                             witness,
+                            chain_config: config,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    network: config,
                 })
             })
             .collect();

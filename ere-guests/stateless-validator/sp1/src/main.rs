@@ -9,7 +9,7 @@ use alloc::sync::Arc;
 
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{validation::stateless_validation, ChainConfig, Genesis, StatelessInput};
+use reth_stateless::{validation::stateless_validation, Genesis, StatelessInput};
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);
@@ -19,9 +19,8 @@ pub fn main() {
 
     println!("cycle-tracker-report-start: read_input");
     let input = sp1_zkvm::io::read::<StatelessInput>();
-    let config = sp1_zkvm::io::read::<ChainConfig>();
     let genesis = Genesis {
-        config,
+        config: input.chain_config.clone(),
         ..Default::default()
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());

@@ -200,8 +200,8 @@ impl RpcBlocksAndWitnesses {
                 block_and_witness: StatelessInput {
                     block: block.into_consensus(),
                     witness,
+                    chain_config: MAINNET.genesis.config.clone(),
                 },
-                network: MAINNET.genesis.config.clone(),
             });
         }
 
@@ -239,8 +239,8 @@ impl RpcBlocksAndWitnesses {
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
                 witness,
+                chain_config: MAINNET.genesis.config.clone(),
             },
-            network: MAINNET.genesis.config.clone(),
         };
 
         Ok(bw)

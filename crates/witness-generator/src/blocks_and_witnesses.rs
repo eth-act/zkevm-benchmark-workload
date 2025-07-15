@@ -2,7 +2,7 @@ use std::{fs, io, path::Path};
 
 use anyhow::Result;
 use async_trait::async_trait;
-use reth_stateless::{ChainConfig, StatelessInput};
+use reth_stateless::StatelessInput;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
@@ -17,11 +17,6 @@ pub struct BlockAndWitness {
     pub name: String,
     /// The block and witness pair for the test case.
     pub block_and_witness: StatelessInput,
-    /// The network fork specification (e.g., Shanghai, Cancun, Prague) active for this test case.
-    // TODO: Don't think we want to pass this through maybe ForkSpec
-    // TODO: Also Genesis file is wrong in chainspec
-    // TODO: We can keep this initially and don't measure the time it takes to deserialize
-    pub network: ChainConfig,
 }
 
 /// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.
