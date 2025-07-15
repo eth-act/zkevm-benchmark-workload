@@ -8,9 +8,10 @@ use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
     tracing::{error, info},
 };
+use reth_chainspec::MAINNET;
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::StatelessInput;
 use std::{path::Path, str::FromStr};
 use tokio_util::sync::CancellationToken;
 
@@ -199,11 +200,8 @@ impl RpcBlocksAndWitnesses {
                 block_and_witness: StatelessInput {
                     block: block.into_consensus(),
                     witness,
+                    chain_config: MAINNET.genesis.config.clone(),
                 },
-                // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
-                // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
-                // HardForks enum.
-                network: ForkSpec::Prague,
             });
         }
 
@@ -241,11 +239,8 @@ impl RpcBlocksAndWitnesses {
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
                 witness,
+                chain_config: MAINNET.genesis.config.clone(),
             },
-            // FIXME: this should be dynamic based on the block, but might be useful to see if the stateless
-            // reth crate can help with this probably avoiding the ForkSpec enum and using the existing
-            // HardForks enum.
-            network: ForkSpec::Prague,
         };
 
         Ok(bw)
