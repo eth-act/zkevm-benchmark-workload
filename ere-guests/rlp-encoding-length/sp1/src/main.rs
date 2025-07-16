@@ -8,7 +8,7 @@ sp1_zkvm::entrypoint!(main);
 /// Entry point.
 pub fn main() {
     println!("cycle-tracker-report-start: read_input");
-    let block = sp1_zkvm::io::read::<reth_ethereum_primitives::Block>();
+    let block = sp1_zkvm::io::read::<reth_stateless::BincodeBlock>();
     let iterations = sp1_zkvm::io::read::<u16>();
     println!("cycle-tracker-report-end: read_input");
 

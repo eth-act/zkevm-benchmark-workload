@@ -34,7 +34,7 @@ pub fn run_benchmark_rlp_encoding_length(
     zkvm_name: &str,
     zkvm_instance: Box<dyn zkVM + Sync>,
     run_config: &RunConfig,
-    blocks: &[witness_generator::Block],
+    blocks: &[witness_generator::BincodeBlock],
     loop_count: u16,
 ) -> anyhow::Result<()> {
     HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
@@ -61,7 +61,7 @@ pub fn run_benchmark_rlp_encoding_length(
 }
 
 fn process_blocks<V>(
-    block: &witness_generator::Block,
+    block: &witness_generator::BincodeBlock,
     loop_count: u16,
     zkvm_ref: Arc<V>,
     host_name: &str,
@@ -84,7 +84,10 @@ where
     stdin.write(block.clone());
     stdin.write(loop_count);
 
-    info!("Running {}", block.number);
+    info!(
+        "Running RLP encoding length for block hash {}",
+        block.header.hash_slow(),
+    );
     let (execution, proving) = match run_config.action {
         Action::Execute => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));

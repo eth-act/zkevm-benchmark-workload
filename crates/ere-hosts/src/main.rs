@@ -203,12 +203,14 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             serde_json::from_slice(&content).map_err(|e| {
                                 anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
                             })?;
-                        Ok(blocks_and_witnesses.block_and_witness.block)
+                        Ok(witness_generator::BincodeBlock(
+                            blocks_and_witnesses.block_and_witness.block,
+                        ))
                     } else {
                         anyhow::bail!("Invalid input folder structure: expected files only")
                     }
                 })
-                .collect::<Result<Vec<witness_generator::Block>, _>>()?;
+                .collect::<Result<Vec<witness_generator::BincodeBlock>, _>>()?;
 
             let zkvms_instances =
                 get_zkvm_instances(&guest_programs_dir.join("rlp-encoding-length"), resource)?;

@@ -10,5 +10,4 @@ pub mod rpc_generator;
 
 pub use blocks_and_witnesses::{BlockAndWitness, BwError, WitnessGenerator};
 
-// TEMP(PR): prob reth_stateless could re-export this inside blocks_and_witnessses module
-pub use reth_ethereum_primitives::Block;
+pub use reth_stateless::BincodeBlock;
