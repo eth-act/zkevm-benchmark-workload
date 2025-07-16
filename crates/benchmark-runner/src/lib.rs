@@ -70,7 +70,7 @@ fn process_blocks<V>(
 where
     V: zkVM + Sync,
 {
-    let name = format!("rlp_encoding_length-block_{}", block.number);
+    let name = format!("rlp_encoding_length-block_{}", block.hash_slow());
     let out_path = run_config
         .output_folder
         .join(format!("{host_name}/{name}.json"));
@@ -84,10 +84,7 @@ where
     stdin.write(block.clone());
     stdin.write(loop_count);
 
-    info!(
-        "Running RLP encoding length for block hash {}",
-        block.header.hash_slow(),
-    );
+    info!("Running RLP encoding length for {name}");
     let (execution, proving) = match run_config.action {
         Action::Execute => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));
