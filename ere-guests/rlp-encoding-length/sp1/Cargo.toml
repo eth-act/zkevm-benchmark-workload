@@ -1,0 +1,19 @@
+[package]
+name = "succinct-rlp-encoding-length"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+sp1-zkvm = "5.0.5"
+tracing = "*"
+tracing-subscriber = "*"
+
+alloy-consensus = "1.0.22"
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68", features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+
+[patch.crates-io]
