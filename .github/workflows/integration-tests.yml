@@ -56,14 +56,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Install SP1
-        run: |
-          curl -L https://sp1up.succinct.xyz | bash
-          echo "$HOME/.sp1/bin" >> $GITHUB_PATH
-
-      - name: Run sp1up
-        run: sp1up
-
       - name: Run benchmark
         run: RUST_LOG=info cargo run -p ere-hosts --release --features sp1 -- --action ${{ matrix.action }} empty-program
       

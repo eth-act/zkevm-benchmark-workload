@@ -11,3 +11,5 @@ zkevm-metrics
 
 # private envrc file
 .envrc
+
+ere-guests/**/Cargo.lock

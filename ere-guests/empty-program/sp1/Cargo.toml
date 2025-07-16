@@ -1,9 +1,11 @@
 [package]
 name = "succinct-empty-guest"
-version.workspace = true
-edition.workspace = true
-rust-version.workspace = true
-license.workspace = true
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
 
 [dependencies]
-sp1-zkvm.workspace = true
+sp1-zkvm = "5.0.5"
+
+[patch.crates-io]

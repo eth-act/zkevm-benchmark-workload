@@ -194,7 +194,7 @@ fn get_zkvm_instances(
     {
         #[cfg(feature = "sp1")]
         {
-            run_cargo_patch_command("sp1")?;
+            run_cargo_patch_command("sp1", Some(guest_program_folder))?;
             let program = RV32_IM_SUCCINCT_ZKVM_ELF::compile(&guest_program_folder.join("sp1"))?;
             let zkvm = EreSP1::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
@@ -205,7 +205,7 @@ fn get_zkvm_instances(
 
         #[cfg(feature = "zisk")]
         {
-            run_cargo_patch_command("zisk")?;
+            run_cargo_patch_command("zisk", None)?;
             let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&guest_program_folder.join("zisk"))?;
             let zkvm = EreZisk::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
@@ -216,7 +216,7 @@ fn get_zkvm_instances(
 
         #[cfg(feature = "risc0")]
         {
-            run_cargo_patch_command("risc0")?;
+            run_cargo_patch_command("risc0", None)?;
             let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&guest_program_folder.join("risc0"))?;
             let zkvm = EreRisc0::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
@@ -227,7 +227,7 @@ fn get_zkvm_instances(
 
         #[cfg(feature = "openvm")]
         {
-            run_cargo_patch_command("openvm")?;
+            run_cargo_patch_command("openvm", None)?;
             let program = OPENVM_TARGET::compile(&guest_program_folder.join("openvm"))?;
             let zkvm = EreOpenVM::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
@@ -238,7 +238,7 @@ fn get_zkvm_instances(
 
         #[cfg(feature = "pico")]
         {
-            run_cargo_patch_command("pico")?;
+            run_cargo_patch_command("pico", None)?;
             let program = PICO_TARGET::compile(&guest_program_folder.join("pico"))?;
             let zkvm = ErePico::new(program, resource.clone());
             name_zkvms.push(zkVMInstance {
@@ -251,10 +251,19 @@ fn get_zkvm_instances(
 }
 
 /// Patches the precompiles for a specific zkvm
-fn run_cargo_patch_command(zkvm_name: &str) -> Result<(), Box<dyn std::error::Error>> {
+fn run_cargo_patch_command(
+    zkvm_name: &str,
+    guest_program_type_folder: Option<&Path>,
+) -> Result<(), Box<dyn std::error::Error>> {
     info!("Running cargo {}...", zkvm_name);
 
-    let output = Command::new("cargo").arg(zkvm_name).output()?;
+    let mut cmd = Command::new("cargo");
+    cmd.arg(zkvm_name);
+    if let Some(guest_program_type_folder) = guest_program_type_folder {
+        cmd.arg("--manifest-folder")
+            .arg(guest_program_type_folder.join(zkvm_name));
+    }
+    let output = cmd.output()?;
 
     if !output.status.success() {
         let stderr = String::from_utf8_lossy(&output.stderr);

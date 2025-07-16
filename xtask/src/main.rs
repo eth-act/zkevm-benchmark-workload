@@ -27,6 +27,10 @@ struct Cli {
     /// Patch-set name (file stem of precompile-patches/<name>.toml)
     patch: String,
 
+    #[arg(long)]
+    /// Path to the Cargo manifest file to patch
+    manifest_folder: Option<PathBuf>,
+
     /// Everything after <patch> is passed straight to Cargo
     cargo_args: Vec<String>,
 }
@@ -34,10 +38,12 @@ struct Cli {
 fn main() -> Result<()> {
     let cli = Cli::parse();
 
-    // workspace-root/Cargo.toml  (xtask is at <root>/xtask)
     let ws_root = workspace_root();
-    let ere_guests_dir = ws_root.join("ere-guests");
-    let manifest_path = ere_guests_dir.join("Cargo.toml");
+
+    let manifest_folder = cli
+        .manifest_folder
+        .unwrap_or_else(|| ws_root.join("ere-guests"));
+    let manifest_path = manifest_folder.join("Cargo.toml");
 
     // 1 ── read root manifest
     let manifest_src = fs::read_to_string(&manifest_path)
@@ -87,7 +93,7 @@ fn main() -> Result<()> {
 
     // 5 ── forward to Cargo
     let status = Command::new("cargo")
-        .current_dir(ere_guests_dir)
+        .current_dir(manifest_folder)
         .args(&cli.cargo_args)
         .status()
         .context("failed to invoke cargo")?;
