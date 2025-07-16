@@ -12,7 +12,8 @@
 compile_error!("please enable one of the zkVM's using the appropriate feature flag");
 
 use benchmark_runner::{
-    Action, RunConfig, run_benchmark_empty_program, run_benchmark_stateless_validator,
+    Action, RunConfig, run_benchmark_empty_program, run_benchmark_rlp_encoding_length,
+    run_benchmark_stateless_validator,
 };
 use clap::{Parser, Subcommand, ValueEnum};
 use rayon::prelude::*;
@@ -77,6 +78,17 @@ enum GuestProgramCommand {
     },
     /// Empty program
     EmptyProgram,
+
+    /// Block RLP length calculator
+    RlpEncodingLength {
+        /// Input folder for benchmark results
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
+
+        /// Number of times to loop the benchmark
+        #[arg(long)]
+        loop_count: u16,
+    },
 }
 
 #[derive(Clone, ValueEnum)]
@@ -172,6 +184,42 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 get_zkvm_instances(&guest_programs_dir.join("empty-program"), resource)?;
             for instance in zkvms_instances {
                 run_benchmark_empty_program(&instance.name, instance.instance, &run_config)?;
+            }
+        }
+        GuestProgramCommand::RlpEncodingLength {
+            input_folder,
+            loop_count,
+        } => {
+            info!("Running rlp encoding length benchmarks");
+            let blocks = WalkDir::new(input_folder)
+                .min_depth(1)
+                .into_iter()
+                .collect::<Result<Vec<_>, _>>()?
+                .into_par_iter()
+                .map(|entry| {
+                    if entry.file_type().is_file() {
+                        let content = std::fs::read(entry.path())?;
+                        let blocks_and_witnesses: BlockAndWitness =
+                            serde_json::from_slice(&content).map_err(|e| {
+                                anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
+                            })?;
+                        Ok(blocks_and_witnesses.block_and_witness.block)
+                    } else {
+                        anyhow::bail!("Invalid input folder structure: expected files only")
+                    }
+                })
+                .collect::<Result<Vec<witness_generator::Block>, _>>()?;
+
+            let zkvms_instances =
+                get_zkvm_instances(&guest_programs_dir.join("rlp-encoding-length"), resource)?;
+            for instance in zkvms_instances {
+                run_benchmark_rlp_encoding_length(
+                    &instance.name,
+                    instance.instance,
+                    &run_config,
+                    &blocks,
+                    *loop_count,
+                )?;
             }
         }
     }
