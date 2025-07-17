@@ -1,0 +1,20 @@
+[package]
+name = "guest-libs"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+reth-primitives-traits.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+alloy-consensus.workspace = true
+
+serde = { workspace = true, features = ["derive"] }
+serde_with.workspace = true
+
+[lints]
+workspace = true

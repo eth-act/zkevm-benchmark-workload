@@ -16,6 +16,7 @@ use benchmark_runner::{
     run_benchmark_stateless_validator,
 };
 use clap::{Parser, Subcommand, ValueEnum};
+use guest_libs::BincodeBlock;
 use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
@@ -203,14 +204,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                             serde_json::from_slice(&content).map_err(|e| {
                                 anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
                             })?;
-                        Ok(witness_generator::BincodeBlock(
-                            blocks_and_witnesses.block_and_witness.block,
-                        ))
+                        Ok(BincodeBlock(blocks_and_witnesses.block_and_witness.block))
                     } else {
                         anyhow::bail!("Invalid input folder structure: expected files only")
                     }
                 })
-                .collect::<Result<Vec<witness_generator::BincodeBlock>, _>>()?;
+                .collect::<Result<Vec<BincodeBlock>, _>>()?;
 
             let zkvms_instances =
                 get_zkvm_instances(&guest_programs_dir.join("rlp-encoding-length"), resource)?;

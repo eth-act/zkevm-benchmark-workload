@@ -2,6 +2,7 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+use guest_libs::BincodeBlock;
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use tracing::info;
@@ -34,7 +35,7 @@ pub fn run_benchmark_rlp_encoding_length(
     zkvm_name: &str,
     zkvm_instance: Box<dyn zkVM + Sync>,
     run_config: &RunConfig,
-    blocks: &[witness_generator::BincodeBlock],
+    blocks: &[BincodeBlock],
     loop_count: u16,
 ) -> anyhow::Result<()> {
     HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
@@ -61,7 +62,7 @@ pub fn run_benchmark_rlp_encoding_length(
 }
 
 fn process_blocks<V>(
-    block: &witness_generator::BincodeBlock,
+    block: &BincodeBlock,
     loop_count: u16,
     zkvm_ref: Arc<V>,
     host_name: &str,
