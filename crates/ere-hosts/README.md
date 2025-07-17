@@ -12,12 +12,13 @@ The benchmarker supports multiple guest program types:
 
 - **`stateless-validator`**: Runs Ethereum stateless block validation logic. Requires input fixture files containing `BlockAndWitness` data.
 - **`empty-program`**: Runs minimal programs to measure zkVM overhead without the computational complexity of Ethereum validation.
+- **`rlp-encoding-length`**: Measures the performance of calculating RLP encoded length of Ethereum blocks. Requires input fixture files containing `BlockAndWitness` data and accepts a `--loop-count` parameter to control the number of iterations.
 
 ## Prerequisites
 
 Before running benchmarks:
 
-1. **For `stateless-validator` benchmarks:** You must first generate fixture files using the `witness-generator-cli` binary:
+1. **For `stateless-validator` and `rlp-encoding-length` benchmarks:** You must first generate fixture files using the `witness-generator-cli` binary:
 
    ```bash
    cd ../witness-generator-cli
@@ -45,7 +46,7 @@ The benchmarker uses Cargo feature flags to control which zkVMs are compiled int
 
 **Note:** Unlike the previous version, you must:
 1. Specify which guest program type to benchmark
-2. For `stateless-validator`: Generate fixture files using the `witness-generator-cli` binary
+2. For `stateless-validator` and `rlp-encoding-length`: Generate fixture files using the `witness-generator-cli` binary
 3. Explicitly specify which zkVMs to include via feature flags
 
 Run stateless validator benchmarks with SP1:
@@ -58,6 +59,12 @@ Run empty program benchmarks with SP1:
 
 ```bash
 cargo run --features sp1 -- empty-program
+```
+
+Run RLP encoding length benchmarks with SP1:
+
+```bash
+cargo run --features sp1 -- rlp-encoding-length --loop-count 100
 ```
 
 Build and run with multiple zkVMs for stateless validation:
@@ -74,7 +81,7 @@ cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
 
 ### Input Source Configuration
 
-For `stateless-validator` benchmarks, the tool reads pre-generated fixture files from an input directory:
+For `stateless-validator` and `rlp-encoding-length` benchmarks, the tool reads pre-generated fixture files from an input directory:
 
 ```bash
 # Use default input directory (zkevm-fixtures-input/)
@@ -82,6 +89,9 @@ cargo run --features sp1 -- stateless-validator
 
 # Specify custom input directory
 cargo run --features sp1 -- stateless-validator --input-folder my-fixtures
+
+# RLP encoding length benchmarks also support custom input directories
+cargo run --features sp1 -- rlp-encoding-length --input-folder my-fixtures --loop-count 50
 ```
 
 For `empty-program` benchmarks, no input files are required:

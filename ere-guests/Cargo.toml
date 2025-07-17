@@ -10,6 +10,9 @@ members = [
 
     # Empty program
     "empty-program/sp1",
+
+    # RLP encoding
+    "rlp-encoding-length/sp1",
 ]
 resolver = "2"
 

@@ -2,6 +2,7 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+use guest_libs::BincodeBlock;
 use rayon::prelude::*;
 use std::{any::Any, panic, path::PathBuf, sync::Arc};
 use tracing::info;
@@ -29,7 +30,112 @@ pub enum Action {
     Execute,
 }
 
-/// Runs the benchmark for a given zkVM instance and empty program.
+/// Runs the benchmark for a given zkVM instance and RLP encoding length program.
+pub fn run_benchmark_rlp_encoding_length(
+    zkvm_name: &str,
+    zkvm_instance: Box<dyn zkVM + Sync>,
+    run_config: &RunConfig,
+    blocks: &[BincodeBlock],
+    loop_count: u16,
+) -> anyhow::Result<()> {
+    HardwareInfo::detect().to_path(run_config.output_folder.join("hardware.json"))?;
+
+    info!("Benchmarking `{}`…", zkvm_name);
+    let zkvm_ref = Arc::new(&zkvm_instance);
+
+    match run_config.action {
+        Action::Execute => {
+            // Use parallel iteration for execution
+            blocks.into_par_iter().try_for_each(|block| {
+                process_blocks(block, loop_count, zkvm_ref.clone(), zkvm_name, run_config)
+            })?;
+        }
+        Action::Prove => {
+            // Use sequential iteration for proving
+            blocks.iter().try_for_each(|block| {
+                process_blocks(block, loop_count, zkvm_ref.clone(), zkvm_name, run_config)
+            })?;
+        }
+    }
+
+    Ok(())
+}
+
+fn process_blocks<V>(
+    block: &BincodeBlock,
+    loop_count: u16,
+    zkvm_ref: Arc<V>,
+    host_name: &str,
+    run_config: &RunConfig,
+) -> anyhow::Result<()>
+where
+    V: zkVM + Sync,
+{
+    let name = format!("rlp_encoding_length-block_{}", block.hash_slow());
+    let out_path = run_config
+        .output_folder
+        .join(format!("{host_name}/{name}.json"));
+
+    if !run_config.force_rerun && out_path.exists() {
+        info!("Skipping {} (already exists)", &name);
+        return Ok(());
+    }
+
+    let mut stdin = Input::new();
+    stdin.write(block.clone());
+    stdin.write(loop_count);
+
+    info!("Running RLP encoding length for {name}");
+    let (execution, proving) = match run_config.action {
+        Action::Execute => {
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.execute(&stdin)));
+            let execution = match run {
+                Ok(Ok(report)) => ExecutionMetrics::Success {
+                    total_num_cycles: report.total_num_cycles,
+                    region_cycles: report.region_cycles.into_iter().collect(),
+                    execution_duration: report.execution_duration,
+                },
+                Ok(Err(e)) => ExecutionMetrics::Crashed(CrashInfo {
+                    reason: e.to_string(),
+                }),
+                Err(panic_info) => ExecutionMetrics::Crashed(CrashInfo {
+                    reason: get_panic_msg(panic_info),
+                }),
+            };
+            (Some(execution), None)
+        }
+        Action::Prove => {
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm_ref.prove(&stdin)));
+            let proving = match run {
+                Ok(Ok((proof, report))) => ProvingMetrics::Success {
+                    proof_size: proof.len(),
+                    proving_time_ms: report.proving_time.as_millis(),
+                },
+                Ok(Err(e)) => ProvingMetrics::Crashed(CrashInfo {
+                    reason: e.to_string(),
+                }),
+                Err(panic_info) => ProvingMetrics::Crashed(CrashInfo {
+                    reason: get_panic_msg(panic_info),
+                }),
+            };
+            (None, Some(proving))
+        }
+    };
+    let report = BenchmarkRun {
+        name: name.clone(),
+        timestamp_completed: zkevm_metrics::chrono::Utc::now(),
+        block_used_gas: 0,
+        execution,
+        proving,
+    };
+
+    info!("Saving report for {}", name);
+    BenchmarkRun::to_path(out_path, &[report])?;
+
+    Ok(())
+}
+
+/// Runs the benchmark for a given zkVM instance with an empty program
 pub fn run_benchmark_empty_program(
     zkvm_name: &str,
     zkvm_instance: Box<dyn zkVM + Sync>,

@@ -4,10 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-rayon.workspace = true
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
 zkvm-interface.workspace = true
+guest-libs.workspace = true
+
+rayon.workspace = true
 tracing.workspace = true
 anyhow = "*"
 
