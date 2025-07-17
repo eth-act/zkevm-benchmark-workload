@@ -6,17 +6,18 @@ rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "75092d6aa098311db96c06b97a252a6f2b42dbaf", features = [
-    "serde",
-    "serde-bincode-compat",
-] }
-
 sp1-zkvm = "5.0.5"
-alloy-consensus = { version = "1.0.18", default-features = false }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "75092d6aa098311db96c06b97a252a6f2b42dbaf" }
+
 tracing = "*"
 tracing-subscriber = "*"
 serde = { version = "1.0", default-features = false, features = ["derive"] }
 serde_with = "3"
+
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "75092d6aa098311db96c06b97a252a6f2b42dbaf", features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+alloy-consensus = { version = "1.0.18", default-features = false }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "75092d6aa098311db96c06b97a252a6f2b42dbaf" }
 
 [patch.crates-io]
