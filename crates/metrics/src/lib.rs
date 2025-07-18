@@ -10,13 +10,13 @@ use thiserror::Error;
 
 /// Represents a single benchmark run.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct BenchmarkRun<M> {
+pub struct BenchmarkRun<Metadata> {
     /// Name of the benchmark.
     pub name: String,
     /// Timestamp when the benchmark run ended.
     pub timestamp_completed: chrono::DateTime<chrono::Utc>,
     /// Metadata
-    pub metadata: M,
+    pub metadata: Metadata,
     /// Execution metrics for the benchmark run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execution: Option<ExecutionMetrics>,
@@ -156,8 +156,8 @@ impl MetricsError {
     }
 }
 
-impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
-    /// Serializes a list of `BenchmarkRun<M>` into a JSON string.
+impl<Metadata: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<Metadata> {
+    /// Serializes a list of `BenchmarkRun<Metadata>` into a JSON string.
     ///
     /// # Errors
     ///
@@ -166,7 +166,7 @@ impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
         serde_json::to_string(items).map_err(MetricsError::from)
     }
 
-    /// Deserializes a list of `BenchmarkRun<M>` from a JSON string.
+    /// Deserializes a list of `BenchmarkRun<Metadata>` from a JSON string.
     ///
     /// # Errors
     ///
@@ -192,7 +192,7 @@ impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
         Ok(())
     }
 
-    /// Reads the file at `path` and deserializes a `BenchmarkRun<M>` from its JSON content.
+    /// Reads the file at `path` and deserializes a `BenchmarkRun<Metadata>` from its JSON content.
     ///
     /// # Errors
     ///

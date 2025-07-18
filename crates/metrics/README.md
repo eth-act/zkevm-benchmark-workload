@@ -4,7 +4,7 @@ This crate provides data structures and utilities for handling workload performa
 
 ## Overview
 
-The core data structure is `BenchmarkRun<M>`, which stores:
+The core data structure is `BenchmarkRun<Metadata>`, which stores:
 
 - `name`: The name of the benchmark (e.g., `fft_bench`, `aes_bench`).
 - `timestamp_completed`: Timestamp when the benchmark run ended.
@@ -34,10 +34,10 @@ This struct can be used independently to capture system information and can be s
 
 The crate offers functionality to:
 
-- Serialize a `BenchmarkRun<M>` to a JSON string.
-- Deserialize a `BenchmarkRun<M>` from a JSON string.
-- Serialize and write a `BenchmarkRun<M>` to a file (creating parent directories if needed).
-- Read and deserialize a `BenchmarkRun<M>` from a file.
+- Serialize a `BenchmarkRun<Metadata>` to a JSON string.
+- Deserialize a `BenchmarkRun<Metadata>` from a JSON string.
+- Serialize and write a `BenchmarkRun<Metadata>` to a file (creating parent directories if needed).
+- Read and deserialize a `BenchmarkRun<Metadata>` from a file.
 
 The metadata type `M` must implement `Serialize` and `DeserializeOwned` to enable JSON serialization.
 

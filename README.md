@@ -16,7 +16,7 @@ The primary goal is to measure and compare the performance (currently in cycle c
 
 The workspace is organized into several key components:
 
-- **`crates/metrics`**: Defines common data structures (`BenchmarkRun<M>`) for storing and serializing benchmark results with generic metadata support.
+- **`crates/metrics`**: Defines common data structures (`BenchmarkRun<Metadata>`) for storing and serializing benchmark results with generic metadata support.
 - **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
 - **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder. The crate includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
