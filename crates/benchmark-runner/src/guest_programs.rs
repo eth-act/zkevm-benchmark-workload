@@ -13,8 +13,7 @@ pub trait GuestInputMetadata: Serialize + DeserializeOwned + Clone + Send + Sync
 impl GuestInputMetadata for () {}
 
 /// Represents a guest program input with associated metadata
-#[allow(missing_debug_implementations)]
-#[derive(Clone)]
+#[derive(Debug, Clone)]
 pub struct GuestInput<M: GuestInputMetadata> {
     /// The name of the guest program input.
     pub name: String,

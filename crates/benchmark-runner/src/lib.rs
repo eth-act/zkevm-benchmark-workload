@@ -4,6 +4,7 @@
 
 pub mod guest_programs;
 
+use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::path::PathBuf;
 use std::{any::Any, panic};
 use tracing::info;
@@ -43,9 +44,15 @@ where
     M: GuestInputMetadata,
 {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
-    inputs
-        .iter()
-        .try_for_each(|input| process_input(&zkvm, input, config))?;
+    match config.action {
+        Action::Execute => inputs
+            .par_iter()
+            .try_for_each(|input| process_input(&zkvm, input, config))?,
+
+        Action::Prove => inputs
+            .iter()
+            .try_for_each(|input| process_input(&zkvm, input, config))?,
+    }
 
     Ok(())
 }
