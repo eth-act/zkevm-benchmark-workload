@@ -11,6 +11,9 @@ guest-libs.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
+walkdir.workspace = true
+serde.workspace = true
+serde_json.workspace = true
 anyhow = "*"
 
 [lints]

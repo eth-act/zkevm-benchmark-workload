@@ -16,12 +16,11 @@ The primary goal is to measure and compare the performance (currently in cycle c
 
 The workspace is organized into several key components:
 
-- **`crates/metrics`**: Defines common data structures (`WorkloadMetrics`) for storing and serializing benchmark results.
+- **`crates/metrics`**: Defines common data structures (`BenchmarkRun<Metadata>`) for storing and serializing benchmark results with generic metadata support.
 - **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
 - **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder. The crate includes Docker support for containerized deployment.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
-- **`crates/benchmark-runner`**: Provides utilities for running benchmarks across different zkVM implementations.
-- **`crates/zkevm-zkm`**: Contains the zkMIPS-specific implementation.
+- **`crates/benchmark-runner`**: Provides a unified framework for running benchmarks across different zkVM implementations, including guest program input generation and execution orchestration.
 - **`ere-guests/`**: Directory containing guest program implementations organized by program type, with each type containing implementations for different zkVM platforms. See the [Guest Program Types](#guest-program-types) section for detailed information about each type.
 - **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator-cli`.
 - **`zkevm-fixtures-input`**: Default directory where `witness-generator-cli` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
@@ -56,11 +55,11 @@ Each zkVM benchmark implementation follows a common pattern:
 2. **Host Program:**
     - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
     - A standalone Rust binary that orchestrates the benchmarking for different guest program types.
-    - Consumes pre-generated fixture files from `crates/witness-generator-cli`.
+    - Uses the `benchmark-runner` crate to generate guest program inputs from pre-generated fixture files.
     - Supports multiple guest program types via command-line arguments (e.g., `stateless-validator`, `empty-program`).
     - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
     - Collects cycle count metrics reported by the zkVM SDK.
-    - Saves the results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
+    - Saves the results using the `metrics` crate with flexible metadata support into the appropriate subdirectory within `zkevm-metrics/`.
 
 3. **Automatic Patch Application:**
     - The benchmark runner includes functionality to automatically apply precompile patches for each zkVM.

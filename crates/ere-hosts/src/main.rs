@@ -11,21 +11,14 @@
 )))]
 compile_error!("please enable one of the zkVM's using the appropriate feature flag");
 
-use benchmark_runner::{
-    Action, RunConfig, run_benchmark_empty_program, run_benchmark_rlp_encoding_length,
-    run_benchmark_stateless_validator,
-};
+use benchmark_runner::{Action, RunConfig, run_benchmark};
 use clap::{Parser, Subcommand, ValueEnum};
-use guest_libs::BincodeBlock;
-use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
-use walkdir::WalkDir;
-use witness_generator::BlockAndWitness;
 use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 
 #[cfg(feature = "sp1")]
@@ -136,7 +129,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         resource, action
     );
 
-    let run_config = RunConfig {
+    let config = RunConfig {
         output_folder: cli.output_folder,
         action,
         force_rerun: cli.force_rerun,
@@ -146,81 +139,43 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     match &cli.guest_program {
         GuestProgramCommand::StatelessValidator { input_folder } => {
             info!(
-                "Running Ethereum Stateless Validator benchmarks, with corpus from: {}",
+                "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let corpuses = WalkDir::new(input_folder)
-                .min_depth(1)
-                .into_iter()
-                .collect::<Result<Vec<_>, _>>()?
-                .into_par_iter()
-                .map(|entry| {
-                    if entry.file_type().is_file() {
-                        let content = std::fs::read(entry.path())?;
-                        let blocks_and_witnesses =
-                            serde_json::from_slice(&content).map_err(|e| {
-                                anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
-                            })?;
-                        Ok(blocks_and_witnesses)
-                    } else {
-                        anyhow::bail!("Invalid input folder structure: expected files only")
-                    }
-                })
-                .collect::<Result<Vec<BlockAndWitness>, _>>()?;
-
-            let zkvms_instances =
+            let inputs = benchmark_runner::guest_programs::stateless_validator_generate_inputs(
+                input_folder.as_path(),
+            )?;
+            let zkvms =
                 get_zkvm_instances(&guest_programs_dir.join("stateless-validator"), resource)?;
-            for instance in zkvms_instances {
-                run_benchmark_stateless_validator(
-                    &instance.name,
-                    instance.instance,
-                    &run_config,
-                    &corpuses,
-                )?;
+            for zkvm in zkvms {
+                run_benchmark(zkvm, &config, inputs.clone())?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
-            info!("Running empty program benchmarks");
-            let zkvms_instances =
-                get_zkvm_instances(&guest_programs_dir.join("empty-program"), resource)?;
-            for instance in zkvms_instances {
-                run_benchmark_empty_program(&instance.name, instance.instance, &run_config)?;
+            info!("Running empty-program benchmarks");
+            let input = benchmark_runner::guest_programs::empty_program_generate_inputs();
+            let zkvms = get_zkvm_instances(&guest_programs_dir.join("empty-program"), resource)?;
+            for zkvm in zkvms {
+                run_benchmark(zkvm, &config, vec![input.clone()])?;
             }
         }
         GuestProgramCommand::RlpEncodingLength {
             input_folder,
             loop_count,
         } => {
-            info!("Running rlp encoding length benchmarks");
-            let blocks = WalkDir::new(input_folder)
-                .min_depth(1)
-                .into_iter()
-                .collect::<Result<Vec<_>, _>>()?
-                .into_par_iter()
-                .map(|entry| {
-                    if entry.file_type().is_file() {
-                        let content = std::fs::read(entry.path())?;
-                        let blocks_and_witnesses: BlockAndWitness =
-                            serde_json::from_slice(&content).map_err(|e| {
-                                anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
-                            })?;
-                        Ok(BincodeBlock(blocks_and_witnesses.block_and_witness.block))
-                    } else {
-                        anyhow::bail!("Invalid input folder structure: expected files only")
-                    }
-                })
-                .collect::<Result<Vec<BincodeBlock>, _>>()?;
-
-            let zkvms_instances =
+            info!(
+                "Running rlp-encoding-length benchmarks for input folder {} and loop count {}",
+                input_folder.display(),
+                loop_count
+            );
+            let inputs = benchmark_runner::guest_programs::block_rlp_length_generate_inputs(
+                input_folder.as_path(),
+                *loop_count,
+            )?;
+            let zkvms =
                 get_zkvm_instances(&guest_programs_dir.join("rlp-encoding-length"), resource)?;
-            for instance in zkvms_instances {
-                run_benchmark_rlp_encoding_length(
-                    &instance.name,
-                    instance.instance,
-                    &run_config,
-                    &blocks,
-                    *loop_count,
-                )?;
+            for zkvm in zkvms {
+                run_benchmark(zkvm, &config, inputs.clone())?;
             }
         }
     }
@@ -228,17 +183,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-#[allow(non_camel_case_types)]
-struct zkVMInstance {
-    pub name: String,
-    pub instance: Box<dyn zkVM + Sync>,
-}
-
 fn get_zkvm_instances(
     guest_program_folder: &Path,
     resource: ProverResourceType,
-) -> Result<Vec<zkVMInstance>, Box<dyn std::error::Error>> {
-    let mut name_zkvms: Vec<zkVMInstance> = Default::default();
+) -> Result<Vec<Box<dyn zkVM + Sync>>, Box<dyn std::error::Error>> {
+    let mut name_zkvms: Vec<Box<dyn zkVM + Sync>> = Default::default();
     #[allow(clippy::redundant_clone)]
     {
         #[cfg(feature = "sp1")]
@@ -246,10 +195,7 @@ fn get_zkvm_instances(
             run_cargo_patch_command("sp1", Some(guest_program_folder))?;
             let program = RV32_IM_SUCCINCT_ZKVM_ELF::compile(&guest_program_folder.join("sp1"))?;
             let zkvm = EreSP1::new(program, resource.clone());
-            name_zkvms.push(zkVMInstance {
-                name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
-                instance: Box::new(zkvm),
-            });
+            name_zkvms.push(Box::new(zkvm));
         }
 
         #[cfg(feature = "zisk")]
@@ -257,10 +203,7 @@ fn get_zkvm_instances(
             run_cargo_patch_command("zisk", None)?;
             let program = RV64_IMA_ZISK_ZKVM_ELF::compile(&guest_program_folder.join("zisk"))?;
             let zkvm = EreZisk::new(program, resource.clone());
-            name_zkvms.push(zkVMInstance {
-                name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
-                instance: Box::new(zkvm),
-            });
+            name_zkvms.push(Box::new(zkvm));
         }
 
         #[cfg(feature = "risc0")]
@@ -268,10 +211,7 @@ fn get_zkvm_instances(
             run_cargo_patch_command("risc0", None)?;
             let program = RV32_IM_RISCZERO_ZKVM_ELF::compile(&guest_program_folder.join("risc0"))?;
             let zkvm = EreRisc0::new(program, resource.clone());
-            name_zkvms.push(zkVMInstance {
-                name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
-                instance: Box::new(zkvm),
-            });
+            name_zkvms.push(Box::new(zkvm));
         }
 
         #[cfg(feature = "openvm")]
@@ -279,10 +219,7 @@ fn get_zkvm_instances(
             run_cargo_patch_command("openvm", None)?;
             let program = OPENVM_TARGET::compile(&guest_program_folder.join("openvm"))?;
             let zkvm = EreOpenVM::new(program, resource.clone());
-            name_zkvms.push(zkVMInstance {
-                name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
-                instance: Box::new(zkvm),
-            });
+            name_zkvms.push(Box::new(zkvm));
         }
 
         #[cfg(feature = "pico")]
@@ -290,10 +227,7 @@ fn get_zkvm_instances(
             run_cargo_patch_command("pico", None)?;
             let program = PICO_TARGET::compile(&guest_program_folder.join("pico"))?;
             let zkvm = ErePico::new(program, resource.clone());
-            name_zkvms.push(zkVMInstance {
-                name: zkvm_fullname(zkvm.name(), zkvm.sdk_version()),
-                instance: Box::new(zkvm),
-            });
+            name_zkvms.push(Box::new(zkvm));
         }
     }
     Ok(name_zkvms)
@@ -331,10 +265,6 @@ fn run_cargo_patch_command(
 
     info!("cargo {zkvm_name} completed successfully");
     Ok(())
-}
-
-fn zkvm_fullname(zkvm_name: &str, zkvm_version: &str) -> String {
-    format!("{zkvm_name}-v{zkvm_version}")
 }
 
 /// Repository root (assumes `ere-hosts` lives in `<root>/crates/ere-hosts`).
