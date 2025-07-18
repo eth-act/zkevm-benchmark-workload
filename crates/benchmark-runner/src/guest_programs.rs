@@ -10,7 +10,6 @@ use zkvm_interface::Input;
 
 /// Metadata trait for guest program inputs
 pub trait GuestInputMetadata: Serialize + DeserializeOwned + Clone + Send + Sync {}
-impl GuestInputMetadata for () {}
 
 /// Represents a guest program input with associated metadata
 #[derive(Debug, Clone)]
@@ -22,6 +21,9 @@ pub struct GuestInput<M: GuestInputMetadata> {
     /// Associated metadata for the guest program input.
     pub metadata: M,
 }
+
+// This implementation is required since the empty program does not have any metadata.
+impl GuestInputMetadata for () {}
 
 /// Generate inputs for the empty program guest program.
 pub fn empty_program_generate_inputs() -> GuestInput<()> {
@@ -62,21 +64,33 @@ pub fn stateless_validator_generate_inputs(
     Ok(guest_inputs)
 }
 
+/// Metadata for the block RLP length calculation guest program.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct RLPLengthMetadata {
+    block_hash: String,
+    loop_count: u16,
+}
+impl GuestInputMetadata for RLPLengthMetadata {}
+
 /// Generate inputs for the block RLP length calculation guest program.
 pub fn block_rlp_length_generate_inputs(
     input_folder: &Path,
     loop_count: u16,
-) -> anyhow::Result<Vec<GuestInput<()>>> {
+) -> anyhow::Result<Vec<GuestInput<RLPLengthMetadata>>> {
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
             let mut stdin = Input::new();
+            let metadata = RLPLengthMetadata {
+                block_hash: bw.block_and_witness.block.hash_slow().to_string(),
+                loop_count,
+            };
             stdin.write(BincodeBlock(bw.block_and_witness.block));
             stdin.write(loop_count);
             GuestInput {
                 name: bw.name,
                 stdin,
-                metadata: (),
+                metadata,
             }
         })
         .collect();
