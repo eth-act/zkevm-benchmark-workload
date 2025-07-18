@@ -10,13 +10,13 @@ use thiserror::Error;
 
 /// Represents a single benchmark run.
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
-pub struct BenchmarkRun {
+pub struct BenchmarkRun<M> {
     /// Name of the benchmark.
     pub name: String,
     /// Timestamp when the benchmark run ended.
     pub timestamp_completed: chrono::DateTime<chrono::Utc>,
-    /// Block used gas
-    pub block_used_gas: u64,
+    /// Metadata
+    pub metadata: M,
     /// Execution metrics for the benchmark run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub execution: Option<ExecutionMetrics>,
@@ -156,7 +156,7 @@ impl MetricsError {
     }
 }
 
-impl BenchmarkRun {
+impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
     /// Serializes a list of `WorkloadMetrics` into a JSON string.
     ///
     /// # Errors
@@ -184,21 +184,21 @@ impl BenchmarkRun {
     ///
     /// Returns `MetricsError::Io` if any filesystem operation fails.
     /// Returns `MetricsError::Serde` if JSON serialization fails.
-    pub fn to_path<P: AsRef<Path>>(path: P, items: &[Self]) -> Result<(), MetricsError> {
+    pub fn to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
         let path = path.as_ref();
         ensure_parent_dirs(path)?;
-        let json = serde_json::to_string_pretty(items)?;
+        let json = serde_json::to_string_pretty(self)?;
         fs::write(path, json)?;
         Ok(())
     }
 
-    /// Reads the file at `path` and deserializes a `Vec<WorkloadMetrics>` from its JSON content.
+    /// Reads the file at `path` and deserializes a `BenchmarkRun<M>` from its JSON content.
     ///
     /// # Errors
     ///
     /// Returns `MetricsError::Io` if reading the file fails.
     /// Returns `MetricsError::Serde` if JSON deserialization fails.
-    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Vec<Self>, MetricsError> {
+    pub fn from_path<P: AsRef<Path>>(path: P) -> Result<Self, MetricsError> {
         let contents = fs::read_to_string(path)?;
         Ok(serde_json::from_str(&contents)?)
     }
@@ -217,13 +217,20 @@ mod tests {
     use std::iter::FromIterator;
     use tempfile::NamedTempFile;
 
+    #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+    struct Metadata {
+        block_gas_used: u64,
+    }
+
     // This is just a fixed sample we are using to test serde_roundtrip
-    fn sample() -> Vec<BenchmarkRun> {
+    fn sample() -> Vec<BenchmarkRun<Metadata>> {
         vec![
             BenchmarkRun {
                 name: "fft_bench".into(),
                 timestamp_completed: chrono::Utc::now(),
-                block_used_gas: 12345,
+                metadata: Metadata {
+                    block_gas_used: 12345,
+                },
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 1_000,
                     region_cycles: HashMap::from_iter([
@@ -238,7 +245,9 @@ mod tests {
             BenchmarkRun {
                 name: "aes_bench".into(),
                 timestamp_completed: chrono::Utc::now(),
-                block_used_gas: 67890,
+                metadata: Metadata {
+                    block_gas_used: 67890,
+                },
                 execution: Some(ExecutionMetrics::Success {
                     total_num_cycles: 2_000,
                     region_cycles: HashMap::from_iter([
@@ -256,7 +265,9 @@ mod tests {
             BenchmarkRun {
                 name: "proving_bench".into(),
                 timestamp_completed: chrono::Utc::now(),
-                block_used_gas: 54321,
+                metadata: Metadata {
+                    block_gas_used: 54321,
+                },
                 execution: None,
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 512,
@@ -277,7 +288,7 @@ mod tests {
     #[test]
     fn bad_json_is_error() {
         let bad = "{this is not valid json}";
-        let err = BenchmarkRun::from_json(bad).unwrap_err();
+        let err = BenchmarkRun::<()>::from_json(bad).unwrap_err();
         assert!(err.into_serde_err().is_data());
     }
 
@@ -285,10 +296,12 @@ mod tests {
     fn file_round_trip() -> Result<(), MetricsError> {
         let temp_file = NamedTempFile::new()?;
         let path = temp_file.path();
-        let runs = sample();
-        BenchmarkRun::to_path(path, &runs)?;
-        let read_back = BenchmarkRun::from_path(path)?;
-        assert_eq!(runs, read_back);
+        for run in sample() {
+            run.to_path(path)?;
+            let read_back = BenchmarkRun::from_path(path)?;
+            assert_eq!(run, read_back);
+        }
+
         Ok(())
     }
 
@@ -297,7 +310,9 @@ mod tests {
         let benchmark_run = BenchmarkRun {
             name: "test_benchmark".into(),
             timestamp_completed: chrono::Utc::now(),
-            block_used_gas: 11111,
+            metadata: Metadata {
+                block_gas_used: 11111,
+            },
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1000,
                 region_cycles: HashMap::new(),
@@ -314,7 +329,9 @@ mod tests {
         let bench = BenchmarkRun {
             name: "mixed_bench".into(),
             timestamp_completed: chrono::Utc::now(),
-            block_used_gas: 22222,
+            metadata: Metadata {
+                block_gas_used: 22222,
+            },
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 500,
                 region_cycles: HashMap::from_iter([
