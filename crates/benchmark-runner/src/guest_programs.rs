@@ -1,4 +1,4 @@
-//! Guest program type definitions and input preparation
+//! Guest program input generation and metadata types
 
 use guest_libs::BincodeBlock;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
@@ -62,7 +62,7 @@ pub fn stateless_validator_generate_inputs(
     Ok(guest_inputs)
 }
 
-/// Generate inputs for the stateless validator guest program.
+/// Generate inputs for the block RLP length calculation guest program.
 pub fn block_rlp_length_generate_inputs(
     input_folder: &Path,
     loop_count: u16,

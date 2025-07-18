@@ -157,7 +157,7 @@ impl MetricsError {
 }
 
 impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
-    /// Serializes a list of `WorkloadMetrics` into a JSON string.
+    /// Serializes a list of `BenchmarkRun<M>` into a JSON string.
     ///
     /// # Errors
     ///
@@ -166,7 +166,7 @@ impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
         serde_json::to_string(items).map_err(MetricsError::from)
     }
 
-    /// Deserializes a list of `WorkloadMetrics` from a JSON string.
+    /// Deserializes a list of `BenchmarkRun<M>` from a JSON string.
     ///
     /// # Errors
     ///
@@ -175,7 +175,7 @@ impl<M: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<M> {
         serde_json::from_str(json).map_err(MetricsError::from)
     }
 
-    /// Serializes `items` using JSON pretty-print and writes them to `path` atomically.
+    /// Serializes using JSON pretty-print and writes them to `path` atomically.
     ///
     /// The file is created if it does not exist and truncated if it does.
     /// Parent directories are created if they are missing.

@@ -4,11 +4,11 @@ This crate provides data structures and utilities for handling workload performa
 
 ## Overview
 
-The core data structure is `BenchmarkRun`, which stores:
+The core data structure is `BenchmarkRun<M>`, which stores:
 
 - `name`: The name of the benchmark (e.g., `fft_bench`, `aes_bench`).
 - `timestamp_completed`: Timestamp when the benchmark run ended.
-- `block_used_gas`: The amount of gas used by the block in the benchmark.
+- `metadata`: Generic metadata of type `M` containing benchmark-specific information (e.g., block gas usage, loop counts).
 - `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
 - `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
 
@@ -34,10 +34,12 @@ This struct can be used independently to capture system information and can be s
 
 The crate offers functionality to:
 
-- Serialize a list of `BenchmarkRun` to a JSON string.
-- Deserialize a list of `BenchmarkRun` from a JSON string.
-- Serialize and write a list of `BenchmarkRun` to a file (creating parent directories if needed).
-- Read and deserialize a list of `BenchmarkRun` from a file.
+- Serialize a `BenchmarkRun<M>` to a JSON string.
+- Deserialize a `BenchmarkRun<M>` from a JSON string.
+- Serialize and write a `BenchmarkRun<M>` to a file (creating parent directories if needed).
+- Read and deserialize a `BenchmarkRun<M>` from a file.
+
+The metadata type `M` must implement `Serialize` and `DeserializeOwned` to enable JSON serialization.
 
 ## Usage
 
@@ -56,13 +58,21 @@ use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::env::temp_dir;
 use std::time::Duration;
+use serde::{Serialize, Deserialize};
+
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+struct Metadata {
+    block_used_gas: u64,
+}
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_data = vec![
-        BenchmarkRun {
+        BenchmarkRun::<Metadata> {
             name: "workload name".into(),
             timestamp_completed: zkevm_metrics::chrono::Utc::now(),
-            block_used_gas: 12345,
+            metadata: Metadata {
+                block_used_gas: 12345,
+            },
             execution: Some(ExecutionMetrics::Success {
                 total_num_cycles: 1_000,
                 region_cycles: HashMap::from_iter([
@@ -77,7 +87,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         BenchmarkRun {
             name: "proving workload".into(),
             timestamp_completed: zkevm_metrics::chrono::Utc::now(),
-            block_used_gas: 67890,
+            metadata: Metadata {
+                block_used_gas: 67890,
+            },
             execution: None,
             proving: Some(ProvingMetrics::Success {
                 proof_size: 256,
@@ -91,16 +103,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let json_string = BenchmarkRun::to_json(&metrics_data)?;
     println!("Serialized JSON: {}", json_string);
 
-    // Create a path in the system's temp directory
-    let output_path = temp_dir().join("metrics_output.json");
+    
+    for metrics in metrics_data.into_iter() {
+        // Create a path in the system's temp directory
+        let output_path = temp_dir().join("metrics_output.json");
 
-    // Write to file
-    BenchmarkRun::to_path(&output_path, &metrics_data)?;
-    println!("Metrics written to {:?}", &output_path);
+        // Write to file
+        metrics.to_path(&output_path)?;
+        println!("Metrics written to {:?}", &output_path);
 
-    // Read from file
-    let read_metrics = BenchmarkRun::from_path(output_path)?;
-    assert_eq!(metrics_data, read_metrics);
+        // Read from file
+        let read_metrics = BenchmarkRun::from_path(output_path)?;
+        assert_eq!(metrics, read_metrics);
+    }
     println!("Successfully read metrics back from file.");
 
     Ok(())

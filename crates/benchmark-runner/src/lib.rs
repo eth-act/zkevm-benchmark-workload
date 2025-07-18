@@ -1,4 +1,4 @@
-//! Benchmark runner for zkVM workloads
+//! Benchmark runner library for zkVM benchmarking
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
