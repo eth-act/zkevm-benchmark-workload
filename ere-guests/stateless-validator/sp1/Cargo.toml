@@ -7,29 +7,27 @@ license = "MIT OR Apache-2.0"
 
 
 [dependencies]
-sp1-zkvm = "5.0.5"
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68", features = [
+sp1-zkvm.workspace = true
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68", features = [
+reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "03364a836774c72f4e354de924330fee6a41be68" }
+reth-evm-ethereum.workspace = true
+reth-chainspec.workspace = true
 
-revm = { version = "26.0.1", default-features = false, features = [
+revm = { workspace = true, default-features = false, features = [
     "kzg-rs",
     "bn",
 ] }
-alloy-primitives = { version = "1.2.0", default-features = false, features = [
+alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
     "sha3-keccak",
 ] }
 tracing-subscriber = "*"
 tracing = "*"
-
-[patch.crates-io]

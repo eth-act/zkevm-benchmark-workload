@@ -6,6 +6,4 @@ rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-sp1-zkvm = "5.0.5"
-
-[patch.crates-io]
+sp1-zkvm.workspace = true
