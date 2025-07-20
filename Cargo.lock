@@ -1362,8 +1362,12 @@ name = "benchmark-runner"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "guest-libs",
  "rayon",
+ "serde",
+ "serde_json",
  "tracing",
+ "walkdir",
  "witness-generator",
  "zkevm-metrics",
  "zkvm-interface",
@@ -1654,9 +1658,11 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "cargo_metadata 0.20.0",
+ "thiserror 2.0.12",
+ "tracing",
 ]
 
 [[package]]
@@ -3089,7 +3095,6 @@ dependencies = [
 name = "ere-hosts"
 version = "0.1.0"
 dependencies = [
- "anyhow",
  "benchmark-runner",
  "clap",
  "ere-openvm",
@@ -3097,19 +3102,15 @@ dependencies = [
  "ere-risczero",
  "ere-sp1",
  "ere-zisk",
- "rayon",
- "serde_json",
  "tracing",
  "tracing-subscriber 0.3.19",
- "walkdir",
- "witness-generator",
  "zkvm-interface",
 ]
 
 [[package]]
 name = "ere-openvm"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "build-utils",
  "openvm-build",
@@ -3124,7 +3125,7 @@ dependencies = [
 [[package]]
 name = "ere-pico"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "bincode",
  "build-utils",
@@ -3136,13 +3137,14 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "anyhow",
  "borsh",
  "build-utils",
  "hex",
  "risc0-zkvm",
+ "serde",
  "serde_json",
  "tempfile",
  "thiserror 2.0.12",
@@ -3153,14 +3155,13 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "bincode",
  "build-utils",
  "sp1-sdk",
  "tempfile",
  "thiserror 2.0.12",
- "toml",
  "tracing",
  "zkvm-interface",
 ]
@@ -3168,7 +3169,7 @@ dependencies = [
 [[package]]
 name = "ere-zisk"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "bincode",
  "blake3",
@@ -3732,6 +3733,17 @@ dependencies = [
  "ff 0.13.1",
  "rand_core 0.6.4",
  "subtle",
+]
+
+[[package]]
+name = "guest-libs"
+version = "0.1.0"
+dependencies = [
+ "alloy-consensus",
+ "reth-ethereum-primitives",
+ "reth-primitives-traits",
+ "serde",
+ "serde_with",
 ]
 
 [[package]]
@@ -10497,9 +10509,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-build"
-version = "2.2.0"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "714776c8ccf3e206ecf499dab6561259beef6e7a82dfb49ccf5c911c7350dd5e"
+checksum = "62ffc0f135e6c1e9851e7e19438d03ff41a9d49199ee4f6c17b8bb30b4f83910"
 dependencies = [
  "anyhow",
  "cargo_metadata 0.19.2",
@@ -10637,9 +10649,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkvm"
-version = "2.2.0"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c59aaf1898f2f5d526a79d53dbe6288aeb1ce52a17184b85af84d06dedb1a367"
+checksum = "9684b333c1c5d83f29ce2a92314ccfafd9d8cdfa6c4e19c07b97015d2f1eb9d0"
 dependencies = [
  "anyhow",
  "bincode",
@@ -14062,7 +14074,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.5#94b026dc4b07600f5f5f6dcc04276a56ec9b306d"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
 dependencies = [
  "anyhow",
  "auto_impl",
