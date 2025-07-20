@@ -108,12 +108,12 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "zkvm-interface" }
-ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "ere-sp1" }
-ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "ere-risczero" }
-ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "ere-pico" }
-ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "ere-openvm" }
-ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "1bfacf473846cb6115382b2a2d23d6cc9f02546e", package = "ere-zisk" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "zkvm-interface" }
+ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "ere-sp1" }
+ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "ere-risczero" }
+ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "ere-pico" }
+ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "ere-openvm" }
+ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "9444a2ba73ba933b573b80d9c66c4fbc3bcbe024", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
