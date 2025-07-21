@@ -1,5 +1,5 @@
 [package]
-name = "succinct-rlp-encoding-length"
+name = "succinct-block-encoding-length"
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.85"
@@ -21,3 +21,5 @@ reth-ethereum-primitives = { workspace = true, features = [
 ] }
 alloy-consensus.workspace = true
 reth-primitives-traits.workspace = true
+
+ethereum_ssz.workspace = true

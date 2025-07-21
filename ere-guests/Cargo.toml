@@ -11,11 +11,8 @@ members = [
     # Empty program
     "empty-program/sp1",
 
-    # RLP encoding
-    "rlp-encoding-length/sp1",
-
-    # SSZ encoding
-    "ssz-encoding-length/sp1",
+    # Block encoding length
+    "block-encoding-length/sp1",
 
     # Libs
     "libs",

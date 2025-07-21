@@ -11,7 +11,7 @@
 )))]
 compile_error!("please enable one of the zkVM's using the appropriate feature flag");
 
-use benchmark_runner::{Action, RunConfig, run_benchmark};
+use benchmark_runner::{Action, RunConfig, guest_programs, run_benchmark};
 use clap::{Parser, Subcommand, ValueEnum};
 use std::{
     path::{Path, PathBuf},
@@ -73,8 +73,8 @@ enum GuestProgramCommand {
     /// Empty program
     EmptyProgram,
 
-    /// Block RLP length calculator
-    RlpEncodingLength {
+    /// Block encoding length
+    BlockEncodingLength {
         /// Input folder for benchmark results
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
@@ -82,18 +82,17 @@ enum GuestProgramCommand {
         /// Number of times to loop the benchmark
         #[arg(long)]
         loop_count: u16,
-    },
 
-    /// Block SSZ length calculator
-    SszEncodingLength {
-        /// Input folder for benchmark results
-        #[arg(short, long, default_value = "zkevm-fixtures-input")]
-        input_folder: PathBuf,
-
-        /// Number of times to loop the benchmark
-        #[arg(long)]
-        loop_count: u16,
+        /// Encoding format
+        #[arg(short, long, value_enum)]
+        format: BlockEncodingFormat,
     },
+}
+
+#[derive(Debug, Clone, ValueEnum)]
+enum BlockEncodingFormat {
+    Rlp,
+    Ssz,
 }
 
 #[derive(Clone, ValueEnum)]
@@ -126,6 +125,15 @@ impl From<BenchmarkAction> for Action {
     }
 }
 
+impl From<BlockEncodingFormat> for guest_programs::BlockEncodingFormat {
+    fn from(format: BlockEncodingFormat) -> Self {
+        match format {
+            BlockEncodingFormat::Rlp => Self::Rlp,
+            BlockEncodingFormat::Ssz => Self::Ssz,
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
@@ -153,9 +161,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let inputs = benchmark_runner::guest_programs::stateless_validator_generate_inputs(
-                input_folder.as_path(),
-            )?;
+            let inputs = guest_programs::stateless_validator_inputs(input_folder.as_path())?;
             let zkvms =
                 get_zkvm_instances(&workspace_dir, Path::new("stateless-validator"), resource)?;
             for zkvm in zkvms {
@@ -164,46 +170,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let input = benchmark_runner::guest_programs::empty_program_generate_inputs();
+            let input = guest_programs::empty_program_inputs();
             let zkvms = get_zkvm_instances(&workspace_dir, Path::new("empty-program"), resource)?;
             for zkvm in zkvms {
                 run_benchmark(zkvm, &config, vec![input.clone()])?;
             }
         }
-        GuestProgramCommand::RlpEncodingLength {
+        GuestProgramCommand::BlockEncodingLength {
             input_folder,
             loop_count,
+            format,
         } => {
             info!(
-                "Running rlp-encoding-length benchmarks for input folder {} and loop count {}",
+                "Running {:?}-encoding-length benchmarks for input folder {} and loop count {}",
+                format,
                 input_folder.display(),
                 loop_count
             );
-            let inputs = benchmark_runner::guest_programs::block_encoding_length_generate_inputs(
+            let inputs = guest_programs::block_encoding_length_inputs(
                 input_folder.as_path(),
                 *loop_count,
+                format.clone().into(),
             )?;
             let zkvms =
-                get_zkvm_instances(&workspace_dir, Path::new("rlp-encoding-length"), resource)?;
-            for zkvm in zkvms {
-                run_benchmark(zkvm, &config, inputs.clone())?;
-            }
-        }
-        GuestProgramCommand::SszEncodingLength {
-            input_folder,
-            loop_count,
-        } => {
-            info!(
-                "Running ssz-encoding-length benchmarks for input folder {} and loop count {}",
-                input_folder.display(),
-                loop_count
-            );
-            let inputs = benchmark_runner::guest_programs::block_encoding_length_generate_inputs(
-                input_folder.as_path(),
-                *loop_count,
-            )?;
-            let zkvms =
-                get_zkvm_instances(&workspace_dir, Path::new("ssz-encoding-length"), resource)?;
+                get_zkvm_instances(&workspace_dir, Path::new("block-encoding-length"), resource)?;
             for zkvm in zkvms {
                 run_benchmark(zkvm, &config, inputs.clone())?;
             }
