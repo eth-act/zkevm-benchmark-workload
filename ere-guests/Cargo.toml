@@ -134,4 +134,7 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 serde = { version = "1.0", default-features = false }
 serde_with = "3"
 
+ethereum_ssz_derive = "0.9"
+ethereum_ssz = "0.9"
+
 [patch.crates-io]
