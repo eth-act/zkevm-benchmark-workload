@@ -1,11 +1,20 @@
+//! SSZ-encoded representations of Ethereum block structures.
+//!
+//! This module provides SSZ (Simple Serialize) compatible structures for Ethereum blocks.
+//!
+//! Note: SSZ is not currently used in the execution layer. For this reason, it doesn't yet have native support in
+//! Reth, so we define our own SSZ-compatible structures here. Whenever Reth adds native SSZ support,
+//! we can consider removing this module and using the native types directly.
+
 use alloy_consensus::TxEip4844;
 use alloy_eips::eip4895;
 use alloy_primitives::{Address, B64, B256, BlockNumber, Bloom, Bytes, U256};
 
+/// SSZ-serializable representation of an Ethereum block.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct Block {
-    pub header: Header,
-    pub body: BlockBody,
+    header: Header,
+    body: BlockBody,
 }
 
 impl
@@ -29,11 +38,12 @@ impl
     }
 }
 
+/// SSZ-serializable representation of a block body.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct BlockBody {
-    pub transactions: Vec<EthereumTxEnvelope>,
-    pub ommers: Vec<Header>,
-    pub withdrawals: Option<Vec<Withdrawal>>,
+    transactions: Vec<EthereumTxEnvelope>,
+    ommers: Vec<Header>,
+    withdrawals: Option<Vec<Withdrawal>>,
 }
 
 impl From<alloy_consensus::BlockBody<alloy_consensus::EthereumTxEnvelope<TxEip4844>>>
@@ -56,29 +66,30 @@ impl From<alloy_consensus::BlockBody<alloy_consensus::EthereumTxEnvelope<TxEip48
     }
 }
 
+/// SSZ-serializable representation of an Ethereum block header.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct Header {
-    pub parent_hash: B256,
-    pub ommers_hash: B256,
-    pub beneficiary: Address,
-    pub state_root: B256,
-    pub transactions_root: B256,
-    pub receipts_root: B256,
-    pub logs_bloom: Bloom,
-    pub difficulty: U256,
-    pub number: BlockNumber,
-    pub gas_limit: u64,
-    pub gas_used: u64,
-    pub timestamp: u64,
-    pub extra_data: Bytes,
-    pub mix_hash: B256,
-    pub nonce: B64,
-    pub base_fee_per_gas: Option<u64>,
-    pub withdrawals_root: Option<B256>,
-    pub blob_gas_used: Option<u64>,
-    pub excess_blob_gas: Option<u64>,
-    pub parent_beacon_block_root: Option<B256>,
-    pub requests_hash: Option<B256>,
+    parent_hash: B256,
+    ommers_hash: B256,
+    beneficiary: Address,
+    state_root: B256,
+    transactions_root: B256,
+    receipts_root: B256,
+    logs_bloom: Bloom,
+    difficulty: U256,
+    number: BlockNumber,
+    gas_limit: u64,
+    gas_used: u64,
+    timestamp: u64,
+    extra_data: Bytes,
+    mix_hash: B256,
+    nonce: B64,
+    base_fee_per_gas: Option<u64>,
+    withdrawals_root: Option<B256>,
+    blob_gas_used: Option<u64>,
+    excess_blob_gas: Option<u64>,
+    parent_beacon_block_root: Option<B256>,
+    requests_hash: Option<B256>,
 }
 
 impl From<alloy_consensus::Header> for Header {
@@ -109,12 +120,13 @@ impl From<alloy_consensus::Header> for Header {
     }
 }
 
+/// SSZ-serializable representation of a validator withdrawal.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct Withdrawal {
-    pub index: u64,
-    pub validator_index: u64,
-    pub address: Address,
-    pub amount: u64,
+    index: u64,
+    validator_index: u64,
+    address: Address,
+    amount: u64,
 }
 
 impl From<eip4895::Withdrawal> for Withdrawal {
@@ -128,42 +140,43 @@ impl From<eip4895::Withdrawal> for Withdrawal {
     }
 }
 
-// Support a reduced set of transaction types for the block body to avoid pulling a lot of complexity.
-// Reference: https://github.com/alloy-rs/alloy/blob/63ca195f29309c40e1c807865fdfc4deb0d3b8ff/crates/consensus/src/transaction/envelope.rs#L165-L187
+/// SSZ-serializable transaction envelope supporting a subset of Ethereum transaction types.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 #[ssz(enum_behaviour = "union")]
 pub enum EthereumTxEnvelope {
-    Legacy(SignedTxLegacy),
+    /// Legacy transaction type.
+    Legacy(SignedTx<TxLegacy>),
 }
 
 impl From<alloy_consensus::EthereumTxEnvelope<TxEip4844>> for EthereumTxEnvelope {
     fn from(tx: alloy_consensus::EthereumTxEnvelope<TxEip4844>) -> Self {
         match tx {
-            alloy_consensus::EthereumTxEnvelope::Legacy(tx) => {
-                EthereumTxEnvelope::Legacy(tx.into())
-            }
-            _ => {
-                panic!("Unsupported transaction type in block body: {:?}", tx);
-            }
+            alloy_consensus::EthereumTxEnvelope::Legacy(tx) => Self::Legacy(tx.into()),
+            _ => panic!(
+                "Unsupported transaction type in block body: {:?}",
+                tx.tx_type()
+            ),
         }
     }
 }
 
+/// SSZ-serializable representation of a signed legacy Ethereum transaction.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
-pub struct SignedTxLegacy {
-    tx: TxLegacy,
+pub struct SignedTx<Tx: ssz::Encode + ssz::Decode> {
+    tx: Tx,
     signature: Signature,
 }
 
-impl From<alloy_consensus::Signed<alloy_consensus::TxLegacy>> for SignedTxLegacy {
+impl From<alloy_consensus::Signed<alloy_consensus::TxLegacy>> for SignedTx<TxLegacy> {
     fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxLegacy>) -> Self {
         Self {
             tx: signed_tx.tx().clone().into(),
-            signature: signed_tx.signature().clone().into(),
+            signature: (*signed_tx.signature()).into(),
         }
     }
 }
 
+/// SSZ-serializable representation of an ECDSA signature.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct Signature {
     y_parity: bool,
@@ -181,15 +194,16 @@ impl From<alloy_primitives::Signature> for Signature {
     }
 }
 
+/// SSZ-serializable representation of a legacy Ethereum transaction.
 #[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
 pub struct TxLegacy {
-    pub chain_id: Option<ChainId>,
-    pub nonce: u64,
-    pub gas_price: u128,
-    pub gas_limit: u64,
-    pub to: Address,
-    pub value: U256,
-    pub input: Bytes,
+    chain_id: Option<ChainId>,
+    nonce: u64,
+    gas_price: u128,
+    gas_limit: u64,
+    to: Address,
+    value: U256,
+    input: Bytes,
 }
 
 impl From<alloy_consensus::TxLegacy> for TxLegacy {
@@ -201,7 +215,7 @@ impl From<alloy_consensus::TxLegacy> for TxLegacy {
             gas_limit: tx.gas_limit,
             to: match tx.to {
                 alloy_primitives::TxKind::Create => Address::default(),
-                alloy_primitives::TxKind::Call(addr) => addr.into(),
+                alloy_primitives::TxKind::Call(addr) => addr,
             },
             value: tx.value,
             input: tx.input,
@@ -209,20 +223,22 @@ impl From<alloy_consensus::TxLegacy> for TxLegacy {
     }
 }
 
+/// Type alias for Ethereum chain identifiers.
 pub type ChainId = u64;
 
 #[cfg(test)]
 mod tests {
     use ssz::{Decode, Encode};
 
-    use crate::{
-        BincodeBlock,
-        block_ssz::{Block, Header},
-    };
+    use crate::{BincodeBlock, block_ssz::Block};
 
+    /// Test that demonstrates round-trip encoding and decoding of an Ethereum block
+    /// using SSZ serialization. This ensures our SSZ structures are compatible
+    /// with the original block data and can be safely used in zero-knowledge proofs.
     #[test]
     fn test_block_ssz_encode_decode() {
-        let tx_json = r#"
+        // Sample block data in JSON format for testing
+        let block_json = r#"
         {
             "header": {
                 "parent_hash": "0x5448165948733a50620ce604351e52218152fce74695792bb63042af34731072",
@@ -274,13 +290,25 @@ mod tests {
             }
         }"#;
 
-        let decoded: BincodeBlock = serde_json::from_str(tx_json).unwrap();
-        let block: Block = decoded.0.into();
+        // Parse the JSON into our bincode-compatible format
+        let bincode_block: BincodeBlock =
+            serde_json::from_str(block_json).expect("Failed to parse test block JSON");
 
-        let ssz_bytes = block.as_ssz_bytes();
-        assert!(!ssz_bytes.is_empty());
+        // Convert to our SSZ-compatible block format
+        let ssz_block: Block = bincode_block.0.into();
 
-        let block_ssz_decoded: Block = Block::from_ssz_bytes(&ssz_bytes).unwrap();
-        assert_eq!(block, block_ssz_decoded);
+        // Encode the block using SSZ
+        let ssz_bytes = ssz_block.as_ssz_bytes();
+        assert!(!ssz_bytes.is_empty(), "SSZ encoding should not be empty");
+
+        // Decode the block back from SSZ bytes
+        let decoded_block: Block =
+            Block::from_ssz_bytes(&ssz_bytes).expect("Failed to decode SSZ bytes back to Block");
+
+        // Verify that round-trip encoding/decoding preserves the data
+        assert_eq!(
+            ssz_block, decoded_block,
+            "Round-trip encoding should preserve block data"
+        );
     }
 }
