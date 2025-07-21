@@ -72,8 +72,8 @@ pub struct RLPLengthMetadata {
 }
 impl GuestInputMetadata for RLPLengthMetadata {}
 
-/// Generate inputs for the block RLP length calculation guest program.
-pub fn block_rlp_length_generate_inputs(
+/// Generate inputs for the block encoding lengths calculation guest programs.
+pub fn block_encoding_length_generate_inputs(
     input_folder: &Path,
     loop_count: u16,
 ) -> anyhow::Result<Vec<GuestInput<RLPLengthMetadata>>> {

@@ -281,9 +281,6 @@ mod tests {
         assert!(!ssz_bytes.is_empty());
 
         let block_ssz_decoded: Block = Block::from_ssz_bytes(&ssz_bytes).unwrap();
-
         assert_eq!(block, block_ssz_decoded);
-
-        println!("SSZ length: {:?}", ssz_bytes.len());
     }
 }

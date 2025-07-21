@@ -4,7 +4,7 @@ target
 # zkevm fixtures file
 zkevm-fixtures*
 # zkevm metrics file
-zkevm-metrics
+zkevm-metrics*
 
 # vscode settings
 .vscode

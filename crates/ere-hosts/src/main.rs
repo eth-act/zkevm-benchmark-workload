@@ -83,6 +83,17 @@ enum GuestProgramCommand {
         #[arg(long)]
         loop_count: u16,
     },
+
+    /// Block SSZ length calculator
+    SszEncodingLength {
+        /// Input folder for benchmark results
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
+
+        /// Number of times to loop the benchmark
+        #[arg(long)]
+        loop_count: u16,
+    },
 }
 
 #[derive(Clone, ValueEnum)]
@@ -168,12 +179,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display(),
                 loop_count
             );
-            let inputs = benchmark_runner::guest_programs::block_rlp_length_generate_inputs(
+            let inputs = benchmark_runner::guest_programs::block_encoding_length_generate_inputs(
                 input_folder.as_path(),
                 *loop_count,
             )?;
             let zkvms =
                 get_zkvm_instances(&workspace_dir, Path::new("rlp-encoding-length"), resource)?;
+            for zkvm in zkvms {
+                run_benchmark(zkvm, &config, inputs.clone())?;
+            }
+        }
+        GuestProgramCommand::SszEncodingLength {
+            input_folder,
+            loop_count,
+        } => {
+            info!(
+                "Running ssz-encoding-length benchmarks for input folder {} and loop count {}",
+                input_folder.display(),
+                loop_count
+            );
+            let inputs = benchmark_runner::guest_programs::block_encoding_length_generate_inputs(
+                input_folder.as_path(),
+                *loop_count,
+            )?;
+            let zkvms =
+                get_zkvm_instances(&workspace_dir, Path::new("ssz-encoding-length"), resource)?;
             for zkvm in zkvms {
                 run_benchmark(zkvm, &config, inputs.clone())?;
             }
