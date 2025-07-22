@@ -22,21 +22,21 @@ pub fn main() {
 
     match format {
         RLP_FORMAT => {
-            println!("cycle-tracker-report-start: rlp_encoding_length");
+            println!("cycle-tracker-report-start: block_encoding_length_calculation");
             for _ in 0..iterations {
                 Block::rlp_length_for(&block.header, &block.body);
             }
-            println!("cycle-tracker-report-end: rlp_encoding_length");
+            println!("cycle-tracker-report-end: block_encoding_length_calculation");
         }
         SSZ_FORMAT => {
-            println!("cycle-tracker-report-start: format_conversion");
+            println!("cycle-tracker-report-start: block_format_conversion");
             let block: block_ssz::Block = block.0.into();
-            println!("cycle-tracker-report-end: format_conversion");
-            println!("cycle-tracker-report-start: ssz_encoding_length");
+            println!("cycle-tracker-report-end: block_format_conversion");
+            println!("cycle-tracker-report-start: block_encoding_length_calculation");
             for _ in 0..iterations {
                 block.ssz_bytes_len();
             }
-            println!("cycle-tracker-report-end: ssz_encoding_length");
+            println!("cycle-tracker-report-end: block_encoding_length_calculation");
         }
         _ => panic!("Unsupported format"),
     }

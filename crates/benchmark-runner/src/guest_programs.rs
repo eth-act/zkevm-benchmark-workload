@@ -64,7 +64,7 @@ pub fn stateless_validator_inputs(
     Ok(guest_inputs)
 }
 
-/// Metadata for the block RLP length calculation guest program.
+/// Metadata for the block block length calculation guest program.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockEncodingLengthMetadata {
     format: String,
