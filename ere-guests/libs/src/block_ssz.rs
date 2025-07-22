@@ -486,9 +486,6 @@ mod tests {
 
     use crate::{BincodeBlock, block_ssz::Block};
 
-    /// Test that demonstrates round-trip encoding and decoding of an Ethereum block
-    /// using SSZ serialization. This ensures our SSZ structures are compatible
-    /// with the original block data and can be safely used in zero-knowledge proofs.
     #[test]
     fn test_block_ssz_encode_decode() {
         // Sample block data in JSON format for testing
