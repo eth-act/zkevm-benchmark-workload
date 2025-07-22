@@ -153,6 +153,10 @@ pub enum EthereumTxEnvelope {
     Eip1559(SignedTx<TxEip1559>),
     /// EIP-4844 transaction type.
     Eip4844(SignedTx<TxEip4844>),
+    /// EIP-2930 transaction type.
+    Eip2930(SignedTx<TxEip2930>),
+    /// EIP-7702 transaction type.
+    Eip7702(SignedTx<TxEip7702>),
 }
 
 impl From<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>> for EthereumTxEnvelope {
@@ -161,10 +165,8 @@ impl From<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>> for E
             alloy_consensus::EthereumTxEnvelope::Legacy(tx) => Self::Legacy(tx.into()),
             alloy_consensus::EthereumTxEnvelope::Eip1559(tx) => Self::Eip1559(tx.into()),
             alloy_consensus::EthereumTxEnvelope::Eip4844(tx) => Self::Eip4844(tx.into()),
-            _ => panic!(
-                "Unsupported transaction type in block body: {:?}",
-                tx.tx_type()
-            ),
+            alloy_consensus::EthereumTxEnvelope::Eip2930(tx) => Self::Eip2930(tx.into()),
+            alloy_consensus::EthereumTxEnvelope::Eip7702(tx) => Self::Eip7702(tx.into()),
         }
     }
 }
@@ -196,6 +198,24 @@ impl From<alloy_consensus::Signed<alloy_consensus::TxEip1559>> for SignedTx<TxEi
 
 impl From<alloy_consensus::Signed<alloy_consensus::TxEip4844>> for SignedTx<TxEip4844> {
     fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxEip4844>) -> Self {
+        Self {
+            tx: signed_tx.tx().clone().into(),
+            signature: (*signed_tx.signature()).into(),
+        }
+    }
+}
+
+impl From<alloy_consensus::Signed<alloy_consensus::TxEip2930>> for SignedTx<TxEip2930> {
+    fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxEip2930>) -> Self {
+        Self {
+            tx: signed_tx.tx().clone().into(),
+            signature: (*signed_tx.signature()).into(),
+        }
+    }
+}
+
+impl From<alloy_consensus::Signed<alloy_consensus::TxEip7702>> for SignedTx<TxEip7702> {
+    fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxEip7702>) -> Self {
         Self {
             tx: signed_tx.tx().clone().into(),
             signature: (*signed_tx.signature()).into(),
@@ -334,6 +354,125 @@ impl From<alloy_consensus::transaction::TxEip4844> for TxEip4844 {
             blob_versioned_hashes: value.blob_versioned_hashes,
             max_fee_per_blob_gas: value.max_fee_per_blob_gas,
             input: value.input,
+        }
+    }
+}
+
+/// SSZ-serializable representation of an EIP-2930 transaction.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct TxEip2930 {
+    chain_id: ChainId,
+    nonce: u64,
+    gas_price: u128,
+    gas_limit: u64,
+    to: Address,
+    value: U256,
+    access_list: Vec<AccessListItem>,
+    input: Bytes,
+}
+
+impl From<alloy_consensus::transaction::TxEip2930> for TxEip2930 {
+    fn from(value: alloy_consensus::transaction::TxEip2930) -> Self {
+        Self {
+            chain_id: value.chain_id,
+            nonce: value.nonce,
+            gas_price: value.gas_price,
+            gas_limit: value.gas_limit,
+            to: match value.to {
+                alloy_primitives::TxKind::Create => Address::default(),
+                alloy_primitives::TxKind::Call(addr) => addr,
+            },
+            value: value.value,
+            access_list: value
+                .access_list
+                .iter()
+                .map(|al| AccessListItem {
+                    address: al.address,
+                    storage_keys: al.storage_keys.clone(),
+                })
+                .collect(),
+            input: value.input,
+        }
+    }
+}
+
+/// SSZ-serializable representation of an EIP-7702 transaction.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct TxEip7702 {
+    chain_id: ChainId,
+    nonce: u64,
+    gas_limit: u64,
+    max_fee_per_gas: u128,
+    max_priority_fee_per_gas: u128,
+    to: Address,
+    value: U256,
+    access_list: Vec<AccessListItem>,
+    authorization_list: Vec<SignedAuthorization>,
+    input: Bytes,
+}
+
+impl From<alloy_consensus::transaction::TxEip7702> for TxEip7702 {
+    fn from(value: alloy_consensus::transaction::TxEip7702) -> Self {
+        Self {
+            chain_id: value.chain_id,
+            nonce: value.nonce,
+            gas_limit: value.gas_limit,
+            max_fee_per_gas: value.max_fee_per_gas,
+            max_priority_fee_per_gas: value.max_priority_fee_per_gas,
+            to: value.to,
+            value: value.value,
+            access_list: value
+                .access_list
+                .iter()
+                .map(|al| AccessListItem {
+                    address: al.address,
+                    storage_keys: al.storage_keys.clone(),
+                })
+                .collect(),
+            authorization_list: value
+                .authorization_list
+                .into_iter()
+                .map(SignedAuthorization::from)
+                .collect(),
+            input: value.input,
+        }
+    }
+}
+
+/// SSZ-serializable representation of an authorization for an EIP-7702 transaction.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct SignedAuthorization {
+    inner: Authorization,
+    y_parity: bool,
+    r: U256,
+    s: U256,
+}
+
+impl From<alloy_eips::eip7702::SignedAuthorization> for SignedAuthorization {
+    fn from(auth: alloy_eips::eip7702::SignedAuthorization) -> Self {
+        Self {
+            inner: auth.inner().clone().into(),
+            y_parity: auth.signature().unwrap().v(),
+            r: auth.signature().unwrap().r(),
+            s: auth.signature().unwrap().s(),
+        }
+    }
+}
+
+/// SSZ-serializable representation of an authorization.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct Authorization {
+    chain_id: U256,
+    address: Address,
+    nonce: u64,
+}
+
+impl From<alloy_eips::eip7702::Authorization> for Authorization {
+    fn from(auth: alloy_eips::eip7702::Authorization) -> Self {
+        Self {
+            chain_id: auth.chain_id,
+            address: auth.address,
+            nonce: auth.nonce,
         }
     }
 }
