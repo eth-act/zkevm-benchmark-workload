@@ -125,8 +125,11 @@ This repository contains an `xtask` that will automate this process by calling `
     # Run empty program benchmarks (for measuring zkVM overhead)
     cargo run --release --features sp1 -- empty-program
     
-    # Run RLP encoding length benchmarks
-    cargo run --release --features sp1 -- rlp-encoding-length --loop-count 100
+    # Run block encoding length benchmarks (with RLP encoding format)
+    cargo run --release --features sp1 -- block-encoding-length --loop-count 100 --format rlp
+    
+    # Run block encoding length benchmarks (with SSZ encoding format)
+    cargo run --release --features sp1 -- block-encoding-length --loop-count 100 --format ssz
     
     # Use custom input folder for stateless validator benchmarks
     cargo run --release --features sp1 -- stateless-validator --input-folder my-fixtures
@@ -154,12 +157,13 @@ This repository supports multiple guest program types for comprehensive zkVM ben
    - **zkVM Support**: SP1 (other zkVMs not yet implemented)
    - **Usage**: `cargo run --features sp1 -- empty-program`
 
-3. **`rlp-encoding-length`** - Measures RLP encoding performance
-   - **Purpose**: Benchmarks the performance of calculating RLP encoded length of Ethereum blocks
+3. **`block-encoding-length`** - Measures block encoding performance with support for both RLP and SSZ formats
+   - **Purpose**: Benchmarks the performance of calculating encoded length of Ethereum blocks using different encoding formats
    - **Input**: Uses the same `BlockAndWitness` fixture files as `stateless-validator`
-   - **Computation**: Repeatedly calls `Block::rlp_length_for()` on block headers and bodies
+   - **Computation**: Repeatedly calls encoding length calculation functions on block headers and bodies
+   - **Encoding Formats**: Supports both RLP (`--format rlp`) and SSZ (`--format ssz`) encoding
    - **zkVM Support**: SP1 (other zkVMs not yet implemented)
-   - **Usage**: `cargo run --features sp1 -- rlp-encoding-length --loop-count 100`
+   - **Usage**: `cargo run --features sp1 -- block-encoding-length --loop-count 100 --format rlp`
 
 ### Guest Program Architecture
 

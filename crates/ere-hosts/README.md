@@ -12,13 +12,13 @@ The benchmarker supports multiple guest program types:
 
 - **`stateless-validator`**: Runs Ethereum stateless block validation logic. Requires input fixture files containing `BlockAndWitness` data.
 - **`empty-program`**: Runs minimal programs to measure zkVM overhead without the computational complexity of Ethereum validation.
-- **`rlp-encoding-length`**: Measures the performance of calculating RLP encoded length of Ethereum blocks. Requires input fixture files containing `BlockAndWitness` data and accepts a `--loop-count` parameter to control the number of iterations.
+- **`block-encoding-length`**: Measures the performance of calculating encoded length of Ethereum blocks. Supports both RLP and SSZ encoding formats. Requires input fixture files containing `BlockAndWitness` data and accepts a `--loop-count` parameter to control the number of iterations and a `--format` parameter to specify the encoding format (`rlp` or `ssz`).
 
 ## Prerequisites
 
 Before running benchmarks:
 
-1. **For `stateless-validator` and `rlp-encoding-length` benchmarks:** You must first generate fixture files using the `witness-generator-cli` binary:
+1. **For `stateless-validator` and `block-encoding-length` benchmarks:** You must first generate fixture files using the `witness-generator-cli` binary:
 
    ```bash
    cd ../witness-generator-cli
@@ -46,7 +46,7 @@ The benchmarker uses Cargo feature flags to control which zkVMs are compiled int
 
 **Note:** Unlike the previous version, you must:
 1. Specify which guest program type to benchmark
-2. For `stateless-validator` and `rlp-encoding-length`: Generate fixture files using the `witness-generator-cli` binary
+2. For `stateless-validator` and `block-encoding-length`: Generate fixture files using the `witness-generator-cli` binary
 3. Explicitly specify which zkVMs to include via feature flags
 
 Run stateless validator benchmarks with SP1:
@@ -61,10 +61,16 @@ Run empty program benchmarks with SP1:
 cargo run --features sp1 -- empty-program
 ```
 
-Run RLP encoding length benchmarks with SP1:
+Run block encoding length benchmarks with SP1 (using RLP format):
 
 ```bash
-cargo run --features sp1 -- rlp-encoding-length --loop-count 100
+cargo run --features sp1 -- block-encoding-length --loop-count 100 --format rlp
+```
+
+Run block encoding length benchmarks with SP1 (using SSZ format):
+
+```bash
+cargo run --features sp1 -- block-encoding-length --loop-count 100 --format ssz
 ```
 
 Build and run with multiple zkVMs for stateless validation:
@@ -81,7 +87,7 @@ cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
 
 ### Input Source Configuration
 
-For `stateless-validator` and `rlp-encoding-length` benchmarks, the tool reads pre-generated fixture files from an input directory:
+For `stateless-validator` and `block-encoding-length` benchmarks, the tool reads pre-generated fixture files from an input directory:
 
 ```bash
 # Use default input directory (zkevm-fixtures-input/)
@@ -90,8 +96,8 @@ cargo run --features sp1 -- stateless-validator
 # Specify custom input directory
 cargo run --features sp1 -- stateless-validator --input-folder my-fixtures
 
-# RLP encoding length benchmarks also support custom input directories
-cargo run --features sp1 -- rlp-encoding-length --input-folder my-fixtures --loop-count 50
+# Block encoding length benchmarks also support custom input directories
+cargo run --features sp1 -- block-encoding-length --input-folder my-fixtures --loop-count 50 --format rlp
 ```
 
 For `empty-program` benchmarks, no input files are required:
@@ -189,10 +195,34 @@ cargo run --features sp1 -- stateless-validator \
   --action execute
 ```
 
+Run block encoding length benchmarks with different encoding formats:
+
+```bash
+# Test RLP encoding performance
+cargo run --features sp1 -- block-encoding-length \
+  --loop-count 100 \
+  --format rlp
+
+# Test SSZ encoding performance  
+cargo run --features sp1 -- block-encoding-length \
+  --loop-count 100 \
+  --format ssz
+```
+
 Compare zkVM overhead by running empty programs across all platforms:
 
 ```bash
 cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
+```
+
+Compare encoding format performance for block encoding length:
+
+```bash
+# Test RLP encoding performance
+cargo run --features sp1 -- block-encoding-length --loop-count 50 --format rlp
+
+# Test SSZ encoding performance on the same data
+cargo run --features sp1 -- block-encoding-length --loop-count 50 --format ssz
 ```
 
 ## Command Line Options
@@ -201,8 +231,10 @@ cargo run --features "sp1,risc0,openvm,pico,zisk" -- empty-program
 |--------|-------|-------------|---------|---------|
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
-| `--input-folder` | `-i` | Input folder containing fixture files (stateless-validator only) | `zkevm-fixtures-input` | Any valid directory path |
+| `--input-folder` | `-i` | Input folder containing fixture files (stateless-validator and block-encoding-length) | `zkevm-fixtures-input` | Any valid directory path |
 | `--output-folder` | `-o` | Output folder for benchmark results | `zkevm-metrics` | Any valid directory path |
+| `--loop-count` | - | Number of times to loop the benchmark (block-encoding-length only) | Required for block-encoding-length | Any positive integer |
+| `--format` | `-f` | Encoding format for block-encoding-length benchmark | Required for block-encoding-length | `rlp`, `ssz` |
 | `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |
 | `--help` | `-h` | Show help information | - | - |
 | `--version` | `-V` | Show version information | - | - |
@@ -271,8 +303,9 @@ To add a new zkVM to the benchmarker:
 5. Add your zkVM's guest program implementations into the appropriate guest program directories:
    - For stateless validator support: `ere-guests/stateless-validator/your_zkvm/`
    - For empty program support: `ere-guests/empty-program/your_zkvm/`
+   - For block encoding length support: `ere-guests/block-encoding-length/your_zkvm/`
    
-   You can implement either one or both depending on what guest program types you want to support.
+   You can implement one, some, or all depending on what guest program types you want to support.
 
 ## Error Handling
 
