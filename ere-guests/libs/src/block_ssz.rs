@@ -6,7 +6,6 @@
 //! Reth, so we define our own SSZ-compatible structures here. Whenever Reth adds native SSZ support,
 //! we can consider removing this module and using the native types directly.
 
-use alloy_consensus::TxEip4844;
 use alloy_eips::eip4895;
 use alloy_primitives::{Address, B64, B256, BlockNumber, Bloom, Bytes, U256};
 
@@ -20,14 +19,14 @@ pub struct Block {
 impl
     From<
         alloy_consensus::Block<
-            alloy_consensus::EthereumTxEnvelope<TxEip4844>,
+            alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
             alloy_consensus::Header,
         >,
     > for Block
 {
     fn from(
         block: alloy_consensus::Block<
-            alloy_consensus::EthereumTxEnvelope<TxEip4844>,
+            alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
             alloy_consensus::Header,
         >,
     ) -> Self {
@@ -46,11 +45,15 @@ pub struct BlockBody {
     withdrawals: Option<Vec<Withdrawal>>,
 }
 
-impl From<alloy_consensus::BlockBody<alloy_consensus::EthereumTxEnvelope<TxEip4844>>>
-    for BlockBody
+impl
+    From<
+        alloy_consensus::BlockBody<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>>,
+    > for BlockBody
 {
     fn from(
-        body: alloy_consensus::BlockBody<alloy_consensus::EthereumTxEnvelope<TxEip4844>>,
+        body: alloy_consensus::BlockBody<
+            alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>,
+        >,
     ) -> Self {
         Self {
             transactions: body
@@ -146,12 +149,18 @@ impl From<eip4895::Withdrawal> for Withdrawal {
 pub enum EthereumTxEnvelope {
     /// Legacy transaction type.
     Legacy(SignedTx<TxLegacy>),
+    /// EIP-1559 transaction type.
+    Eip1559(SignedTx<TxEip1559>),
+    /// EIP-4844 transaction type.
+    Eip4844(SignedTx<TxEip4844>),
 }
 
-impl From<alloy_consensus::EthereumTxEnvelope<TxEip4844>> for EthereumTxEnvelope {
-    fn from(tx: alloy_consensus::EthereumTxEnvelope<TxEip4844>) -> Self {
+impl From<alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>> for EthereumTxEnvelope {
+    fn from(tx: alloy_consensus::EthereumTxEnvelope<alloy_consensus::TxEip4844>) -> Self {
         match tx {
             alloy_consensus::EthereumTxEnvelope::Legacy(tx) => Self::Legacy(tx.into()),
+            alloy_consensus::EthereumTxEnvelope::Eip1559(tx) => Self::Eip1559(tx.into()),
+            alloy_consensus::EthereumTxEnvelope::Eip4844(tx) => Self::Eip4844(tx.into()),
             _ => panic!(
                 "Unsupported transaction type in block body: {:?}",
                 tx.tx_type()
@@ -169,6 +178,24 @@ pub struct SignedTx<Tx: ssz::Encode + ssz::Decode> {
 
 impl From<alloy_consensus::Signed<alloy_consensus::TxLegacy>> for SignedTx<TxLegacy> {
     fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxLegacy>) -> Self {
+        Self {
+            tx: signed_tx.tx().clone().into(),
+            signature: (*signed_tx.signature()).into(),
+        }
+    }
+}
+
+impl From<alloy_consensus::Signed<alloy_consensus::TxEip1559>> for SignedTx<TxEip1559> {
+    fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxEip1559>) -> Self {
+        Self {
+            tx: signed_tx.tx().clone().into(),
+            signature: (*signed_tx.signature()).into(),
+        }
+    }
+}
+
+impl From<alloy_consensus::Signed<alloy_consensus::TxEip4844>> for SignedTx<TxEip4844> {
+    fn from(signed_tx: alloy_consensus::Signed<alloy_consensus::TxEip4844>) -> Self {
         Self {
             tx: signed_tx.tx().clone().into(),
             signature: (*signed_tx.signature()).into(),
@@ -219,6 +246,94 @@ impl From<alloy_consensus::TxLegacy> for TxLegacy {
             },
             value: tx.value,
             input: tx.input,
+        }
+    }
+}
+
+/// SSZ-serializable representation of an EIP-1559 transaction.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct TxEip1559 {
+    chain_id: ChainId,
+    nonce: u64,
+    gas_limit: u64,
+    max_fee_per_gas: u128,
+    max_priority_fee_per_gas: u128,
+    to: Address,
+    value: U256,
+    access_list: Vec<AccessListItem>,
+    input: Bytes,
+}
+
+impl From<alloy_consensus::transaction::TxEip1559> for TxEip1559 {
+    fn from(value: alloy_consensus::transaction::TxEip1559) -> Self {
+        Self {
+            chain_id: value.chain_id,
+            nonce: value.nonce,
+            gas_limit: value.gas_limit,
+            max_fee_per_gas: value.max_fee_per_gas,
+            max_priority_fee_per_gas: value.max_priority_fee_per_gas,
+            to: match value.to {
+                alloy_primitives::TxKind::Create => Address::default(),
+                alloy_primitives::TxKind::Call(addr) => addr,
+            },
+            value: value.value,
+            access_list: value
+                .access_list
+                .iter()
+                .map(|al| AccessListItem {
+                    address: al.address,
+                    storage_keys: al.storage_keys.clone(),
+                })
+                .collect(),
+            input: value.input,
+        }
+    }
+}
+
+/// SSZ-serializable representation of an access list.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct AccessListItem {
+    address: Address,
+    storage_keys: Vec<B256>,
+}
+
+/// SSZ-serializable representation of an EIP-4844 transaction.
+#[derive(Debug, PartialEq, Eq, ssz_derive::Encode, ssz_derive::Decode)]
+pub struct TxEip4844 {
+    chain_id: ChainId,
+    nonce: u64,
+    gas_limit: u64,
+    max_fee_per_gas: u128,
+    max_priority_fee_per_gas: u128,
+    to: Address,
+    value: U256,
+    access_list: Vec<AccessListItem>,
+    blob_versioned_hashes: Vec<B256>,
+    max_fee_per_blob_gas: u128,
+    input: Bytes,
+}
+
+impl From<alloy_consensus::transaction::TxEip4844> for TxEip4844 {
+    fn from(value: alloy_consensus::transaction::TxEip4844) -> Self {
+        Self {
+            chain_id: value.chain_id,
+            nonce: value.nonce,
+            gas_limit: value.gas_limit,
+            max_fee_per_gas: value.max_fee_per_gas,
+            max_priority_fee_per_gas: value.max_priority_fee_per_gas,
+            to: value.to,
+            value: value.value,
+            access_list: value
+                .access_list
+                .iter()
+                .map(|al| AccessListItem {
+                    address: al.address,
+                    storage_keys: al.storage_keys.clone(),
+                })
+                .collect(),
+            blob_versioned_hashes: value.blob_versioned_hashes,
+            max_fee_per_blob_gas: value.max_fee_per_blob_gas,
+            input: value.input,
         }
     }
 }
