@@ -1658,7 +1658,7 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "cargo_metadata 0.20.0",
  "thiserror 2.0.12",
@@ -3110,7 +3110,7 @@ dependencies = [
 [[package]]
 name = "ere-openvm"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "build-utils",
  "openvm-build",
@@ -3125,7 +3125,7 @@ dependencies = [
 [[package]]
 name = "ere-pico"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "bincode",
  "build-utils",
@@ -3137,7 +3137,7 @@ dependencies = [
 [[package]]
 name = "ere-risczero"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "anyhow",
  "borsh",
@@ -3155,7 +3155,7 @@ dependencies = [
 [[package]]
 name = "ere-sp1"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "bincode",
  "build-utils",
@@ -3169,7 +3169,7 @@ dependencies = [
 [[package]]
 name = "ere-zisk"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "bincode",
  "blake3",
@@ -3740,9 +3740,14 @@ name = "guest-libs"
 version = "0.1.0"
 dependencies = [
  "alloy-consensus",
+ "alloy-eips",
+ "alloy-primitives",
+ "ethereum_ssz",
+ "ethereum_ssz_derive",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
  "serde",
+ "serde_json",
  "serde_with",
 ]
 
@@ -14074,7 +14079,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.1.0"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.8#f05aa500327fd130582b2732ce0e2c7a64e74214"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=v0.0.9#498c484d1c8ad971b2afe8735e0a42f346b2cf92"
 dependencies = [
  "anyhow",
  "auto_impl",

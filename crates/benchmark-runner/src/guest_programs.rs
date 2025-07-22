@@ -26,7 +26,7 @@ pub struct GuestInput<M: GuestInputMetadata> {
 impl GuestInputMetadata for () {}
 
 /// Generate inputs for the empty program guest program.
-pub fn empty_program_generate_inputs() -> GuestInput<()> {
+pub fn empty_program_inputs() -> GuestInput<()> {
     GuestInput {
         name: "empty_program".to_string(),
         stdin: Input::new(),
@@ -42,7 +42,7 @@ pub struct BlockMetadata {
 impl GuestInputMetadata for BlockMetadata {}
 
 /// Generate inputs for the stateless validator guest program.
-pub fn stateless_validator_generate_inputs(
+pub fn stateless_validator_inputs(
     input_folder: &Path,
 ) -> anyhow::Result<Vec<GuestInput<BlockMetadata>>> {
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
@@ -64,29 +64,43 @@ pub fn stateless_validator_generate_inputs(
     Ok(guest_inputs)
 }
 
-/// Metadata for the block RLP length calculation guest program.
+/// Metadata for the block block length calculation guest program.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct RLPLengthMetadata {
+pub struct BlockEncodingLengthMetadata {
+    format: String,
     block_hash: String,
     loop_count: u16,
 }
-impl GuestInputMetadata for RLPLengthMetadata {}
+impl GuestInputMetadata for BlockEncodingLengthMetadata {}
 
-/// Generate inputs for the block RLP length calculation guest program.
-pub fn block_rlp_length_generate_inputs(
+/// The encoding format used for the block encoding length calculation.
+#[derive(Debug, Clone, Copy)]
+#[repr(u8)]
+pub enum BlockEncodingFormat {
+    /// RLP encoding format
+    Rlp,
+    /// SSZ encoding format
+    Ssz,
+}
+
+/// Generate inputs for the block encoding lengths calculation guest programs.
+pub fn block_encoding_length_inputs(
     input_folder: &Path,
     loop_count: u16,
-) -> anyhow::Result<Vec<GuestInput<RLPLengthMetadata>>> {
+    format: BlockEncodingFormat,
+) -> anyhow::Result<Vec<GuestInput<BlockEncodingLengthMetadata>>> {
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
             let mut stdin = Input::new();
-            let metadata = RLPLengthMetadata {
+            let metadata = BlockEncodingLengthMetadata {
+                format: format!("{format:?}"),
                 block_hash: bw.block_and_witness.block.hash_slow().to_string(),
                 loop_count,
             };
             stdin.write(BincodeBlock(bw.block_and_witness.block));
             stdin.write(loop_count);
+            stdin.write(format as u8);
             GuestInput {
                 name: bw.name,
                 stdin,

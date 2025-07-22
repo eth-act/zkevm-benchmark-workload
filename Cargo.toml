@@ -108,12 +108,12 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "zkvm-interface" }
-ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "ere-sp1" }
-ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "ere-risczero" }
-ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "ere-pico" }
-ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "ere-openvm" }
-ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.8", package = "ere-zisk" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "zkvm-interface" }
+ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-sp1" }
+ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-risczero" }
+ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-pico" }
+ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-openvm" }
+ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
@@ -128,6 +128,11 @@ reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "75
 alloy-eips = { version = "1.0.13" }
 alloy-rpc-types-eth = "1.0.12"
 alloy-consensus = { version = "1.0.18", default-features = false }
+alloy-primitives = { version = "1.2.0", default-features = false }
+
+ethereum_ssz_derive = "0.9"
+ethereum_ssz = "0.9"
+
 
 # misc
 bincode = "1.3"

@@ -7,6 +7,8 @@ use reth_ethereum_primitives::Block;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
+pub mod block_ssz;
+
 /// Block wrapper that supports bincode serialization
 #[serde_as]
 #[derive(Clone, Debug, Default, Serialize, Deserialize)]

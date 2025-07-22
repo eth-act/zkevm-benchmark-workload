@@ -12,9 +12,17 @@ reth-ethereum-primitives = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 alloy-consensus.workspace = true
+alloy-primitives.workspace = true
+alloy-eips.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 serde_with.workspace = true
+
+ethereum_ssz_derive = { workspace = true }
+ethereum_ssz = { workspace = true }
+
+[dev-dependencies]
+serde_json.workspace = true
 
 [lints]
 workspace = true
