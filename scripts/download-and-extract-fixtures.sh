@@ -26,6 +26,21 @@ set -euo pipefail
 REPO="ethereum/execution-spec-tests"
 ASSET_NAME="fixtures_benchmark.tar.gz"
 
+# Helper function to make authenticated GitHub API calls
+github_api_curl() {
+  local url="$1"
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
+    curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" "${url}"
+  else
+    curl -fsSL "${url}"
+  fi
+}
+
+# Show authentication status
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+  echo "🔑  Using GitHub token for API authentication"
+fi
+
 # Set DEST_DIR from second argument, or default
 if [ -n "${2:-}" ]; then
   DEST_DIR="$2"
@@ -42,7 +57,7 @@ else
   # Find the latest release with 'benchmark@' prefix
   echo "🔎  Finding the latest release with prefix 'benchmark@'..."
   LATEST_TAG=$( \
-    curl -fsSL "https://api.github.com/repos/${REPO}/releases" | \
+    github_api_curl "https://api.github.com/repos/${REPO}/releases" | \
     jq -r '.[].tag_name' | \
     grep '^benchmark@' | \
     sed 's/^benchmark@v//' | \
@@ -62,7 +77,7 @@ API_URL="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
 
 echo "🔎  Getting release info for ${TAG} …"
 DOWNLOAD_URL=$(
-  curl -fsSL "${API_URL}" |
+  github_api_curl "${API_URL}" |
   jq -r ".assets[] | select(.name==\"${ASSET_NAME}\") | .browser_download_url"
 )
 
