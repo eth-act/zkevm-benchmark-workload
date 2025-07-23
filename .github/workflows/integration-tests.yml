@@ -2,8 +2,8 @@ name: Integration tests
 on:
   push:
     branches: [ main, master, jsign-eest-release ]
-    schedule:
-      - cron: '0 0 * * *'
+  schedule:
+    - cron: '0 0 * * *'
   workflow_dispatch:
 env:
   CARGO_TERM_COLOR: always
@@ -64,7 +64,7 @@ jobs:
 
       
       - name: Generate benchmark fixtures
-        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague
+        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague --include empty_block
 
       - name: Run benchmark
         run: RUST_LOG=info cargo run -p ere-hosts --release --features ${{ matrix.zkvm }} -- --action ${{ matrix.action }} stateless-validator
