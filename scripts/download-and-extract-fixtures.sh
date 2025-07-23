@@ -3,8 +3,8 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the latest release tag starting with 'benchmark@'.
-# You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest tag.
+# By default, it fetches the latest release starting with 'benchmark@'.
+# You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest release.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
 # Usage:
@@ -15,16 +15,16 @@
 #   ./scripts/download-and-extract-fixtures.sh
 #   # Download latest release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
-#   # Download a specific tag to default directory
+#   # Download a specific release to default directory
 #   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1
-#   # Download a specific tag to a custom directory
+#   # Download a specific release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1 /tmp/fixtures
 #
 
 set -euo pipefail
 
 REPO="ethereum/execution-spec-tests"
-ASSET_NAME="fixtures_zkevm.tar.gz"
+ASSET_NAME="fixtures_benchmark.tar.gz"
 
 # Set DEST_DIR from second argument, or default
 if [ -n "${2:-}" ]; then
@@ -39,11 +39,11 @@ if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
   TAG="$1"
   echo "ℹ️  Using specified tag: ${TAG}"
 else
-  # Find the latest tag with 'benchmark@' prefix
-  echo "🔎  Finding the latest release tag with prefix 'benchmark@'..."
+  # Find the latest release with 'benchmark@' prefix
+  echo "🔎  Finding the latest release with prefix 'benchmark@'..."
   LATEST_TAG=$( \
-    curl -fsSL "https://api.github.com/repos/${REPO}/tags" | \
-    jq -r '.[].name' | \
+    curl -fsSL "https://api.github.com/repos/${REPO}/releases" | \
+    jq -r '.[].tag_name' | \
     grep '^benchmark@' | \
     sed 's/^benchmark@v//' | \
     sort -V | \
@@ -51,11 +51,11 @@ else
     sed 's/^/benchmark@v/' \
   )
   if [[ -z "${LATEST_TAG}" ]]; then
-    echo "❌  Could not find any release tags with prefix 'benchmark@' in ${REPO}" >&2
+    echo "❌  Could not find any releases with prefix 'benchmark@' in ${REPO}" >&2
     exit 1
   fi
   TAG="${LATEST_TAG}"
-  echo "ℹ️  Using latest found tag: ${TAG}"
+  echo "ℹ️  Using latest found release: ${TAG}"
 fi
 
 API_URL="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
