@@ -61,7 +61,6 @@ jobs:
           ./scripts/download-and-extract-fixtures.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       
       - name: Generate benchmark fixtures
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague --include empty_block
