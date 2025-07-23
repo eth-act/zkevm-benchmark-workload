@@ -26,10 +26,6 @@ jobs:
           chmod +x ./scripts/download-and-extract-fixtures.sh
           ./scripts/download-and-extract-fixtures.sh
       
-      # This step is temporary until a new benchmark release is done.
-      - name: Delete prague fixtures
-        run: rm -rf ./zkevm-fixtures/fixtures/blockchain_tests/prague
-
       - name: Generate benchmark fixtures
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include keccak --include Prague
 
