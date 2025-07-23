@@ -27,7 +27,7 @@ jobs:
           ./scripts/download-and-extract-fixtures.sh
       
       - name: Generate benchmark fixtures
-        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include keccak --include Prague
+        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague
 
       - name: Check zkevm-fixtures-input folder has at least 1 file
         run: |
