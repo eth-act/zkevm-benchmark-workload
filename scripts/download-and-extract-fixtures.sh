@@ -3,7 +3,7 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the latest release tag starting with 'zkevm@'.
+# By default, it fetches the latest release tag starting with 'benchmark@'.
 # You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest tag.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
@@ -16,9 +16,9 @@
 #   # Download latest release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
 #   # Download a specific tag to default directory
-#   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1
+#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1
 #   # Download a specific tag to a custom directory
-#   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1 /tmp/fixtures
+#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1 /tmp/fixtures
 #
 
 set -euo pipefail
@@ -39,19 +39,19 @@ if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
   TAG="$1"
   echo "ℹ️  Using specified tag: ${TAG}"
 else
-  # Find the latest tag with 'zkevm@' prefix
-  echo "🔎  Finding the latest release tag with prefix 'zkevm@'..."
+  # Find the latest tag with 'benchmark@' prefix
+  echo "🔎  Finding the latest release tag with prefix 'benchmark@'..."
   LATEST_TAG=$( \
     curl -fsSL "https://api.github.com/repos/${REPO}/tags" | \
     jq -r '.[].name' | \
-    grep '^zkevm@' | \
-    sed 's/^zkevm@v//' | \
+    grep '^benchmark@' | \
+    sed 's/^benchmark@v//' | \
     sort -V | \
     tail -n 1 | \
-    sed 's/^/zkevm@v/' \
+    sed 's/^/benchmark@v/' \
   )
   if [[ -z "${LATEST_TAG}" ]]; then
-    echo "❌  Could not find any release tags with prefix 'zkevm@' in ${REPO}" >&2
+    echo "❌  Could not find any release tags with prefix 'benchmark@' in ${REPO}" >&2
     exit 1
   fi
   TAG="${LATEST_TAG}"
