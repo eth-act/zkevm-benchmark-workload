@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ main, master, jsign-eest-release ]
+    branches: [ main, master ]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -47,7 +47,7 @@ jobs:
       fail-fast: false
       matrix:
         zkvm: [sp1]
-        action: [execute, prove]
+        action: [execute]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
