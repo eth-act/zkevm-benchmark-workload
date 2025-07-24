@@ -3,8 +3,8 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the latest release tag starting with 'zkevm@'.
-# You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest tag.
+# By default, it fetches the latest release starting with 'benchmark@'.
+# You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest release.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
 # Usage:
@@ -15,16 +15,31 @@
 #   ./scripts/download-and-extract-fixtures.sh
 #   # Download latest release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
-#   # Download a specific tag to default directory
-#   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1
-#   # Download a specific tag to a custom directory
-#   ./scripts/download-and-extract-fixtures.sh zkevm@v0.0.1 /tmp/fixtures
+#   # Download a specific release to default directory
+#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1
+#   # Download a specific release to a custom directory
+#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1 /tmp/fixtures
 #
 
 set -euo pipefail
 
 REPO="ethereum/execution-spec-tests"
-ASSET_NAME="fixtures_zkevm.tar.gz"
+ASSET_NAME="fixtures_benchmark.tar.gz"
+
+# Helper function to make authenticated GitHub API calls
+github_api_curl() {
+  local url="$1"
+  if [ -n "${GITHUB_TOKEN:-}" ]; then
+    curl -fsSL -H "Authorization: Bearer ${GITHUB_TOKEN}" "${url}"
+  else
+    curl -fsSL "${url}"
+  fi
+}
+
+# Show authentication status
+if [ -n "${GITHUB_TOKEN:-}" ]; then
+  echo "🔑  Using GitHub token for API authentication"
+fi
 
 # Set DEST_DIR from second argument, or default
 if [ -n "${2:-}" ]; then
@@ -39,30 +54,30 @@ if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
   TAG="$1"
   echo "ℹ️  Using specified tag: ${TAG}"
 else
-  # Find the latest tag with 'zkevm@' prefix
-  echo "🔎  Finding the latest release tag with prefix 'zkevm@'..."
+  # Find the latest release with 'benchmark@' prefix
+  echo "🔎  Finding the latest release with prefix 'benchmark@'..."
   LATEST_TAG=$( \
-    curl -fsSL "https://api.github.com/repos/${REPO}/tags" | \
-    jq -r '.[].name' | \
-    grep '^zkevm@' | \
-    sed 's/^zkevm@v//' | \
+    github_api_curl "https://api.github.com/repos/${REPO}/releases" | \
+    jq -r '.[].tag_name' | \
+    grep '^benchmark@' | \
+    sed 's/^benchmark@v//' | \
     sort -V | \
     tail -n 1 | \
-    sed 's/^/zkevm@v/' \
+    sed 's/^/benchmark@v/' \
   )
   if [[ -z "${LATEST_TAG}" ]]; then
-    echo "❌  Could not find any release tags with prefix 'zkevm@' in ${REPO}" >&2
+    echo "❌  Could not find any releases with prefix 'benchmark@' in ${REPO}" >&2
     exit 1
   fi
   TAG="${LATEST_TAG}"
-  echo "ℹ️  Using latest found tag: ${TAG}"
+  echo "ℹ️  Using latest found release: ${TAG}"
 fi
 
 API_URL="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
 
 echo "🔎  Getting release info for ${TAG} …"
 DOWNLOAD_URL=$(
-  curl -fsSL "${API_URL}" |
+  github_api_curl "${API_URL}" |
   jq -r ".assets[] | select(.name==\"${ASSET_NAME}\") | .browser_download_url"
 )
 
