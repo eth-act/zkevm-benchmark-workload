@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ main, master ]
+    branches: [ main, master, jsign-gh-runners]
   schedule:
     - cron: '0 0 * * *'
   workflow_dispatch:
@@ -11,7 +11,7 @@ env:
 jobs: 
   witness-generator:
     name: Generate EEST benchmark fixtures
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted-ghr, size-xl-x64]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,12 +42,12 @@ jobs:
   
   stateless-validator:
     name: Stateless validator guest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted-ghr, size-xl-x64]
     strategy:
       fail-fast: false
       matrix:
         zkvm: [sp1]
-        action: [execute]
+        action: [execute, prove]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -95,7 +95,7 @@ jobs:
 
   empty-program:
     name: Empty program guest
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted-ghr, size-xl-x64]
     strategy:
       fail-fast: false
       matrix:
