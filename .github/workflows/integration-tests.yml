@@ -27,6 +27,11 @@ jobs:
           ./scripts/download-and-extract-fixtures.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install C toolchain dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang libclang-dev
       
       - name: Generate benchmark fixtures
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague
