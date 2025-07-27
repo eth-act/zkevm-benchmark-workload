@@ -124,6 +124,7 @@ reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "03364a8
 alloy-primitives = { version = "1.2.0", default-features = false }
 alloy-consensus = { version = "1.0.18", default-features = false }
 alloy-eips = { version = "1.0.13" }
+alloy-genesis = { version = "1.0.18", default-features = false }
 
 # revm
 revm = { version = "26.0.1", default-features = false }

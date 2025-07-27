@@ -7,9 +7,10 @@ extern crate alloc;
 
 use alloc::sync::Arc;
 
-use reth_chainspec::ChainSpec;
+use alloy_genesis::Genesis;
+use reth_chainspec::{Chain, ChainSpec, ChainSpecBuilder};
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec, validation::stateless_validation};
+use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, StatelessInput};
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);
@@ -20,7 +21,7 @@ pub fn main() {
     println!("cycle-tracker-report-start: read_input");
     let input = sp1_zkvm::io::read::<StatelessInput>();
     let fork_spec = sp1_zkvm::io::read::<ForkSpec>();
-    let chain_spec: Arc<ChainSpec> = Arc::new(fork_spec.into());
+    let chain_spec: Arc<ChainSpec> = Arc::new(from(fork_spec));
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("cycle-tracker-report-end: read_input");
 
@@ -45,4 +46,39 @@ fn init_tracing_just_like_println() {
         .with_writer(std::io::stdout) // stdout == println!
         .with_max_level(tracing::Level::INFO) // capture info! and up
         .init(); // set as global default
+}
+
+fn from(fork_spec: ForkSpec) -> ChainSpec {
+    let spec_builder = ChainSpecBuilder::default()
+        .chain(Chain::mainnet())
+        .genesis(Genesis::default());
+
+    match fork_spec {
+        ForkSpec::Frontier => spec_builder.frontier_activated(),
+        ForkSpec::Homestead | ForkSpec::FrontierToHomesteadAt5 => {
+            spec_builder.homestead_activated()
+        }
+        ForkSpec::EIP150 | ForkSpec::HomesteadToDaoAt5 | ForkSpec::HomesteadToEIP150At5 => {
+            spec_builder.tangerine_whistle_activated()
+        }
+        ForkSpec::EIP158 => spec_builder.spurious_dragon_activated(),
+        ForkSpec::Byzantium
+        | ForkSpec::EIP158ToByzantiumAt5
+        | ForkSpec::ConstantinopleFix
+        | ForkSpec::ByzantiumToConstantinopleFixAt5 => spec_builder.byzantium_activated(),
+        ForkSpec::Istanbul => spec_builder.istanbul_activated(),
+        ForkSpec::Berlin => spec_builder.berlin_activated(),
+        ForkSpec::London | ForkSpec::BerlinToLondonAt5 => spec_builder.london_activated(),
+        ForkSpec::Merge
+        | ForkSpec::MergeEOF
+        | ForkSpec::MergeMeterInitCode
+        | ForkSpec::MergePush0 => spec_builder.paris_activated(),
+        ForkSpec::Shanghai => spec_builder.shanghai_activated(),
+        ForkSpec::Cancun => spec_builder.cancun_activated(),
+        ForkSpec::ByzantiumToConstantinopleAt5 | ForkSpec::Constantinople => {
+            panic!("Overridden with PETERSBURG")
+        }
+        ForkSpec::Prague => spec_builder.prague_activated(),
+    }
+    .build()
 }
