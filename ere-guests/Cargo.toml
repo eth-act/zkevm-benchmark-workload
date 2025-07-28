@@ -126,7 +126,7 @@ alloy-consensus = { version = "1.0.18", default-features = false }
 alloy-eips = { version = "1.0.13" }
 
 # revm
-revm = { version = "26.0.1", default-features = false }
+revm = { version = "27.0.2", default-features = false }
 
 # misc
 bincode = "1.3"
