@@ -2865,7 +2865,7 @@ dependencies = [
 [[package]]
 name = "ef-tests"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -3739,13 +3739,16 @@ dependencies = [
 name = "guest-libs"
 version = "0.1.0"
 dependencies = [
+ "alloy-chains",
  "alloy-consensus",
  "alloy-eips",
+ "alloy-hardforks",
  "alloy-primitives",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
+ "reth-stateless",
  "serde",
  "serde_json",
  "serde_with",
@@ -8747,7 +8750,7 @@ checksum = "95325155c684b1c89f7765e30bc1c42e4a6da51ca513615660cb8a62ef9a88e3"
 [[package]]
 name = "reth-basic-payload-builder"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8771,7 +8774,7 @@ dependencies = [
 [[package]]
 name = "reth-chain-state"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8802,7 +8805,7 @@ dependencies = [
 [[package]]
 name = "reth-chainspec"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-chains",
  "alloy-consensus",
@@ -8822,7 +8825,7 @@ dependencies = [
 [[package]]
 name = "reth-cli-util"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -8839,7 +8842,7 @@ dependencies = [
 [[package]]
 name = "reth-codecs"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8859,7 +8862,7 @@ dependencies = [
 [[package]]
 name = "reth-codecs-derive"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "convert_case 0.7.1",
  "proc-macro2",
@@ -8870,7 +8873,7 @@ dependencies = [
 [[package]]
 name = "reth-config"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "eyre",
  "humantime-serde",
@@ -8885,7 +8888,7 @@ dependencies = [
 [[package]]
 name = "reth-consensus"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
@@ -8898,7 +8901,7 @@ dependencies = [
 [[package]]
 name = "reth-consensus-common"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -8910,7 +8913,7 @@ dependencies = [
 [[package]]
 name = "reth-db"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "derive_more 2.0.1",
@@ -8936,7 +8939,7 @@ dependencies = [
 [[package]]
 name = "reth-db-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-genesis",
@@ -8964,7 +8967,7 @@ dependencies = [
 [[package]]
 name = "reth-db-common"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-genesis",
@@ -8993,7 +8996,7 @@ dependencies = [
 [[package]]
 name = "reth-db-models"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9008,7 +9011,7 @@ dependencies = [
 [[package]]
 name = "reth-discv4"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -9034,7 +9037,7 @@ dependencies = [
 [[package]]
 name = "reth-discv5"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -9058,7 +9061,7 @@ dependencies = [
 [[package]]
 name = "reth-dns-discovery"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "data-encoding",
@@ -9082,7 +9085,7 @@ dependencies = [
 [[package]]
 name = "reth-ecies"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "aes",
  "alloy-primitives",
@@ -9113,7 +9116,7 @@ dependencies = [
 [[package]]
 name = "reth-engine-local"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
@@ -9135,7 +9138,7 @@ dependencies = [
 [[package]]
 name = "reth-engine-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9160,7 +9163,7 @@ dependencies = [
 [[package]]
 name = "reth-errors"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "reth-consensus",
  "reth-execution-errors",
@@ -9171,7 +9174,7 @@ dependencies = [
 [[package]]
 name = "reth-eth-wire"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-chains",
  "alloy-primitives",
@@ -9199,7 +9202,7 @@ dependencies = [
 [[package]]
 name = "reth-eth-wire-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-chains",
  "alloy-consensus",
@@ -9220,7 +9223,7 @@ dependencies = [
 [[package]]
 name = "reth-ethereum-consensus"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9236,7 +9239,7 @@ dependencies = [
 [[package]]
 name = "reth-ethereum-engine-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9254,7 +9257,7 @@ dependencies = [
 [[package]]
 name = "reth-ethereum-forks"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eip2124",
  "alloy-hardforks",
@@ -9267,7 +9270,7 @@ dependencies = [
 [[package]]
 name = "reth-ethereum-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9285,7 +9288,7 @@ dependencies = [
 [[package]]
 name = "reth-etl"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "rayon",
  "reth-db-api",
@@ -9295,7 +9298,7 @@ dependencies = [
 [[package]]
 name = "reth-evm"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9316,7 +9319,7 @@ dependencies = [
 [[package]]
 name = "reth-evm-ethereum"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9334,7 +9337,7 @@ dependencies = [
 [[package]]
 name = "reth-execution-errors"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-evm",
  "alloy-primitives",
@@ -9347,7 +9350,7 @@ dependencies = [
 [[package]]
 name = "reth-execution-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9365,7 +9368,7 @@ dependencies = [
 [[package]]
 name = "reth-fs-util"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "serde",
  "serde_json",
@@ -9375,7 +9378,7 @@ dependencies = [
 [[package]]
 name = "reth-libmdbx"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "bitflags 2.9.1",
  "byteorder",
@@ -9392,7 +9395,7 @@ dependencies = [
 [[package]]
 name = "reth-mdbx-sys"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "bindgen",
  "cc",
@@ -9401,7 +9404,7 @@ dependencies = [
 [[package]]
 name = "reth-metrics"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "futures",
  "metrics 0.24.2",
@@ -9413,7 +9416,7 @@ dependencies = [
 [[package]]
 name = "reth-net-banlist"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
 ]
@@ -9421,7 +9424,7 @@ dependencies = [
 [[package]]
 name = "reth-net-nat"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "futures-util",
  "if-addrs",
@@ -9435,7 +9438,7 @@ dependencies = [
 [[package]]
 name = "reth-network"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9490,7 +9493,7 @@ dependencies = [
 [[package]]
 name = "reth-network-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "alloy-rpc-types-admin",
@@ -9513,7 +9516,7 @@ dependencies = [
 [[package]]
 name = "reth-network-p2p"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9535,7 +9538,7 @@ dependencies = [
 [[package]]
 name = "reth-network-peers"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -9550,7 +9553,7 @@ dependencies = [
 [[package]]
 name = "reth-network-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eip2124",
  "humantime-serde",
@@ -9564,7 +9567,7 @@ dependencies = [
 [[package]]
 name = "reth-nippy-jar"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "anyhow",
  "bincode",
@@ -9581,7 +9584,7 @@ dependencies = [
 [[package]]
 name = "reth-node-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-rpc-types-engine",
  "eyre",
@@ -9605,7 +9608,7 @@ dependencies = [
 [[package]]
 name = "reth-node-core"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9657,7 +9660,7 @@ dependencies = [
 [[package]]
 name = "reth-node-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "reth-chainspec",
  "reth-db-api",
@@ -9670,7 +9673,7 @@ dependencies = [
 [[package]]
 name = "reth-optimism-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9689,7 +9692,7 @@ dependencies = [
 [[package]]
 name = "reth-payload-builder"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-rpc-types",
@@ -9709,7 +9712,7 @@ dependencies = [
 [[package]]
 name = "reth-payload-builder-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "pin-project",
  "reth-payload-primitives",
@@ -9721,7 +9724,7 @@ dependencies = [
 [[package]]
 name = "reth-payload-primitives"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9740,7 +9743,7 @@ dependencies = [
 [[package]]
 name = "reth-primitives-traits"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9773,7 +9776,7 @@ dependencies = [
 [[package]]
 name = "reth-provider"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9818,7 +9821,7 @@ dependencies = [
 [[package]]
 name = "reth-prune-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "arbitrary",
@@ -9832,7 +9835,7 @@ dependencies = [
 [[package]]
 name = "reth-revm"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "reth-primitives-traits",
@@ -9845,7 +9848,7 @@ dependencies = [
 [[package]]
 name = "reth-rpc-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-genesis",
@@ -9873,7 +9876,7 @@ dependencies = [
 [[package]]
 name = "reth-rpc-convert"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-json-rpc",
@@ -9890,7 +9893,7 @@ dependencies = [
 [[package]]
 name = "reth-rpc-eth-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-dyn-abi",
@@ -9935,7 +9938,7 @@ dependencies = [
 [[package]]
 name = "reth-rpc-eth-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9978,7 +9981,7 @@ dependencies = [
 [[package]]
 name = "reth-rpc-server-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9994,7 +9997,7 @@ dependencies = [
 [[package]]
 name = "reth-stages-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "arbitrary",
@@ -10008,9 +10011,11 @@ dependencies = [
 [[package]]
 name = "reth-stateless"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
+ "alloy-eips",
+ "alloy-genesis",
  "alloy-primitives",
  "alloy-rlp",
  "alloy-rpc-types-debug",
@@ -10022,6 +10027,7 @@ dependencies = [
  "reth-ethereum-consensus",
  "reth-ethereum-primitives",
  "reth-evm",
+ "reth-network-peers",
  "reth-primitives-traits",
  "reth-revm",
  "reth-trie-common",
@@ -10035,7 +10041,7 @@ dependencies = [
 [[package]]
 name = "reth-static-file-types"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "derive_more 2.0.1",
@@ -10046,7 +10052,7 @@ dependencies = [
 [[package]]
 name = "reth-storage-api"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -10070,7 +10076,7 @@ dependencies = [
 [[package]]
 name = "reth-storage-errors"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -10086,7 +10092,7 @@ dependencies = [
 [[package]]
 name = "reth-tasks"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "auto_impl",
  "dyn-clone",
@@ -10104,7 +10110,7 @@ dependencies = [
 [[package]]
 name = "reth-tokio-util"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "tokio",
  "tokio-stream",
@@ -10114,7 +10120,7 @@ dependencies = [
 [[package]]
 name = "reth-tracing"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "clap",
  "eyre",
@@ -10129,7 +10135,7 @@ dependencies = [
 [[package]]
 name = "reth-transaction-pool"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -10167,7 +10173,7 @@ dependencies = [
 [[package]]
 name = "reth-trie"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -10192,7 +10198,7 @@ dependencies = [
 [[package]]
 name = "reth-trie-common"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
@@ -10218,7 +10224,7 @@ dependencies = [
 [[package]]
 name = "reth-trie-db"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "reth-db-api",
@@ -10231,7 +10237,7 @@ dependencies = [
 [[package]]
 name = "reth-trie-sparse"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -10247,7 +10253,7 @@ dependencies = [
 [[package]]
 name = "reth-zstd-compressors"
 version = "1.5.1"
-source = "git+https://github.com/kevaundray/reth?rev=75092d6aa098311db96c06b97a252a6f2b42dbaf#75092d6aa098311db96c06b97a252a6f2b42dbaf"
+source = "git+https://github.com/kevaundray/reth?rev=07711838501678c8cf0e8d53502e3abe0afec9c3#07711838501678c8cf0e8d53502e3abe0afec9c3"
 dependencies = [
  "zstd",
 ]
@@ -13817,6 +13823,7 @@ dependencies = [
  "async-trait",
  "ef-tests",
  "flate2",
+ "guest-libs",
  "http",
  "jsonrpsee",
  "rayon",

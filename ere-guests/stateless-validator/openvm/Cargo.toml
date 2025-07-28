@@ -9,6 +9,7 @@ license.workspace = true
 openvm = { git = "https://github.com/openvm-org/openvm.git", features = [
     "std",
 ], tag = "v1.1.1" }
+guest-libs.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

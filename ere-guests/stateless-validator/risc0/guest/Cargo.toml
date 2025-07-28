@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+guest-libs.workspace = true
+
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
