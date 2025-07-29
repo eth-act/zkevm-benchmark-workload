@@ -108,12 +108,12 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "zkvm-interface" }
-ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-sp1" }
-ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-risczero" }
-ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-pico" }
-ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-openvm" }
-ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "v0.0.9", package = "ere-zisk" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "zkvm-interface" }
+ere-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "ere-sp1" }
+ere-risczero = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "ere-risczero" }
+ere-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "ere-pico" }
+ere-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "ere-openvm" }
+ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "a932cb75a3b94d8ce10591a471cbe6ec85a13170", package = "ere-zisk" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
