@@ -242,7 +242,7 @@ fn get_zkvm_instances(
         {
             run_cargo_patch_command("openvm", workspace_dir)?;
             let program = OPENVM_TARGET::compile(workspace_dir, &guest_relative.join("openvm"))?;
-            let zkvm = EreOpenVM::new(program, resource.clone());
+            let zkvm = EreOpenVM::new(program, resource.clone())?;
             name_zkvms.push(Box::new(zkvm));
         }
 
