@@ -25,7 +25,7 @@ use zkvm_interface::{Compiler, ProverResourceType, zkVM};
 use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
 
 #[cfg(feature = "risc0")]
-use ere_risczero::{EreRisc0, RV32_IM_RISCZERO_ZKVM_ELF};
+use ere_risc0::{EreRisc0, RV32_IM_RISC0_ZKVM_ELF};
 
 #[cfg(feature = "openvm")]
 use ere_openvm::{EreOpenVM, OPENVM_TARGET};
@@ -233,7 +233,7 @@ fn get_zkvm_instances(
         {
             run_cargo_patch_command("risc0", workspace_dir)?;
             let program =
-                RV32_IM_RISCZERO_ZKVM_ELF::compile(workspace_dir, &guest_relative.join("risc0"))?;
+                RV32_IM_RISC0_ZKVM_ELF::compile(workspace_dir, &guest_relative.join("risc0"))?;
             let zkvm = EreRisc0::new(program, resource.clone());
             name_zkvms.push(Box::new(zkvm));
         }
