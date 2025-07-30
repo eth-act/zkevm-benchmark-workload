@@ -6,6 +6,8 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+guest-libs.workspace = true
+
 walkdir.workspace = true
 rayon.workspace = true
 serde.workspace = true

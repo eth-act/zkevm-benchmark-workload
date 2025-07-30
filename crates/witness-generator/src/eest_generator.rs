@@ -7,6 +7,7 @@ use ef_tests::{
     cases::blockchain_test::{BlockchainTestCase, run_case},
     models::BlockchainTest,
 };
+use guest_libs::chainconfig::ChainConfig;
 use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
@@ -175,7 +176,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                             witness,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    network: ForkSpec::from(case.network),
+                    chain_config: ChainConfig::Test(ForkSpec::from(case.network)),
                 })
             })
             .collect();
