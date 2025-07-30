@@ -114,11 +114,11 @@ sp1-zkvm = "5.0.5"
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "07711838501678c8cf0e8d53502e3abe0afec9c3" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "07711838501678c8cf0e8d53502e3abe0afec9c3" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "07711838501678c8cf0e8d53502e3abe0afec9c3" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "07711838501678c8cf0e8d53502e3abe0afec9c3" }
-reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "07711838501678c8cf0e8d53502e3abe0afec9c3" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "263361ebadb8f34e1eabb3ae3306330cad2ad5e4" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "263361ebadb8f34e1eabb3ae3306330cad2ad5e4" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "263361ebadb8f34e1eabb3ae3306330cad2ad5e4" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "263361ebadb8f34e1eabb3ae3306330cad2ad5e4" }
+reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "263361ebadb8f34e1eabb3ae3306330cad2ad5e4" }
 
 # alloy
 alloy-primitives = { version = "1.2.0", default-features = false }
