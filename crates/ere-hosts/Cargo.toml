@@ -8,7 +8,7 @@ license.workspace = true
 [features]
 default = []
 sp1 = ["dep:ere-sp1"]
-risc0 = ["dep:ere-risczero"]
+risc0 = ["dep:ere-risc0"]
 openvm = ["dep:ere-openvm"]
 pico = ["dep:ere-pico"]
 zisk = ["dep:ere-zisk"]
@@ -23,7 +23,7 @@ zkvm-interface.workspace = true
 
 # Optional dependencies based on features
 ere-sp1 = { workspace = true, optional = true }
-ere-risczero = { workspace = true, optional = true }
+ere-risc0 = { workspace = true, optional = true }
 ere-openvm = { workspace = true, optional = true }
 ere-pico = { workspace = true, optional = true }
 ere-zisk = { workspace = true, optional = true }
