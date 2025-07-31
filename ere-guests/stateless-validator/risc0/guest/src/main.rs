@@ -1,13 +1,12 @@
-#![cfg_attr(not(test), warn(unused_crate_dependencies))]
-
-use guest_libs::chainconfig::ChainConfig;
-use risc0_zkvm::guest::env;
+//! Risc0 guest program
 
 extern crate alloc;
-
 use alloc::sync::Arc;
+
+use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{chain_spec::ChainSpec, validation::stateless_validation, StatelessInput};
+use reth_stateless::{chain_spec::ChainSpec, stateless_validation_with_trie, StatelessInput};
+use risc0_zkvm::guest::env;
 
 /// Entry point.
 pub fn main() {
@@ -22,7 +21,13 @@ pub fn main() {
 
     println!("start stateless validation");
     let start = env::cycle_count();
-    stateless_validation(input.block, input.witness, chain_spec, evm_config).unwrap();
+    stateless_validation_with_trie::<SparseState, _, _>(
+        input.block,
+        input.witness,
+        chain_spec,
+        evm_config,
+    )
+    .unwrap();
     let end = env::cycle_count();
     eprintln!("stateless validation (cycle tracker): {}", end - start);
 }

@@ -3,7 +3,6 @@
 #![no_main]
 
 extern crate alloc;
-
 use alloc::sync::Arc;
 
 use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
