@@ -1,15 +1,14 @@
 //! SP1 guest program
 
-#![cfg_attr(not(test), warn(unused_crate_dependencies))]
 #![no_main]
 
 extern crate alloc;
 
 use alloc::sync::Arc;
 
-use guest_libs::chainconfig::ChainConfig;
+use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{StatelessInput, chain_spec::ChainSpec, validation::stateless_validation};
+use reth_stateless::{StatelessInput, chain_spec::ChainSpec, stateless_validation_with_trie};
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);
@@ -25,7 +24,13 @@ pub fn main() {
     println!("cycle-tracker-report-end: read_input");
 
     println!("cycle-tracker-report-start: validation");
-    stateless_validation(input.block, input.witness, chain_spec, evm_config).unwrap();
+    stateless_validation_with_trie::<SparseState, _, _>(
+        input.block,
+        input.witness,
+        chain_spec,
+        evm_config,
+    )
+    .unwrap();
     println!("cycle-tracker-report-end: validation");
 }
 
