@@ -1,15 +1,12 @@
 //! OpenVM guest program
 
-#![cfg_attr(not(test), warn(unused_crate_dependencies))]
-
-use guest_libs::chainconfig::ChainConfig;
-use openvm::io::read;
-
 extern crate alloc;
-
 use alloc::sync::Arc;
+
+use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
+use openvm::io::read;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{StatelessInput, chain_spec::ChainSpec, validation::stateless_validation};
+use reth_stateless::{StatelessInput, chain_spec::ChainSpec, stateless_validation_with_trie};
 
 /// Entry point.
 pub fn main() {
@@ -21,6 +18,12 @@ pub fn main() {
     println!("end read_input");
 
     println!("start validation");
-    stateless_validation(input.block, input.witness, chain_spec, evm_config).unwrap();
+    stateless_validation_with_trie::<SparseState, _, _>(
+        input.block,
+        input.witness,
+        chain_spec,
+        evm_config,
+    )
+    .unwrap();
     println!("end validation");
 }

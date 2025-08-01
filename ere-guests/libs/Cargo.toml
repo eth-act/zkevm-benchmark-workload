@@ -12,18 +12,26 @@ reth-ethereum-primitives = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 reth-stateless.workspace = true
+reth-errors.workspace = true
+reth-trie-common.workspace = true
+
+revm-bytecode.workspace = true
 
 alloy-consensus.workspace = true
 alloy-primitives.workspace = true
 alloy-eips.workspace = true
 alloy-hardforks = { workspace = true, features = ["serde"] }
 alloy-chains.workspace = true
+alloy-rlp.workspace = true
+alloy-trie.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 serde_with.workspace = true
 
 ethereum_ssz_derive = { workspace = true }
 ethereum_ssz = { workspace = true }
+
+risc0-ethereum-trie.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true
