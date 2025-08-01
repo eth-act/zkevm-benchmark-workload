@@ -21,11 +21,6 @@ jobs:
         with:
           components: clippy, rustfmt
       
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: integration-witness
-      
       - name: Download and Extract Fixtures
         run: |
           chmod +x ./scripts/download-and-extract-fixtures.sh
@@ -71,11 +66,6 @@ jobs:
           ./scripts/download-and-extract-fixtures.sh
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.zkvm }}
       
       - name: Install C toolchain dependencies
         run: |
@@ -127,11 +117,6 @@ jobs:
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
-      
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.zkvm }}
       
       - name: Install C toolchain dependencies
         run: |
