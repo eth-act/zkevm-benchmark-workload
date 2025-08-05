@@ -117,20 +117,20 @@ ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "e0a902c98d586f2a306245d5942712865bce6294" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
 
 
 # alloy
-alloy-eips = { version = "1.0.13" }
-alloy-rpc-types-eth = "1.0.12"
-alloy-consensus = { version = "1.0.18", default-features = false }
-alloy-primitives = { version = "1.2.0", default-features = false }
+alloy-eips = { version = "1.0.23" }
+alloy-rpc-types-eth = "1.0.23"
+alloy-consensus = { version = "1.0.23", default-features = false }
+alloy-primitives = { version = "1.3.0", default-features = false }
 alloy-hardforks = { version = "0.2.7", default-features = false }
 alloy-chains = { version = "0.2.5", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }

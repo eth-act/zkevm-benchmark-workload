@@ -184,10 +184,11 @@ impl RpcBlocksAndWitnesses {
 
         let mut blocks_and_witnesses = Vec::with_capacity(hashes.len());
         for (block_num, block_hash) in hashes {
-            let witness = self
-                .client
-                .debug_execution_witness_by_block_hash(block_hash)
-                .await?;
+            let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
+                &self.client,
+                block_hash,
+            )
+            .await?;
             let block = EthApiClient::<
                 TransactionRequest,
                 Transaction,
@@ -220,10 +221,11 @@ impl RpcBlocksAndWitnesses {
     /// Returns an error if the RPC call fails or if the block cannot be found.
     async fn fetch_specific_block(&self, block_num: u64) -> Result<BlockAndWitness> {
         // Fetch the execution witness for the given block
-        let witness = self
-            .client
-            .debug_execution_witness(BlockNumberOrTag::Number(block_num))
-            .await?;
+        let witness = DebugApiClient::<()>::debug_execution_witness(
+            &self.client,
+            BlockNumberOrTag::Number(block_num),
+        )
+        .await?;
 
         // Fetch the block details
         let block =
