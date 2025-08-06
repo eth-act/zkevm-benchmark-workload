@@ -1,0 +1,35 @@
+[package]
+name = "succinct-guest"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+
+
+[dependencies]
+sp1-zkvm.workspace = true
+guest-libs.workspace = true
+
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-primitives-traits = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-evm-ethereum.workspace = true
+reth-chainspec.workspace = true
+
+revm = { workspace = true, default-features = false, features = [
+    "kzg-rs",
+    "bn",
+] }
+alloy-primitives = { workspace = true, default-features = false, features = [
+    "map-foldhash",
+    "serde",
+    "sha3-keccak",
+] }
+tracing-subscriber = "*"
+tracing = "*"

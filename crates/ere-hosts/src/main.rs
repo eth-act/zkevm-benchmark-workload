@@ -7,7 +7,7 @@
     feature = "risc0",
     feature = "openvm",
     feature = "pico",
-    feature = "zisk"
+    feature = "zisk",
 )))]
 compile_error!("please enable one of the zkVM's using the appropriate feature flag");
 
@@ -66,6 +66,13 @@ struct Cli {
 enum GuestProgramCommand {
     /// Ethereum Stateless Validator
     StatelessValidator {
+        /// Input folder for benchmark results
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
+    },
+
+    /// Ethereum Stateless Executor
+    StatelessExecutor {
         /// Input folder for benchmark results
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
@@ -167,7 +174,19 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             for zkvm in zkvms {
                 run_benchmark(zkvm, &config, inputs.clone())?;
             }
-        }
+        },
+        GuestProgramCommand::StatelessExecutor { input_folder } => {
+            info!(
+                "Running stateless-executor benchmark for input folder: {}",
+                input_folder.display()
+            );
+            let inputs = guest_programs::stateless_executor_inputs(input_folder.as_path())?;
+            let zkvms =
+                get_zkvm_instances(&workspace_dir, Path::new("stateless-executor"), resource)?;
+            for zkvm in zkvms {
+                run_benchmark(zkvm, &config, inputs.clone())?;
+            }
+        },
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
             let input = guest_programs::empty_program_inputs();

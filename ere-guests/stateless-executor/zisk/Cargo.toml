@@ -1,0 +1,29 @@
+[package]
+name = "zisk-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", rev = "f9a3655" }
+bincode.workspace = true
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-primitives-traits = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+alloy-primitives = { workspace = true, default-features = false, features = [
+    "map-foldhash",
+    "serde",
+    "tiny-keccak",
+] }
+reth-evm-ethereum = { workspace = true }
+reth-chainspec = { workspace = true }
+
+[lints]
+workspace = true

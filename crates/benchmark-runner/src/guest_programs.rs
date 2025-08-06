@@ -62,6 +62,29 @@ pub fn stateless_validator_inputs(
         .collect();
 
     Ok(guest_inputs)
+        }
+
+/// Generate inputs for the stateless executor guest program.
+pub fn stateless_executor_inputs(
+    input_folder: &Path,
+) -> anyhow::Result<Vec<GuestInput<BlockMetadata>>> {
+    let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
+        .into_iter()
+        .map(|bw| {
+            let mut stdin = Input::new();
+            stdin.write(bw.block_and_witness.clone());
+            stdin.write(bw.chain_config);
+            GuestInput {
+                name: bw.name,
+                stdin,
+                metadata: BlockMetadata {
+                    block_used_gas: bw.block_and_witness.block.gas_used,
+                },
+            }
+        })
+        .collect();
+
+    Ok(guest_inputs)
 }
 
 /// Metadata for the block block length calculation guest program.
