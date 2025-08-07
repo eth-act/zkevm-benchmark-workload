@@ -175,7 +175,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                             witness,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    chain_config: ForkSpec::from(case.network).into(),
+                    chain_config: case.network.into(),
                 })
             })
             .collect();
@@ -224,6 +224,7 @@ fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
 #[cfg(test)]
 mod tests {
     use flate2::bufread::GzDecoder;
+    use reth_stateless::chain_spec::ChainSpec;
     use tar::Archive;
 
     use super::*;
@@ -347,6 +348,24 @@ mod tests {
             2,
             "There should be two generated fixture files in the output directory"
         );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_bincode_roundtrip() -> Result<()> {
+        let target_dir = tempfile::tempdir()?;
+        let target_path = target_dir.path();
+        prepare_downgraded_eest_fixtures(target_path)?;
+
+        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(target_path.to_path_buf())?
+            .build()?;
+
+        let mut bws = wg.generate().await?.into_iter().next().unwrap();
+        let mut tmp = Vec::new();
+        bincode::serialize_into(&mut tmp, &bws).expect("serialization failed");
+        bincode::deserialize::<BlockAndWitness>(&tmp).expect("deserialization failed");
 
         Ok(())
     }
