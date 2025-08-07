@@ -5,7 +5,7 @@
 extern crate alloc;
 use alloc::sync::Arc;
 
-use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
+use guest_libs::mpt::SparseState;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_stateless::{StatelessInput, chain_spec::ChainSpec, stateless_validation_with_trie};
 use tracing_subscriber::fmt;
@@ -17,8 +17,8 @@ pub fn main() {
 
     println!("cycle-tracker-report-start: read_input");
     let input = sp1_zkvm::io::read::<StatelessInput>();
-    let chain_config = sp1_zkvm::io::read::<ChainConfig>();
-    let chain_spec: Arc<ChainSpec> = Arc::new(chain_config.into());
+    let chain_config = sp1_zkvm::io::read::<ChainSpec>();
+    let chain_spec: Arc<ChainSpec> = Arc::new(chain_config);
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("cycle-tracker-report-end: read_input");
 

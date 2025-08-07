@@ -1,9 +1,12 @@
 use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
-use alloy_eips::BlockNumberOrTag;
+use alloy_chains::NamedChain;
+use alloy_eips::{
+    BlobScheduleBlobParams, BlockNumberOrTag, eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS,
+};
+use alloy_hardforks::EthereumHardfork;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use guest_libs::chainconfig::ChainConfig;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
@@ -11,7 +14,7 @@ use jsonrpsee::{
 };
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, chain_spec::ChainSpec};
 use std::{path::Path, str::FromStr};
 use tokio_util::sync::CancellationToken;
 
@@ -83,7 +86,12 @@ impl RpcBlocksAndWitnessesBuilder {
         Ok(RpcBlocksAndWitnesses {
             client,
             // TODO: make this dynamic based on the RPC
-            chain_config: ChainConfig::Mainnet,
+            chain_config: ChainSpec {
+                chain: NamedChain::Mainnet.into(),
+                forks: EthereumHardfork::mainnet().into(),
+                deposit_contract_address: Some(MAINNET_DEPOSIT_CONTRACT_ADDRESS),
+                blob_params: BlobScheduleBlobParams::mainnet(),
+            },
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
@@ -95,7 +103,7 @@ impl RpcBlocksAndWitnessesBuilder {
 #[derive(Debug, Clone)]
 pub struct RpcBlocksAndWitnesses {
     client: HttpClient,
-    chain_config: ChainConfig,
+    chain_config: ChainSpec,
     last_n_blocks: Option<usize>,
     block: Option<u64>,
     stop: Option<CancellationToken>,
@@ -205,7 +213,7 @@ impl RpcBlocksAndWitnesses {
                     block: block.into_consensus(),
                     witness,
                 },
-                chain_config: self.chain_config,
+                chain_config: self.chain_config.clone(),
             });
         }
 
@@ -245,7 +253,7 @@ impl RpcBlocksAndWitnesses {
                 block: block.into_consensus(),
                 witness,
             },
-            chain_config: self.chain_config,
+            chain_config: self.chain_config.clone(),
         };
 
         Ok(bw)

@@ -5,9 +5,8 @@ use async_trait::async_trait;
 use ef_tests::{
     Case,
     cases::blockchain_test::{BlockchainTestCase, run_case},
-    models::BlockchainTest,
+    models::{BlockchainTest, ForkSpec},
 };
-use guest_libs::chainconfig::ChainConfig;
 use rayon::prelude::*;
 use std::{
     path::{Path, PathBuf},
@@ -17,7 +16,7 @@ use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
@@ -176,7 +175,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                             witness,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    chain_config: ChainConfig::Test(ForkSpec::from(case.network)),
+                    chain_config: ForkSpec::from(case.network).into(),
                 })
             })
             .collect();

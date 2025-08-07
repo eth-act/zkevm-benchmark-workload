@@ -117,13 +117,13 @@ ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "9e06d2d2b8f6fe4e0d58456b55b01233c83ce3f6" }
 
 
 # alloy

@@ -6,8 +6,6 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-guest-libs.workspace = true
-
 walkdir.workspace = true
 rayon.workspace = true
 serde.workspace = true
@@ -23,6 +21,9 @@ tokio-util = "0.7.15"
 
 alloy-eips = { workspace = true }
 alloy-rpc-types-eth.workspace = true
+alloy-chains.workspace = true
+alloy-hardforks = { workspace = true, features = ["serde"] }
+
 ef-tests.workspace = true
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
