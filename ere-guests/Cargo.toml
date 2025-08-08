@@ -1,12 +1,20 @@
 [workspace]
 members = [
     # Ethereum stateless validator
-    "stateless-validator/openvm",
-    "stateless-validator/pico",
-    "stateless-validator/risc0",
-    "stateless-validator/risc0/guest",
-    "stateless-validator/sp1",
-    "stateless-validator/zisk",
+    # "stateless-validator/openvm",
+    # "stateless-validator/pico",
+    # "stateless-validator/risc0",
+    # "stateless-validator/risc0/guest",
+    # "stateless-validator/sp1",
+    # "stateless-validator/zisk",
+
+    # Ethereum stateless executor
+    # "stateless-executor/openvm",
+    # "stateless-executor/pico",
+    "stateless-executor/risc0",
+    "stateless-executor/risc0/guest",
+    "stateless-executor/sp1",
+    # "stateless-executor/zisk",
 
     # Empty program
     "empty-program/sp1",
@@ -149,3 +157,12 @@ ethereum_ssz = "0.9"
 risc0-ethereum-trie = { git = "https://github.com/risc0/risc0-ethereum.git", rev = "4a5efe13b3655258b89e7082c57743e445133dc8" }
 
 [patch.crates-io]
+blst = { git = "https://github.com/risc0/blst", tag = "v0.3.14-risczero.0" }
+c-kzg = { git = "https://github.com/kevaundray/c-kzg-4844.git", branch = "kw/2.1.1" }
+sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.8-risczero.0" }
+tiny-keccak = { git = "https://github.com/risc0/tiny-keccak", tag = "tiny-keccak/v2.0.2-risczero.0" }
+k256 = { git = "https://github.com/risc0/RustCrypto-elliptic-curves", tag = "k256/v0.13.4-risczero.1" }
+p256 = { git = "https://github.com/risc0/RustCrypto-elliptic-curves", tag = "p256/v0.13.2-risczero.1" }
+substrate-bn = { git = "https://github.com/risc0/paritytech-bn", tag = "v0.6.0-risczero.0" }
+bls12_381 = { git = "https://github.com/risc0/zkcrypto-bls12_381", tag = "bls12_381/v0.8.0-risczero.1" }
+crypto-bigint = { git = "https://github.com/risc0/RustCrypto-crypto-bigint", tag = "v0.5.5-risczero.0" }

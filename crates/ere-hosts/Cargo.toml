@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [features]
-default = ["sp1"]
+default = ["risc0"]
 sp1 = ["dep:ere-sp1"]
 risc0 = ["dep:ere-risc0"]
 openvm = ["dep:ere-openvm"]
