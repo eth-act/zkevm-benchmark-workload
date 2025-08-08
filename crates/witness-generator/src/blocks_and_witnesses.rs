@@ -1,6 +1,5 @@
 use std::{fs, io, path::Path};
 
-use alloy_genesis::ChainConfig;
 use anyhow::Result;
 use async_trait::async_trait;
 use reth_stateless::StatelessInput;

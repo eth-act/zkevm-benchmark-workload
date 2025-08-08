@@ -132,7 +132,7 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
         let count = if self.last_n_blocks.is_some() || self.block.is_some() {
             let bws = self.generate().await?;
             self.save_to_path(&bws, path)?;
-            1
+            bws.len()
         } else {
             self.fetch_live(path)
                 .await
