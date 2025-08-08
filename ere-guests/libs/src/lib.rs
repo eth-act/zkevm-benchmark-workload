@@ -8,7 +8,6 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 pub mod block_ssz;
-pub mod chainconfig;
 pub mod mpt;
 
 /// Block wrapper that supports bincode serialization
