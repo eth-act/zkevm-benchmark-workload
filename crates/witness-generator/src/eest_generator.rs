@@ -168,20 +168,6 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             .map(|(name, case)| {
                 let chain_spec: ChainSpec = case.network.into();
                 let chain_config = chain_spec.genesis.config;
-
-                // let mut chain_spec: reth_chainspec::ChainSpec = case.network.into();
-                // // println!("chain_spec: {:?}", chain_spec);
-                // let chain_config = chain_spec.clone().genesis.config;
-                // let mut chain_spec_2: reth_chainspec::ChainSpec = alloy_genesis::Genesis {
-                //     config: chain_config,
-                //     ..Default::default()
-                // }
-                // .into();
-                // chain_spec.genesis.alloc = Default::default(); // Clear alloc to avoid large data in fixtures
-                // chain_spec_2.genesis.alloc = Default::default(); // Clear alloc to avoid large data in fixtures
-                // // println!("chain_spec2: {:?}", chain_spec_2);
-                // assert_eq!(chain_spec, chain_spec_2, "ChainSpec mismatch");
-
                 Ok(BlockAndWitness {
                     name: name.to_string(),
                     block_and_witness: run_case(case)?
