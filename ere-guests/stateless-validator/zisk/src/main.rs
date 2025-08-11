@@ -7,16 +7,19 @@ use alloc::sync::Arc;
 
 use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec, validation::stateless_validation};
+use reth_stateless::{fork_spec::ForkSpec, validation::stateless_validation, StatelessInput};
 
 ziskos::entrypoint!(main);
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
-    let (input, fork_spec): (StatelessInput, ForkSpec) =
-        bincode::deserialize(&ziskos::read_input()).unwrap();
-    let chain_spec: ChainConfig = Arc::new(fork_spec.into());
+    let input: StatelessInput = bincode::deserialize(&ziskos::read_input()).unwrap();
+    let genesis = Genesis {
+        config: input.chain_config.clone(),
+        ..Default::default()
+    };
+    let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("end read_input");
 
