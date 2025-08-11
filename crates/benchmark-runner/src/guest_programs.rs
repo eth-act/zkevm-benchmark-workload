@@ -50,7 +50,6 @@ pub fn stateless_validator_inputs(
         .map(|bw| {
             let mut stdin = Input::new();
             stdin.write(bw.block_and_witness.clone());
-            stdin.write(bw.chain_config);
             GuestInput {
                 name: bw.name,
                 stdin,

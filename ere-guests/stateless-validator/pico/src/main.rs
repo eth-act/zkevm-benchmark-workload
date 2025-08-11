@@ -5,13 +5,13 @@
 extern crate alloc;
 use alloc::sync::Arc;
 
-use guest_libs::{chainconfig::ChainConfig, mpt::SparseState};
+use guest_libs::mpt::SparseState;
 use pico_sdk::io::read_as;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_stateless::{
-    StatelessInput, fork_spec::ForkSpec, stateless_validation_with_trie,
-    validation::stateless_validation,
+    fork_spec::ForkSpec, stateless_validation_with_trie, validation::stateless_validation,
+    StatelessInput,
 };
 
 pico_sdk::entrypoint!(main);
@@ -20,8 +20,11 @@ pico_sdk::entrypoint!(main);
 pub fn main() {
     println!("start read_input");
     let input: StatelessInput = read_as();
-    let chain_config: ChainConfig = read_as();
-    let chain_spec: Arc<ChainSpec> = Arc::new(chain_config.into());
+    let genesis = Genesis {
+        config: input.chain_config.clone(),
+        ..Default::default()
+    };
+    let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("end read_input");
 

@@ -1,14 +1,15 @@
 use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
 use alloy_eips::BlockNumberOrTag;
+use alloy_genesis::ChainConfig;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use anyhow::{Context, Result};
 use async_trait::async_trait;
-use guest_libs::chainconfig::ChainConfig;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
     tracing::{error, info},
 };
+use reth_chainspec::MAINNET;
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use reth_stateless::StatelessInput;
@@ -83,7 +84,7 @@ impl RpcBlocksAndWitnessesBuilder {
         Ok(RpcBlocksAndWitnesses {
             client,
             // TODO: make this dynamic based on the RPC
-            chain_config: ChainConfig::Mainnet,
+            chain_config: MAINNET.genesis.config.clone(),
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
@@ -131,7 +132,7 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
         let count = if self.last_n_blocks.is_some() || self.block.is_some() {
             let bws = self.generate().await?;
             self.save_to_path(&bws, path)?;
-            1
+            bws.len()
         } else {
             self.fetch_live(path)
                 .await
@@ -204,8 +205,8 @@ impl RpcBlocksAndWitnesses {
                 block_and_witness: StatelessInput {
                     block: block.into_consensus(),
                     witness,
+                    chain_config: self.chain_config.clone(),
                 },
-                chain_config: self.chain_config,
             });
         }
 
@@ -244,8 +245,8 @@ impl RpcBlocksAndWitnesses {
             block_and_witness: StatelessInput {
                 block: block.into_consensus(),
                 witness,
+                chain_config: self.chain_config.clone(),
             },
-            chain_config: self.chain_config,
         };
 
         Ok(bw)

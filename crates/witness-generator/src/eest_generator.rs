@@ -7,8 +7,8 @@ use ef_tests::{
     cases::blockchain_test::{BlockchainTestCase, run_case},
     models::BlockchainTest,
 };
-use guest_libs::chainconfig::ChainConfig;
 use rayon::prelude::*;
+use reth_chainspec::ChainSpec;
 use std::{
     path::{Path, PathBuf},
     process::Command,
@@ -17,7 +17,7 @@ use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
-use reth_stateless::{StatelessInput, fork_spec::ForkSpec};
+use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
@@ -166,6 +166,8 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
         let bws: Result<Vec<_>> = tests
             .par_iter()
             .map(|(name, case)| {
+                let chain_spec: ChainSpec = case.network.into();
+                let chain_config = chain_spec.genesis.config;
                 Ok(BlockAndWitness {
                     name: name.to_string(),
                     block_and_witness: run_case(case)?
@@ -174,9 +176,9 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                         .map(|(recovered_block, witness)| StatelessInput {
                             block: recovered_block.into_block(),
                             witness,
+                            chain_config,
                         })
                         .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
-                    chain_config: ChainConfig::Test(ForkSpec::from(case.network)),
                 })
             })
             .collect();

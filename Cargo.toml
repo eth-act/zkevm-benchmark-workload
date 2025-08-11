@@ -117,13 +117,14 @@ ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "3ff0dbe6431cb1a9c6de4aad1e91e410ab605979" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
 
 
 # alloy
@@ -135,6 +136,7 @@ alloy-hardforks = { version = "0.2.7", default-features = false }
 alloy-chains = { version = "0.2.5", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 alloy-trie = { version = "0.9.0", default-features = false }
+alloy-genesis = { version = "1.0.23", default-features = false }
 
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
