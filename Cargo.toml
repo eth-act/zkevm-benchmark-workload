@@ -117,14 +117,14 @@ ere-zisk = { git = "https://github.com/eth-applied-research-group/ere", tag = "v
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "b4bde84f11e2592fd8215f69a6ebc555f42057c7" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "f17c70c23056cadd7f42ee7c4502f72078d2a118" }
 
 
 # alloy
