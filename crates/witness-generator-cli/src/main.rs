@@ -4,7 +4,10 @@
 
 use anyhow::{Context, Result, anyhow};
 use clap::{Parser, Subcommand};
-use std::path::PathBuf;
+use std::{
+    io::{Read, stdin},
+    path::PathBuf,
+};
 use tokio_util::sync::CancellationToken;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
@@ -70,6 +73,7 @@ enum SourceCommand {
         #[arg(long)]
         rpc_header: Option<Vec<String>>,
     },
+    Migrate,
 }
 
 #[tokio::main]
@@ -79,11 +83,11 @@ async fn main() -> Result<()> {
         .init();
     let cli = Cli::parse();
 
-    info!("Generating fixtures in folder: {:?}", cli.output_folder);
-    if !cli.output_folder.exists() {
-        std::fs::create_dir_all(&cli.output_folder)
-            .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
-    }
+    // info!("Generating fixtures in folder: {:?}", cli.output_folder);
+    // if !cli.output_folder.exists() {
+    //     std::fs::create_dir_all(&cli.output_folder)
+    //         .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
+    // }
 
     let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
 
@@ -98,8 +102,29 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
+const A: &[u8] = include_bytes!("sample.json");
+
 async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerator>> {
     match source {
+        SourceCommand::Migrate => {
+            let sample: witness_generator::BlockAndWitness = serde_json::from_slice(A)?;
+
+            let mut buf = Vec::new();
+            zstd::Decoder::new(stdin())
+                .context("Failed to create zstd decoder")?
+                .read_to_end(&mut buf)
+                .context("Failed to read from stdin")?;
+
+            let mut input: witness_generator::BlockAndWitness =
+                serde_json::from_slice(&buf).context("Failed to parse input JSON")?;
+            input.block_and_witness.chain_config = sample.block_and_witness.chain_config;
+
+            let input_json =
+                serde_json::to_string_pretty(&input).context("Failed to serialize input JSON")?;
+            println!("{}", input_json);
+
+            todo!("end")
+        }
         SourceCommand::Tests {
             tag,
             include,
