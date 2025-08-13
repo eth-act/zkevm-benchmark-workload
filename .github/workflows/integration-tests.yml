@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ master ]
+    branches: [ master, jsign-risc0-ci ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -51,7 +51,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1]
+        zkvm: [risc0]
         action: [execute]
     steps:
       - name: Checkout code
@@ -109,7 +109,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1]
+        zkvm: [risc0]
         action: [execute, prove]
     steps:
       - name: Checkout code
