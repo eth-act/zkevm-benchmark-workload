@@ -4,8 +4,9 @@ extern crate alloc;
 use alloc::sync::Arc;
 
 use guest_libs::mpt::SparseState;
+use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{chain_spec::ChainSpec, stateless_validation_with_trie, StatelessInput};
+use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
 use risc0_zkvm::guest::env;
 
 /// Entry point.

@@ -4,7 +4,6 @@ members = [
     "stateless-validator/openvm",
     "stateless-validator/pico",
     "stateless-validator/risc0",
-    "stateless-validator/risc0/guest",
     "stateless-validator/sp1",
     "stateless-validator/zisk",
 
