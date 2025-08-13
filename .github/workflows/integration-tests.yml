@@ -147,9 +147,9 @@ jobs:
             echo "hardware.json file does not exist in zkevm-metrics folder"
             exit 1
           fi
-          zkvm_folder=$(find ./zkevm-metrics -type d -name "sp1-*" | head -n 1)
+          zkvm_folder=$(find ./zkevm-metrics -type d -name "${{ matrix.zkvm }}-*" | head -n 1)
           if [ -z "$zkvm_folder" ]; then
-            echo "No SP1 folder found in zkevm-metrics"
+            echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
             exit 1
           fi
           if [ ! -f "$zkvm_folder/empty_program.json" ]; then
