@@ -143,27 +143,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display()
             );
             let inputs = guest_programs::stateless_validator_inputs(input_folder.as_path())?;
-            for zkvm in cli.zkvms {
-                let zkvm = get_zkvm_instance(
-                    &zkvm,
-                    &workspace_dir,
-                    Path::new("stateless-validator"),
-                    resource.clone(),
-                )?;
+            let zkvms = get_zkvm_instances(
+                &cli.zkvms,
+                &workspace_dir,
+                Path::new("stateless-validator"),
+                resource,
+            )?;
+            for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, inputs.clone())?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
             let input = guest_programs::empty_program_inputs();
-
-            for zkvm in cli.zkvms {
-                let zkvm = get_zkvm_instance(
-                    &zkvm,
-                    &workspace_dir,
-                    Path::new("empty-program"),
-                    resource.clone(),
-                )?;
+            let zkvms = get_zkvm_instances(
+                &cli.zkvms,
+                &workspace_dir,
+                Path::new("empty-program"),
+                resource,
+            )?;
+            for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, vec![input.clone()])?;
             }
         }
@@ -183,14 +182,13 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 *loop_count,
                 format.clone().into(),
             )?;
-
-            for zkvm in cli.zkvms {
-                let zkvm = get_zkvm_instance(
-                    &zkvm,
-                    &workspace_dir,
-                    Path::new("block-encoding-length"),
-                    resource.clone(),
-                )?;
+            let zkvms = get_zkvm_instances(
+                &cli.zkvms,
+                &workspace_dir,
+                Path::new("block-encoding-length"),
+                resource,
+            )?;
+            for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, inputs.clone())?;
             }
         }
@@ -199,16 +197,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn get_zkvm_instance(
-    zkvm: &ErezkVM,
+fn get_zkvm_instances(
+    zkvm: &[ErezkVM],
     workspace_dir: &Path,
     guest_relative: &Path,
     resource: ProverResourceType,
-) -> Result<EreDockerizedzkVM, Box<dyn std::error::Error>> {
-    run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
-    let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
-        .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
-    Ok(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?)
+) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
+    let mut instances = Vec::new();
+    for zkvm in zkvm {
+        run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
+        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
+            .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
+        instances.push(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?);
+    }
+    Ok(instances)
 }
 
 /// Patches the precompiles for a specific zkvm
