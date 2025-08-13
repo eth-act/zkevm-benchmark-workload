@@ -109,7 +109,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1]
+        zkvm: [sp1, risc0]
         action: [execute, prove]
     steps:
       - name: Checkout code
