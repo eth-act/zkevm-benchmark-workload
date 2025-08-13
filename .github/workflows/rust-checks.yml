@@ -56,10 +56,6 @@ jobs:
  
   check-ere-host:
     name: Checks crate ere-hosts
-    strategy:
-      fail-fast: false
-      matrix:
-        zkvm: [sp1, risc0, openvm, zisk] # Skip `pico`, see https://github.com/eth-act/zkevm-benchmark-workload/issues/43.
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -72,11 +68,9 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
-        with:
-          key: ${{ matrix.zkvm }}
 
-      - name: Cargo check (with ${{ matrix.zkvm }} enabled)
-        run: cargo check --features ${{ matrix.zkvm }} -p ere-hosts
+      - name: Cargo check
+        run: cargo check -p ere-hosts
 
       - name: Check clippy
-        run: cargo clippy --bins --examples --tests --benches --features ${{ matrix.zkvm }} -p ere-hosts 
+        run: cargo clippy --bins --examples --tests --benches -p ere-hosts 
