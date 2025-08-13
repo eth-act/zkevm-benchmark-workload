@@ -9,7 +9,7 @@ use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
     tracing::{error, info},
 };
-use reth_chainspec::MAINNET;
+use reth_chainspec::{Chain, HOLESKY, HOODI, MAINNET, NamedChain, SEPOLIA};
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use reth_stateless::StatelessInput;
@@ -75,16 +75,31 @@ impl RpcBlocksAndWitnessesBuilder {
     }
 
     /// Builds the configured `RpcBlocksAndWitnesses`.
-    pub fn build(self) -> Result<RpcBlocksAndWitnesses> {
+    pub async fn build(self) -> Result<RpcBlocksAndWitnesses> {
         let client = HttpClientBuilder::default()
             .set_headers(self.header_map)
             .max_response_size(1 << 30)
             .build(&self.url)?;
 
+        let chain_id = EthApiClient::<(), (), (), (), ()>::chain_id(&client)
+            .await?
+            .ok_or_else(|| anyhow::anyhow!("Failed to fetch chain ID from RPC"))?;
+
+        let chain = Chain::from_id(chain_id.to());
+
+        let chain_config = match chain.named() {
+            Some(NamedChain::Mainnet) => MAINNET.genesis.config.clone(),
+            Some(NamedChain::Sepolia) => SEPOLIA.genesis.config.clone(),
+            Some(NamedChain::Hoodi) => HOODI.genesis.config.clone(),
+            Some(NamedChain::Holesky) => HOLESKY.genesis.config.clone(),
+            _ => {
+                return Err(anyhow::anyhow!("Unsupported chain ID: {}", chain_id));
+            }
+        };
+
         Ok(RpcBlocksAndWitnesses {
             client,
-            // TODO: make this dynamic based on the RPC
-            chain_config: MAINNET.genesis.config.clone(),
+            chain_config,
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
@@ -458,6 +473,7 @@ mod test {
         let rpc_bw = build_base_rpc()
             .last_n_blocks(2)
             .build()
+            .await
             .expect("Failed to build RPC Blocks and Witnesses");
 
         // Generate to Vector
@@ -499,7 +515,7 @@ mod test {
             Receipt,
             Header,
         >::block_by_number(
-            &build_base_rpc().build().unwrap().client,
+            &build_base_rpc().build().await.unwrap().client,
             BlockNumberOrTag::Latest,
             false,
         )
@@ -515,6 +531,7 @@ mod test {
         let rpc_bw = build_base_rpc()
             .block(block_number)
             .build()
+            .await
             .expect("Failed to build RPC Blocks and Witnesses");
 
         // Generate to Vector
@@ -571,6 +588,7 @@ mod test {
         build_base_rpc()
             .listen(stop_token)
             .build()
+            .await
             .expect("Failed to build RPC Blocks and Witnesses")
             .generate_to_path(target_dir.path())
             .await
