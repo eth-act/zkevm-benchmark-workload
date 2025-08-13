@@ -2,39 +2,16 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-#[cfg(not(any(
-    feature = "sp1",
-    feature = "risc0",
-    feature = "openvm",
-    feature = "pico",
-    feature = "zisk"
-)))]
-compile_error!("please enable one of the zkVM's using the appropriate feature flag");
-
 use benchmark_runner::{Action, RunConfig, guest_programs, run_benchmark};
 use clap::{Parser, Subcommand, ValueEnum};
+use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
 use std::{
     path::{Path, PathBuf},
     process::Command,
 };
 use tracing::{error, info};
 use tracing_subscriber::EnvFilter;
-use zkvm_interface::{Compiler, ProverResourceType, zkVM};
-
-#[cfg(feature = "sp1")]
-use ere_sp1::{EreSP1, RV32_IM_SUCCINCT_ZKVM_ELF};
-
-#[cfg(feature = "risc0")]
-use ere_risc0::{EreRisc0, RV32_IM_RISC0_ZKVM_ELF};
-
-#[cfg(feature = "openvm")]
-use ere_openvm::{EreOpenVM, OPENVM_TARGET};
-
-#[cfg(feature = "pico")]
-use ere_pico::{ErePico, PICO_TARGET};
-
-#[cfg(feature = "zisk")]
-use ere_zisk::{EreZisk, RV64_IMA_ZISK_ZKVM_ELF};
+use zkvm_interface::{Compiler, ProverResourceType};
 
 #[derive(Parser)]
 #[command(name = "zkvm-benchmarker")]
@@ -48,6 +25,10 @@ struct Cli {
     /// Action to perform
     #[arg(short, long, value_enum, default_value = "execute")]
     action: BenchmarkAction,
+
+    /// zkVM instances to benchmark
+    #[arg(long, required(true), value_parser = <ErezkVM as std::str::FromStr>::from_str)]
+    zkvms: Vec<ErezkVM>,
 
     /// Rerun the benchmarks even if the output folder already contains results
     #[arg(long, default_value_t = false)]
@@ -162,18 +143,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display()
             );
             let inputs = guest_programs::stateless_validator_inputs(input_folder.as_path())?;
-            let zkvms =
-                get_zkvm_instances(&workspace_dir, Path::new("stateless-validator"), resource)?;
-            for zkvm in zkvms {
-                run_benchmark(zkvm, &config, inputs.clone())?;
+            for zkvm in cli.zkvms {
+                let zkvm = get_zkvm_instance(
+                    &zkvm,
+                    &workspace_dir,
+                    Path::new("stateless-validator"),
+                    resource.clone(),
+                )?;
+                run_benchmark(&zkvm, &config, inputs.clone())?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
             let input = guest_programs::empty_program_inputs();
-            let zkvms = get_zkvm_instances(&workspace_dir, Path::new("empty-program"), resource)?;
-            for zkvm in zkvms {
-                run_benchmark(zkvm, &config, vec![input.clone()])?;
+
+            for zkvm in cli.zkvms {
+                let zkvm = get_zkvm_instance(
+                    &zkvm,
+                    &workspace_dir,
+                    Path::new("empty-program"),
+                    resource.clone(),
+                )?;
+                run_benchmark(&zkvm, &config, vec![input.clone()])?;
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -192,10 +183,15 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 *loop_count,
                 format.clone().into(),
             )?;
-            let zkvms =
-                get_zkvm_instances(&workspace_dir, Path::new("block-encoding-length"), resource)?;
-            for zkvm in zkvms {
-                run_benchmark(zkvm, &config, inputs.clone())?;
+
+            for zkvm in cli.zkvms {
+                let zkvm = get_zkvm_instance(
+                    &zkvm,
+                    &workspace_dir,
+                    Path::new("block-encoding-length"),
+                    resource.clone(),
+                )?;
+                run_benchmark(&zkvm, &config, inputs.clone())?;
             }
         }
     }
@@ -203,58 +199,16 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn get_zkvm_instances(
+fn get_zkvm_instance(
+    zkvm: &ErezkVM,
     workspace_dir: &Path,
     guest_relative: &Path,
     resource: ProverResourceType,
-) -> Result<Vec<Box<dyn zkVM + Sync>>, Box<dyn std::error::Error>> {
-    let mut name_zkvms: Vec<Box<dyn zkVM + Sync>> = Default::default();
-    #[allow(clippy::redundant_clone)]
-    {
-        #[cfg(feature = "sp1")]
-        {
-            run_cargo_patch_command("sp1", workspace_dir)?;
-            let program =
-                RV32_IM_SUCCINCT_ZKVM_ELF::compile(workspace_dir, &guest_relative.join("sp1"))?;
-            let zkvm = EreSP1::new(program, resource.clone());
-            name_zkvms.push(Box::new(zkvm));
-        }
-
-        #[cfg(feature = "zisk")]
-        {
-            run_cargo_patch_command("zisk", workspace_dir)?;
-            let program =
-                RV64_IMA_ZISK_ZKVM_ELF::compile(workspace_dir, &guest_relative.join("zisk"))?;
-            let zkvm = EreZisk::new(program, resource.clone());
-            name_zkvms.push(Box::new(zkvm));
-        }
-
-        #[cfg(feature = "risc0")]
-        {
-            run_cargo_patch_command("risc0", workspace_dir)?;
-            let program =
-                RV32_IM_RISC0_ZKVM_ELF::compile(workspace_dir, &guest_relative.join("risc0"))?;
-            let zkvm = EreRisc0::new(program, resource.clone());
-            name_zkvms.push(Box::new(zkvm));
-        }
-
-        #[cfg(feature = "openvm")]
-        {
-            run_cargo_patch_command("openvm", workspace_dir)?;
-            let program = OPENVM_TARGET::compile(workspace_dir, &guest_relative.join("openvm"))?;
-            let zkvm = EreOpenVM::new(program, resource.clone())?;
-            name_zkvms.push(Box::new(zkvm));
-        }
-
-        #[cfg(feature = "pico")]
-        {
-            run_cargo_patch_command("pico", workspace_dir)?;
-            let program = PICO_TARGET::compile(workspace_dir, &guest_relative.join("pico"))?;
-            let zkvm = ErePico::new(program, resource.clone());
-            name_zkvms.push(Box::new(zkvm));
-        }
-    }
-    Ok(name_zkvms)
+) -> Result<EreDockerizedzkVM, Box<dyn std::error::Error>> {
+    run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
+    let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
+        .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
+    Ok(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?)
 }
 
 /// Patches the precompiles for a specific zkvm
