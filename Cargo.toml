@@ -108,8 +108,8 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "343012de4d15381cdf1af41839361ddf474f9b94", package = "zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "343012de4d15381cdf1af41839361ddf474f9b94", package = "ere-dockerized" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "cb037368d6ac02486deede9b059202a355b0234f", package = "zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "cb037368d6ac02486deede9b059202a355b0234f", package = "ere-dockerized" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
