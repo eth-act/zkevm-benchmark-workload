@@ -11,7 +11,7 @@ env:
 jobs: 
   witness-generator:
     name: Generate EEST benchmark fixtures
-    runs-on: [self-hosted-ghr, size-xl-x64]
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -20,18 +20,6 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
         with:
           components: clippy, rustfmt
-      
-      - name: Download and Extract Fixtures
-        run: |
-          chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
       
       - name: Generate benchmark fixtures
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague
@@ -49,7 +37,7 @@ jobs:
   
   stateless-validator:
     name: Stateless validator guest
-    runs-on: [self-hosted-ghr, size-xl-x64]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -62,28 +50,18 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
       
-      - name: Download and Extract Fixtures
-        run: |
-          chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
-      
       - name: Generate benchmark fixtures
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague --include empty_block
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: Pull ere image
+        run: |
+          docker pull ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4
+          docker pull ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
+
       - name: Run benchmark
         run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} stateless-validator
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
 
       - name: Check zkevm-metrics folder
         run: |
@@ -112,7 +90,7 @@ jobs:
 
   empty-program:
     name: Empty program guest
-    runs-on: [self-hosted-ghr, size-xl-x64]
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
@@ -125,16 +103,13 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
       
-      - name: Install C toolchain dependencies
+      - name: Pull ere image
         run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
+          docker pull ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4
+          docker pull ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
 
       - name: Run benchmark
         run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} empty-program
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       
       - name: Check zkevm-metrics folder
         run: |
