@@ -42,12 +42,19 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1, risc0]
+        zkvm: [sp1, risc0, zisk]
         action: [execute, prove]
         program: [stateless-validator, empty-program]
         exclude:
           - program: stateless-validator
             action: prove
+          - program: stateless-validator # See issue #142
+            zkvm: zisk
+          - program: empty-program # Setup too complex for CI and ere image doesn't bake big proving key
+            zkvm: zisk
+            action: prove
+
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
