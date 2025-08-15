@@ -42,12 +42,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1, risc0]
+        zkvm: [sp1, risc0, zisk]
         action: [execute, prove]
         program: [stateless-validator, empty-program]
         exclude:
           - program: stateless-validator
             action: prove
+          - program: stateless-validator # See issue #142
+            zkvm: zisk
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
