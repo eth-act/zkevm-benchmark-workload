@@ -55,13 +55,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Pull ere image
+      - name: Run benchmark
         run: |
           docker pull ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4
+          docker tag  ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4 ere-base:0.0.11-06d15a4
           docker pull ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
+          docker tag  ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4 ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
 
-      - name: Run benchmark
-        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} stateless-validator
+          RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} stateless-validator
 
       - name: Check zkevm-metrics folder
         run: |
@@ -103,13 +104,14 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
       
-      - name: Pull ere image
+      - name: Run benchmark
         run: |
           docker pull ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4
+          docker tag  ghcr.io/eth-act/ere/ere-base:0.0.11-06d15a4 ere-base:0.0.11-06d15a4
           docker pull ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
+          docker tag  ghcr.io/eth-act/ere/ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4 ere-base-${{ matrix.zkvm }}:0.0.11-06d15a4
 
-      - name: Run benchmark
-        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} empty-program
+          RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} empty-program
       
       - name: Check zkevm-metrics folder
         run: |
