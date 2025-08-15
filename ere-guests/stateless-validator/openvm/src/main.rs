@@ -3,10 +3,10 @@
 extern crate alloc;
 use alloc::sync::Arc;
 
-use guest_libs::mpt::SparseState;
 use openvm::io::read;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_stateless::{chain_spec::ChainSpec, stateless_validation_with_trie, StatelessInput};
+use sparsestate::SparseState;
 
 /// Entry point.
 pub fn main() {
