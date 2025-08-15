@@ -35,12 +35,13 @@ pub enum Action {
 }
 
 /// Executes benchmarks for a given guest program type and zkVM
-pub fn run_benchmark<M>(
-    zkvm: Box<dyn zkVM + Sync>,
+pub fn run_benchmark<V, M>(
+    zkvm: &V,
     config: &RunConfig,
     inputs: Vec<GuestInput<M>>,
 ) -> anyhow::Result<()>
 where
+    V: zkVM + Sync,
     M: GuestInputMetadata,
 {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
