@@ -9,6 +9,7 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 sp1-zkvm.workspace = true
 guest-libs.workspace = true
+sparsestate.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

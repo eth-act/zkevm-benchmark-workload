@@ -147,6 +147,11 @@ serde_with = "3"
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
-risc0-ethereum-trie = { git = "https://github.com/risc0/risc0-ethereum.git", rev = "4a5efe13b3655258b89e7082c57743e445133dc8" }
+sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "2863c57a2759dcb222637f93cc60fba35f2e8d1e" }
+
+[patch."https://github.com/paradigmxyz/reth"]
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }
 
 [patch.crates-io]

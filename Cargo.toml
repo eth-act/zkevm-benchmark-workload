@@ -139,7 +139,7 @@ ethereum_ssz = "0.9"
 
 revm-bytecode = { version = "6.0.1", default-features = false }
 
-risc0-ethereum-trie = { git = "https://github.com/risc0/risc0-ethereum.git", rev = "4a5efe13b3655258b89e7082c57743e445133dc8" }
+sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "2863c57a2759dcb222637f93cc60fba35f2e8d1e" }
 
 # misc
 bincode = "1.3"
