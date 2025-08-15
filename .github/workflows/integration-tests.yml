@@ -50,6 +50,10 @@ jobs:
             action: prove
           - program: stateless-validator # See issue #142
             zkvm: zisk
+          - program: empty-program # Setup too complex for CI and ere image doesn't bake big proving key
+            zkvm: zisk
+            action: prove
+
 
     steps:
       - name: Checkout code
