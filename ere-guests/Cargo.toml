@@ -10,6 +10,7 @@ members = [
     # Empty program
     "empty-program/sp1",
     "empty-program/risc0",
+    "empty-program/zisk",
 
     # Block encoding length
     "block-encoding-length/sp1",
