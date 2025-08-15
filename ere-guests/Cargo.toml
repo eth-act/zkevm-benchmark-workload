@@ -147,7 +147,7 @@ serde_with = "3"
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
-sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "2863c57a2759dcb222637f93cc60fba35f2e8d1e" }
+sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "6418324d98a11e2760f63ceb0727dcf810e05827" }
 
 [patch."https://github.com/paradigmxyz/reth"]
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "0880801d0d6c29d1a7daaee24718b73e5a8a52a8" }

@@ -139,7 +139,7 @@ ethereum_ssz = "0.9"
 
 revm-bytecode = { version = "6.0.1", default-features = false }
 
-sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "2863c57a2759dcb222637f93cc60fba35f2e8d1e" }
+sparsestate = { git = "https://github.com/jsign/zkvm-ethereum-mpt.git", rev = "6418324d98a11e2760f63ceb0727dcf810e05827" }
 
 # misc
 bincode = "1.3"
