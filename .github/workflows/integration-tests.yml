@@ -35,15 +35,19 @@ jobs:
             echo "zkevm-fixtures-input folder is empty"
             exit 1
           fi
-  
-  stateless-validator:
-    name: Stateless validator guest
+
+  guest:
+    name: "${{ matrix.program }} (${{ matrix.zkvm }} / ${{ matrix.action }})"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
         zkvm: [sp1, risc0]
-        action: [execute]
+        action: [execute, prove]
+        program: [stateless-validator, empty-program]
+        exclude:
+          - program: stateless-validator
+            action: prove
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -52,10 +56,11 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
       
       - name: Generate benchmark fixtures
+        if: matrix.program == 'stateless-validator'
         run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague --include empty_block
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      
+
       - name: Pull ere images
         run: |
           for variant in "" "-${{ matrix.zkvm }}"; do
@@ -66,9 +71,10 @@ jobs:
           done
 
       - name: Run benchmark
-        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} stateless-validator
+        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} ${{ matrix.program }}
 
-      - name: Check zkevm-metrics folder
+      - name: Locate metrics folder (common checks)
+        id: metrics
         run: |
           find ./zkevm-metrics
           if [ ! -d "./zkevm-metrics" ]; then
@@ -84,58 +90,25 @@ jobs:
             echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
             exit 1
           fi
+          echo "folder=$zkvm_folder" >> "$GITHUB_OUTPUT"
+
+      - name: Extra checks for stateless-validator
+        if: matrix.program == 'stateless-validator'
+        run: |
+          zkvm_folder='${{ steps.metrics.outputs.folder }}'
           ls -l ./zkevm-fixtures-input
-          ls -l $zkvm_folder
+          ls -l "$zkvm_folder"
           input_files_count=$(find ./zkevm-fixtures-input -type f | wc -l)
-          zkvm_files_count=$(find $zkvm_folder -type f | wc -l)
+          zkvm_files_count=$(find "$zkvm_folder" -type f | wc -l)
           if [ "$input_files_count" -ne "$zkvm_files_count" ]; then
             echo "Mismatch in number of files: zkevm-fixtures-input has $input_files_count files, $zkvm_folder has $zkvm_files_count files"
             exit 1
           fi
 
-  empty-program:
-    name: Empty program guest
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        zkvm: [sp1, risc0]
-        action: [execute, prove]
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
-      
-      - name: Pull ere images
+      - name: Extra checks for empty-program
+        if: matrix.program == 'empty-program'
         run: |
-          for variant in "" "-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
-            dst="ere-base${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
-      
-      - name: Run benchmark
-        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} empty-program
-      
-      - name: Check zkevm-metrics folder
-        run: |
-          find ./zkevm-metrics
-          if [ ! -d "./zkevm-metrics" ]; then
-            echo "zkevm-metrics folder does not exist"
-            exit 1
-          fi
-          if [ ! -f "./zkevm-metrics/hardware.json" ]; then
-            echo "hardware.json file does not exist in zkevm-metrics folder"
-            exit 1
-          fi
-          zkvm_folder=$(find ./zkevm-metrics -type d -name "${{ matrix.zkvm }}-*" | head -n 1)
-          if [ -z "$zkvm_folder" ]; then
-            echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
-            exit 1
-          fi
+          zkvm_folder='${{ steps.metrics.outputs.folder }}'
           if [ ! -f "$zkvm_folder/empty_program.json" ]; then
             echo "empty_program.json file does not exist in $zkvm_folder"
             exit 1
