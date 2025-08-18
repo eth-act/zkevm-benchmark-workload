@@ -4,6 +4,7 @@
 
 pub mod guest_programs;
 
+use anyhow::Context;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::path::PathBuf;
 use std::{any::Any, panic};
@@ -96,10 +97,13 @@ where
         Action::Prove => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&input.stdin)));
             let proving = match run {
-                Ok(Ok((proof, report))) => ProvingMetrics::Success {
-                    proof_size: proof.len(),
-                    proving_time_ms: report.proving_time.as_millis(),
-                },
+                Ok(Ok((proof, report))) => {
+                    zkvm.verify(&proof).context("Failed to verify proof")?;
+                    ProvingMetrics::Success {
+                        proof_size: proof.len(),
+                        proving_time_ms: report.proving_time.as_millis(),
+                    }
+                }
                 Ok(Err(e)) => ProvingMetrics::Crashed(CrashInfo {
                     reason: e.to_string(),
                 }),
