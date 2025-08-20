@@ -28,6 +28,11 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
       
+      - name: Install C toolchain dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang libclang-dev
+      
       - name: Pull ere images
         run: |
           for variant in "" "-${{ matrix.zkvm }}"; do
