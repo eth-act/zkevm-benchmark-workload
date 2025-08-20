@@ -45,8 +45,7 @@ jobs:
       - name: Run benchmark
         run: cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action execute stateless-validator 
 
-      - name: Locate metrics folder (common checks)
-        id: metrics
+      - name: Validate metrics output
         run: |
           find ./zkevm-metrics
           if [ ! -d "./zkevm-metrics" ]; then
@@ -57,24 +56,31 @@ jobs:
             echo "hardware.json file does not exist in zkevm-metrics folder"
             exit 1
           fi
+          
           zkvm_folder=$(find ./zkevm-metrics -type d -name "${{ matrix.zkvm }}-*" | head -n 1)
           if [ -z "$zkvm_folder" ]; then
             echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
             exit 1
           fi
-          echo "folder=$zkvm_folder" >> "$GITHUB_OUTPUT"
-
-      - name: Extra checks for stateless-validator
-        run: |
-          zkvm_folder='${{ steps.metrics.outputs.folder }}'
+          
+          echo "Found ZKVM folder: $zkvm_folder"
           ls -l ./zkevm-fixtures-input
           ls -l "$zkvm_folder"
+          
+          # Check file count match
           input_files_count=$(find ./zkevm-fixtures-input -type f | wc -l)
           zkvm_files_count=$(find "$zkvm_folder" -type f | wc -l)
           if [ "$input_files_count" -ne "$zkvm_files_count" ]; then
             echo "Mismatch in number of files: zkevm-fixtures-input has $input_files_count files, $zkvm_folder has $zkvm_files_count files"
             exit 1
           fi
+          
+          if grep -r "crashed" "$zkvm_folder"/*.json 2>/dev/null; then
+            echo "Found 'crashed' string in ZKVM folder JSON files"
+            exit 1
+          fi
+          
+          echo "All validations passed successfully"
 
       - name: Upload metrics artifact
         if: always()
