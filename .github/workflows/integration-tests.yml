@@ -122,9 +122,14 @@ jobs:
             echo "Found 'crashed' string in ZKVM folder JSON files"
             exit 1
           fi
+      
+      - name: Sanitize artifact filenames
+        run: |
+          find zkevm-metrics -depth -name '*:*' | while IFS= read -r file; do
+            mv -- "$file" "$(echo "$file" | tr ':' '_')"
+          done
 
       - name: Upload metrics artifact
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: zkevm-metrics-stateless-validator-${{ matrix.test-type }}-${{ matrix.zkvm }}-${{ matrix.action }}
