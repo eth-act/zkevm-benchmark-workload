@@ -1,0 +1,195 @@
+name: Integration tests
+on:
+  push:
+    branches: [ master ]
+  pull_request:
+    branches: [ master ]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+  ERE_TAG: 0.0.11-06d15a4
+
+jobs: 
+  witness-generator:
+    name: Generate EEST benchmark fixtures
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
+      
+      - name: Generate benchmark fixtures
+        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check zkevm-fixtures-input folder has at least 1 file
+        run: |
+          echo "Files in zkevm-fixtures-input folder:"
+          ls -l ./zkevm-fixtures-input
+          if [ -z "$(ls -A ./zkevm-fixtures-input)" ]; then
+            echo "zkevm-fixtures-input folder is empty"
+            exit 1
+          fi
+
+  stateless-validator:
+    name: "${{ matrix.test-type == 'mainnet' && format('Mainnet {0}', matrix.zkvm) || format('EEST {0} / {1}', matrix.zkvm, matrix.action) }}"
+    runs-on: ${{ matrix.test-type == 'mainnet' && fromJSON('["self-hosted-ghr", "size-xl-x64"]') || 'ubuntu-latest' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        test-type: [eest, mainnet]
+        zkvm: [sp1, risc0]
+        action: [execute, prove]
+        exclude:
+          - test-type: mainnet
+            action: prove  
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+      
+      - name: Install C toolchain dependencies (mainnet only)
+        if: matrix.test-type == 'mainnet'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang libclang-dev
+      
+      - name: Generate benchmark fixtures (EEST only)
+        if: matrix.test-type == 'eest'
+        run: RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --include 1M- --include Prague --include empty_block
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Untar mainnet fixtures (mainnet only)
+        if: matrix.test-type == 'mainnet'
+        run: |
+          tar -xzvf tests/mainnet-zkevm-fixtures-input.tar.gz
+          mv mainnet-zkevm-fixtures-input zkevm-fixtures-input
+
+      - name: Pull ere images
+        run: |
+          for variant in "" "-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
+            dst="ere-base${variant}:${ERE_TAG}"
+            docker pull "$src"
+            docker tag "$src" "$dst"
+          done
+
+      - name: Run benchmark
+        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} stateless-validator
+
+      - name: Validate metrics output
+        run: |
+          find ./zkevm-metrics
+          if [ ! -d "./zkevm-metrics" ]; then
+            echo "zkevm-metrics folder does not exist"
+            exit 1
+          fi
+          if [ ! -f "./zkevm-metrics/hardware.json" ]; then
+            echo "hardware.json file does not exist in zkevm-metrics folder"
+            exit 1
+          fi
+          
+          zkvm_folder=$(find ./zkevm-metrics -type d -name "${{ matrix.zkvm }}-*" | head -n 1)
+          if [ -z "$zkvm_folder" ]; then
+            echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
+            exit 1
+          fi
+          
+          ls -l ./zkevm-fixtures-input
+          ls -l "$zkvm_folder"
+          
+          input_files_count=$(find ./zkevm-fixtures-input -type f | wc -l)
+          zkvm_files_count=$(find "$zkvm_folder" -type f | wc -l)
+          if [ "$input_files_count" -ne "$zkvm_files_count" ]; then
+            echo "Mismatch in number of files: zkevm-fixtures-input has $input_files_count files, $zkvm_folder has $zkvm_files_count files"
+            exit 1
+          fi
+          
+          if grep -r "crashed" "$zkvm_folder"/*.json 2>/dev/null; then
+            echo "Found 'crashed' string in ZKVM folder JSON files"
+            exit 1
+          fi
+
+      - name: Upload metrics artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zkevm-metrics-stateless-validator-${{ matrix.test-type }}-${{ matrix.zkvm }}-${{ matrix.action }}
+          path: zkevm-metrics
+          retention-days: 14
+
+  empty-program:
+    name: "Empty Program (${{ matrix.zkvm }} / ${{ matrix.action }})"
+    runs-on: ubuntu-latest
+    needs: witness-generator
+    strategy:
+      fail-fast: false
+      matrix:
+        zkvm: [sp1, risc0, zisk]
+        action: [execute, prove] 
+        exclude:
+          - zkvm: zisk # Setup too complex for CI and ere image doesn't bake big proving key 
+            action: prove  
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Pull ere images
+        run: |
+          for variant in "" "-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
+            dst="ere-base${variant}:${ERE_TAG}"
+            docker pull "$src"
+            docker tag "$src" "$dst"
+          done
+
+      - name: Run benchmark
+        run: RUST_LOG=info cargo run -p ere-hosts --release -- --zkvms ${{ matrix.zkvm }} --action ${{ matrix.action }} empty-program
+
+      - name: Validate metrics output
+        run: |
+          find ./zkevm-metrics
+          if [ ! -d "./zkevm-metrics" ]; then
+            echo "zkevm-metrics folder does not exist"
+            exit 1
+          fi
+          if [ ! -f "./zkevm-metrics/hardware.json" ]; then
+            echo "hardware.json file does not exist in zkevm-metrics folder"
+            exit 1
+          fi
+          
+          zkvm_folder=$(find ./zkevm-metrics -type d -name "${{ matrix.zkvm }}-*" | head -n 1)
+          if [ -z "$zkvm_folder" ]; then
+            echo "No ${{ matrix.zkvm }} folder found in zkevm-metrics"
+            exit 1
+          fi
+          
+          if [ ! -f "$zkvm_folder/empty_program.json" ]; then
+            echo "empty_program.json file does not exist in $zkvm_folder"
+            exit 1
+          fi
+
+      - name: Upload metrics artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: zkevm-metrics-empty-program-${{ matrix.zkvm }}-${{ matrix.action }}
+          path: zkevm-metrics
+          retention-days: 14
