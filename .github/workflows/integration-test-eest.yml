@@ -103,12 +103,19 @@ jobs:
         if: matrix.program == 'stateless-validator'
         run: |
           zkvm_folder='${{ steps.metrics.outputs.folder }}'
+
           ls -l ./zkevm-fixtures-input
           ls -l "$zkvm_folder"
+
           input_files_count=$(find ./zkevm-fixtures-input -type f | wc -l)
           zkvm_files_count=$(find "$zkvm_folder" -type f | wc -l)
           if [ "$input_files_count" -ne "$zkvm_files_count" ]; then
             echo "Mismatch in number of files: zkevm-fixtures-input has $input_files_count files, $zkvm_folder has $zkvm_files_count files"
+            exit 1
+          fi
+
+          if grep -r "crashed" "$zkvm_folder"/*.json 2>/dev/null; then
+            echo "Found 'crashed' string in ZKVM folder JSON files"
             exit 1
           fi
 

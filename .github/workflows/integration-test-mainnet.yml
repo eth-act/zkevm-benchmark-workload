@@ -63,11 +63,9 @@ jobs:
             exit 1
           fi
           
-          echo "Found ZKVM folder: $zkvm_folder"
           ls -l ./zkevm-fixtures-input
           ls -l "$zkvm_folder"
           
-          # Check file count match
           input_files_count=$(find ./zkevm-fixtures-input -type f | wc -l)
           zkvm_files_count=$(find "$zkvm_folder" -type f | wc -l)
           if [ "$input_files_count" -ne "$zkvm_files_count" ]; then
@@ -79,8 +77,6 @@ jobs:
             echo "Found 'crashed' string in ZKVM folder JSON files"
             exit 1
           fi
-          
-          echo "All validations passed successfully"
 
       - name: Upload metrics artifact
         if: always()
