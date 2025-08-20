@@ -47,7 +47,7 @@ struct Cli {
 enum GuestProgramCommand {
     /// Ethereum Stateless Validator
     StatelessValidator {
-        /// Input folder for benchmark results
+        /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
     },
@@ -56,7 +56,7 @@ enum GuestProgramCommand {
 
     /// Block encoding length
     BlockEncodingLength {
-        /// Input folder for benchmark results
+        /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
 
