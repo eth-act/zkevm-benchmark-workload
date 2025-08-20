@@ -1,8 +1,8 @@
 name: Integration tests - Mainnet
 on:
-  push:
-  pull_request:
   workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
