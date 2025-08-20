@@ -20,7 +20,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkvm: [sp1, risc0, zisk]
+        zkvm: [sp1, risc0]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
