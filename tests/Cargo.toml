@@ -1,0 +1,20 @@
+[package]
+name = "integration-tests"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+
+[dev-dependencies]
+witness-generator.workspace = true
+benchmark-runner.workspace = true
+ere-dockerized.workspace = true
+zkvm-interface.workspace = true
+zkevm-metrics.workspace = true
+
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tempfile = "3.10"
+walkdir = "2.3"
+
+[lints]
+workspace = true

@@ -1261,6 +1261,7 @@ name = "benchmark-runner"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "ere-dockerized",
  "guest-libs",
  "rayon",
  "serde",
@@ -3527,6 +3528,20 @@ checksum = "879f10e63c20629ecabbb64a8010319738c66a5cd0c29b02d63d272b03751d01"
 dependencies = [
  "block-padding",
  "generic-array",
+]
+
+[[package]]
+name = "integration-tests"
+version = "0.1.0"
+dependencies = [
+ "benchmark-runner",
+ "ere-dockerized",
+ "tempfile",
+ "tokio",
+ "walkdir",
+ "witness-generator",
+ "zkevm-metrics",
+ "zkvm-interface",
 ]
 
 [[package]]

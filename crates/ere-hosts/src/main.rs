@@ -2,16 +2,13 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use benchmark_runner::{Action, RunConfig, guest_programs, run_benchmark};
+use benchmark_runner::{Action, RunConfig, get_zkvm_instances, guest_programs, run_benchmark};
 use clap::{Parser, Subcommand, ValueEnum};
-use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
-use tracing::{error, info};
+use ere_dockerized::ErezkVM;
+use std::path::{Path, PathBuf};
+use tracing::info;
 use tracing_subscriber::EnvFilter;
-use zkvm_interface::{Compiler, ProverResourceType};
+use zkvm_interface::ProverResourceType;
 
 #[derive(Parser)]
 #[command(name = "zkvm-benchmarker")]
@@ -194,54 +191,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
     }
 
-    Ok(())
-}
-
-fn get_zkvm_instances(
-    zkvm: &[ErezkVM],
-    workspace_dir: &Path,
-    guest_relative: &Path,
-    resource: ProverResourceType,
-) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
-    let mut instances = Vec::new();
-    for zkvm in zkvm {
-        run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
-        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
-            .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
-        instances.push(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?);
-    }
-    Ok(instances)
-}
-
-/// Patches the precompiles for a specific zkvm
-fn run_cargo_patch_command(
-    zkvm_name: &str,
-    workspace_path: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
-    info!("Running cargo {}...", zkvm_name);
-
-    let output = Command::new("cargo")
-        .arg(zkvm_name)
-        .arg("--manifest-folder")
-        .arg(workspace_path)
-        .output()?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        let stdout = String::from_utf8_lossy(&output.stdout);
-
-        error!(
-            "cargo {} failed with exit code: {:?}",
-            zkvm_name,
-            output.status.code()
-        );
-        error!("stdout: {}", stdout);
-        error!("stderr: {}", stderr);
-
-        return Err(format!("cargo {zkvm_name} command failed").into());
-    }
-
-    info!("cargo {zkvm_name} completed successfully");
     Ok(())
 }
 
