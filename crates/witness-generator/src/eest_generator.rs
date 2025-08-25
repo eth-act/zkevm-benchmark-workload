@@ -2,11 +2,7 @@
 
 use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
-use ef_tests::{
-    Case,
-    cases::blockchain_test::{BlockchainTestCase, run_case},
-    models::BlockchainTest,
-};
+use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
 use reth_chainspec::ChainSpec;
 use std::{
@@ -170,7 +166,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 let chain_config = chain_spec.genesis.config;
                 Ok(BlockAndWitness {
                     name: name.to_string(),
-                    block_and_witness: run_case(case)?
+                    block_and_witness: BlockchainTestCase::run_single_case(name, case)?
                         .into_iter()
                         .next_back()
                         .map(|(recovered_block, witness)| StatelessInput {
