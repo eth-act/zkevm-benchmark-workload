@@ -43,7 +43,7 @@ jobs:
 
   stateless-validator:
     name: "${{ format('{0} {1} / {2}', matrix.test-type == 'mainnet' && 'Mainnet' || (matrix.test-type == 'invalid-blocks' && 'Invalid Blocks' || 'EEST'), matrix.zkvm, matrix.action) }}"
-    runs-on: ${{ matrix.test-type == 'mainnet' && fromJSON('["self-hosted-ghr", "size-xl-x64"]') || 'ubuntu-latest' }}
+    runs-on: ${{ matrix.test-type == 'eest' && 'ubuntu-latest' || fromJSON('["self-hosted-ghr", "size-xl-x64"]') }}
     strategy:
       fail-fast: false
       matrix:
@@ -52,7 +52,10 @@ jobs:
         action: [execute, prove]
         exclude:
           - test-type: mainnet
-            action: prove  
+            action: prove
+          - test-type: invalid-blocks
+            action: prove
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -61,7 +64,7 @@ jobs:
         uses: dtolnay/rust-toolchain@nightly
       
       - name: Install C toolchain dependencies (mainnet only)
-        if: matrix.test-type == 'mainnet'
+        if: matrix.test-type == 'mainnet' || matrix.test-type == 'invalid-blocks'
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential clang libclang-dev
