@@ -2,11 +2,7 @@
 
 use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
-use ef_tests::{
-    Case,
-    cases::blockchain_test::{BlockchainTestCase, run_case},
-    models::BlockchainTest,
-};
+use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
 use reth_chainspec::ChainSpec;
 use std::{
@@ -170,7 +166,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 let chain_config = chain_spec.genesis.config;
                 Ok(BlockAndWitness {
                     name: name.to_string(),
-                    block_and_witness: run_case(case)?
+                    block_and_witness: BlockchainTestCase::run_single_case(name, case)?
                         .into_iter()
                         .next_back()
                         .map(|(recovered_block, witness)| StatelessInput {
@@ -381,6 +377,36 @@ mod tests {
         assert!(
             !PathBuf::from(ExecSpecTestBlocksAndWitnessBuilder::TEMP_EEST_FIXTURES_PATH).exists(),
             "Directory should be deleted after drop"
+        );
+
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_invalid_block() -> Result<()> {
+        let path =
+            PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("tests/eest-invalid-block-fixtures");
+
+        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(path)?
+            .build()?;
+
+        let generated = wg.generate().await?;
+
+        assert_eq!(
+            generated.len(),
+            1,
+            "Expected single fixture for the invalid block test"
+        );
+
+        // The provided test with an invalid block fails due to header consensus checks.
+        let witness = generated.into_iter().next().unwrap();
+        assert!(
+            witness.block_and_witness.witness.headers.len() == 1
+                && witness.block_and_witness.witness.keys.is_empty()
+                && witness.block_and_witness.witness.codes.is_empty()
+                && witness.block_and_witness.witness.state.is_empty(),
+            "Witnesses must only have one header value and no other data"
         );
 
         Ok(())
