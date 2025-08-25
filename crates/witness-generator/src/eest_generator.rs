@@ -385,7 +385,7 @@ mod tests {
     #[tokio::test]
     async fn test_invalid_block() -> Result<()> {
         let path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("testdata/eest-invalid-block-fixtures");
+            PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("tests/eest-invalid-block-fixtures");
 
         let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
             .with_input_folder(path)?

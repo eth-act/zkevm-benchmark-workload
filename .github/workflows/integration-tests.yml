@@ -42,12 +42,12 @@ jobs:
           fi
 
   stateless-validator:
-    name: "${{ format('{0} {1} / {2}', matrix.test-type == 'mainnet' && 'Mainnet' || 'EEST', matrix.zkvm, matrix.action) }}"
+    name: "${{ format('{0} {1} / {2}', matrix.test-type == 'mainnet' && 'Mainnet' || (matrix.test-type == 'invalid-blocks' && 'Invalid Blocks' || 'EEST'), matrix.zkvm, matrix.action) }}"
     runs-on: ${{ matrix.test-type == 'mainnet' && fromJSON('["self-hosted-ghr", "size-xl-x64"]') || 'ubuntu-latest' }}
     strategy:
       fail-fast: false
       matrix:
-        test-type: [eest, mainnet]
+        test-type: [eest, mainnet, invalid-blocks]
         zkvm: [sp1, risc0]
         action: [execute, prove]
         exclude:
@@ -77,6 +77,11 @@ jobs:
         run: |
           tar -xzvf tests/mainnet-zkevm-fixtures-input.tar.gz
           mv mainnet-zkevm-fixtures-input zkevm-fixtures-input
+      
+      - name: Prepare invalid blocks fixtures
+        if: matrix.test-type == 'invalid-blocks'
+        run: |
+          RUST_LOG=info cargo run -p witness-generator-cli --release -- tests --eest-fixtures-path tests/eest-invalid-block-fixtures 
 
       - name: Pull ere images
         run: |
@@ -118,9 +123,18 @@ jobs:
             exit 1
           fi
           
-          if grep -r "crashed" "$zkvm_folder"/*.json 2>/dev/null; then
-            echo "Found 'crashed' string in ZKVM folder JSON files"
-            exit 1
+          if [ "${{ matrix.test-type }}" = "invalid-blocks" ]; then
+            # For invalid-blocks, we expect all tests to crash - fail if any success is found
+            if grep -r "success" "$zkvm_folder"/*.json 2>/dev/null; then
+              echo "Found unexpected 'success' string in invalid-blocks test - some tests succeeded when they should have failed"
+              exit 1
+            fi
+          else
+            # For eest and mainnet, crashes indicate failure
+            if grep -r "crashed" "$zkvm_folder"/*.json 2>/dev/null; then
+              echo "Found 'crashed' string in ZKVM folder JSON files"
+              exit 1
+            fi
           fi
       
       - name: Sanitize artifact filenames
