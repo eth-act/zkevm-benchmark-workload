@@ -381,4 +381,40 @@ mod tests {
 
         Ok(())
     }
+
+    #[tokio::test]
+    async fn test_invalid_block() -> Result<()> {
+        let path =
+            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("testdata/eest-invalid-block-fixtures");
+
+        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
+            .with_input_folder(path)?
+            .build()?;
+
+        let generated = wg.generate().await?;
+
+        // Expect all 216 fixtures to be generated.
+        assert_eq!(
+            generated.len(),
+            216,
+            "216 fixtures are expected for the worst_jumps EEST fixture"
+        );
+
+        // The the invalid block EEST fixture must fail on ancestor checks, so we expect:
+        // - The `headers` field to have exactly one element. (i.e., this part of th witness is generated)
+        // - Other witness fields must be empty since the execution was aborted in early checks before execution.
+        let unexpected_witnesses = generated.iter().find(|bw| {
+            !(bw.block_and_witness.witness.headers.len() == 1
+                && bw.block_and_witness.witness.keys.is_empty()
+                && bw.block_and_witness.witness.codes.is_empty()
+                && bw.block_and_witness.witness.state.is_empty())
+        });
+
+        assert!(
+            unexpected_witnesses.is_none(),
+            "All block witnesses must only have one header value and no other data"
+        );
+
+        Ok(())
+    }
 }
