@@ -17,11 +17,7 @@ mod tests {
 
     #[tokio::test]
     async fn prove_empty_program() {
-        let mut zkvms = vec![ErezkVM::SP1, ErezkVM::Risc0];
-        if std::env::var("CI").is_ok() {
-            // CI ZisK docker image does not support proving due to a very big proving keys.
-            zkvms.push(ErezkVM::Zisk);
-        }
+        let zkvms = vec![ErezkVM::SP1, ErezkVM::Risc0];
         empty_program(&zkvms, Action::Prove).await;
     }
 
@@ -33,11 +29,11 @@ mod tests {
             zkvms,
             vec![input],
             output_folder.path(),
-            Action::Execute,
+            action,
         );
         match action {
-            Action::Prove => assert_proving_successful(output_folder.path()),
-            Action::Execute => assert_executions_successful(output_folder.path()),
+            Action::Prove => assert_proving_successful::<()>(output_folder.path()),
+            Action::Execute => assert_executions_successful::<()>(output_folder.path()),
         }
     }
 }

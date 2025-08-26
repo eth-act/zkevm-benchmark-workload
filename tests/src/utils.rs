@@ -9,7 +9,7 @@ use std::{
 
 use benchmark_runner::{
     get_zkvm_instances,
-    guest_programs::{BlockMetadata, GuestInput, GuestInputMetadata},
+    guest_programs::{GuestInput, GuestInputMetadata},
     run_benchmark, Action, RunConfig,
 };
 use ere_dockerized::ErezkVM;
@@ -50,28 +50,35 @@ pub(crate) fn run_guest<T>(
     );
 }
 
-pub(crate) fn assert_executions_crashed(metrics_folder_path: &Path) {
-    assert_execution_status(metrics_folder_path, |exec| {
+pub(crate) fn assert_executions_crashed<Metadata>(metrics_folder_path: &Path)
+where
+    Metadata: GuestInputMetadata,
+{
+    assert_execution_status::<_, Metadata>(metrics_folder_path, |exec| {
         matches!(exec, ExecutionMetrics::Crashed { .. })
     });
 }
 
-pub(crate) fn assert_executions_successful(metrics_folder_path: &Path) {
-    assert_execution_status(metrics_folder_path, |exec| {
+pub(crate) fn assert_executions_successful<Metadata>(metrics_folder_path: &Path)
+where
+    Metadata: GuestInputMetadata,
+{
+    assert_execution_status::<_, Metadata>(metrics_folder_path, |exec| {
         matches!(exec, ExecutionMetrics::Success { .. })
     });
 }
 
-fn assert_execution_status<F>(output_path: &Path, predicate: F)
+fn assert_execution_status<F, Metadata>(output_path: &Path, predicate: F)
 where
     F: Fn(&ExecutionMetrics) -> bool,
+    Metadata: GuestInputMetadata,
 {
     WalkDir::new(output_path)
         .min_depth(2)
         .into_iter()
         .filter_map(|e| e.ok())
         .for_each(|entry| {
-            let result = BenchmarkRun::<BlockMetadata>::from_path(entry.path()).unwrap();
+            let result = BenchmarkRun::<Metadata>::from_path(entry.path()).unwrap();
             assert!(
                 predicate(&result.execution.unwrap()),
                 "Unexpected execution status for: {}",
@@ -80,13 +87,16 @@ where
         });
 }
 
-pub(crate) fn assert_proving_successful(output_path: &Path) {
+pub(crate) fn assert_proving_successful<Metadata>(output_path: &Path)
+where
+    Metadata: GuestInputMetadata,
+{
     WalkDir::new(output_path)
         .min_depth(2)
         .into_iter()
         .filter_map(|e| e.ok())
         .for_each(|entry| {
-            let result = BenchmarkRun::<BlockMetadata>::from_path(entry.path()).unwrap();
+            let result = BenchmarkRun::<Metadata>::from_path(entry.path()).unwrap();
             assert!(
                 matches!(result.proving.unwrap(), ProvingMetrics::Success { .. }),
                 "Unexpected proving status for: {}",

@@ -4,7 +4,7 @@ mod tests {
     use tempfile::tempdir;
 
     use benchmark_runner::{
-        guest_programs::{self},
+        guest_programs::{self, BlockMetadata},
         Action,
     };
     use ere_dockerized::ErezkVM;
@@ -52,7 +52,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_successful(output_folder.path());
+        assert_executions_successful::<BlockMetadata>(output_folder.path());
     }
 
     #[tokio::test]
@@ -77,7 +77,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_crashed(output_folder.path());
+        assert_executions_crashed::<BlockMetadata>(output_folder.path());
     }
 
     async fn empty_block(action: Action) {
@@ -99,11 +99,11 @@ mod tests {
             &TARGET_ZKVMS,
             inputs,
             output_folder.path(),
-            Action::Execute,
+            action,
         );
         match action {
-            Action::Prove => assert_proving_successful(output_folder.path()),
-            Action::Execute => assert_executions_successful(output_folder.path()),
+            Action::Prove => assert_proving_successful::<BlockMetadata>(output_folder.path()),
+            Action::Execute => assert_executions_successful::<BlockMetadata>(output_folder.path()),
         }
     }
 }
