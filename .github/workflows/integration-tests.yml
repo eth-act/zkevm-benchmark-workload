@@ -68,8 +68,6 @@ jobs:
           - test: execute_empty_block
             zkvm: zisk 
 
-
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
