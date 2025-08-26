@@ -1,5 +1,6 @@
 #[cfg(test)]
 mod tests {
+    use ere_dockerized::ErezkVM;
     use std::{env, path::PathBuf};
     use tempfile::tempdir;
 
@@ -7,17 +8,14 @@ mod tests {
         guest_programs::{self, BlockMetadata},
         Action,
     };
-    use ere_dockerized::ErezkVM;
     use witness_generator::{
         eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
     };
 
     use crate::utils::{
         assert_executions_crashed, assert_executions_successful, assert_proving_successful,
-        run_guest, untar,
+        get_env_zkvm_or_default, run_guest, untar,
     };
-
-    const TARGET_ZKVMS: [ErezkVM; 1] = [ErezkVM::SP1]; //, ErezkVM::Risc0];
 
     #[tokio::test]
     async fn prove_empty_block() {
@@ -47,7 +45,7 @@ mod tests {
         .unwrap();
         run_guest(
             "stateless-validator",
-            &TARGET_ZKVMS,
+            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
             Action::Execute,
@@ -72,7 +70,7 @@ mod tests {
         let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
         run_guest(
             "stateless-validator",
-            &TARGET_ZKVMS,
+            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
             Action::Execute,
@@ -96,7 +94,7 @@ mod tests {
         let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
         run_guest(
             "stateless-validator",
-            &TARGET_ZKVMS,
+            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
             action,

@@ -5,6 +5,7 @@
 use std::{
     fs::File,
     path::{Path, PathBuf},
+    str::FromStr,
 };
 
 use benchmark_runner::{
@@ -111,4 +112,12 @@ pub(crate) fn untar(path: &Path, dest_dir: &Path) {
     let tar = GzDecoder::new(buf_reader);
     let mut archive = Archive::new(tar);
     archive.unpack(dest_dir).unwrap();
+}
+
+pub(crate) fn get_env_zkvm_or_default(default: Vec<ErezkVM>) -> Vec<ErezkVM> {
+    if let Ok(zkvm) = std::env::var("ZKVM") {
+        vec![ErezkVM::from_str(&zkvm).unwrap()]
+    } else {
+        default
+    }
 }

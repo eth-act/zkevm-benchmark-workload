@@ -1,6 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use crate::utils::{assert_executions_successful, assert_proving_successful, run_guest};
+    use crate::utils::{
+        assert_executions_successful, assert_proving_successful, get_env_zkvm_or_default, run_guest,
+    };
 
     use benchmark_runner::{guest_programs, Action};
     use ere_dockerized::ErezkVM;
@@ -8,16 +10,13 @@ mod tests {
 
     #[tokio::test]
     async fn execute_empty_program() {
-        empty_program(
-            &[ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::Zisk],
-            Action::Execute,
-        )
-        .await;
+        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::Zisk]);
+        empty_program(&zkvms, Action::Execute).await;
     }
 
     #[tokio::test]
     async fn prove_empty_program() {
-        let zkvms = vec![ErezkVM::SP1, ErezkVM::Risc0];
+        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]);
         empty_program(&zkvms, Action::Prove).await;
     }
 
