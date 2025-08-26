@@ -42,6 +42,7 @@ jobs:
           fi
 
   integration-tests:
+    name: "Integration tests"
     runs-on: ["self-hosted-ghr", "size-xl-x64"]
     steps:
       - name: Checkout code
@@ -65,4 +66,4 @@ jobs:
           done
 
       - name: Run benchmark
-        run: CI=1 RUST_LOG=info,sp1_core_executor=warn cargo run -p integration-tests --release -- --test-threads=1
+        run: CI=1 RUST_LOG=info,sp1_core_executor=warn cargo test --release -p integration-tests -- --test-threads=1
