@@ -43,6 +43,7 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input"),
         )
         .unwrap();
+        let len_inputs = inputs.len();
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -50,7 +51,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_successful::<BlockMetadata>(output_folder.path());
+        assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
     }
 
     #[tokio::test]
@@ -68,6 +69,7 @@ mod tests {
 
         let output_folder = tempdir().unwrap();
         let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let len_inputs = inputs.len();
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -75,7 +77,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_crashed::<BlockMetadata>(output_folder.path());
+        assert_executions_crashed::<BlockMetadata>(output_folder.path(), len_inputs);
     }
 
     async fn empty_block(action: Action) {
@@ -92,6 +94,7 @@ mod tests {
 
         let output_folder = tempdir().unwrap();
         let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let len_inputs = inputs.len();
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -100,8 +103,12 @@ mod tests {
             action,
         );
         match action {
-            Action::Prove => assert_proving_successful::<BlockMetadata>(output_folder.path()),
-            Action::Execute => assert_executions_successful::<BlockMetadata>(output_folder.path()),
+            Action::Prove => {
+                assert_proving_successful::<BlockMetadata>(output_folder.path(), len_inputs)
+            }
+            Action::Execute => {
+                assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
+            }
         }
     }
 }

@@ -31,8 +31,8 @@ mod tests {
             action,
         );
         match action {
-            Action::Prove => assert_proving_successful::<()>(output_folder.path()),
-            Action::Execute => assert_executions_successful::<()>(output_folder.path()),
+            Action::Prove => assert_proving_successful::<()>(output_folder.path(), 1),
+            Action::Execute => assert_executions_successful::<()>(output_folder.path(), 1),
         }
     }
 }

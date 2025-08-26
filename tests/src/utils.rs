@@ -51,59 +51,84 @@ pub(crate) fn run_guest<T>(
     );
 }
 
-pub(crate) fn assert_executions_crashed<Metadata>(metrics_folder_path: &Path)
-where
+pub(crate) fn assert_executions_crashed<Metadata>(
+    metrics_folder_path: &Path,
+    expected_file_count: usize,
+) where
     Metadata: GuestInputMetadata,
 {
-    assert_execution_status::<_, Metadata>(metrics_folder_path, |exec| {
+    assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Crashed { .. })
     });
 }
 
-pub(crate) fn assert_executions_successful<Metadata>(metrics_folder_path: &Path)
-where
+pub(crate) fn assert_executions_successful<Metadata>(
+    metrics_folder_path: &Path,
+    expected_file_count: usize,
+) where
     Metadata: GuestInputMetadata,
 {
-    assert_execution_status::<_, Metadata>(metrics_folder_path, |exec| {
+    assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Success { .. })
     });
 }
 
-fn assert_execution_status<F, Metadata>(output_path: &Path, predicate: F)
-where
+fn assert_execution_status<F, Metadata>(
+    output_path: &Path,
+    expected_file_count: usize,
+    predicate: F,
+) where
     F: Fn(&ExecutionMetrics) -> bool,
     Metadata: GuestInputMetadata,
 {
-    WalkDir::new(output_path)
-        .min_depth(2)
-        .into_iter()
-        .filter_map(|e| e.ok())
-        .for_each(|entry| {
-            let result = BenchmarkRun::<Metadata>::from_path(entry.path()).unwrap();
-            assert!(
-                predicate(&result.execution.unwrap()),
-                "Unexpected execution status for: {}",
-                entry.path().display()
-            );
-        });
+    let paths = get_result_files(output_path);
+    assert_eq!(
+        paths.len(),
+        expected_file_count,
+        "Expected {} result files, found {}",
+        expected_file_count,
+        paths.len()
+    );
+    for path in &paths {
+        let result = BenchmarkRun::<Metadata>::from_path(&path).unwrap();
+        assert!(
+            predicate(&result.execution.unwrap()),
+            "Unexpected execution status for: {}",
+            path.display()
+        );
+    }
 }
 
-pub(crate) fn assert_proving_successful<Metadata>(output_path: &Path)
+pub(crate) fn assert_proving_successful<Metadata>(output_path: &Path, expected_file_count: usize)
 where
     Metadata: GuestInputMetadata,
 {
+    let paths = get_result_files(output_path);
+    assert_eq!(
+        paths.len(),
+        expected_file_count,
+        "Expected {} result files, found {}",
+        expected_file_count,
+        paths.len()
+    );
+
+    for path in paths {
+        let result = BenchmarkRun::<Metadata>::from_path(&path).unwrap();
+        assert!(
+            matches!(result.proving.unwrap(), ProvingMetrics::Success { .. }),
+            "Unexpected proving status for: {}",
+            path.display()
+        );
+    }
+}
+
+fn get_result_files(output_path: &Path) -> Vec<PathBuf> {
     WalkDir::new(output_path)
         .min_depth(2)
         .into_iter()
         .filter_map(|e| e.ok())
-        .for_each(|entry| {
-            let result = BenchmarkRun::<Metadata>::from_path(entry.path()).unwrap();
-            assert!(
-                matches!(result.proving.unwrap(), ProvingMetrics::Success { .. }),
-                "Unexpected proving status for: {}",
-                entry.path().display()
-            );
-        });
+        .map(|entry| entry.path().to_path_buf())
+        .collect::<Vec<_>>()
 }
 
 pub(crate) fn untar(path: &Path, dest_dir: &Path) {
