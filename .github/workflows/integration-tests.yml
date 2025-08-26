@@ -42,9 +42,8 @@ jobs:
           fi
 
   integration-tests:
-    name: "${{ format('Integration test - {1} / {2}', matrix.test, matrix.zkvm) }}"
-    # runs-on: ["self-hosted-ghr", "size-xl-x64"]
-    runs-on: "ubuntu-latest"
+    name: "${{ format('{1} / {2}', matrix.test, matrix.zkvm) }}"
+    runs-on: [self-hosted-ghr, size-xl-x64]
     strategy:
       fail-fast: false
       matrix:
@@ -76,7 +75,7 @@ jobs:
       
       - name: Pull ere images
         run: |
-          for variant in "" "-risc0" "-sp1" "-zisk"; do
+          for variant in "" "-${{ matrix.zkvm }}"; do
             src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
             dst="ere-base${variant}:${ERE_TAG}"
             docker pull "$src"
