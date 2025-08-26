@@ -5,13 +5,15 @@
 pub mod guest_programs;
 
 use anyhow::Context;
+use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
+use std::process::Command;
 use std::{any::Any, panic};
-use tracing::info;
+use tracing::{error, info};
 
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
-use zkvm_interface::zkVM;
+use zkvm_interface::{zkVM, Compiler, ProverResourceType};
 
 use crate::guest_programs::{GuestInput, GuestInputMetadata};
 
@@ -135,4 +137,53 @@ fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
         .map(|s| s.to_string())
         .or_else(|| panic_info.downcast_ref::<String>().cloned())
         .unwrap_or_else(|| "Unknown panic occurred".to_string())
+}
+
+/// Creates the requested zkVMs configured for the guest program and resources.
+pub fn get_zkvm_instances(
+    zkvms: &[ErezkVM],
+    workspace_dir: &Path,
+    guest_relative: &Path,
+    resource: ProverResourceType,
+) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
+    let mut instances = Vec::new();
+    for zkvm in zkvms {
+        run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
+        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
+            .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
+        instances.push(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?);
+    }
+    Ok(instances)
+}
+
+/// Patches the precompiles for a specific zkvm
+fn run_cargo_patch_command(
+    zkvm_name: &str,
+    workspace_path: &Path,
+) -> Result<(), Box<dyn std::error::Error>> {
+    info!("Running cargo {}...", zkvm_name);
+
+    let output = Command::new("cargo")
+        .arg(zkvm_name)
+        .arg("--manifest-folder")
+        .arg(workspace_path)
+        .output()?;
+
+    if !output.status.success() {
+        let stderr = String::from_utf8_lossy(&output.stderr);
+        let stdout = String::from_utf8_lossy(&output.stdout);
+
+        error!(
+            "cargo {} failed with exit code: {:?}",
+            zkvm_name,
+            output.status.code()
+        );
+        error!("stdout: {}", stdout);
+        error!("stderr: {}", stderr);
+
+        return Err(format!("cargo {zkvm_name} command failed").into());
+    }
+
+    info!("cargo {zkvm_name} completed successfully");
+    Ok(())
 }
