@@ -1,0 +1,104 @@
+//! Test utilities for the benchmark integration tests
+
+#![cfg(test)]
+
+use std::{
+    fs::File,
+    path::{Path, PathBuf},
+};
+
+use benchmark_runner::{
+    get_zkvm_instances,
+    guest_programs::{BlockMetadata, GuestInput, GuestInputMetadata},
+    run_benchmark, Action, RunConfig,
+};
+use ere_dockerized::ErezkVM;
+use flate2::bufread::GzDecoder;
+use tar::Archive;
+use walkdir::WalkDir;
+use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
+use zkvm_interface::ProverResourceType;
+
+pub(crate) fn run_guest<T>(
+    guest_name: &str,
+    zkvms: &[ErezkVM],
+    inputs: Vec<GuestInput<T>>,
+    output_folder: &Path,
+    action: Action,
+) where
+    T: GuestInputMetadata,
+{
+    let config = RunConfig {
+        output_folder: output_folder.to_path_buf(),
+        action,
+        force_rerun: true,
+    };
+    let instances = get_zkvm_instances(
+        zkvms,
+        &PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("ere-guests"),
+        Path::new(guest_name),
+        ProverResourceType::Cpu,
+    )
+    .unwrap();
+    for zkvm in instances {
+        run_benchmark(&zkvm, &config, inputs.clone()).unwrap();
+    }
+
+    assert!(
+        std::fs::exists(output_folder.join("hardware.json")).unwrap(),
+        "hardware.json file must exist"
+    );
+}
+
+pub(crate) fn assert_executions_crashed(metrics_folder_path: &Path) {
+    assert_execution_status(metrics_folder_path, |exec| {
+        matches!(exec, ExecutionMetrics::Crashed { .. })
+    });
+}
+
+pub(crate) fn assert_executions_successful(metrics_folder_path: &Path) {
+    assert_execution_status(metrics_folder_path, |exec| {
+        matches!(exec, ExecutionMetrics::Success { .. })
+    });
+}
+
+fn assert_execution_status<F>(output_path: &Path, predicate: F)
+where
+    F: Fn(&ExecutionMetrics) -> bool,
+{
+    WalkDir::new(output_path)
+        .min_depth(2)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .for_each(|entry| {
+            let result = BenchmarkRun::<BlockMetadata>::from_path(entry.path()).unwrap();
+            assert!(
+                predicate(&result.execution.unwrap()),
+                "Unexpected execution status for: {}",
+                entry.path().display()
+            );
+        });
+}
+
+pub(crate) fn assert_proving_successful(output_path: &Path) {
+    WalkDir::new(output_path)
+        .min_depth(2)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .for_each(|entry| {
+            let result = BenchmarkRun::<BlockMetadata>::from_path(entry.path()).unwrap();
+            assert!(
+                matches!(result.proving.unwrap(), ProvingMetrics::Success { .. }),
+                "Unexpected proving status for: {}",
+                entry.path().display()
+            );
+        });
+}
+
+pub(crate) fn untar(path: &Path, dest_dir: &Path) {
+    let file = File::open(path).unwrap();
+    let buf_reader = std::io::BufReader::new(file);
+    let tar = GzDecoder::new(buf_reader);
+    let mut archive = Archive::new(tar);
+    archive.unpack(dest_dir).unwrap();
+}

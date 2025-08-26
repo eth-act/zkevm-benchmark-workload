@@ -3,20 +3,19 @@ name = "integration-tests"
 version = "0.1.0"
 edition = "2021"
 
-[dependencies]
-
 [dev-dependencies]
-witness-generator.workspace = true
 benchmark-runner.workspace = true
-ere-dockerized.workspace = true
-zkvm-interface.workspace = true
 zkevm-metrics.workspace = true
+zkvm-interface.workspace = true
+ere-dockerized.workspace = true
+witness-generator.workspace = true
 
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tempfile = "3.10"
 walkdir = "2.3"
 flate2 = "1.0"
 tar = "0.4"
+
 
 [lints]
 workspace = true

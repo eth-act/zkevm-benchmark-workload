@@ -141,13 +141,13 @@ fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
 
 /// Creates the requested zkVMs configured for the guest program and resources.
 pub fn get_zkvm_instances(
-    zkvm: &[ErezkVM],
+    zkvms: &[ErezkVM],
     workspace_dir: &Path,
     guest_relative: &Path,
     resource: ProverResourceType,
 ) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
     let mut instances = Vec::new();
-    for zkvm in zkvm {
+    for zkvm in zkvms {
         run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
         let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
             .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;

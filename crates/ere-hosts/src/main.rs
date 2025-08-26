@@ -152,7 +152,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let input = guest_programs::empty_program_inputs();
+            let input = guest_programs::empty_program_input();
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,

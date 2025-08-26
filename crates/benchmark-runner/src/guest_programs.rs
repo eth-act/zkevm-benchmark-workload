@@ -26,7 +26,7 @@ pub struct GuestInput<M: GuestInputMetadata> {
 impl GuestInputMetadata for () {}
 
 /// Generate inputs for the empty program guest program.
-pub fn empty_program_inputs() -> GuestInput<()> {
+pub fn empty_program_input() -> GuestInput<()> {
     GuestInput {
         name: "empty_program".to_string(),
         stdin: Input::new(),
