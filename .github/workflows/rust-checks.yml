@@ -30,9 +30,11 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        zkVM:
-          - sp1-stateless-validator
-          - risc0-stateless-validator
+        include:
+          - zkVM: sp1-stateless-validator
+            xtask: sp1
+          - zkVM: risc0-stateless-validator
+            xtask: risc0
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -49,8 +51,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          cargo ${{ matrix.xtask }} 
           cd ere-guests
-          if cargo tree -q -p ${{ matrix.zkVM }} 2>&1 | grep -F "was not used in the crate graph"; then
+          if cargo tree -p ${{ matrix.zkVM }} 2>&1 | grep -F "was not used in the crate graph"; then
             exit 1
           fi
 
