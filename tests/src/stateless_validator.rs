@@ -44,7 +44,7 @@ mod tests {
         )
         .unwrap();
         let len_inputs = inputs.len();
-        assert_eq!(len_inputs, 10);
+        assert_eq!(len_inputs, 15);
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
