@@ -8,6 +8,7 @@ use alloc::sync::Arc;
 use guest_libs::mpt::SparseState;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
+use reth_primitives_traits::Block;
 use reth_stateless::{Genesis, StatelessInput, stateless_validation_with_trie};
 use tracing_subscriber::fmt;
 
@@ -26,15 +27,38 @@ pub fn main() {
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("cycle-tracker-report-end: read_input");
 
+    println!("cycle-tracker-report-start: public_inputs_preparation");
+    let header = input.block.header().clone();
+    let parent_hash = input.block.parent_hash;
+    println!("cycle-tracker-report-end: public_inputs_preparation");
+
     println!("cycle-tracker-report-start: validation");
-    stateless_validation_with_trie::<SparseState, _, _>(
+    let res = stateless_validation_with_trie::<SparseState, _, _>(
         input.block,
         input.witness,
         chain_spec,
         evm_config,
-    )
-    .unwrap();
+    );
     println!("cycle-tracker-report-end: validation");
+
+    println!("cycle-tracker-report-start: commit_public_inputs");
+    // The public inputs are:
+    // - block_hash : FixedBytes<32>
+    // - parent_hash : FixedBytes<32>
+    // - successful_block_validation : bool
+    match res {
+        Ok(block_hash) => {
+            sp1_zkvm::io::commit(&block_hash);
+            sp1_zkvm::io::commit(&parent_hash);
+            sp1_zkvm::io::commit(&true);
+        }
+        Err(_) => {
+            sp1_zkvm::io::commit(&header.hash_slow());
+            sp1_zkvm::io::commit(&parent_hash);
+            sp1_zkvm::io::commit(&true);
+        }
+    }
+    println!("cycle-tracker-report-end: commit_public_inputs");
 }
 
 /// TODO: can we put this in the host? (Note that if we want sp1 logs, it will look very plain in that case)

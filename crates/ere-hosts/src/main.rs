@@ -2,7 +2,11 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use benchmark_runner::{Action, RunConfig, get_zkvm_instances, guest_programs, run_benchmark};
+use benchmark_runner::{
+    block_encoding_length_program, empty_program,
+    runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
+    stateless_validator,
+};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::ErezkVM;
 use std::path::{Path, PathBuf};
@@ -103,7 +107,7 @@ impl From<BenchmarkAction> for Action {
     }
 }
 
-impl From<BlockEncodingFormat> for guest_programs::BlockEncodingFormat {
+impl From<BlockEncodingFormat> for block_encoding_length_program::BlockEncodingFormat {
     fn from(format: BlockEncodingFormat) -> Self {
         match format {
             BlockEncodingFormat::Rlp => Self::Rlp,
@@ -139,28 +143,28 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let inputs = guest_programs::stateless_validator_inputs(input_folder.as_path())?;
+            let guest_io = stateless_validator::stateless_validator_inputs(input_folder.as_path())?;
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
                 Path::new("stateless-validator"),
                 resource,
             )?;
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, inputs.clone())?;
+            for (zkvm, ere_zkvm) in zkvms {
+                run_benchmark(zkvm, &ere_zkvm, &config, guest_io.clone())?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let input = guest_programs::empty_program_input();
+            let guest_io = empty_program::empty_program_input();
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
                 Path::new("empty-program"),
                 resource,
             )?;
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, vec![input.clone()])?;
+            for (zkvm, ere_zkvm) in zkvms {
+                run_benchmark(zkvm, &ere_zkvm, &config, vec![guest_io.clone()])?;
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -174,7 +178,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display(),
                 loop_count
             );
-            let inputs = guest_programs::block_encoding_length_inputs(
+            let guest_io = block_encoding_length_program::block_encoding_length_inputs(
                 input_folder.as_path(),
                 *loop_count,
                 format.clone().into(),
@@ -185,8 +189,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Path::new("block-encoding-length"),
                 resource,
             )?;
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, inputs.clone())?;
+            for (zkvm, ere_zkvm) in zkvms {
+                run_benchmark(zkvm, &ere_zkvm, &config, guest_io.clone())?;
             }
         }
     }
