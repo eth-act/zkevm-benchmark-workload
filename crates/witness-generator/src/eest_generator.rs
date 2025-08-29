@@ -139,8 +139,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             let test_case = match BlockchainTestCase::load(&path) {
                 Ok(case) => case,
                 Err(e) => {
-                    error!("Failed to load test case from {}: {e}", path.display());
-                    continue;
+                    bail!("Failed to load test case from {}: {e}", path.display());
                 }
             };
 

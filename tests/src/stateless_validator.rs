@@ -44,6 +44,7 @@ mod tests {
         )
         .unwrap();
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 10);
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -70,7 +71,10 @@ mod tests {
         let output_folder = tempdir().unwrap();
         let inputs =
             stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 1);
+
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -96,7 +100,10 @@ mod tests {
         let output_folder = tempdir().unwrap();
         let inputs =
             stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 1);
+
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),

@@ -55,7 +55,7 @@ pub fn main() {
         Err(_) => {
             sp1_zkvm::io::commit(&header.hash_slow());
             sp1_zkvm::io::commit(&parent_hash);
-            sp1_zkvm::io::commit(&true);
+            sp1_zkvm::io::commit(&false);
         }
     }
     println!("cycle-tracker-report-end: commit_public_inputs");
