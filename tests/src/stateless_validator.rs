@@ -5,8 +5,8 @@ mod tests {
     use tempfile::tempdir;
 
     use benchmark_runner::{
-        guest_programs::{self, BlockMetadata},
-        Action,
+        runner::Action,
+        stateless_validator::{self, BlockMetadata},
     };
     use witness_generator::{
         eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
@@ -37,7 +37,7 @@ mod tests {
         );
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(
+        let inputs = stateless_validator::stateless_validator_inputs(
             &bench_fixtures_dir
                 .path()
                 .join("mainnet-zkevm-fixtures-input"),
@@ -68,7 +68,8 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs =
+            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
         let len_inputs = inputs.len();
         run_guest(
             "stateless-validator",
@@ -93,7 +94,8 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs =
+            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
         let len_inputs = inputs.len();
         run_guest(
             "stateless-validator",

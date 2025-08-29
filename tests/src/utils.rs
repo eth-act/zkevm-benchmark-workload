@@ -10,7 +10,7 @@ use std::{
 
 use benchmark_runner::{
     guest_programs::{GuestIO, GuestMetadata, OutputVerifier},
-    runner::{Action, RunConfig},
+    runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
 };
 use ere_dockerized::ErezkVM;
 use flate2::bufread::GzDecoder;
@@ -41,8 +41,8 @@ pub(crate) fn run_guest<T, OV>(
         ProverResourceType::Cpu,
     )
     .unwrap();
-    for zkvm in instances {
-        run_benchmark(&zkvm, &config, inputs.clone()).unwrap();
+    for (zkvm, ere_zkvm) in instances {
+        run_benchmark(zkvm, &ere_zkvm, &config, inputs.clone()).unwrap();
     }
 
     assert!(
