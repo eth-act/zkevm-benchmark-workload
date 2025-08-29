@@ -24,6 +24,38 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  check-precompile-patches:
+    name: Check ${{ matrix.zkVM }} unused precompile patches
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - zkVM: sp1-stateless-validator
+            xtask: sp1
+          - zkVM: risc0-stateless-validator
+            xtask: risc0
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: ere-guests
+
+      - name: Check for unused [patch] entries
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo ${{ matrix.xtask }} 
+          cd ere-guests
+          if cargo tree -p ${{ matrix.zkVM }} 2>&1 | grep -F "was not used in the crate graph"; then
+            exit 1
+          fi
 
   check-non-ere-hosts:
     name: Checks on non ere-hosts crates
