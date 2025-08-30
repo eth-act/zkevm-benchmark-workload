@@ -51,6 +51,7 @@ pub(crate) fn run_guest<T, OV>(
     );
 }
 
+// TODO: add test
 pub(crate) fn assert_executions_crashed<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,

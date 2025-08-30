@@ -13,8 +13,8 @@ mod tests {
     };
 
     use crate::utils::{
-        assert_executions_crashed, assert_executions_successful, assert_proving_successful,
-        get_env_zkvm_or_default, run_guest, untar,
+        assert_executions_successful, assert_proving_successful, get_env_zkvm_or_default,
+        run_guest, untar,
     };
 
     #[tokio::test]

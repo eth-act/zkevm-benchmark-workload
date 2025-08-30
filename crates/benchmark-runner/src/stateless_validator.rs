@@ -78,38 +78,38 @@ pub struct ProgramOutputVerifier {
 
 impl OutputVerifier for ProgramOutputVerifier {
     fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
-        match zkvm {
-            ErezkVM::SP1 => {
+        let (block_hash, parent_hash, success) = match zkvm {
+            ErezkVM::SP1 | ErezkVM::Risc0 => {
                 let mut bytes: &[u8] = bytes;
                 let block_hash: FixedBytes<32> = zkvm.deserialize_from(&mut bytes)?;
                 let parent_hash: FixedBytes<32> = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
-
-                if block_hash != self.block_hash {
-                    anyhow::bail!(
-                        "Block hash mismatch: expected {:?}, got {:?}",
-                        self.block_hash,
-                        block_hash
-                    );
-                }
-                if parent_hash != self.parent_hash {
-                    anyhow::bail!(
-                        "Parent hash mismatch: expected {:?}, got {:?}",
-                        self.parent_hash,
-                        parent_hash
-                    );
-                }
-                if success != self.success {
-                    anyhow::bail!(
-                        "Success mismatch: expected {:?}, got {:?}",
-                        self.success,
-                        success
-                    );
-                }
-
-                Ok(true)
+                (block_hash, parent_hash, success)
             }
             _ => unimplemented!(),
+        };
+        if block_hash != self.block_hash {
+            anyhow::bail!(
+                "Block hash mismatch: expected {:?}, got {:?}",
+                self.block_hash,
+                block_hash
+            );
         }
+        if parent_hash != self.parent_hash {
+            anyhow::bail!(
+                "Parent hash mismatch: expected {:?}, got {:?}",
+                self.parent_hash,
+                parent_hash
+            );
+        }
+        if success != self.success {
+            anyhow::bail!(
+                "Success mismatch: expected {:?}, got {:?}",
+                self.success,
+                success
+            );
+        }
+
+        Ok(true)
     }
 }
