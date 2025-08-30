@@ -159,7 +159,7 @@ pub fn get_zkvm_instances(
     let mut instances = Vec::new();
     for zkvm in zkvms {
         run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
-        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)
+        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)?
             .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
         instances.push((
             *zkvm,
