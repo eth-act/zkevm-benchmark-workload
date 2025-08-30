@@ -163,17 +163,26 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
             .map(|(name, case)| {
                 let chain_spec: ChainSpec = case.network.into();
                 let chain_config = chain_spec.genesis.config;
+                let (recovered_block, witness) = BlockchainTestCase::run_single_case(name, case)?
+                    .into_iter()
+                    .next_back()
+                    .ok_or_else(|| anyhow!("No target block found for test case {}", name))?;
+                let block_and_witness = StatelessInput {
+                    block: recovered_block.into_block(),
+                    witness,
+                    chain_config,
+                };
+                let success = case
+                    .blocks
+                    .iter()
+                    .next_back()
+                    .unwrap()
+                    .expect_exception
+                    .is_none();
                 Ok(BlockAndWitness {
                     name: name.to_string(),
-                    block_and_witness: BlockchainTestCase::run_single_case(name, case)?
-                        .into_iter()
-                        .next_back()
-                        .map(|(recovered_block, witness)| StatelessInput {
-                            block: recovered_block.into_block(),
-                            witness,
-                            chain_config,
-                        })
-                        .ok_or_else(|| anyhow!("No target block found for test case {}", name))?,
+                    block_and_witness,
+                    success,
                 })
             })
             .collect();
@@ -265,12 +274,17 @@ mod tests {
             .with_input_folder(target_path.to_path_buf())?
             .build()?;
 
+        let bws = wg.generate().await?;
+
         // The worst_jumps.json suite has two fixtures.
         assert_eq!(
-            wg.generate().await?.len(),
+            bws.len(),
             2,
             "Only two fixtures are expected for the worst_jumps EEST fixture"
         );
+
+        // All blocks should expect a successful block validation.
+        assert_eq!(bws.iter().all(|bw| bw.success), true);
 
         // Then the `input_folder` is used, the folder must not be deleted.
         drop(wg);
@@ -407,6 +421,7 @@ mod tests {
                 && witness.block_and_witness.witness.state.is_empty(),
             "Witnesses must only have one header value and no other data"
         );
+        assert!(!witness.success, "The test must fail");
 
         Ok(())
     }

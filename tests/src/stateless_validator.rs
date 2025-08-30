@@ -56,7 +56,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn execute_invalid_blocks() {
+    async fn execute_invalid_block() {
         let eest_fixtures_path = PathBuf::from("assets/eest-invalid-block");
         let bench_fixtures_dir = tempdir().unwrap();
         ExecSpecTestBlocksAndWitnessBuilder::default()
@@ -82,7 +82,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_crashed::<BlockMetadata>(output_folder.path(), len_inputs);
+        assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
     }
 
     async fn empty_block(action: Action) {

@@ -38,7 +38,7 @@ pub fn stateless_validator_inputs(
                 output: ProgramOutputVerifier {
                     block_hash: bw.block_and_witness.block.hash_slow(),
                     parent_hash: bw.block_and_witness.block.parent_hash,
-                    success: true, // FIXME
+                    success: bw.success,
                 },
             }
         })
