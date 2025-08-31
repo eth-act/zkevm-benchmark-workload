@@ -85,7 +85,7 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| ere_zkvm.execute(&io.input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    // verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
 
                     ExecutionMetrics::Success {
                         total_num_cycles: report.total_num_cycles,
@@ -106,10 +106,10 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| ere_zkvm.prove(&io.input)));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    // verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
                     let verif_public_values =
                         ere_zkvm.verify(&proof).context("Failed to verify proof")?;
-                    // verify_public_output(&io.name, zkvm, &verif_public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm, &verif_public_values, &io.output)?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.len(),
@@ -158,6 +158,7 @@ pub fn get_zkvm_instances(
 ) -> Result<Vec<(ErezkVM, EreDockerizedzkVM)>, Box<dyn std::error::Error>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
+        // TODO: ethrex has its own patches -- maybe add a parameter to make this optional.
         // run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
         let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)?
             .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;

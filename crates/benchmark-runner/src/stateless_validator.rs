@@ -3,7 +3,7 @@
 use std::{collections::HashMap, io::Read, path::Path};
 
 use alloy_consensus::Header;
-use alloy_primitives::{keccak256, FixedBytes};
+use alloy_primitives::{keccak256, FixedBytes, B256};
 use alloy_rlp::{Decodable, Encodable};
 use anyhow::Result;
 use bytes::Bytes;
@@ -62,8 +62,8 @@ pub fn stateless_validator_inputs(
                     block_used_gas: bw.block_and_witness.block.gas_used,
                 },
                 output: ProgramOutputVerifier {
-                    block_hash: bw.block_and_witness.block.hash_slow(),
-                    parent_hash: bw.block_and_witness.block.parent_hash,
+                    block_hash: bw.block_and_witness.block.hash_slow().0.into(),
+                    parent_hash: bw.block_and_witness.block.parent_hash.0.into(),
                     success: bw.success,
                 },
             })
@@ -97,18 +97,19 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> anyhow::Result<Vec<BlockAn
 /// Verifies the output of the program.
 #[derive(Debug, Clone)]
 pub struct ProgramOutputVerifier {
-    block_hash: FixedBytes<32>,
-    parent_hash: FixedBytes<32>,
+    block_hash: H256,
+    parent_hash: H256,
     success: bool,
 }
 
+// TODO: prob generalize for reth and ethrex
 impl OutputVerifier for ProgramOutputVerifier {
     fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
         let (block_hash, parent_hash, success) = match zkvm {
             ErezkVM::SP1 | ErezkVM::Risc0 => {
                 let mut bytes: &[u8] = bytes;
-                let block_hash: FixedBytes<32> = zkvm.deserialize_from(&mut bytes)?;
-                let parent_hash: FixedBytes<32> = zkvm.deserialize_from(&mut bytes)?;
+                let block_hash: H256 = zkvm.deserialize_from(&mut bytes)?;
+                let parent_hash: H256 = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
                 (block_hash, parent_hash, success)
             }

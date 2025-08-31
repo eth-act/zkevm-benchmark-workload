@@ -136,6 +136,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         force_rerun: cli.force_rerun,
     };
 
+    // TODO: add an extra flag to stateless-validator to have dual support for reth and ethrex
+    // and use that to configure workspace/guest paths.
     let workspace_dir = workspace_root().join("ere-guests-ethrex");
     match &cli.guest_program {
         GuestProgramCommand::StatelessValidator { input_folder } => {
