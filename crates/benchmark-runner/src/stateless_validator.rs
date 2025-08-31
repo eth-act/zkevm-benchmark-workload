@@ -1,11 +1,22 @@
 //! Stateless validator guest program.
 
-use std::path::Path;
+use std::{collections::HashMap, io::Read, path::Path};
 
-use alloy_primitives::FixedBytes;
+use alloy_consensus::Header;
+use alloy_primitives::{keccak256, FixedBytes};
+use alloy_rlp::{Decodable, Encodable};
 use anyhow::Result;
+use bytes::Bytes;
 use ere_dockerized::ErezkVM;
+use ethrex_common::{
+    types::{Block, BlockHeader, ChainConfig},
+    H256,
+};
+use ethrex_rlp::decode::RLPDecode;
+use ethrex_trie::NodeRLP;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use reth_stateless::ExecutionWitness;
+use rkyv::rancor::Error;
 use serde::{Deserialize, Serialize};
 use walkdir::WalkDir;
 use witness_generator::BlockAndWitness;
@@ -27,9 +38,24 @@ pub fn stateless_validator_inputs(
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
+            let mut rlp_bytes = vec![];
+            bw.block_and_witness.block.encode(&mut rlp_bytes);
+            let (ethrex_block, _) = Block::decode_unfinished(&rlp_bytes)?;
+
+            let ethrex_program_input = ethrex_zkvm_interface::io::ProgramInput {
+                blocks: vec![ethrex_block],
+                db: from_reth_witness_to_ethrex_witness(
+                    bw.block_and_witness.block.number,
+                    bw.block_and_witness.witness,
+                )?,
+                elasticity_multiplier: 2u64, // TODO: This is the correct value, but not sure why they treat them special.
+            };
+
             let mut stdin = Input::new();
-            stdin.write(bw.block_and_witness.clone());
-            GuestIO {
+            // stdin.write(bw.block_and_witness.clone());
+            stdin.write_bytes(rkyv::to_bytes::<Error>(&ethrex_program_input)?.to_vec());
+
+            Ok(GuestIO {
                 name: bw.name,
                 input: stdin,
                 metadata: BlockMetadata {
@@ -40,9 +66,9 @@ pub fn stateless_validator_inputs(
                     parent_hash: bw.block_and_witness.block.parent_hash,
                     success: bw.success,
                 },
-            }
+            })
         })
-        .collect();
+        .collect::<anyhow::Result<Vec<_>>>()?;
 
     Ok(guest_inputs)
 }
@@ -112,4 +138,47 @@ impl OutputVerifier for ProgramOutputVerifier {
 
         Ok(true)
     }
+}
+
+fn from_reth_witness_to_ethrex_witness(
+    block_number: u64,
+    value: ExecutionWitness,
+) -> anyhow::Result<ethrex_common::types::block_execution_witness::ExecutionWitnessResult> {
+    let codes: HashMap<H256, Bytes> = value
+        .codes
+        .into_iter()
+        .map(|b| (H256::from(keccak256(&b).0), Bytes::from(b)))
+        .collect();
+
+    let block_headers = value
+        .headers
+        .iter()
+        .map(|h| Ok(BlockHeader::decode(h.as_ref())?))
+        .map(|h| h.map(|h| (h.number, h)))
+        .collect::<anyhow::Result<HashMap<u64, BlockHeader>>>()?;
+
+    let parent_block_header = block_headers.get(&(block_number - 1)).unwrap().clone();
+
+    let chain_config = ethrex_config::networks::Network::PublicNetwork(
+        ethrex_config::networks::PublicNetwork::Mainnet,
+    )
+    .get_genesis()?
+    .config;
+
+    let state_nodes: HashMap<H256, NodeRLP> = value
+        .state
+        .iter()
+        .map(|node_rlp| (H256::from(keccak256(node_rlp).0), node_rlp.clone().to_vec()))
+        .collect();
+
+    Ok(
+        ethrex_common::types::block_execution_witness::ExecutionWitnessResult {
+            codes,
+            block_headers,
+            parent_block_header,
+            chain_config,
+            state_nodes,
+            ..Default::default() // The rest of fields are optional
+        },
+    )
 }

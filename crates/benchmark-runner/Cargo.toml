@@ -12,13 +12,25 @@ guest-libs.workspace = true
 ere-dockerized.workspace = true
 
 alloy-primitives.workspace = true
+alloy-consensus.workspace = true
+alloy-rlp.workspace = true
+
+reth-stateless.workspace = true
+
+ethrex-zkvm_interface.workspace = true
+ethrex-common.workspace = true
+ethrex-rlp.workspace = true
+ethrex-config.workspace = true
+ethrex-trie.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
 walkdir.workspace = true
 serde.workspace = true
 serde_json.workspace = true
+rkyv.workspace = true
 anyhow = "*"
+bytes = "*"
 
 [lints]
 workspace = true
