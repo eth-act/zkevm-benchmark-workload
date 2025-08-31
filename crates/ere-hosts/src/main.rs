@@ -150,8 +150,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Path::new("stateless-validator"),
                 resource,
             )?;
-            for (zkvm, ere_zkvm) in zkvms {
-                run_benchmark(zkvm, &ere_zkvm, &config, guest_io.clone())?;
+            for zkvm in zkvms {
+                run_benchmark(&zkvm, &config, guest_io.clone())?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
@@ -163,8 +163,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Path::new("empty-program"),
                 resource,
             )?;
-            for (zkvm, ere_zkvm) in zkvms {
-                run_benchmark(zkvm, &ere_zkvm, &config, vec![guest_io.clone()])?;
+            for zkvm in zkvms {
+                run_benchmark(&zkvm, &config, vec![guest_io.clone()])?;
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -189,8 +189,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Path::new("block-encoding-length"),
                 resource,
             )?;
-            for (zkvm, ere_zkvm) in zkvms {
-                run_benchmark(zkvm, &ere_zkvm, &config, guest_io.clone())?;
+            for zkvm in zkvms {
+                run_benchmark(&zkvm, &config, guest_io.clone())?;
             }
         }
     }

@@ -35,7 +35,6 @@ pub enum Action {
 
 /// Executes benchmarks for a given guest program type and zkVM
 pub fn run_benchmark<M, OV>(
-    zkvm: ErezkVM,
     ere_zkvm: &EreDockerizedzkVM,
     config: &RunConfig,
     inputs: Vec<GuestIO<M, OV>>,
@@ -48,11 +47,11 @@ where
     match config.action {
         Action::Execute => inputs
             .par_iter()
-            .try_for_each(|input| process_input(zkvm, ere_zkvm, input, config))?,
+            .try_for_each(|input| process_input(ere_zkvm, input, config))?,
 
         Action::Prove => inputs
             .iter()
-            .try_for_each(|input| process_input(zkvm, ere_zkvm, input, config))?,
+            .try_for_each(|input| process_input(ere_zkvm, input, config))?,
     }
 
     Ok(())
@@ -60,8 +59,7 @@ where
 
 /// Processes a single input through the zkVM
 fn process_input<M, OV>(
-    zkvm: ErezkVM,
-    ere_zkvm: &EreDockerizedzkVM,
+    zkvm: &EreDockerizedzkVM,
     io: &GuestIO<M, OV>,
     config: &RunConfig,
 ) -> Result<()>
@@ -69,7 +67,7 @@ where
     M: GuestMetadata,
     OV: OutputVerifier,
 {
-    let zkvm_name = format!("{}-v{}", ere_zkvm.name(), ere_zkvm.sdk_version());
+    let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
         .output_folder
         .join(format!("{zkvm_name}/{}.json", io.name));
@@ -82,10 +80,10 @@ where
     info!("Running {}", io.name);
     let (execution, proving) = match config.action {
         Action::Execute => {
-            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| ere_zkvm.execute(&io.input)));
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&io.input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
 
                     ExecutionMetrics::Success {
                         total_num_cycles: report.total_num_cycles,
@@ -103,13 +101,13 @@ where
             (Some(execution), None)
         }
         Action::Prove => {
-            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| ere_zkvm.prove(&io.input)));
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&io.input)));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io.name, zkvm, &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
                     let verif_public_values =
-                        ere_zkvm.verify(&proof).context("Failed to verify proof")?;
-                    verify_public_output(&io.name, zkvm, &verif_public_values, &io.output)?;
+                        zkvm.verify(&proof).context("Failed to verify proof")?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.len(),
@@ -155,16 +153,13 @@ pub fn get_zkvm_instances(
     workspace_dir: &Path,
     guest_relative: &Path,
     resource: ProverResourceType,
-) -> Result<Vec<(ErezkVM, EreDockerizedzkVM)>, Box<dyn std::error::Error>> {
+) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
         run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
         let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)?
             .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
-        instances.push((
-            *zkvm,
-            EreDockerizedzkVM::new(*zkvm, program, resource.clone())?,
-        ));
+        instances.push(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?);
     }
     Ok(instances)
 }
