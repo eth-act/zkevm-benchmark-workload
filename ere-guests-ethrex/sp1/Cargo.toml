@@ -33,8 +33,8 @@ rsa = { git = "https://github.com/sp1-patches/RustCrypto-RSA", tag = "patch-0.9.
 ecdsa = { git = "https://github.com/sp1-patches/signatures", tag = "patch-16.9-sp1-4.1.0" }
 k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k256-13.4-sp1-5.0.0" }
 
-[patch."https://github.com/jsign/bls12_381"]
-bls12_381 = { git = "https://github.com/jsign/bls12_381-patch/", branch = "expose-fp-struct" }
+[patch."https://github.com/lambdaclass/bls12_381"]
+bls12_381 = { git = "https://github.com/lambdaclass/bls12_381-patch/", branch = "expose-fp-struct" }
 
 [features]
 l2 = ["zkvm_interface/l2"]

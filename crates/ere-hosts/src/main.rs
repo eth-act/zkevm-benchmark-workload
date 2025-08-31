@@ -136,7 +136,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         force_rerun: cli.force_rerun,
     };
 
-    let workspace_dir = workspace_root().join("ere-guests");
+    let workspace_dir = workspace_root().join("ere-guests-ethrex");
     match &cli.guest_program {
         GuestProgramCommand::StatelessValidator { input_folder } => {
             info!(
@@ -144,12 +144,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display()
             );
             let guest_io = stateless_validator::stateless_validator_inputs(input_folder.as_path())?;
-            let zkvms = get_zkvm_instances(
-                &cli.zkvms,
-                &workspace_dir,
-                Path::new("stateless-validator"),
-                resource,
-            )?;
+            let zkvms = get_zkvm_instances(&cli.zkvms, &workspace_dir, Path::new(""), resource)?;
             for (zkvm, ere_zkvm) in zkvms {
                 run_benchmark(zkvm, &ere_zkvm, &config, guest_io.clone())?;
             }
