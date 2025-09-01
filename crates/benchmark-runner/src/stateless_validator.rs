@@ -90,19 +90,18 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> anyhow::Result<Vec<BlockAn
 /// Verifies the output of the program.
 #[derive(Debug, Clone)]
 pub struct ProgramOutputVerifier {
-    block_hash: H256,
-    parent_hash: H256,
+    block_hash: [u8; 32],
+    parent_hash: [u8; 32],
     success: bool,
 }
 
-// TODO: prob generalize for reth and ethrex
 impl OutputVerifier for ProgramOutputVerifier {
     fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
         let (block_hash, parent_hash, success) = match zkvm {
             ErezkVM::SP1 | ErezkVM::Risc0 => {
                 let mut bytes: &[u8] = bytes;
-                let block_hash: H256 = zkvm.deserialize_from(&mut bytes)?;
-                let parent_hash: H256 = zkvm.deserialize_from(&mut bytes)?;
+                let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
+                let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
                 (block_hash, parent_hash, success)
             }

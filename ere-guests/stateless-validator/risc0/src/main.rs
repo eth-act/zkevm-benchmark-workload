@@ -31,7 +31,6 @@ pub fn main() {
     let end = env::cycle_count();
     eprintln!("public inputs preparation (cycle tracker): {}", end - start);
 
-
     println!("start stateless validation");
     let start = env::cycle_count();
     let res = stateless_validation_with_trie::<SparseState, _, _>(
@@ -43,22 +42,21 @@ pub fn main() {
     let end = env::cycle_count();
     eprintln!("stateless validation (cycle tracker): {}", end - start);
 
-
     println!("start commit public inputs");
     let start = env::cycle_count();
     // The public inputs are:
-    // - block_hash : FixedBytes<32>
-    // - parent_hash : FixedBytes<32>
+    // - block_hash : [u8;32]
+    // - parent_hash : [u8;32]
     // - successful_block_validation : bool
     match res {
         Ok(block_hash) => {
-            env::commit(&block_hash);
-            env::commit(&parent_hash);
+            env::commit(&block_hash.0);
+            env::commit(&parent_hash.0);
             env::commit(&true);
         }
         Err(_) => {
-            env::commit(&header.hash_slow());
-            env::commit(&parent_hash);
+            env::commit(&header.hash_slow().0);
+            env::commit(&parent_hash.0);
             env::commit(&false);
         }
     }
