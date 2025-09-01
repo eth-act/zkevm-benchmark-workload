@@ -31,9 +31,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - zkVM: sp1-stateless-validator
+          - zkVM: reth-sp1-stateless-validator
             xtask: sp1
-          - zkVM: risc0-stateless-validator
+          - zkVM: reth-risc0-stateless-validator
             xtask: risc0
     steps:
       - name: Checkout code

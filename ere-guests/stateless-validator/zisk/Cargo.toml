@@ -1,5 +1,5 @@
 [package]
-name = "zisk-guest"
+name = "reth-zisk-guest"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

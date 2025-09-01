@@ -8,7 +8,7 @@ use anyhow::Result;
 use bytes::Bytes;
 use ere_dockerized::ErezkVM;
 use ethrex_common::{
-    types::{Block, BlockHeader},
+    types::{block_execution_witness::ExecutionWitnessResult, Block, BlockHeader},
     H256,
 };
 use ethrex_rlp::decode::RLPDecode;
@@ -44,7 +44,7 @@ impl GuestMetadata for BlockMetadata {}
 pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
-) -> anyhow::Result<Vec<GuestIO<BlockMetadata, ProgramOutputVerifier>>> {
+) -> Result<Vec<GuestIO<BlockMetadata, ProgramOutputVerifier>>> {
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
@@ -55,19 +55,19 @@ pub fn stateless_validator_inputs(
                     block_used_gas: bw.block_and_witness.block.gas_used,
                 },
                 output: ProgramOutputVerifier {
-                    block_hash: bw.block_and_witness.block.hash_slow().0.into(),
-                    parent_hash: bw.block_and_witness.block.parent_hash.0.into(),
+                    block_hash: bw.block_and_witness.block.hash_slow().0,
+                    parent_hash: bw.block_and_witness.block.parent_hash.0,
                     success: bw.success,
                 },
             })
         })
-        .collect::<anyhow::Result<Vec<_>>>()?;
+        .collect::<Result<Vec<_>>>()?;
 
     Ok(guest_inputs)
 }
 
 /// Reads the benchmark fixtures folder and returns a list of block and witness pairs.
-pub fn read_benchmark_fixtures_folder(path: &Path) -> anyhow::Result<Vec<BlockAndWitness>> {
+pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<BlockAndWitness>> {
     WalkDir::new(path)
         .min_depth(1)
         .into_iter()
@@ -84,7 +84,7 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> anyhow::Result<Vec<BlockAn
                 anyhow::bail!("Invalid input folder structure: expected files only")
             }
         })
-        .collect::<anyhow::Result<Vec<BlockAndWitness>>>()
+        .collect::<Result<Vec<BlockAndWitness>>>()
 }
 
 /// Verifies the output of the program.
@@ -162,7 +162,7 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
 fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
     value: &ExecutionWitness,
-) -> anyhow::Result<ethrex_common::types::block_execution_witness::ExecutionWitnessResult> {
+) -> Result<ExecutionWitnessResult> {
     let codes: HashMap<H256, Bytes> = value
         .codes
         .iter()
@@ -174,7 +174,7 @@ fn from_reth_witness_to_ethrex_witness(
         .iter()
         .map(|h| Ok(BlockHeader::decode(h.as_ref())?))
         .map(|h| h.map(|h| (h.number, h)))
-        .collect::<anyhow::Result<HashMap<u64, BlockHeader>>>()?;
+        .collect::<Result<HashMap<u64, BlockHeader>>>()?;
 
     let parent_block_header = block_headers.get(&(block_number - 1)).unwrap().clone();
 
@@ -190,14 +190,12 @@ fn from_reth_witness_to_ethrex_witness(
         .map(|node_rlp| (H256::from(keccak256(node_rlp).0), node_rlp.clone().to_vec()))
         .collect();
 
-    Ok(
-        ethrex_common::types::block_execution_witness::ExecutionWitnessResult {
-            codes,
-            block_headers,
-            parent_block_header,
-            chain_config,
-            state_nodes,
-            ..Default::default() // The rest of fields are optional
-        },
-    )
+    Ok(ExecutionWitnessResult {
+        codes,
+        block_headers,
+        parent_block_header,
+        chain_config,
+        state_nodes,
+        ..Default::default() // The rest of fields are optional
+    })
 }
