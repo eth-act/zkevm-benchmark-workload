@@ -1271,9 +1271,7 @@ checksum = "55248b47b0caf0546f7988906588779981c43bb1bc9d0c44087278f80cdb44ba"
 name = "benchmark-runner"
 version = "0.1.0"
 dependencies = [
- "alloy-consensus",
  "alloy-primitives",
- "alloy-rlp",
  "anyhow",
  "bytes",
  "ere-dockerized",
@@ -1505,7 +1503,7 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.11#f32a77fcc027ede009dfabffa3924e94b63d158c"
 dependencies = [
  "cargo_metadata",
  "thiserror 2.0.12",
@@ -2590,7 +2588,7 @@ dependencies = [
 [[package]]
 name = "ere-cli"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.11#f32a77fcc027ede009dfabffa3924e94b63d158c"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2601,7 +2599,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.11#f32a77fcc027ede009dfabffa3924e94b63d158c"
 dependencies = [
  "bincode",
  "build-utils",
@@ -2634,39 +2632,6 @@ checksum = "778e2ac28f6c47af28e4907f13ffd1e1ddbd400980a9abd7c8df189bf578a5ad"
 dependencies = [
  "libc",
  "windows-sys 0.52.0",
-]
-
-[[package]]
-name = "escape8259"
-version = "0.5.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5692dd7b5a1978a5aeb0ce83b7655c58ca8efdcb79d21036ea249da95afec2c6"
-
-[[package]]
-name = "ethbloom"
-version = "0.14.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8c321610643004cf908ec0f5f2aa0d8f1f8e14b540562a2887a1111ff1ecbf7b"
-dependencies = [
- "crunchy",
- "fixed-hash",
- "impl-rlp",
- "impl-serde",
- "tiny-keccak",
-]
-
-[[package]]
-name = "ethereum-types"
-version = "0.15.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1ab15ed80916029f878e0267c3a9f92b67df55e79af370bf66199059ae2b4ee3"
-dependencies = [
- "ethbloom",
- "fixed-hash",
- "impl-rlp",
- "impl-serde",
- "primitive-types 0.13.1",
- "uint 0.10.0",
 ]
 
 [[package]]
@@ -10480,7 +10445,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?tag=v0.0.11#f32a77fcc027ede009dfabffa3924e94b63d158c"
 dependencies = [
  "auto_impl",
  "clap",

@@ -18,6 +18,11 @@ members = [
     # Block encoding length
     "block-encoding-length/sp1",
 
+    # Panic guest
+    "panic-guest/sp1",
+    "panic-guest/risc0",
+    "panic-guest/zisk",
+
     # Libs
     "libs",
 ]

@@ -54,11 +54,15 @@ jobs:
           - execute_invalid_blocks
           - execute_empty_program
           - prove_empty_program
+          - execute_panic_guest
+          - prove_panic_guest
         zkvm: [sp1, risc0, zisk]
         exclude:
           - test: prove_empty_block
             zkvm: zisk # ere image intentionally doesn't bake big proving key for CI
           - test: prove_empty_program
+            zkvm: zisk
+          - test: prove_panic_guest
             zkvm: zisk
           # For ZisK, block-related tests can't be run since the compiler not yet compatible (#142)
           - test: execute_mainnet_blocks
