@@ -222,6 +222,7 @@ impl RpcBlocksAndWitnesses {
                     witness,
                     chain_config: self.chain_config.clone(),
                 },
+                success: true,
             });
         }
 
@@ -262,6 +263,7 @@ impl RpcBlocksAndWitnesses {
                 witness,
                 chain_config: self.chain_config.clone(),
             },
+            success: true,
         };
 
         Ok(bw)

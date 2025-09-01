@@ -17,6 +17,8 @@ pub struct BlockAndWitness {
     pub name: String,
     /// The block and witness pair for the test case.
     pub block_and_witness: StatelessInput,
+    /// Whether the stateless block validation is successful.
+    pub success: bool,
 }
 
 /// Errors that can occur during serialization or deserialization of `BlocksAndWitnesses`.

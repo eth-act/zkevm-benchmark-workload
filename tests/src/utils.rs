@@ -9,9 +9,8 @@ use std::{
 };
 
 use benchmark_runner::{
-    get_zkvm_instances,
-    guest_programs::{GuestInput, GuestInputMetadata},
-    run_benchmark, Action, RunConfig,
+    guest_programs::{GuestIO, GuestMetadata, OutputVerifier},
+    runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
 };
 use ere_dockerized::ErezkVM;
 use flate2::bufread::GzDecoder;
@@ -20,14 +19,15 @@ use walkdir::WalkDir;
 use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 use zkvm_interface::ProverResourceType;
 
-pub(crate) fn run_guest<T>(
+pub(crate) fn run_guest<T, OV>(
     guest_name: &str,
     zkvms: &[ErezkVM],
-    inputs: Vec<GuestInput<T>>,
+    inputs: Vec<GuestIO<T, OV>>,
     output_folder: &Path,
     action: Action,
 ) where
-    T: GuestInputMetadata,
+    T: GuestMetadata,
+    OV: OutputVerifier,
 {
     let config = RunConfig {
         output_folder: output_folder.to_path_buf(),
@@ -51,11 +51,12 @@ pub(crate) fn run_guest<T>(
     );
 }
 
+// TODO: add test
 pub(crate) fn assert_executions_crashed<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestInputMetadata,
+    Metadata: GuestMetadata,
 {
     assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Crashed { .. })
@@ -66,7 +67,7 @@ pub(crate) fn assert_executions_successful<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestInputMetadata,
+    Metadata: GuestMetadata,
 {
     assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Success { .. })
@@ -79,7 +80,7 @@ fn assert_execution_status<F, Metadata>(
     predicate: F,
 ) where
     F: Fn(&ExecutionMetrics) -> bool,
-    Metadata: GuestInputMetadata,
+    Metadata: GuestMetadata,
 {
     let paths = get_result_files(output_path);
     assert_eq!(
@@ -90,7 +91,7 @@ fn assert_execution_status<F, Metadata>(
         paths.len()
     );
     for path in &paths {
-        let result = BenchmarkRun::<Metadata>::from_path(&path).unwrap();
+        let result = BenchmarkRun::<Metadata>::from_path(path).unwrap();
         assert!(
             predicate(&result.execution.unwrap()),
             "Unexpected execution status for: {}",
@@ -101,7 +102,7 @@ fn assert_execution_status<F, Metadata>(
 
 pub(crate) fn assert_proving_successful<Metadata>(output_path: &Path, expected_file_count: usize)
 where
-    Metadata: GuestInputMetadata,
+    Metadata: GuestMetadata,
 {
     let paths = get_result_files(output_path);
     assert_eq!(

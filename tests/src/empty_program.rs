@@ -4,7 +4,7 @@ mod tests {
         assert_executions_successful, assert_proving_successful, get_env_zkvm_or_default, run_guest,
     };
 
-    use benchmark_runner::{guest_programs, Action};
+    use benchmark_runner::{empty_program, runner::Action};
     use ere_dockerized::ErezkVM;
     use tempfile::tempdir;
 
@@ -22,7 +22,7 @@ mod tests {
 
     async fn empty_program(zkvms: &[ErezkVM], action: Action) {
         let output_folder = tempdir().unwrap();
-        let input = guest_programs::empty_program_input();
+        let input = empty_program::empty_program_input();
         run_guest(
             "empty-program",
             zkvms,

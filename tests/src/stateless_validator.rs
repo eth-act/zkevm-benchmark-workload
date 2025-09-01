@@ -5,16 +5,16 @@ mod tests {
     use tempfile::tempdir;
 
     use benchmark_runner::{
-        guest_programs::{self, BlockMetadata},
-        Action,
+        runner::Action,
+        stateless_validator::{self, BlockMetadata},
     };
     use witness_generator::{
         eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
     };
 
     use crate::utils::{
-        assert_executions_crashed, assert_executions_successful, assert_proving_successful,
-        get_env_zkvm_or_default, run_guest, untar,
+        assert_executions_successful, assert_proving_successful, get_env_zkvm_or_default,
+        run_guest, untar,
     };
 
     #[tokio::test]
@@ -37,13 +37,14 @@ mod tests {
         );
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(
+        let inputs = stateless_validator::stateless_validator_inputs(
             &bench_fixtures_dir
                 .path()
                 .join("mainnet-zkevm-fixtures-input"),
         )
         .unwrap();
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 15);
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -55,7 +56,7 @@ mod tests {
     }
 
     #[tokio::test]
-    async fn execute_invalid_blocks() {
+    async fn execute_invalid_block() {
         let eest_fixtures_path = PathBuf::from("assets/eest-invalid-block");
         let bench_fixtures_dir = tempdir().unwrap();
         ExecSpecTestBlocksAndWitnessBuilder::default()
@@ -68,8 +69,12 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs =
+            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 1);
+
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
@@ -77,7 +82,7 @@ mod tests {
             output_folder.path(),
             Action::Execute,
         );
-        assert_executions_crashed::<BlockMetadata>(output_folder.path(), len_inputs);
+        assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
     }
 
     async fn empty_block(action: Action) {
@@ -93,8 +98,12 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs = guest_programs::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs =
+            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+
         let len_inputs = inputs.len();
+        assert_eq!(len_inputs, 1);
+
         run_guest(
             "stateless-validator",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
