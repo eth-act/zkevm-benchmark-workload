@@ -36,9 +36,11 @@ pub(crate) fn run_guest<T, OV>(
     };
     let instances = get_zkvm_instances(
         zkvms,
+        // TODO: generalize when supporting Ethrex in integration tests.
         &PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("ere-guests"),
         Path::new(guest_name),
         ProverResourceType::Cpu,
+        true,
     )
     .unwrap();
     for zkvm in instances {
@@ -51,7 +53,6 @@ pub(crate) fn run_guest<T, OV>(
     );
 }
 
-// TODO: add test
 pub(crate) fn assert_executions_crashed<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
