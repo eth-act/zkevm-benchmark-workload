@@ -1,0 +1,12 @@
+[package]
+name = "zisk-panic-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", rev = "f9a3655" }
+
+[lints]
+workspace = true

@@ -100,8 +100,31 @@ fn assert_execution_status<F, Metadata>(
     }
 }
 
-pub(crate) fn assert_proving_successful<Metadata>(output_path: &Path, expected_file_count: usize)
+pub(crate) fn assert_proving_successful<Metadata>(
+    metrics_folder_path: &Path,
+    expected_file_count: usize,
+) where
+    Metadata: GuestMetadata,
+{
+    assert_proving_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
+        matches!(exec, ProvingMetrics::Success { .. })
+    });
+}
+
+pub(crate) fn assert_proving_crashed<Metadata>(
+    metrics_folder_path: &Path,
+    expected_file_count: usize,
+) where
+    Metadata: GuestMetadata,
+{
+    assert_proving_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
+        matches!(exec, ProvingMetrics::Crashed { .. })
+    });
+}
+
+fn assert_proving_status<F, Metadata>(output_path: &Path, expected_file_count: usize, predicate: F)
 where
+    F: Fn(&ProvingMetrics) -> bool,
     Metadata: GuestMetadata,
 {
     let paths = get_result_files(output_path);
@@ -112,11 +135,10 @@ where
         expected_file_count,
         paths.len()
     );
-
-    for path in paths {
-        let result = BenchmarkRun::<Metadata>::from_path(&path).unwrap();
+    for path in &paths {
+        let result = BenchmarkRun::<Metadata>::from_path(path).unwrap();
         assert!(
-            matches!(result.proving.unwrap(), ProvingMetrics::Success { .. }),
+            predicate(&result.proving.unwrap()),
             "Unexpected proving status for: {}",
             path.display()
         );
