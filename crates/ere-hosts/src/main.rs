@@ -5,7 +5,7 @@
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
-    stateless_validator,
+    stateless_validator::{self, ExecutionClient},
 };
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::ErezkVM;
@@ -145,13 +145,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let guest_io = stateless_validator::stateless_validator_inputs(input_folder.as_path())?;
-            let zkvms = get_zkvm_instances(
-                &cli.zkvms,
-                &workspace_dir,
-                Path::new("stateless-validator"),
-                resource,
+            let guest_io = stateless_validator::stateless_validator_inputs(
+                input_folder.as_path(),
+                ExecutionClient::Ethrex,
             )?;
+            let zkvms = get_zkvm_instances(&cli.zkvms, &workspace_dir, Path::new(""), resource)?;
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
             }

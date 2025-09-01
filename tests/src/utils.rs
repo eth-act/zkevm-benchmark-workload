@@ -41,8 +41,8 @@ pub(crate) fn run_guest<T, OV>(
         ProverResourceType::Cpu,
     )
     .unwrap();
-    for (zkvm, ere_zkvm) in instances {
-        run_benchmark(zkvm, &ere_zkvm, &config, inputs.clone()).unwrap();
+    for zkvm in instances {
+        run_benchmark(&zkvm, &config, inputs.clone()).unwrap();
     }
 
     assert!(

@@ -7,9 +7,6 @@ members = [
     "stateless-validator/sp1",
     "stateless-validator/zisk",
 
-    # Ethereum stateless validator ethrex
-    "stateless-validator-ethrex/sp1",
-
     # Empty program
     "empty-program/sp1",
     "empty-program/risc0",
