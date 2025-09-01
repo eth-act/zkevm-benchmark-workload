@@ -107,7 +107,6 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-# TODO: upload my change in ere-base to install clang
 zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "201917628edb8b25d05f76773adb11e0e84aa1cc", package = "zkvm-interface" }
 ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "201917628edb8b25d05f76773adb11e0e84aa1cc", package = "ere-dockerized" }
 
@@ -122,7 +121,6 @@ reth-errors = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf
 reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 
-# TODO: ethrex revm gated fork
 ethrex-zkvm_interface = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", package = "zkvm_interface" }
 ethrex-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
 ethrex-rlp = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
@@ -168,3 +166,4 @@ tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 rkyv = "0.8.10"
+bytes = "1.10"
