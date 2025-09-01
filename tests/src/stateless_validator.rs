@@ -6,7 +6,7 @@ mod tests {
 
     use benchmark_runner::{
         runner::Action,
-        stateless_validator::{self, BlockMetadata},
+        stateless_validator::{self, BlockMetadata, ExecutionClient},
     };
     use witness_generator::{
         eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
@@ -41,6 +41,7 @@ mod tests {
             &bench_fixtures_dir
                 .path()
                 .join("mainnet-zkevm-fixtures-input"),
+            ExecutionClient::Reth,
         )
         .unwrap();
         let len_inputs = inputs.len();
@@ -69,8 +70,11 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs =
-            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs = stateless_validator::stateless_validator_inputs(
+            bench_fixtures_dir.path(),
+            ExecutionClient::Reth,
+        )
+        .unwrap();
 
         let len_inputs = inputs.len();
         assert_eq!(len_inputs, 1);
@@ -98,8 +102,11 @@ mod tests {
             .unwrap();
 
         let output_folder = tempdir().unwrap();
-        let inputs =
-            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path()).unwrap();
+        let inputs = stateless_validator::stateless_validator_inputs(
+            bench_fixtures_dir.path(),
+            ExecutionClient::Reth,
+        )
+        .unwrap();
 
         let len_inputs = inputs.len();
         assert_eq!(len_inputs, 1);
