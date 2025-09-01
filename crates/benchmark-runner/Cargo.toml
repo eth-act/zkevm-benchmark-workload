@@ -12,7 +12,6 @@ guest-libs.workspace = true
 ere-dockerized.workspace = true
 
 alloy-primitives.workspace = true
-alloy-consensus.workspace = true
 alloy-rlp.workspace = true
 
 reth-stateless.workspace = true
