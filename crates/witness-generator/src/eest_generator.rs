@@ -284,7 +284,7 @@ mod tests {
         );
 
         // All blocks should expect a successful block validation.
-        assert_eq!(bws.iter().all(|bw| bw.success), true);
+        assert!(bws.iter().all(|bw| bw.success));
 
         // Then the `input_folder` is used, the folder must not be deleted.
         drop(wg);
