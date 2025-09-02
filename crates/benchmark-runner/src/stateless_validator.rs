@@ -2,6 +2,7 @@
 
 use std::{collections::HashMap, convert::TryInto, path::Path};
 
+use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_primitives::keccak256;
 use alloy_rlp::Encodable;
 use anyhow::Result;
@@ -246,7 +247,7 @@ fn from_reth_witness_to_ethrex_witness(
             .chain_config
             .deposit_contract_address
             .map(|addr| H160::from_slice(addr.as_slice()))
-            .unwrap(), // Ethrex doesn't support forks older than Paris, so it is safer to unwrap and panic.
+            .unwrap_or_else(|| H160::from_slice(MAINNET_DEPOSIT_CONTRACT_ADDRESS.as_slice())),
     };
 
     let state_nodes: HashMap<H256, NodeRLP> = si
