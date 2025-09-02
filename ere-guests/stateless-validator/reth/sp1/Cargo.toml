@@ -1,14 +1,13 @@
 [package]
-name = "risc0-stateless-validator"
+name = "reth-sp1-stateless-validator"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
+rust-version = "1.85"
+license = "MIT OR Apache-2.0"
+
 
 [dependencies]
-risc0-zkvm = { version = "3.0.1", default-features = false, features = [
-    "std",
-    "unstable",
-    "getrandom",
-] }
+sp1-zkvm.workspace = true
 guest-libs.workspace = true
 
 reth-stateless.workspace = true
@@ -20,16 +19,17 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-evm-ethereum = { workspace = true }
-reth-chainspec = { workspace = true }
+reth-evm-ethereum.workspace = true
+reth-chainspec.workspace = true
 
-revm = { workspace = true, features = ["std", "c-kzg", "blst", "bn"] }
-
+revm = { workspace = true, default-features = false, features = [
+    "kzg-rs",
+    "bn",
+] }
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
-    "tiny-keccak",
+    "sha3-keccak",
 ] }
-c-kzg = { version = "=2.1.1", default-features = true }
-
-sha2 = "^0.10.8"
+tracing-subscriber = "*"
+tracing = "*"

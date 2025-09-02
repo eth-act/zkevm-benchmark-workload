@@ -41,34 +41,38 @@ This decoupling provides several benefits:
 
 ## Core Concepts
 
-Each zkVM benchmark implementation follows a common pattern:
+Each zkVM benchmark implementation follows a common pattern using the EreDockerized system:
 
 1. **Guest Program:**
-    - Located within the `ere-guests/` directory, organized by guest program type (e.g., `ere-guests/stateless-validator/sp1/`, `ere-guests/empty-program/sp1/`).
-    - Each guest program type contains implementations for specific zkVMs.
-    - For stateless validator programs: Contains the Rust code that executes the Ethereum state transition function (`reth_stateless::validation::stateless_validation`).
-    - For empty programs: Contains minimal code to benchmark zkVM overhead.
-    - This code is compiled specifically for the target zkVM's architecture (e.g., RISC-V for SP1, MIPS for zkMIPS).
+    - Located within the `ere-guests/` directory, organized by guest program type and execution client (for stateless-validator).
+    - For stateless validator programs: Contains implementations for different execution clients (`reth/` and `ethrex/`) with each supporting multiple zkVMs.
+    - For other program types: Contains implementations organized by zkVM platform.
+    - All guest programs are automatically compiled in Docker containers specific to each zkVM platform.
+    - Guest programs use platform-specific mechanisms to delineate code regions for cycle counting.
+    - This code is compiled automatically for the target zkVM's architecture through EreDockerized containers.
     - It reads block/witness data from its zkVM environment's standard input.
     - Uses platform-specific mechanisms (often `println!` markers) to delineate code regions for cycle counting.
 
 2. **Host Program:**
-    - Located within `crates/ere-hosts/` with shared host logic across zkVM platforms.
-    - A standalone Rust binary that orchestrates the benchmarking for different guest program types.
-    - Uses the `benchmark-runner` crate to generate guest program inputs from pre-generated fixture files.
+    - Located within `crates/ere-hosts/` with unified logic across all zkVM platforms.
+    - A standalone Rust binary that orchestrates benchmarking for different guest program types and execution clients.
+    - Uses the `benchmark-runner` crate with EreDockerized to automatically compile and execute guest programs.
     - Supports multiple guest program types via command-line arguments (e.g., `stateless-validator`, `empty-program`).
-    - Invokes the corresponding zkVM SDK to execute the compiled Guest program ELF with the necessary inputs.
-    - Collects cycle count metrics reported by the zkVM SDK.
-    - Saves the results using the `metrics` crate with flexible metadata support into the appropriate subdirectory within `zkevm-metrics/`.
+    - For stateless-validator, supports multiple execution clients (`--execution-client reth` or `--execution-client ethrex`).
+    - Automatically handles zkVM compilation and execution through Docker containers.
+    - Collects cycle count metrics reported by each zkVM platform.
+    - Saves results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
 
-3. **Automatic Patch Application:**
-    - The benchmark runner includes functionality to automatically apply precompile patches for each zkVM.
+3. **Automatic zkVM Management:**
+    - All zkVMs are now managed through EreDockerized, eliminating the need for manual toolchain setup.
+    - Docker containers handle compilation, patching, and execution for each zkVM platform.
+    - The benchmark runner automatically applies precompile patches as needed.
 
 ## Prerequisites
 
 1. **Rust Toolchain:** A standard Rust installation managed by `rustup`.
-2. **zkVM-Specific Toolchains:** Each zkVM requires its own SDK and potentially a custom Rust toolchain/target. Please refer to the specific zkVM guest directory in `ere-guests/` (e.g., `ere-guests/stateless-validator/sp1/README.md`, `ere-guests/stateless-validator/openvm/README.md`) for detailed setup instructions for that platform.
-3. **Git:** Required for cloning the repository :)
+2. **Docker:** All zkVMs now use EreDockerized, which means you don't need to install zkVM-specific toolchains locally. Docker handles all the compilation and execution environments.
+3. **Git:** Required for cloning the repository.
 4. **Common Shell Utilities:** The scripts in the `./scripts` directory require a `bash`-compatible shell and standard utilities like `curl`, `jq`, and `tar`.
 
 ## Setup
@@ -106,33 +110,34 @@ Each zkVM benchmark implementation follows a common pattern:
 
     This creates individual `.json` files in the `zkevm-fixtures-input/` directory that will be consumed by the benchmark runner.
 
-4. **(Optionally) Patching Precompiles**: Each zkVM, for efficiency purposes requires particular dependencies to be patched.
-This repository contains an `xtask` that will automate this process by calling `cargo <zkvm-name>`. See `.config/cargo.toml` for how this is setup and `precompile-patches` for the patches that each zkVM requires.
+4. **Patching Precompiles**: Each zkVM requires particular dependencies to be patched for efficiency purposes.
+This repository contains an `xtask` that will automate this process by calling `cargo <zkvm-name>`. See `.cargo/config.toml` for how this is setup and `precompile-patches/` for the patches that each zkVM requires.
 
-> Note: This is optional as it should be automatically done when the benchmarks are ran.
 
 5. **Run Benchmarks:**
 
-    Navigate to `crates/ere-hosts/` and run benchmarks using the generated fixture files. You must specify which guest program type to benchmark:
+    Navigate to `crates/ere-hosts/` and run benchmarks using the generated fixture files. You must specify which guest program type to benchmark. All zkVMs are now dockerized, so no additional setup is required:
 
     ```bash
     cd crates/ere-hosts
     
-    # Run Ethereum stateless validator benchmarks
-    cargo run --release --features sp1 -- stateless-validator
-    cargo run --release --features "sp1,risc0" -- stateless-validator
+    # Run Ethereum stateless validator benchmarks with Reth execution client
+    cargo run --release -- --zkvms risc0 stateless-validator --execution-client reth
+    
+    # Run Ethereum stateless validator benchmarks with Ethrex execution client
+    cargo run --release -- --zkvms sp1 stateless-validator --execution-client ethrex
     
     # Run empty program benchmarks (for measuring zkVM overhead)
-    cargo run --release --features sp1 -- empty-program
+    cargo run --release -- empty-program
     
     # Run block encoding length benchmarks (with RLP encoding format)
-    cargo run --release --features sp1 -- block-encoding-length --loop-count 100 --format rlp
+    cargo run --release -- block-encoding-length --loop-count 100 --format rlp
     
     # Run block encoding length benchmarks (with SSZ encoding format)
-    cargo run --release --features sp1 -- block-encoding-length --loop-count 100 --format ssz
+    cargo run --release -- block-encoding-length --loop-count 100 --format ssz
     
     # Use custom input folder for stateless validator benchmarks
-    cargo run --release --features sp1 -- stateless-validator --input-folder my-fixtures
+    cargo run --release -- stateless-validator --execution-client reth --input-folder my-fixtures
     ```
 
     See the respective README files in each crate for detailed usage instructions.
@@ -146,40 +151,52 @@ This repository supports multiple guest program types for comprehensive zkVM ben
 1. **`stateless-validator`** - The primary benchmarking workload that executes Ethereum stateless block validation logic
    - **Purpose**: Measures zkVM performance on realistic Ethereum state transition computations
    - **Input**: Requires `BlockAndWitness` fixture files generated by `witness-generator-cli`
-   - **Computation**: Uses `reth_stateless::validation::stateless_validation` to validate Ethereum blocks
-   - **zkVM Support**: SP1, RISC0, OpenVM, Pico, Zisk
-   - **Usage**: `cargo run --features sp1 -- stateless-validator`
+   - **Computation**: Validates Ethereum blocks using either Reth or Ethrex execution clients
+   - **Execution Clients**: 
+     - `reth`: Uses `reth_stateless::validation::stateless_validation`
+     - `ethrex`: Uses Ethrex's stateless validation implementation
 
 2. **`empty-program`** - Minimal program for measuring zkVM overhead
    - **Purpose**: Measures the baseline overhead of zkVM execution without computational workload
    - **Input**: No input files required
    - **Computation**: Minimal operations to establish zkVM baseline performance
-   - **zkVM Support**: SP1 (other zkVMs not yet implemented)
-   - **Usage**: `cargo run --features sp1 -- empty-program`
+   - **Usage**: `cargo run -- empty-program`
 
 3. **`block-encoding-length`** - Measures block encoding performance with support for both RLP and SSZ formats
    - **Purpose**: Benchmarks the performance of calculating encoded length of Ethereum blocks using different encoding formats
    - **Input**: Uses the same `BlockAndWitness` fixture files as `stateless-validator`
    - **Computation**: Repeatedly calls encoding length calculation functions on block headers and bodies
    - **Encoding Formats**: Supports both RLP (`--format rlp`) and SSZ (`--format ssz`) encoding
-   - **zkVM Support**: SP1 (other zkVMs not yet implemented)
-   - **Usage**: `cargo run --features sp1 -- block-encoding-length --loop-count 100 --format rlp`
+   - **Usage**: `cargo run -- block-encoding-length --loop-count 100 --format rlp`
 
 ### Guest Program Architecture
 
-Each guest program type follows a consistent structure across different zkVM platforms:
+Each guest program type follows a consistent structure across different zkVM platforms. For `stateless-validator`, there are separate implementations for different execution clients:
 
 ```
 ere-guests/<program-type>/
+├── reth/         # Reth execution client implementations
+│   ├── sp1/          # SP1 zkVM implementation
+│   │   ├── Cargo.toml
+│   │   └── src/main.rs
+│   ├── risc0/        # RISC0 implementation
+│   ├── openvm/       # OpenVM implementation
+│   ├── pico/         # Pico implementation
+│   └── zisk/         # Zisk implementation
+├── ethrex/       # Ethrex execution client implementations
+│   ├── sp1/          # SP1 zkVM implementation
+│   ├── risc0/        # RISC0 implementation (if available)
+│   └── ... (other zkVMs)
+└── ... (other execution clients)
+```
+
+For other guest program types (e.g., `empty-program`, `block-encoding-length`):
+```
+ere-guests/<program-type>/
 ├── sp1/          # SP1 implementation
-│   ├── Cargo.toml
-│   └── src/main.rs
-├── risc0/        # RISC0 implementation (if available)
-│   ├── Cargo.toml
-│   └── src/main.rs
-├── openvm/       # OpenVM implementation (if available)
-├── pico/         # Pico implementation (if available)
-└── zisk/         # Zisk implementation (if available)
+├── risc0/        # RISC0 implementation  
+├── zisk/         # Zisk implementation
+└── ... (other zkVMs)
 ```
 
 ### Adding New Guest Program Types

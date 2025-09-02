@@ -10,9 +10,9 @@ zkvm-interface.workspace = true
 ere-dockerized.workspace = true
 witness-generator.workspace = true
 
+walkdir.workspace = true
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tempfile = "3.10"
-walkdir = "2.3"
 flate2 = "1.0"
 tar = "0.4"
 

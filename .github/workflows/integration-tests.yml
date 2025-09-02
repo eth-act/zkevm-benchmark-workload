@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.11-f32a77f
+  ERE_TAG: 0.0.11-8fe61ca
 
 jobs: 
   witness-generator:
@@ -40,37 +40,74 @@ jobs:
             echo "zkevm-fixtures-input folder is empty"
             exit 1
           fi
-
-  integration-tests:
-    name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
+  
+  stateless-validator:
+    name: "${{ format('{0} / {1} / {2}', matrix.el, matrix.test, matrix.zkvm) }}"
     runs-on: [self-hosted-ghr, size-xl-x64]
     strategy:
       fail-fast: false
       matrix:
         test:
           - execute_empty_block
-          - prove_empty_block
           - execute_mainnet_blocks
           - execute_invalid_blocks
+          - prove_empty_block
+        zkvm: [sp1, risc0]
+        el: [reth, ethrex]
+        exclude:
+          # Ethrex - still quite heavy to run in CI
+          - el: ethrex
+            test: execute_mainnet_blocks
+          - el: ethrex
+            test: execute_invalid_blocks
+          # Ethrex / Risc0 - see issue https://github.com/eth-act/ere/issues/121
+          - el: ethrex
+            zkvm: risc0
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+      
+      - name: Install C toolchain dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang libclang-dev
+      
+      - name: Pull ere images
+        run: |
+          for variant in "" "-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
+            dst="ere-base${variant}:${ERE_TAG}"
+            docker pull "$src"
+            docker tag "$src" "$dst"
+          done
+
+      - name: Run benchmark
+        run: CI=1 RUST_LOG=info,sp1_core_executor=warn ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+
+  custom-guest:
+    name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
+    runs-on: [self-hosted-ghr, size-xl-x64]
+    strategy:
+      fail-fast: false
+      matrix:
+        test:
           - execute_empty_program
-          - prove_empty_program
           - execute_panic_guest
+          - prove_empty_program
           - prove_panic_guest
         zkvm: [sp1, risc0, zisk]
         exclude:
-          - test: prove_empty_block
-            zkvm: zisk # ere image intentionally doesn't bake big proving key for CI
+          # ZisK - ere image intentionally doesn't bake big proving key for CI
           - test: prove_empty_program
             zkvm: zisk
           - test: prove_panic_guest
             zkvm: zisk
-          # For ZisK, block-related tests can't be run since the compiler not yet compatible (#142)
-          - test: execute_mainnet_blocks
-            zkvm: zisk 
-          - test: execute_invalid_blocks
-            zkvm: zisk 
-          - test: execute_empty_block
-            zkvm: zisk 
 
     steps:
       - name: Checkout code

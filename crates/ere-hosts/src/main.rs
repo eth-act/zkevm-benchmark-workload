@@ -5,7 +5,7 @@
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
-    stateless_validator,
+    stateless_validator::{self},
 };
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::ErezkVM;
@@ -51,6 +51,8 @@ enum GuestProgramCommand {
         /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
+        #[arg(short, long)]
+        execution_client: ExecutionClient,
     },
     /// Empty program
     EmptyProgram,
@@ -75,6 +77,21 @@ enum GuestProgramCommand {
 enum BlockEncodingFormat {
     Rlp,
     Ssz,
+}
+
+#[derive(Debug, Copy, Clone, ValueEnum)]
+enum ExecutionClient {
+    Reth,
+    Ethrex,
+}
+
+impl ExecutionClient {
+    const fn guest_rel_path(&self) -> &str {
+        match self {
+            Self::Reth => "stateless-validator/reth",
+            Self::Ethrex => "stateless-validator/ethrex",
+        }
+    }
 }
 
 #[derive(Clone, ValueEnum)]
@@ -116,6 +133,15 @@ impl From<BlockEncodingFormat> for block_encoding_length_program::BlockEncodingF
     }
 }
 
+impl From<ExecutionClient> for stateless_validator::ExecutionClient {
+    fn from(client: ExecutionClient) -> Self {
+        match client {
+            ExecutionClient::Reth => Self::Reth,
+            ExecutionClient::Ethrex => Self::Ethrex,
+        }
+    }
+}
+
 fn main() -> Result<(), Box<dyn std::error::Error>> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
@@ -138,17 +164,26 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let workspace_dir = workspace_root().join("ere-guests");
     match &cli.guest_program {
-        GuestProgramCommand::StatelessValidator { input_folder } => {
+        GuestProgramCommand::StatelessValidator {
+            input_folder,
+            execution_client,
+        } => {
             info!(
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let guest_io = stateless_validator::stateless_validator_inputs(input_folder.as_path())?;
+            let guest_io = stateless_validator::stateless_validator_inputs(
+                input_folder.as_path(),
+                (*execution_client).into(),
+            )?;
+            let guest_relative = Path::new(execution_client.guest_rel_path());
+            let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
-                Path::new("stateless-validator"),
+                guest_relative,
                 resource,
+                apply_patches,
             )?;
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
@@ -162,6 +197,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &workspace_dir,
                 Path::new("empty-program"),
                 resource,
+                true,
             )?;
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, vec![guest_io.clone()])?;
@@ -188,6 +224,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 &workspace_dir,
                 Path::new("block-encoding-length"),
                 resource,
+                true,
             )?;
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;

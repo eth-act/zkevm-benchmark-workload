@@ -43,18 +43,18 @@ pub fn main() {
 
     println!("cycle-tracker-report-start: commit_public_inputs");
     // The public inputs are:
-    // - block_hash : FixedBytes<32>
-    // - parent_hash : FixedBytes<32>
+    // - block_hash : [u8;32]
+    // - parent_hash : [u8;32]
     // - successful_block_validation : bool
     match res {
         Ok(block_hash) => {
-            sp1_zkvm::io::commit(&block_hash);
-            sp1_zkvm::io::commit(&parent_hash);
+            sp1_zkvm::io::commit(&block_hash.0);
+            sp1_zkvm::io::commit(&parent_hash.0);
             sp1_zkvm::io::commit(&true);
         }
         Err(_) => {
-            sp1_zkvm::io::commit(&header.hash_slow());
-            sp1_zkvm::io::commit(&parent_hash);
+            sp1_zkvm::io::commit(&header.hash_slow().0);
+            sp1_zkvm::io::commit(&parent_hash.0);
             sp1_zkvm::io::commit(&false);
         }
     }

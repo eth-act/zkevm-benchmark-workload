@@ -4,11 +4,8 @@ members = [
     "crates/witness-generator",
     "crates/witness-generator-cli",
     "crates/ere-hosts",
-
     "ere-guests/libs",
-
     "tests",
-
     "xtask",
 ]
 resolver = "2"
@@ -110,8 +107,8 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.11", package = "zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.11", package = "ere-dockerized" }
+zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1", package = "zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1", package = "ere-dockerized" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
@@ -123,6 +120,11 @@ reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "fa
 reth-errors = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
+
+ethrex-zkvm_interface = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", package = "zkvm_interface" }
+ethrex-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
+ethrex-rlp = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
+ethrex-trie = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
 
 
 # alloy
@@ -162,3 +164,5 @@ tokio = { version = "1.45.1" }
 tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
+rkyv = "0.8.10"
+bytes = "1.10"
