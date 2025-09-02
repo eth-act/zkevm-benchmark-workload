@@ -20,7 +20,7 @@ use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 use zkvm_interface::ProverResourceType;
 
 pub(crate) fn run_guest<T, OV>(
-    guest_name: &str,
+    guest_rel: &str,
     zkvms: &[ErezkVM],
     inputs: Vec<GuestIO<T, OV>>,
     output_folder: &Path,
@@ -36,9 +36,8 @@ pub(crate) fn run_guest<T, OV>(
     };
     let instances = get_zkvm_instances(
         zkvms,
-        // TODO: generalize when supporting Ethrex in integration tests.
         &PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("ere-guests"),
-        Path::new(guest_name),
+        Path::new(guest_rel),
         ProverResourceType::Cpu,
         true,
     )

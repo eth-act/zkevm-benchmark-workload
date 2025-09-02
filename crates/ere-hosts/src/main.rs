@@ -153,6 +153,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         force_rerun: cli.force_rerun,
     };
 
+    let workspace_dir = workspace_root().join("ere-guests");
     match &cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
@@ -166,11 +167,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.as_path(),
                 (*execution_client).into(),
             )?;
-            let (workspace_rel, guest_rel) = match execution_client {
-                ExecutionClient::Reth => ("ere-guests", "stateless-validator"),
-                ExecutionClient::Ethrex => ("ere-guests-ethrex", ""),
+            let guest_rel = match execution_client {
+                ExecutionClient::Reth => "stateless-validator/reth",
+                ExecutionClient::Ethrex => "stateless-validator/ethrex",
             };
-            let workspace_dir = workspace_root().join(workspace_rel);
             let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
@@ -185,7 +185,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let workspace_dir = workspace_root().join("ere-guests");
             let guest_io = empty_program::empty_program_input();
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
@@ -209,7 +208,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.display(),
                 loop_count
             );
-            let workspace_dir = workspace_root().join("ere-guests");
             let guest_io = block_encoding_length_program::block_encoding_length_inputs(
                 input_folder.as_path(),
                 *loop_count,

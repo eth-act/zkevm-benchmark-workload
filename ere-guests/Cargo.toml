@@ -1,11 +1,13 @@
 [workspace]
 members = [
-    # Ethereum stateless validator
-    "stateless-validator/openvm",
-    "stateless-validator/pico",
-    "stateless-validator/risc0",
-    "stateless-validator/sp1",
-    "stateless-validator/zisk",
+    # Reth stateless validator
+    "stateless-validator/reth/openvm",
+    "stateless-validator/reth/pico",
+    "stateless-validator/reth/risc0",
+    "stateless-validator/reth/sp1",
+    "stateless-validator/reth/zisk",
+
+    # Ethrex stateless validator is not part of the workspace
 
     # Empty program
     "empty-program/sp1",

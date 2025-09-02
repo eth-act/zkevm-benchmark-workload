@@ -47,7 +47,7 @@ mod tests {
         let len_inputs = inputs.len();
         assert_eq!(len_inputs, 15);
         run_guest(
-            "stateless-validator",
+            "stateless-validator/reth",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
@@ -80,7 +80,7 @@ mod tests {
         assert_eq!(len_inputs, 1);
 
         run_guest(
-            "stateless-validator",
+            "stateless-validator/reth",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
@@ -112,7 +112,7 @@ mod tests {
         assert_eq!(len_inputs, 1);
 
         run_guest(
-            "stateless-validator",
+            "stateless-validator/reth",
             &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
             inputs,
             output_folder.path(),
