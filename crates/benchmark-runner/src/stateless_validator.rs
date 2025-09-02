@@ -21,6 +21,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
 use serde::{Deserialize, Serialize};
+use strum::{AsRefStr, EnumString};
 use walkdir::WalkDir;
 use witness_generator::BlockAndWitness;
 use zkvm_interface::Input;
@@ -28,7 +29,8 @@ use zkvm_interface::Input;
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier};
 
 /// Execution client variants.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, EnumString, AsRefStr)]
+#[strum(ascii_case_insensitive)]
 pub enum ExecutionClient {
     /// Reth stateless block validation guest program.
     Reth,
@@ -150,7 +152,7 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
 
             let ethrex_program_input = ProgramInput {
                 blocks: vec![ethrex_block],
-                db: from_reth_witness_to_ethrex_witness(si.block.number, &si)?,
+                db: from_reth_witness_to_ethrex_witness(si.block.number, si)?,
                 elasticity_multiplier: 2u64, // NOTE: Ethrex doesn't derive this value from chain config.
             };
 

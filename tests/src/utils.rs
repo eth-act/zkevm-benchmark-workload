@@ -11,6 +11,7 @@ use std::{
 use benchmark_runner::{
     guest_programs::{GuestIO, GuestMetadata, OutputVerifier},
     runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
+    stateless_validator::ExecutionClient,
 };
 use ere_dockerized::ErezkVM;
 use flate2::bufread::GzDecoder;
@@ -163,9 +164,28 @@ pub(crate) fn untar(path: &Path, dest_dir: &Path) {
 }
 
 pub(crate) fn get_env_zkvm_or_default(default: Vec<ErezkVM>) -> Vec<ErezkVM> {
-    if let Ok(zkvm) = std::env::var("ZKVM") {
-        vec![ErezkVM::from_str(&zkvm).unwrap()]
-    } else {
-        default
-    }
+    std::env::var("ZKVM")
+        .map(|zkvm| vec![ErezkVM::from_str(&zkvm).expect("Invalid ZKVM")])
+        .unwrap_or(default)
+}
+
+pub(crate) fn filter_el_zkvm_pairs_from_env(
+    default: Vec<(ExecutionClient, ErezkVM)>,
+) -> Vec<(ExecutionClient, ErezkVM)> {
+    let env_el = std::env::var("EL").ok().map(|el| {
+        el.parse::<ExecutionClient>()
+            .expect("Invalid execution client")
+    });
+    let env_zkvm = std::env::var("ZKVM")
+        .ok()
+        .map(|zkvm| zkvm.parse().expect("Invalid ZKVM"));
+    let pairs = default
+        .into_iter()
+        .filter(|(el, zkvm)| {
+            env_el.as_ref().is_none_or(|ref_el| el == ref_el)
+                && env_zkvm.as_ref().is_none_or(|ref_zkvm| zkvm == ref_zkvm)
+        })
+        .collect::<Vec<_>>();
+    assert!(!pairs.is_empty(), "No valid (EL, ZKVM) pairs found");
+    pairs
 }

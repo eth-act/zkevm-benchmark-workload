@@ -101,7 +101,7 @@ dependencies = [
  "alloy-rlp",
  "num_enum",
  "serde",
- "strum",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -485,7 +485,7 @@ dependencies = [
  "jsonwebtoken",
  "rand 0.8.5",
  "serde",
- "strum",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -1285,6 +1285,7 @@ dependencies = [
  "rkyv",
  "serde",
  "serde_json",
+ "strum 0.26.3",
  "tracing",
  "walkdir",
  "witness-generator",
@@ -1503,7 +1504,7 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1#8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1"
 dependencies = [
  "cargo_metadata",
  "thiserror 2.0.12",
@@ -2588,7 +2589,7 @@ dependencies = [
 [[package]]
 name = "ere-cli"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1#8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2599,7 +2600,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1#8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1"
 dependencies = [
  "bincode",
  "build-utils",
@@ -2631,7 +2632,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "778e2ac28f6c47af28e4907f13ffd1e1ddbd400980a9abd7c8df189bf578a5ad"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -2806,7 +2807,7 @@ dependencies = [
  "serde_json",
  "sha2 0.10.9",
  "sha3",
- "strum",
+ "strum 0.27.2",
  "thiserror 2.0.12",
  "walkdir",
 ]
@@ -4406,7 +4407,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "07033963ba89ebaf1584d767badaa2e8fcec21aedea6b8c0346d487d49c28667"
 dependencies = [
  "cfg-if",
- "windows-targets 0.48.5",
+ "windows-targets 0.53.3",
 ]
 
 [[package]]
@@ -6173,7 +6174,7 @@ dependencies = [
  "reth-storage-errors",
  "reth-tracing",
  "rustc-hash 2.1.1",
- "strum",
+ "strum 0.27.2",
  "sysinfo 0.33.1",
  "tempfile",
  "thiserror 2.0.12",
@@ -6893,7 +6894,7 @@ dependencies = [
  "secp256k1 0.30.0",
  "serde",
  "shellexpand",
- "strum",
+ "strum 0.27.2",
  "thiserror 2.0.12",
  "toml",
  "tracing",
@@ -7058,7 +7059,7 @@ dependencies = [
  "reth-trie-db",
  "revm-database",
  "revm-state",
- "strum",
+ "strum 0.27.2",
  "tokio",
  "tracing",
 ]
@@ -7238,7 +7239,7 @@ dependencies = [
  "reth-errors",
  "reth-network-api",
  "serde",
- "strum",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -7291,7 +7292,7 @@ dependencies = [
  "alloy-primitives",
  "derive_more 2.0.1",
  "serde",
- "strum",
+ "strum 0.27.2",
 ]
 
 [[package]]
@@ -8152,7 +8153,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -8209,7 +8210,7 @@ dependencies = [
  "security-framework",
  "security-framework-sys",
  "webpki-root-certs 0.26.11",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -8826,11 +8827,33 @@ checksum = "7da8b5736845d9f2fcb837ea5d9e2628564b3b043a70948a3f0b778838c5fb4f"
 
 [[package]]
 name = "strum"
+version = "0.26.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8fec0f0aef304996cf250b31b5a10dee7980c85da9d759361292b8bca5a18f06"
+dependencies = [
+ "strum_macros 0.26.4",
+]
+
+[[package]]
+name = "strum"
 version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "af23d6f6c1a224baef9d3f61e287d2761385a5b88fdab4eb4c6f11aeb54c4bcf"
 dependencies = [
- "strum_macros",
+ "strum_macros 0.27.2",
+]
+
+[[package]]
+name = "strum_macros"
+version = "0.26.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4c6bee85a5a24955dc440386795aa378cd9cf82acd5f764469152d2270e581be"
+dependencies = [
+ "heck",
+ "proc-macro2",
+ "quote",
+ "rustversion",
+ "syn 2.0.104",
 ]
 
 [[package]]
@@ -8966,7 +8989,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -9768,7 +9791,7 @@ version = "0.1.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf221c93e13a30d793f7645a0e7762c55d169dbb0a49671918a2319d289b10bb"
 dependencies = [
- "windows-sys 0.48.0",
+ "windows-sys 0.59.0",
 ]
 
 [[package]]
@@ -10467,7 +10490,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.0.11"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=201917628edb8b25d05f76773adb11e0e84aa1cc#201917628edb8b25d05f76773adb11e0e84aa1cc"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1#8fe61cad5b9cf67be4ce4cf91786d4ddd7c783f1"
 dependencies = [
  "auto_impl",
  "clap",

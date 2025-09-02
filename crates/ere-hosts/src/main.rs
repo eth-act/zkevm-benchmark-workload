@@ -85,6 +85,15 @@ enum ExecutionClient {
     Ethrex,
 }
 
+impl ExecutionClient {
+    const fn guest_rel_path(&self) -> &str {
+        match self {
+            Self::Reth => "stateless-validator/reth",
+            Self::Ethrex => "stateless-validator/ethrex",
+        }
+    }
+}
+
 #[derive(Clone, ValueEnum)]
 enum Resource {
     Cpu,
@@ -167,15 +176,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 input_folder.as_path(),
                 (*execution_client).into(),
             )?;
-            let guest_rel = match execution_client {
-                ExecutionClient::Reth => "stateless-validator/reth",
-                ExecutionClient::Ethrex => "stateless-validator/ethrex",
-            };
+            let guest_relative = Path::new(execution_client.guest_rel_path());
             let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
-                Path::new(guest_rel),
+                guest_relative,
                 resource,
                 apply_patches,
             )?;
