@@ -60,7 +60,7 @@ jobs:
             test: execute_mainnet_blocks
           - el: ethrex
             test: execute_invalid_blocks
-          # Ethrex / Risc0 - see issue #XXX
+          # Ethrex / Risc0 - see issue https://github.com/eth-act/ere/issues/121
           - el: ethrex
             zkvm: risc0
     steps:

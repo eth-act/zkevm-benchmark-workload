@@ -15,25 +15,27 @@ These patches apply the necessary modifications directly to the source code of t
 
 Patch configurations are defined in TOML files, named after the corresponding zkVM platform:
 
-- `succinct.toml`: Defines patches applied when building for the Succinct SP1 platform.
-- `zkm.toml`: Defines patches applied when building for the zkMIPS platform.
+- `sp1.toml`: Defines patches applied when building for the SP1 platform.
+- `risc0.toml`: Defines patches applied when building for the Risc Zero platform.
+- `pico.toml`: Defines patches applied when building for the Pico platform.
+- `zisk.toml`: Defines patches applied when building for the Zisk platform.
 
-These TOML files typically specify which crates need patching and point to the directories containing the modified source located elsewhere.
+These TOML files specify which crates need patching and point to the repositories containing the modified source.
 
 ## Application
 
 The application of these patches is automated via the workspace's `xtask` runner.
 
-As mentioned in the main `README.md`, running `cargo <zkvm-name>` (e.g., `cargo succinct`, `cargo zkm`) will trigger the `xtask` for that specific zkVM. This task reads the corresponding `.toml` file (`succinct.toml` or `zkm.toml`) and applies the specified patches to the relevant dependencies within the `[patch.crates-io]` section of the workspace `Cargo.toml`.
+As mentioned in the main `README.md`, running `cargo <zkvm-name>` (e.g., `cargo sp1`, `cargo risc0`) will trigger the `xtask` for that specific zkVM. This task reads the corresponding `.toml` file (`sp1.toml`, `risc0.toml`, etc.) and applies the specified patches to the relevant dependencies within the `[patch.crates-io]` section of the workspace `Cargo.toml`.
 
 Since the `xtask` integrates with cargo, you can chain standard cargo commands after the zkVM name. For instance, to ensure patches are applied (if needed by the xtask) and then build the corresponding host program, you could run:
 
 ```bash
-# Example for Succinct SP1 host
-cargo succinct build --release -p succinct-host 
+# Example for SP1 host
+cargo sp1 build --release -p ere-hosts 
 
-# Example for zkMIPS host
-cargo zkm build --release -p zkm-host
+# Example for Risc Zero host
+cargo risc0 build --release -p ere-hosts
 ```
 
-**Note:** Manually applying these patches is generally not required, as the `xtask` handles the process. But one could manually modify the workspace Cargo.toml and it would have the same effect.
+**Note:** With the new EreDockerized system, manual patching is generally not required as Docker containers handle the patched environments automatically.

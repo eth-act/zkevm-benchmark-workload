@@ -93,7 +93,7 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::SP1),
             (ExecutionClient::Reth, ErezkVM::Risc0),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
-            // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See issue #XXX
+            // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See issue https://github.com/eth-act/ere/issues/121
         ]);
 
         for (el, zkvm) in &el_zkvm_pairs {
