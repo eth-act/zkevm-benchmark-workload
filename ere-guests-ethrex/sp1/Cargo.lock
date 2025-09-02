@@ -1036,6 +1036,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ethrex-sp1-stateless-validator"
+version = "0.1.0"
+dependencies = [
+ "ethrex-blockchain",
+ "ethrex-common",
+ "ethrex-l2-common",
+ "ethrex-rlp",
+ "ethrex-storage",
+ "ethrex-vm",
+ "rkyv",
+ "sp1-zkvm",
+ "zkvm_interface",
+]
+
+[[package]]
 name = "ethrex-storage"
 version = "0.1.0"
 source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
@@ -3530,21 +3545,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.106",
-]
-
-[[package]]
-name = "zkvm-sp1-program"
-version = "0.1.0"
-dependencies = [
- "ethrex-blockchain",
- "ethrex-common",
- "ethrex-l2-common",
- "ethrex-rlp",
- "ethrex-storage",
- "ethrex-vm",
- "rkyv",
- "sp1-zkvm",
- "zkvm_interface",
 ]
 
 [[package]]

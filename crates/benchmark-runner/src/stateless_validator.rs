@@ -1,6 +1,6 @@
 //! Stateless validator guest program.
 
-use std::{collections::HashMap, path::Path};
+use std::{collections::HashMap, convert::TryInto, path::Path};
 
 use alloy_primitives::keccak256;
 use alloy_rlp::Encodable;
@@ -8,13 +8,16 @@ use anyhow::Result;
 use bytes::Bytes;
 use ere_dockerized::ErezkVM;
 use ethrex_common::{
-    types::{block_execution_witness::ExecutionWitnessResult, Block, BlockHeader},
-    H256,
+    types::{
+        block_execution_witness::ExecutionWitnessResult, BlobSchedule, Block, BlockHeader,
+        ChainConfig, ForkBlobSchedule,
+    },
+    H160, H256,
 };
 use ethrex_rlp::decode::RLPDecode;
 use ethrex_trie::NodeRLP;
+use ethrex_zkvm_interface::io::ProgramInput;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use reth_stateless::ExecutionWitness;
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
 use serde::{Deserialize, Serialize};
@@ -141,17 +144,17 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
             Ok(stdin)
         }
         ExecutionClient::Ethrex => {
-            let mut stdin = Input::new();
-
             let mut rlp_bytes = vec![];
             si.block.encode(&mut rlp_bytes);
             let (ethrex_block, _) = Block::decode_unfinished(&rlp_bytes)?;
 
-            let ethrex_program_input = ethrex_zkvm_interface::io::ProgramInput {
+            let ethrex_program_input = ProgramInput {
                 blocks: vec![ethrex_block],
-                db: from_reth_witness_to_ethrex_witness(si.block.number, &si.witness)?,
+                db: from_reth_witness_to_ethrex_witness(si.block.number, &si)?,
                 elasticity_multiplier: 2u64, // NOTE: Ethrex doesn't derive this value from chain config.
             };
+
+            let mut stdin = Input::new();
             stdin.write_bytes(rkyv::to_bytes::<Error>(&ethrex_program_input)?.to_vec());
 
             Ok(stdin)
@@ -161,30 +164,91 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
 
 fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
-    value: &ExecutionWitness,
+    si: &StatelessInput,
 ) -> Result<ExecutionWitnessResult> {
-    let codes: HashMap<H256, Bytes> = value
+    let codes: HashMap<H256, Bytes> = si
+        .witness
         .codes
         .iter()
         .map(|b| (H256::from(keccak256(b).0), Bytes::from(b.clone())))
         .collect();
 
-    let block_headers = value
+    let block_headers = si
+        .witness
         .headers
         .iter()
         .map(|h| Ok(BlockHeader::decode(h.as_ref())?))
         .map(|h| h.map(|h| (h.number, h)))
         .collect::<Result<HashMap<u64, BlockHeader>>>()?;
 
-    let parent_block_header = block_headers.get(&(block_number - 1)).unwrap().clone();
+    let parent_block_header = block_headers
+        .get(&(block_number - 1))
+        .ok_or_else(|| anyhow::anyhow!("Missing parent block header"))?
+        .clone();
 
-    let chain_config = ethrex_config::networks::Network::PublicNetwork(
-        ethrex_config::networks::PublicNetwork::Mainnet,
-    )
-    .get_genesis()?
-    .config;
+    let chain_config = ChainConfig {
+        chain_id: si.chain_config.chain_id,
+        homestead_block: si.chain_config.homestead_block,
+        dao_fork_block: si.chain_config.dao_fork_block,
+        dao_fork_support: si.chain_config.dao_fork_support,
+        eip150_block: si.chain_config.eip150_block,
+        eip155_block: si.chain_config.eip155_block,
+        eip158_block: si.chain_config.eip158_block,
+        byzantium_block: si.chain_config.byzantium_block,
+        constantinople_block: si.chain_config.constantinople_block,
+        petersburg_block: si.chain_config.petersburg_block,
+        istanbul_block: si.chain_config.istanbul_block,
+        muir_glacier_block: si.chain_config.muir_glacier_block,
+        berlin_block: si.chain_config.berlin_block,
+        london_block: si.chain_config.london_block,
+        arrow_glacier_block: si.chain_config.arrow_glacier_block,
+        gray_glacier_block: si.chain_config.gray_glacier_block,
+        merge_netsplit_block: si.chain_config.merge_netsplit_block,
+        shanghai_time: si.chain_config.shanghai_time,
+        cancun_time: si.chain_config.cancun_time,
+        prague_time: si.chain_config.prague_time,
+        verkle_time: None,
+        osaka_time: si.chain_config.osaka_time,
+        terminal_total_difficulty: si
+            .chain_config
+            .terminal_total_difficulty
+            .map(|ttd| TryInto::<u128>::try_into(ttd).unwrap()),
+        terminal_total_difficulty_passed: si.chain_config.terminal_total_difficulty_passed,
+        blob_schedule: BlobSchedule {
+            cancun: si
+                .chain_config
+                .blob_schedule
+                .get("Cancun")
+                .map(|s| ForkBlobSchedule {
+                    // Reth and Ethrex have some mismatched data type representations. Reth uses bigger ints.
+                    // Downcasting should never cause an overflow, but let's be safe and panic if this ever happens.
+                    base_fee_update_fraction: s.update_fraction.try_into().unwrap(),
+                    target: s.target_blob_count.try_into().unwrap(),
+                    max: s.max_blob_count.try_into().unwrap(),
+                })
+                .unwrap_or_else(|| BlobSchedule::default().cancun),
+            prague: si
+                .chain_config
+                .blob_schedule
+                .get("prague")
+                .map(|s| ForkBlobSchedule {
+                    // Reth and Ethrex have some mismatched data type representations. Reth uses bigger ints.
+                    // Downcasting should never cause an overflow, but let's be safe and panic if this ever happens.
+                    base_fee_update_fraction: s.update_fraction.try_into().unwrap(),
+                    target: s.target_blob_count.try_into().unwrap(),
+                    max: s.max_blob_count.try_into().unwrap(),
+                })
+                .unwrap_or_else(|| BlobSchedule::default().prague),
+        },
+        deposit_contract_address: si
+            .chain_config
+            .deposit_contract_address
+            .map(|addr| H160::from_slice(addr.as_slice()))
+            .unwrap(), // Ethrex doesn't support forks older than Paris, so it is safer to unwrap and panic.
+    };
 
-    let state_nodes: HashMap<H256, NodeRLP> = value
+    let state_nodes: HashMap<H256, NodeRLP> = si
+        .witness
         .state
         .iter()
         .map(|node_rlp| (H256::from(keccak256(node_rlp).0), node_rlp.clone().to_vec()))

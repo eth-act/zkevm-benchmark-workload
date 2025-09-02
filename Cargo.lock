@@ -1277,7 +1277,6 @@ dependencies = [
  "bytes",
  "ere-dockerized",
  "ethrex-common",
- "ethrex-config",
  "ethrex-rlp",
  "ethrex-trie",
  "guest-libs",
@@ -2754,17 +2753,6 @@ dependencies = [
  "tinyvec",
  "tracing",
  "url",
-]
-
-[[package]]
-name = "ethrex-config"
-version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
-dependencies = [
- "ethrex-common",
- "hex",
- "keccak-hash",
- "serde_json",
 ]
 
 [[package]]

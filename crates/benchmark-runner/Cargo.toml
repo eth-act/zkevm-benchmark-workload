@@ -19,7 +19,6 @@ reth-stateless.workspace = true
 ethrex-zkvm_interface.workspace = true
 ethrex-common.workspace = true
 ethrex-rlp.workspace = true
-ethrex-config.workspace = true
 ethrex-trie.workspace = true
 
 rayon.workspace = true
