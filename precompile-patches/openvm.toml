@@ -1,12 +1,16 @@
+[env]
+# Use a newer nightly toolchain for `cargo openvm` because reth now has MSRV 1.88
+OPENVM_RUST_TOOLCHAIN = "nightly-2025-08-19"
+
 [patch.crates-io]
 # we only need to patch revm-precompile but the other revm crates are patched for dependency resolution
-revm = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-primitives = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }         # default feature contains "openvm"
-revm-interpreter = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-precompile = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-database = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-database-interface = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-state = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-revm-bytecode = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
-k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
-ruint = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+revm = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-primitives = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }         # default feature contains "openvm"
+revm-interpreter = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-precompile = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-database = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-database-interface = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-state = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+revm-bytecode = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+ruint = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
