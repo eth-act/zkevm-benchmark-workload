@@ -19,6 +19,7 @@ Patch configurations are defined in TOML files, named after the corresponding zk
 - `risc0.toml`: Defines patches applied when building for the Risc Zero platform.
 - `pico.toml`: Defines patches applied when building for the Pico platform.
 - `zisk.toml`: Defines patches applied when building for the Zisk platform.
+- `openvm.toml`: Defines patches applied when building for the OpenVM platform.
 
 These TOML files specify which crates need patching and point to the repositories containing the modified source.
 
@@ -32,10 +33,13 @@ Since the `xtask` integrates with cargo, you can chain standard cargo commands a
 
 ```bash
 # Example for SP1 host
-cargo sp1 build --release -p ere-hosts 
+cargo sp1 build --release -p ere-hosts
 
 # Example for Risc Zero host
 cargo risc0 build --release -p ere-hosts
+
+# Example for OpenVM host
+cargo openvm build --release -p ere-hosts
 ```
 
 **Note:** With the new EreDockerized system, manual patching is generally not required as Docker containers handle the patched environments automatically.
