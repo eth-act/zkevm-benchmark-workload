@@ -6,10 +6,22 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-openvm = { git = "https://github.com/openvm-org/openvm.git", features = [
+# openvm
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1", features = [
     "std",
-], tag = "v1.1.1" }
-guest-libs.workspace = true
+] }
+openvm-keccak256-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+openvm-pairing = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1", features = [
+    "bn254",
+    "bls12_381",
+] }
+k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+ruint = "=1.14.0" # fix the version for patch compatibility
+revm-precompile = { version = "20.1.0", features = [
+    "default",
+] } # this will be patched to "openvm"
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
@@ -23,10 +35,17 @@ reth-primitives-traits = { workspace = true, features = [
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
-    "sha3-keccak",
+    "native-keccak",
 ] }
 reth-evm-ethereum = { workspace = true }
 reth-chainspec = { workspace = true }
 
 tracing-subscriber = "*"
-tracing = "*"
+# statically turn off logging
+tracing = { version = "*", features = [
+    "max_level_off",
+    "release_max_level_off",
+] }
+
+[lints]
+workspace = true

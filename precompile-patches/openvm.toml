@@ -1,0 +1,12 @@
+[patch.crates-io]
+# we only need to patch revm-precompile but the other revm crates are patched for dependency resolution
+revm = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-primitives = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }         # default feature contains "openvm"
+revm-interpreter = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-precompile = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-database = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-database-interface = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-state = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+revm-bytecode = { git = "https://github.com/axiom-crypto/revm", branch = "v73-openvm" }
+k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
+ruint = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.2.1-rc.1" }
