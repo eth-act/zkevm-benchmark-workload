@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.11-8fe61ca
+  ERE_TAG: 0.0.12-a9a0ce3
 
 jobs: 
   witness-generator:

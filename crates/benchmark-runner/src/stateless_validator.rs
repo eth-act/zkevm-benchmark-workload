@@ -22,6 +22,7 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
 use serde::{Deserialize, Serialize};
+use sha2::{Digest, Sha256};
 use strum::{AsRefStr, EnumString};
 use walkdir::WalkDir;
 use witness_generator::BlockAndWitness;
@@ -103,37 +104,50 @@ pub struct ProgramOutputVerifier {
 
 impl OutputVerifier for ProgramOutputVerifier {
     fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
-        let (block_hash, parent_hash, success) = match zkvm {
+        match zkvm {
             ErezkVM::SP1 | ErezkVM::Risc0 => {
                 let mut bytes: &[u8] = bytes;
                 let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
-                (block_hash, parent_hash, success)
+
+                if block_hash != self.block_hash {
+                    anyhow::bail!(
+                        "Block hash mismatch: expected {:?}, got {:?}",
+                        self.block_hash,
+                        block_hash
+                    );
+                }
+                if parent_hash != self.parent_hash {
+                    anyhow::bail!(
+                        "Parent hash mismatch: expected {:?}, got {:?}",
+                        self.parent_hash,
+                        parent_hash
+                    );
+                }
+                if success != self.success {
+                    anyhow::bail!(
+                        "Success mismatch: expected {:?}, got {:?}",
+                        self.success,
+                        success
+                    );
+                }
+            }
+            ErezkVM::OpenVM => {
+                let public_inputs = (self.block_hash, self.parent_hash, self.success);
+                let public_inputs_hash =
+                    Sha256::digest(bincode::serialize(&public_inputs).unwrap());
+
+                if public_inputs_hash.as_slice() != bytes {
+                    anyhow::bail!(
+                        "Public inputs hash mismatch: expected {:?}, got {:?}",
+                        public_inputs_hash,
+                        bytes
+                    );
+                }
             }
             _ => unimplemented!(),
         };
-        if block_hash != self.block_hash {
-            anyhow::bail!(
-                "Block hash mismatch: expected {:?}, got {:?}",
-                self.block_hash,
-                block_hash
-            );
-        }
-        if parent_hash != self.parent_hash {
-            anyhow::bail!(
-                "Parent hash mismatch: expected {:?}, got {:?}",
-                self.parent_hash,
-                parent_hash
-            );
-        }
-        if success != self.success {
-            anyhow::bail!(
-                "Success mismatch: expected {:?}, got {:?}",
-                self.success,
-                success
-            );
-        }
 
         Ok(true)
     }
