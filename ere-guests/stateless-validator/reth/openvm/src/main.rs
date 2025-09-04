@@ -2,11 +2,14 @@
 use std::sync::Arc;
 
 use guest_libs::mpt::SparseState;
-use openvm::io::read;
+use openvm::io::{read, reveal_bytes32};
+use sha2::{Digest, Sha256};
+
 // For linker declarations:
 use openvm_keccak256 as _;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
+use reth_primitives_traits::Block;
 use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
 
 openvm::init!();
@@ -23,13 +26,30 @@ pub fn main() {
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     println!("end read_input");
 
+    println!("start public_inputs_preparation");
+    let header = input.block.header().clone();
+    let parent_hash = input.block.parent_hash;
+    println!("end public_inputs_preparation");
+
     println!("start validation");
-    stateless_validation_with_trie::<SparseState, _, _>(
+    let res = stateless_validation_with_trie::<SparseState, _, _>(
         input.block,
         input.witness,
         chain_spec,
         evm_config,
-    )
-    .unwrap();
+    );
     println!("end validation");
+
+    println!("start commit_public_inputs");
+    // The public inputs are:
+    // - block_hash : [u8;32]
+    // - parent_hash : [u8;32]
+    // - successful_block_validation : bool
+    let public_inputs = match res {
+        Ok(block_hash) => (block_hash.0, parent_hash.0, true),
+        Err(_) => (header.hash_slow().0, parent_hash.0, false),
+    };
+    let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs).unwrap());
+    reveal_bytes32(public_inputs_hash.into());
+    println!("end commit_public_inputs");
 }

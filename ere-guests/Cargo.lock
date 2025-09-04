@@ -4833,6 +4833,7 @@ name = "reth-openvm-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "bincode",
  "guest-libs",
  "openvm",
  "openvm-algebra-guest",
@@ -4848,6 +4849,7 @@ dependencies = [
  "revm-precompile",
  "revm-primitives",
  "revm-state",
+ "sha2 0.10.9",
 ]
 
 [[package]]
