@@ -5,10 +5,11 @@ This is a helper CLI for managing `[patch.crates-io]` entries in the workspace `
 ## Usage
 
 - `cargo sp1` - Apply SP1 patches
-- `cargo risc0` - Apply RISC0 patches  
+- `cargo risc0` - Apply RISC0 patches
 - `cargo pico` - Apply Pico patches
 - `cargo zisk` - Apply Zisk patches
 - `cargo zkm` - Apply zkMIPS patches
+- `cargo openvm` - Apply OpenVM patches
 
 ## EreDockerized Integration
 

@@ -1,12 +1,15 @@
 //! OpenVM guest program
-
-extern crate alloc;
-use alloc::sync::Arc;
+use std::sync::Arc;
 
 use guest_libs::mpt::SparseState;
 use openvm::io::read;
+// For linker declarations:
+use openvm_keccak256 as _;
+use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_stateless::{chain_spec::ChainSpec, stateless_validation_with_trie, StatelessInput};
+use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
+
+openvm::init!();
 
 /// Entry point.
 pub fn main() {
