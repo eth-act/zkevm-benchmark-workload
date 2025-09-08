@@ -47,7 +47,7 @@ mod tests {
         assert_eq!(len_inputs, 15);
         run_guest(
             "stateless-validator/reth",
-            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
+            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]),
             inputs,
             output_folder.path(),
             Action::Execute,
@@ -80,7 +80,7 @@ mod tests {
 
         run_guest(
             "stateless-validator/reth",
-            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]),
+            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]),
             inputs,
             output_folder.path(),
             Action::Execute,
@@ -92,8 +92,10 @@ mod tests {
         let el_zkvm_pairs = filter_el_zkvm_pairs_from_env(vec![
             (ExecutionClient::Reth, ErezkVM::SP1),
             (ExecutionClient::Reth, ErezkVM::Risc0),
+            (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See issue https://github.com/eth-act/ere/issues/121
+            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See issue https://github.com/eth-act/ere/issues/XXX
         ]);
 
         for (el, zkvm) in &el_zkvm_pairs {
