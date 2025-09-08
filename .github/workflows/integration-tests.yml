@@ -101,7 +101,7 @@ jobs:
           - execute_panic_guest
           - prove_empty_program
           - prove_panic_guest
-        zkvm: [sp1, risc0, zisk]
+        zkvm: [sp1, risc0, zisk, openvm]
         exclude:
           # ZisK - ere image intentionally doesn't bake big proving key for CI
           - test: prove_empty_program

@@ -10,13 +10,18 @@ mod tests {
 
     #[tokio::test]
     async fn execute_empty_program() {
-        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::Zisk]);
+        let zkvms = get_env_zkvm_or_default(vec![
+            ErezkVM::SP1,
+            ErezkVM::Risc0,
+            ErezkVM::OpenVM,
+            ErezkVM::Zisk,
+        ]);
         empty_program(&zkvms, Action::Execute).await;
     }
 
     #[tokio::test]
     async fn prove_empty_program() {
-        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]);
+        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]);
         empty_program(&zkvms, Action::Prove).await;
     }
 

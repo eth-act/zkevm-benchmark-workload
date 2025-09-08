@@ -10,13 +10,18 @@ mod tests {
 
     #[tokio::test]
     async fn execute_panic_program() {
-        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::Zisk]);
+        let zkvms = get_env_zkvm_or_default(vec![
+            ErezkVM::SP1,
+            ErezkVM::Risc0,
+            ErezkVM::Zisk,
+            ErezkVM::OpenVM,
+        ]);
         panic_program(&zkvms, Action::Execute).await;
     }
 
     #[tokio::test]
     async fn prove_panic_program() {
-        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0]);
+        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]);
         panic_program(&zkvms, Action::Prove).await;
     }
 
