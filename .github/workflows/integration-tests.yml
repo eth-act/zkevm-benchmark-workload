@@ -63,7 +63,7 @@ jobs:
           - el: ethrex
             zkvm: risc0 # See https://github.com/eth-act/ere/issues/121
           - el: ethrex
-            zkvm: openvm # See https://github.com/eth-act/ere/issues/XXX
+            zkvm: openvm # See https://github.com/eth-act/ere/issues/168
 
     steps:
       - name: Checkout code
