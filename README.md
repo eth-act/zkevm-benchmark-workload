@@ -92,11 +92,10 @@ Each zkVM benchmark implementation follows a common pattern using the EreDockeri
 
 3. **Generate Benchmark Input Files:**
 
-    Navigate to `crates/witness-generator-cli/` and generate fixture files:
+    Generate fixture files:
 
     ```bash
-    cd crates/witness-generator-cli
-    cargo run --release -- tests --include Prague --include cold
+    cargo run --release -- tests --include 10M- --include Prague
     
     # Or generate from local EEST fixtures
     cargo run --release -- tests --eest-fixtures-path /path/to/local/eest/fixtures
