@@ -9,23 +9,23 @@ mod tests {
     use tempfile::tempdir;
 
     #[tokio::test]
-    async fn execute_panic_program() {
+    async fn execute_panic_guest() {
         let zkvms = get_env_zkvm_or_default(vec![
             ErezkVM::SP1,
             ErezkVM::Risc0,
             ErezkVM::Zisk,
             ErezkVM::OpenVM,
         ]);
-        panic_program(&zkvms, Action::Execute).await;
+        panic_guest(&zkvms, Action::Execute).await;
     }
 
     #[tokio::test]
-    async fn prove_panic_program() {
+    async fn prove_panic_guest() {
         let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]);
-        panic_program(&zkvms, Action::Prove).await;
+        panic_guest(&zkvms, Action::Prove).await;
     }
 
-    async fn panic_program(zkvms: &[ErezkVM], action: Action) {
+    async fn panic_guest(zkvms: &[ErezkVM], action: Action) {
         let output_folder = tempdir().unwrap();
         let input = empty_program::empty_program_input();
         run_guest(
