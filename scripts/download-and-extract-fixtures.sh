@@ -3,7 +3,7 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the latest release starting with 'benchmark@'.
+# By default, it fetches the latest official release (e.g., v5.0.0).
 # You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest release.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
@@ -16,9 +16,9 @@
 #   # Download latest release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
 #   # Download a specific release to default directory
-#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1
+#   ./scripts/download-and-extract-fixtures.sh v5.0.0
 #   # Download a specific release to a custom directory
-#   ./scripts/download-and-extract-fixtures.sh benchmark@v0.0.1 /tmp/fixtures
+#   ./scripts/download-and-extract-fixtures.sh v5.0.0 /tmp/fixtures
 #
 
 set -euo pipefail
@@ -54,23 +54,20 @@ if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
   TAG="$1"
   echo "ℹ️  Using specified tag: ${TAG}"
 else
-  # Find the latest release with 'benchmark@' prefix
-  echo "🔎  Finding the latest release with prefix 'benchmark@'..."
+  # Find the latest official release (not pre-release, standard version format)
+  echo "🔎  Finding the latest official release..."
   LATEST_TAG=$( \
     github_api_curl "https://api.github.com/repos/${REPO}/releases" | \
-    jq -r '.[].tag_name' | \
-    grep '^benchmark@' | \
-    sed 's/^benchmark@v//' | \
-    sort -V | \
-    tail -n 1 | \
-    sed 's/^/benchmark@v/' \
+    jq -r '.[] | select(.prerelease == false) | .tag_name' | \
+    grep '^v[0-9]\+\.[0-9]\+\.[0-9]\+$' | \
+    head -n 1 \
   )
   if [[ -z "${LATEST_TAG}" ]]; then
-    echo "❌  Could not find any releases with prefix 'benchmark@' in ${REPO}" >&2
+    echo "❌  Could not find any official releases in ${REPO}" >&2
     exit 1
   fi
   TAG="${LATEST_TAG}"
-  echo "ℹ️  Using latest found release: ${TAG}"
+  echo "ℹ️  Using latest official release: ${TAG}"
 fi
 
 API_URL="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
