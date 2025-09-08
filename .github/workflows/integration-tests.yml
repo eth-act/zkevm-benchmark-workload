@@ -122,9 +122,9 @@ jobs:
       
       - name: Pull ere images
         run: |
-          for variant in "" "-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
-            dst="ere-base${variant}:${ERE_TAG}"
+          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
             docker tag "$src" "$dst"
           done
