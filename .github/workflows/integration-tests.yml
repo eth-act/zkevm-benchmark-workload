@@ -72,9 +72,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-      
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
@@ -118,9 +115,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-      
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
