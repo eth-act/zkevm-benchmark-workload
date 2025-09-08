@@ -50,7 +50,7 @@ jobs:
         test:
           - execute_empty_block
           - execute_mainnet_blocks
-          - execute_invalid_blocks
+          - execute_invalid_block
           - prove_empty_block
         zkvm: [sp1, risc0, openvm]
         el: [reth, ethrex]
