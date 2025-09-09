@@ -10,14 +10,14 @@ sp1-zkvm = { version = "=5.0.8" }
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 
 
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e" }
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0" }
 
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
-ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e" }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
-ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0", default-features = false }
+ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0" }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0", default-features = false }
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0", default-features = false }
+ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "5b4c943007b96152453e5a8f8a1a592608b11ea0", default-features = false }
 
 [patch.crates-io]
 sha2-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha2", tag = "patch-sha2-0.10.8-sp1-4.0.0" }
