@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.12-f32de5f
+  ERE_TAG: 0.0.12-7514710
 
 jobs: 
   witness-generator:
@@ -50,19 +50,21 @@ jobs:
         test:
           - execute_empty_block
           - execute_mainnet_blocks
-          - execute_invalid_blocks
+          - execute_invalid_block
           - prove_empty_block
-        zkvm: [sp1, risc0]
+        zkvm: [sp1, risc0, openvm]
         el: [reth, ethrex]
         exclude:
-          # Ethrex - still quite heavy to run in CI
+          # Ethrex - Skipped combinations
           - el: ethrex
-            test: execute_mainnet_blocks
+            test: execute_mainnet_blocks # Still quite heavy to run in CI
           - el: ethrex
-            test: execute_invalid_blocks
-          # Ethrex / Risc0 - see issue https://github.com/eth-act/ere/issues/121
+            test: execute_invalid_blocks # Still quite heavy to run in CI
           - el: ethrex
-            zkvm: risc0
+            zkvm: risc0 # See https://github.com/eth-act/ere/issues/121
+          - el: ethrex
+            zkvm: openvm # See https://github.com/eth-act/ere/issues/168
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -70,9 +72,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-      
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
@@ -80,15 +79,15 @@ jobs:
       
       - name: Pull ere images
         run: |
-          for variant in "" "-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
-            dst="ere-base${variant}:${ERE_TAG}"
+          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
             docker tag "$src" "$dst"
           done
 
       - name: Run benchmark
-        run: CI=1 RUST_LOG=info,sp1_core_executor=warn ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+        run: CI=1 RAYON_NUM_THREADS=1 RUST_LOG=info,sp1_core_executor=warn,openvm_stark_backend=warn ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
 
   custom-guest:
     name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
@@ -101,7 +100,7 @@ jobs:
           - execute_panic_guest
           - prove_empty_program
           - prove_panic_guest
-        zkvm: [sp1, risc0, zisk]
+        zkvm: [sp1, risc0, zisk, openvm]
         exclude:
           # ZisK - ere image intentionally doesn't bake big proving key for CI
           - test: prove_empty_program
@@ -116,9 +115,6 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-      
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
@@ -126,12 +122,12 @@ jobs:
       
       - name: Pull ere images
         run: |
-          for variant in "" "-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-base${variant}:${ERE_TAG}"
-            dst="ere-base${variant}:${ERE_TAG}"
+          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
             docker tag "$src" "$dst"
           done
-
+        
       - name: Run benchmark
         run: CI=1 RUST_LOG=info,sp1_core_executor=warn ZKVM=${{ matrix.zkvm }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}

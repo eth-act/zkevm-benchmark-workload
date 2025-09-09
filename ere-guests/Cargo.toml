@@ -13,6 +13,7 @@ members = [
     "empty-program/sp1",
     "empty-program/risc0",
     "empty-program/zisk",
+    "empty-program/openvm",
 
     # Block encoding length
     "block-encoding-length/sp1",
@@ -21,6 +22,7 @@ members = [
     "panic-guest/sp1",
     "panic-guest/risc0",
     "panic-guest/zisk",
+    "panic-guest/openvm",
 
     # Libs
     "libs",

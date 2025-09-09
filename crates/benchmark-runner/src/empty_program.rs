@@ -24,7 +24,11 @@ pub fn empty_program_input() -> GuestIO<(), ProgramOutputVerifier> {
 pub struct ProgramOutputVerifier;
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
-        Ok(bytes.is_empty())
+    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
+        match zkvm {
+            ErezkVM::SP1 | ErezkVM::Risc0 | ErezkVM::Zisk => Ok(bytes.is_empty()),
+            ErezkVM::OpenVM => Ok(bytes == [0x00; 32]),
+            _ => todo!("Output verification not implemented for this zkVM"),
+        }
     }
 }

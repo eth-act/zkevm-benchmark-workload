@@ -95,8 +95,9 @@ fn assert_execution_status<F, Metadata>(
         let result = BenchmarkRun::<Metadata>::from_path(path).unwrap();
         assert!(
             predicate(&result.execution.unwrap()),
-            "Unexpected execution status for: {}",
-            path.display()
+            "Unexpected execution status for: {} (content={})",
+            path.display(),
+            std::fs::read_to_string(path).unwrap_or_default()
         );
     }
 }
