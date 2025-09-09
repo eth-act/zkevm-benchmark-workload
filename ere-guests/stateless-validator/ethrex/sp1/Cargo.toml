@@ -6,17 +6,18 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-sp1-zkvm = { version = "=5.0.8", features = ["embedded"] }
-rkyv = "0.8.10"
+sp1-zkvm = { version = "=5.0.8" }
+rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 
-zkvm_interface = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1" }
 
-ethrex-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-storage = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-rlp = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1" }
-ethrex-vm = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-blockchain = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-l2-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e" }
+
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e" }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
 
 [patch.crates-io]
 sha2-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha2", tag = "patch-sha2-0.10.8-sp1-4.0.0" }
@@ -37,4 +38,4 @@ k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k2
 bls12_381 = { git = "https://github.com/lambdaclass/bls12_381-patch/", branch = "expose-fp-struct" }
 
 [features]
-l2 = ["zkvm_interface/l2"]
+l2 = ["guest_program/l2", "sp1-zkvm/embedded"]
