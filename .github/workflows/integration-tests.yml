@@ -78,6 +78,7 @@ jobs:
           sudo apt-get install -y build-essential clang libclang-dev
       
       - name: Pull ere images
+        if: matrix.zkvm != 'openvm'
         run: |
           for variant in "base" "base-${{ matrix.zkvm }}"; do
             src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
@@ -87,10 +88,10 @@ jobs:
           done
 
       # Temporary until ere publishes CLI for all ZKVMs
-      - name: Pull ere-cli images
+      - name: Pull ere images
         if: matrix.zkvm == 'openvm'
         run: |
-          for variant in "cli-${{ matrix.zkvm }}"; do
+          for variant in "base"; do
             src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
             dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
