@@ -1,19 +1,17 @@
 //! Stateless validator guest program.
 
-use std::{collections::BTreeMap, convert::TryInto, path::Path};
+use std::{convert::TryInto, path::Path};
 
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
-use alloy_primitives::keccak256;
 use alloy_rlp::Encodable;
 use anyhow::Result;
-use bytes::Bytes;
 use ere_dockerized::ErezkVM;
 use ethrex_common::{
     types::{
-        block_execution_witness::ExecutionWitnessResult, BlobSchedule, Block, BlockHeader,
-        ChainConfig, ForkBlobSchedule,
+        block_execution_witness::ExecutionWitness, BlobSchedule, Block, ChainConfig,
+        ForkBlobSchedule,
     },
-    H160, H256,
+    H160,
 };
 use ethrex_guest_program::input::ProgramInput;
 use ethrex_rlp::decode::RLPDecode;
@@ -181,26 +179,9 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
 fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
     si: &StatelessInput,
-) -> Result<ExecutionWitnessResult> {
-    let codes = si
-        .witness
-        .codes
-        .iter()
-        .map(|b| (H256::from(keccak256(b).0), Bytes::from(b.clone())))
-        .collect();
-
-    let block_headers = si
-        .witness
-        .headers
-        .iter()
-        .map(|h| Ok(BlockHeader::decode(h.as_ref())?))
-        .map(|h| h.map(|h| (h.number, h)))
-        .collect::<Result<BTreeMap<u64, BlockHeader>>>()?;
-
-    let parent_block_header = block_headers
-        .get(&(block_number - 1))
-        .ok_or_else(|| anyhow::anyhow!("Missing parent block header"))?
-        .clone();
+) -> Result<ExecutionWitness> {
+    let codes = si.witness.codes.iter().map(|b| b.to_vec()).collect();
+    let block_headers_bytes = si.witness.headers.iter().map(|h| h.to_vec()).collect();
 
     let chain_config = ChainConfig {
         chain_id: si.chain_config.chain_id,
@@ -269,19 +250,21 @@ fn from_reth_witness_to_ethrex_witness(
         enable_verkle_at_genesis: false,
     };
 
-    let state_nodes = si
+    let nodes = si
         .witness
         .state
         .iter()
-        .map(|node_rlp| (H256::from(keccak256(node_rlp).0), node_rlp.clone().to_vec()))
+        .map(|node_rlp| node_rlp.to_vec())
         .collect();
 
-    Ok(ExecutionWitnessResult {
+    let keys = si.witness.keys.iter().map(|k| k.to_vec()).collect();
+
+    Ok(ExecutionWitness {
         codes,
-        block_headers,
-        parent_block_header,
+        block_headers_bytes,
         chain_config,
-        state_nodes,
-        ..Default::default() // The rest of fields are optional
+        nodes,
+        first_block_number: block_number,
+        keys,
     })
 }
