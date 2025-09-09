@@ -92,7 +92,8 @@ jobs:
           done
 
       - name: Run benchmark
-        run: CI=1 RAYON_NUM_THREADS=1 RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+        run: |
+          ${{ matrix.zkvm == 'openvm' && 'RAYON_NUM_THREADS=1' || '' }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
 
   custom-guest:
     name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
