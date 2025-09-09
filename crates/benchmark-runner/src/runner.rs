@@ -83,7 +83,8 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&io.input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                        .context("Failed to verify public output from execution")?;
 
                     ExecutionMetrics::Success {
                         total_num_cycles: report.total_num_cycles,
@@ -104,10 +105,12 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&io.input)));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                        .context("Failed to verify public output from proof")?;
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
-                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)
+                        .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.len(),
