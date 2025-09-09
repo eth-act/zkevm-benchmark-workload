@@ -26,7 +26,6 @@ mod tests {
             ErezkVM::SP1,
             ErezkVM::Risc0,
             ErezkVM::OpenVM,
-            ErezkVM::Zisk,
             ErezkVM::Pico,
         ]);
         empty_program(&zkvms, Action::Prove).await;

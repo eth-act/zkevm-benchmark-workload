@@ -48,7 +48,12 @@ mod tests {
 
     #[tokio::test]
     async fn execute_mainnet_blocks() {
-        let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]);
+        let zkvms = get_env_zkvm_or_default(vec![
+            ErezkVM::SP1,
+            ErezkVM::Risc0,
+            ErezkVM::OpenVM,
+            ErezkVM::Pico,
+        ]);
         for zkvm in &zkvms {
             println!("Using zkVM: {zkvm}");
             let bench_fixtures_dir = tempdir().unwrap();
