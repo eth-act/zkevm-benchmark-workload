@@ -22,11 +22,11 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::SP1),
             (ExecutionClient::Reth, ErezkVM::Risc0),
             (ExecutionClient::Reth, ErezkVM::OpenVM),
-            // (ExecutionClient::Reth, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/XXX
+            // (ExecutionClient::Reth, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/173
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
-            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/XXX
+            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
         ]);
         empty_block(Action::Prove, &el_zkvms).await;
     }
@@ -41,7 +41,7 @@ mod tests {
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
-            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/XXX
+            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
         ]);
         empty_block(Action::Execute, &el_zkvms).await;
     }
@@ -62,7 +62,7 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input");
             let mut expected_inputs = 15;
 
-            // See issue #XXX
+            // See issue https://github.com/eth-act/zkevm-benchmark-workload/issues/175
             if zkvm == &ErezkVM::Pico {
                 let skipped = ["rpc_block_22974584.json", "rpc_block_22974587.json"];
                 for file in &skipped {

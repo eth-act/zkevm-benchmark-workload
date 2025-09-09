@@ -57,7 +57,7 @@ jobs:
         exclude:
           # Pico - Skipped combinations
           - zkvm: pico
-            test: prove_empty_block # See https://github.com/eth-act/ere/issues/XXX
+            test: prove_empty_block # See https://github.com/eth-act/ere/issues/173
           # Ethrex - Skipped combinations
           - el: ethrex
             test: execute_mainnet_blocks # Still quite heavy to run in CI
@@ -68,7 +68,7 @@ jobs:
           - el: ethrex
             zkvm: openvm # See https://github.com/eth-act/ere/issues/168
           - el: ethrex
-            zkvm: pico # See https://github.com/eth-act/ere/issues/XXX
+            zkvm: pico # See https://github.com/eth-act/ere/issues/174
 
     steps:
       - name: Checkout code
