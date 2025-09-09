@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use zkvm_interface::Input;
 
 use crate::{
-    guest_programs::{GuestIO, GuestMetadata, OutputVerifier},
+    guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult},
     stateless_validator::read_benchmark_fixtures_folder,
 };
 
@@ -67,7 +67,13 @@ pub fn block_encoding_length_inputs(
 pub struct ProgramOutputVerifier;
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
-        Ok(bytes.is_empty())
+    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
+        if bytes.is_empty() {
+            return Ok(OutputVerifierResult::Match);
+        }
+        Ok(OutputVerifierResult::Mismatch(format!(
+            "Expected empty output, got {:?}",
+            bytes
+        )))
     }
 }

@@ -27,7 +27,7 @@ use walkdir::WalkDir;
 use witness_generator::BlockAndWitness;
 use zkvm_interface::Input;
 
-use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier};
+use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
 /// Execution client variants.
 #[derive(Debug, Clone, PartialEq, Eq, EnumString, AsRefStr)]
@@ -102,34 +102,31 @@ pub struct ProgramOutputVerifier {
 }
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool> {
+    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
         match zkvm {
-            ErezkVM::SP1 | ErezkVM::Risc0 => {
+            ErezkVM::SP1 | ErezkVM::Risc0 | ErezkVM::Pico => {
                 let mut bytes: &[u8] = bytes;
                 let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
 
                 if block_hash != self.block_hash {
-                    anyhow::bail!(
+                    return Ok(OutputVerifierResult::Mismatch(format!(
                         "Block hash mismatch: expected {:?}, got {:?}",
-                        self.block_hash,
-                        block_hash
-                    );
+                        self.block_hash, block_hash
+                    )));
                 }
                 if parent_hash != self.parent_hash {
-                    anyhow::bail!(
+                    return Ok(OutputVerifierResult::Mismatch(format!(
                         "Parent hash mismatch: expected {:?}, got {:?}",
-                        self.parent_hash,
-                        parent_hash
-                    );
+                        self.parent_hash, parent_hash
+                    )));
                 }
                 if success != self.success {
-                    anyhow::bail!(
+                    return Ok(OutputVerifierResult::Mismatch(format!(
                         "Success mismatch: expected {:?}, got {:?}",
-                        self.success,
-                        success
-                    );
+                        self.success, success
+                    )));
                 }
             }
             ErezkVM::OpenVM => {
@@ -138,17 +135,16 @@ impl OutputVerifier for ProgramOutputVerifier {
                     Sha256::digest(bincode::serialize(&public_inputs).unwrap());
 
                 if public_inputs_hash.as_slice() != bytes {
-                    anyhow::bail!(
+                    return Ok(OutputVerifierResult::Mismatch(format!(
                         "Public inputs hash mismatch: expected {:?}, got {:?}",
-                        public_inputs_hash,
-                        bytes
-                    );
+                        public_inputs_hash, bytes
+                    )));
                 }
             }
             _ => unimplemented!(),
         };
 
-        Ok(true)
+        Ok(OutputVerifierResult::Match)
     }
 }
 

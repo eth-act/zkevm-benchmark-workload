@@ -11,7 +11,7 @@ use tracing::{error, info};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Compiler, ProverResourceType, PublicValues};
 
-use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier};
+use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -205,8 +205,10 @@ fn verify_public_output(
     public_values: &PublicValues,
     output_verifier: &impl OutputVerifier,
 ) -> Result<()> {
-    if !output_verifier.check_serialized(zkvm, public_values)? {
-        return Err(anyhow!("Output mismatch for {}", name));
+    match output_verifier.check_serialized(zkvm, public_values)? {
+        OutputVerifierResult::Match => Ok(()),
+        OutputVerifierResult::Mismatch(msg) => {
+            Err(anyhow!("Output mismatch for {}: {}", name, msg))
+        }
     }
-    Ok(())
 }

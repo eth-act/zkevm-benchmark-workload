@@ -24,5 +24,14 @@ pub trait GuestMetadata: Serialize + DeserializeOwned + Clone + Send + Sync {}
 /// Verifies the output of a guest program
 pub trait OutputVerifier: Clone + Send + Sync {
     /// Given a serialized output bytes from a zkVM, check if it matches the expected output
-    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<bool>;
+    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult>;
+}
+
+/// Result of output verification
+#[derive(Debug)]
+pub enum OutputVerifierResult {
+    /// Output matches the expected result
+    Match,
+    /// Output does not match the expected result
+    Mismatch(String),
 }

@@ -1,10 +1,12 @@
 [package]
-name = "reth-pico-guest"
+name = "reth-pico-stateless-validator"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-pico-sdk = { git = "https://github.com/brevis-network/pico" }
+pico-sdk.workspace = true
+guest-libs.workspace = true
+
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
