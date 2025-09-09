@@ -136,8 +136,7 @@ impl OutputVerifier for ProgramOutputVerifier {
 
                 if public_inputs_hash.as_slice() != bytes {
                     return Ok(OutputVerifierResult::Mismatch(format!(
-                        "Public inputs hash mismatch: expected {:?}, got {:?}",
-                        public_inputs_hash, bytes
+                        "Public inputs hash mismatch: expected {public_inputs_hash:?}, got {bytes:?}"
                     )));
                 }
             }

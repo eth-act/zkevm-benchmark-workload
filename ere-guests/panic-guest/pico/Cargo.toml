@@ -1,0 +1,7 @@
+[package]
+name = "pico-panic-guest"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+pico-sdk.workspace = true

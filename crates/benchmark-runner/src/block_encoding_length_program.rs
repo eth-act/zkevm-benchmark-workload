@@ -72,8 +72,7 @@ impl OutputVerifier for ProgramOutputVerifier {
             return Ok(OutputVerifierResult::Match);
         }
         Ok(OutputVerifierResult::Mismatch(format!(
-            "Expected empty output, got {:?}",
-            bytes
+            "Expected empty output, got {bytes:?}"
         )))
     }
 }

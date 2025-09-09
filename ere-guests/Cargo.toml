@@ -14,6 +14,7 @@ members = [
     "empty-program/risc0",
     "empty-program/zisk",
     "empty-program/openvm",
+    "empty-program/pico",
 
     # Block encoding length
     "block-encoding-length/sp1",
@@ -23,6 +24,7 @@ members = [
     "panic-guest/risc0",
     "panic-guest/zisk",
     "panic-guest/openvm",
+    "panic-guest/pico",
 
     # Libs
     "libs",

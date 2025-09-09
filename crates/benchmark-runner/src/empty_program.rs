@@ -30,16 +30,14 @@ impl OutputVerifier for ProgramOutputVerifier {
             {
                 true => Ok(OutputVerifierResult::Match),
                 false => Ok(OutputVerifierResult::Mismatch(format!(
-                    "Expected empty output, got {:?}",
-                    bytes
+                    "Expected empty output, got {bytes:?}",
                 ))),
             },
 
             ErezkVM::OpenVM => match bytes == [0x00; 32] {
                 true => Ok(OutputVerifierResult::Match),
                 false => Ok(OutputVerifierResult::Mismatch(format!(
-                    "Expected [0x00; 32], got {:?}",
-                    bytes
+                    "Expected [0x00; 32], got {bytes:?}"
                 ))),
             },
             _ => todo!("Output verification not implemented for this zkVM"),
