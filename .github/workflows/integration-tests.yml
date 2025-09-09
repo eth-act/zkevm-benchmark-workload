@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.12-f32de5f
+  ERE_TAG: 0.0.12-7514710
 
 jobs: 
   witness-generator:
@@ -78,20 +78,8 @@ jobs:
           sudo apt-get install -y build-essential clang libclang-dev
       
       - name: Pull ere images
-        if: matrix.zkvm != 'openvm'
         run: |
-          for variant in "base" "base-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
-            dst="ere-${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
-
-      # Temporary until ere publishes CLI for all ZKVMs
-      - name: Pull ere images
-        if: matrix.zkvm == 'openvm'
-        run: |
-          for variant in "base"; do
+          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
             src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
             dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
