@@ -121,10 +121,9 @@ reth-errors = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf
 reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "fa3efe112aaaf1d18b56212d537a83c3cc681782" }
 
-ethrex-zkvm_interface = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", package = "zkvm_interface" }
-ethrex-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-rlp = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-trie = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
+ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", package = "guest_program" }
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
 
 
 # alloy

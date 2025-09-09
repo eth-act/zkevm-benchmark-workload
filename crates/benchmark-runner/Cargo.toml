@@ -17,10 +17,9 @@ alloy-eips.workspace = true
 
 reth-stateless.workspace = true
 
-ethrex-zkvm_interface.workspace = true
+ethrex-guest-program.workspace = true
 ethrex-common.workspace = true
 ethrex-rlp.workspace = true
-ethrex-trie.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true

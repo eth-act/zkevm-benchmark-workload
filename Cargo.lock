@@ -1280,8 +1280,8 @@ dependencies = [
  "ere-dockerized",
  "ethrex-common",
  "ethrex-rlp",
- "ethrex-trie",
  "guest-libs",
+ "guest_program",
  "rayon",
  "reth-stateless",
  "rkyv",
@@ -1294,7 +1294,6 @@ dependencies = [
  "witness-generator",
  "zkevm-metrics",
  "zkvm-interface",
- "zkvm_interface",
 ]
 
 [[package]]
@@ -2714,7 +2713,7 @@ dependencies = [
 [[package]]
 name = "ethrex-blockchain"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "bytes",
  "cfg-if",
@@ -2734,7 +2733,7 @@ dependencies = [
 [[package]]
 name = "ethrex-common"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -2762,12 +2761,12 @@ dependencies = [
 [[package]]
 name = "ethrex-crypto"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 
 [[package]]
 name = "ethrex-l2-common"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -2778,6 +2777,7 @@ dependencies = [
  "ethrex-vm",
  "keccak-hash",
  "lambdaworks-crypto",
+ "secp256k1 0.29.1",
  "serde",
  "sha3",
  "thiserror 2.0.12",
@@ -2786,7 +2786,7 @@ dependencies = [
 [[package]]
 name = "ethrex-levm"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -2818,7 +2818,7 @@ dependencies = [
 [[package]]
 name = "ethrex-metrics"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "ethrex-common",
  "serde",
@@ -2830,7 +2830,7 @@ dependencies = [
 [[package]]
 name = "ethrex-rlp"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -2844,7 +2844,7 @@ dependencies = [
 [[package]]
 name = "ethrex-storage"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2865,7 +2865,7 @@ dependencies = [
 [[package]]
 name = "ethrex-trie"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2885,7 +2885,7 @@ dependencies = [
 [[package]]
 name = "ethrex-vm"
 version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
 dependencies = [
  "bincode",
  "bytes",
@@ -3370,6 +3370,26 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+]
+
+[[package]]
+name = "guest_program"
+version = "0.1.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=c8ce1f272241106f4bdbfc5028c0526f75189e1e#c8ce1f272241106f4bdbfc5028c0526f75189e1e"
+dependencies = [
+ "ethrex-blockchain",
+ "ethrex-common",
+ "ethrex-l2-common",
+ "ethrex-rlp",
+ "ethrex-storage",
+ "ethrex-trie",
+ "ethrex-vm",
+ "hex",
+ "rkyv",
+ "serde",
+ "serde_json",
+ "serde_with",
+ "thiserror 2.0.12",
 ]
 
 [[package]]
@@ -10503,26 +10523,6 @@ dependencies = [
  "erased-serde",
  "indexmap 2.10.0",
  "serde",
- "thiserror 2.0.12",
-]
-
-[[package]]
-name = "zkvm_interface"
-version = "0.1.0"
-source = "git+https://github.com/jsign/ethrex.git?rev=d77ca445024800e981dab5ddcc69f4d55622d6c1#d77ca445024800e981dab5ddcc69f4d55622d6c1"
-dependencies = [
- "ethrex-blockchain",
- "ethrex-common",
- "ethrex-l2-common",
- "ethrex-rlp",
- "ethrex-storage",
- "ethrex-trie",
- "ethrex-vm",
- "hex",
- "rkyv",
- "serde",
- "serde_json",
- "serde_with",
  "thiserror 2.0.12",
 ]
 

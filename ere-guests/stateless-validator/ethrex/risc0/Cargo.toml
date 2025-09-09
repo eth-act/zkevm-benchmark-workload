@@ -12,18 +12,18 @@ risc0-zkvm = { version = "3.0.3", default-features = false, features = [
 ] }
 rkyv = "0.8.10"
 
-zkvm_interface = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false, features = [
+zkvm_interface = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false, features = [
     "c-kzg",
 ] }
 
-ethrex-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-storage = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-rlp = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1" }
-ethrex-vm = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e" }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false, features = [
     "c-kzg",
 ] }
-ethrex-blockchain = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
-ethrex-l2-common = { git = "https://github.com/jsign/ethrex.git", rev = "d77ca445024800e981dab5ddcc69f4d55622d6c1", default-features = false }
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
+ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c8ce1f272241106f4bdbfc5028c0526f75189e1e", default-features = false }
 
 [patch.crates-io]
 sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.8-risczero.0" }

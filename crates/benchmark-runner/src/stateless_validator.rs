@@ -1,6 +1,6 @@
 //! Stateless validator guest program.
 
-use std::{collections::HashMap, convert::TryInto, path::Path};
+use std::{collections::BTreeMap, convert::TryInto, path::Path};
 
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_primitives::keccak256;
@@ -15,9 +15,8 @@ use ethrex_common::{
     },
     H160, H256,
 };
+use ethrex_guest_program::input::ProgramInput;
 use ethrex_rlp::decode::RLPDecode;
-use ethrex_trie::NodeRLP;
-use ethrex_zkvm_interface::io::ProgramInput;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -183,7 +182,7 @@ fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
     si: &StatelessInput,
 ) -> Result<ExecutionWitnessResult> {
-    let codes: HashMap<H256, Bytes> = si
+    let codes = si
         .witness
         .codes
         .iter()
@@ -196,7 +195,7 @@ fn from_reth_witness_to_ethrex_witness(
         .iter()
         .map(|h| Ok(BlockHeader::decode(h.as_ref())?))
         .map(|h| h.map(|h| (h.number, h)))
-        .collect::<Result<HashMap<u64, BlockHeader>>>()?;
+        .collect::<Result<BTreeMap<u64, BlockHeader>>>()?;
 
     let parent_block_header = block_headers
         .get(&(block_number - 1))
@@ -262,9 +261,15 @@ fn from_reth_witness_to_ethrex_witness(
             .deposit_contract_address
             .map(|addr| H160::from_slice(addr.as_slice()))
             .unwrap_or_else(|| H160::from_slice(MAINNET_DEPOSIT_CONTRACT_ADDRESS.as_slice())),
+        bpo1_time: si.chain_config.bpo1_time,
+        bpo2_time: si.chain_config.bpo2_time,
+        bpo3_time: si.chain_config.bpo3_time,
+        bpo4_time: si.chain_config.bpo4_time,
+        bpo5_time: si.chain_config.bpo5_time,
+        enable_verkle_at_genesis: false,
     };
 
-    let state_nodes: HashMap<H256, NodeRLP> = si
+    let state_nodes = si
         .witness
         .state
         .iter()
