@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.12-7514710
+  ERE_TAG: 0.0.12-2f979db
 
 jobs: 
   witness-generator:
@@ -52,13 +52,16 @@ jobs:
           - execute_mainnet_blocks
           - execute_invalid_block
           - prove_empty_block
-        zkvm: [sp1, risc0, openvm, pico]
+        zkvm: [sp1, risc0, openvm, pico, zisk]
         el: [reth, ethrex]
         exclude:
-          # Pico - Skipped combinations
+          # Pico
           - zkvm: pico
             test: prove_empty_block # See https://github.com/eth-act/ere/issues/173
-          # Ethrex - Skipped combinations
+          # ZisK
+          - zkvm: zisk
+            test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI 
+          # Ethrex
           - el: ethrex
             test: execute_mainnet_blocks # Still quite heavy to run in CI
           - el: ethrex
