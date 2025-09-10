@@ -3453,6 +3453,8 @@ dependencies = [
  "alloy-trie 0.9.1",
  "ethereum_ssz",
  "ethereum_ssz_derive",
+ "k256",
+ "reth-chainspec",
  "reth-errors",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
@@ -3463,6 +3465,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "thiserror 2.0.16",
 ]
 
 [[package]]

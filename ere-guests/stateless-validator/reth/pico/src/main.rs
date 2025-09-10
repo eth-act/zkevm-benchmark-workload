@@ -32,8 +32,9 @@ pub fn main() {
     println!("cycle-tracker-end: public_inputs_preparation");
 
     println!("cycle-tracker-start: validation");
+    let recovered_block = guest_libs::senders::recover_block(input.block, &chain_spec).unwrap();
     let res = stateless_validation_with_trie::<SparseState, _, _>(
-        input.block,
+        recovered_block,
         input.witness,
         chain_spec,
         evm_config,
@@ -52,7 +53,6 @@ pub fn main() {
             commit(&true);
         }
         Err(err) => {
-            println!("block validation error: {}", err);
             commit(&header.hash_slow().0);
             commit(&parent_hash.0);
             commit(&false);

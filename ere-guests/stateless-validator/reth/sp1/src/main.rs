@@ -33,8 +33,9 @@ pub fn main() {
     println!("cycle-tracker-report-end: public_inputs_preparation");
 
     println!("cycle-tracker-report-start: validation");
+    let recovered_block = guest_libs::senders::recover_block(input.block, &chain_spec).unwrap();
     let res = stateless_validation_with_trie::<SparseState, _, _>(
-        input.block,
+        recovered_block,
         input.witness,
         chain_spec,
         evm_config,

@@ -9,6 +9,7 @@ use serde_with::serde_as;
 
 pub mod block_ssz;
 pub mod mpt;
+pub mod senders;
 
 /// Block wrapper that supports bincode serialization
 #[serde_as]
