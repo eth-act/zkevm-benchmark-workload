@@ -40,5 +40,5 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "native-keccak",
 ] }
 
-bincode = "1.3"
-sha2 = "0.10.9"
+bincode.workspace = true
+sha2.workspace = true
