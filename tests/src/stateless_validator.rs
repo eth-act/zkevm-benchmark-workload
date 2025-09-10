@@ -68,6 +68,17 @@ mod tests {
             let input_folder = &bench_fixtures_dir
                 .path()
                 .join("mainnet-zkevm-fixtures-input");
+            let mut expected_inputs = 15;
+
+            // See issue https://github.com/eth-act/zkevm-benchmark-workload/issues/175
+            if zkvm == &ErezkVM::Pico {
+                let skipped = ["rpc_block_22974584.json", "rpc_block_22974587.json"];
+                for file in &skipped {
+                    println!("Skipping problematic block {file}");
+                    std::fs::remove_file(input_folder.join(file)).unwrap();
+                    expected_inputs -= 1;
+                }
+            }
 
             let output_folder = tempdir().unwrap();
             let inputs = stateless_validator::stateless_validator_inputs(
@@ -76,7 +87,7 @@ mod tests {
             )
             .unwrap();
             let len_inputs = inputs.len();
-            assert_eq!(len_inputs, 15);
+            assert_eq!(len_inputs, expected_inputs);
             run_guest(
                 "stateless-validator/reth",
                 &[*zkvm],
