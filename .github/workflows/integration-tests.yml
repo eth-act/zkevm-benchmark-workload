@@ -72,6 +72,9 @@ jobs:
             zkvm: openvm # See https://github.com/eth-act/ere/issues/168
           - el: ethrex
             zkvm: pico # See https://github.com/eth-act/ere/issues/174
+          - el: ethrex
+            zkvm: zisk # See https://github.com/eth-act/ere/issues/XXX
+
 
     steps:
       - name: Checkout code
