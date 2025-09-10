@@ -38,10 +38,12 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::Risc0),
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
+            (ExecutionClient::Reth, ErezkVM::Zisk),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
             // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
+            // (ExecutionClient::Ethrex, ErezkVM::Zisk), // See https://github.com/eth-act/ere/issues/XXX
         ]);
         empty_block(Action::Execute, &el_zkvms).await;
     }
@@ -53,6 +55,7 @@ mod tests {
             ErezkVM::Risc0,
             ErezkVM::OpenVM,
             ErezkVM::Pico,
+            ErezkVM::Zisk,
         ]);
         for zkvm in &zkvms {
             println!("Using zkVM: {zkvm}");
@@ -67,14 +70,18 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input");
             let mut expected_inputs = 15;
 
-            // See issue https://github.com/eth-act/zkevm-benchmark-workload/issues/175
-            if zkvm == &ErezkVM::Pico {
-                let skipped = ["rpc_block_22974584.json", "rpc_block_22974587.json"];
-                for file in &skipped {
-                    println!("Skipping problematic block {file}");
-                    std::fs::remove_file(input_folder.join(file)).unwrap();
-                    expected_inputs -= 1;
+            let skipped = match zkvm {
+                // See https://github.com/eth-act/zkevm-benchmark-workload/issues/175
+                // See https://github.com/eth-act/zkevm-benchmark-workload/issues/XXX
+                ErezkVM::Pico | ErezkVM::Zisk => {
+                    vec!["rpc_block_22974584.json", "rpc_block_22974587.json"]
                 }
+                _ => vec![],
+            };
+            for file in &skipped {
+                println!("Skipping problematic block {file}");
+                std::fs::remove_file(input_folder.join(file)).unwrap();
+                expected_inputs -= 1;
             }
 
             let output_folder = tempdir().unwrap();
@@ -126,6 +133,7 @@ mod tests {
                 ErezkVM::Risc0,
                 ErezkVM::OpenVM,
                 ErezkVM::Pico,
+                ErezkVM::Zisk,
             ]),
             inputs,
             output_folder.path(),
