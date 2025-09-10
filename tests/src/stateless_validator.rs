@@ -18,41 +18,82 @@ mod tests {
 
     #[tokio::test]
     async fn prove_empty_block() {
-        empty_block(Action::Prove).await;
+        let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
+            (ExecutionClient::Reth, ErezkVM::SP1),
+            (ExecutionClient::Reth, ErezkVM::Risc0),
+            (ExecutionClient::Reth, ErezkVM::OpenVM),
+            // (ExecutionClient::Reth, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/173
+            (ExecutionClient::Ethrex, ErezkVM::SP1),
+            // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
+            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
+            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
+        ]);
+        empty_block(Action::Prove, &el_zkvms).await;
     }
 
     #[tokio::test]
     async fn execute_empty_block() {
-        empty_block(Action::Execute).await;
+        let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
+            (ExecutionClient::Reth, ErezkVM::SP1),
+            (ExecutionClient::Reth, ErezkVM::Risc0),
+            (ExecutionClient::Reth, ErezkVM::OpenVM),
+            (ExecutionClient::Reth, ErezkVM::Pico),
+            (ExecutionClient::Ethrex, ErezkVM::SP1),
+            // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
+            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
+            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
+        ]);
+        empty_block(Action::Execute, &el_zkvms).await;
     }
 
     #[tokio::test]
     async fn execute_mainnet_blocks() {
-        let bench_fixtures_dir = tempdir().unwrap();
-        untar(
-            &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
-                .join("assets/mainnet-zkevm-fixtures-input.tar.gz"),
-            bench_fixtures_dir.path(),
-        );
-
-        let output_folder = tempdir().unwrap();
-        let inputs = stateless_validator::stateless_validator_inputs(
-            &bench_fixtures_dir
+        let zkvms = get_env_zkvm_or_default(vec![
+            ErezkVM::SP1,
+            ErezkVM::Risc0,
+            ErezkVM::OpenVM,
+            ErezkVM::Pico,
+        ]);
+        for zkvm in &zkvms {
+            println!("Using zkVM: {zkvm}");
+            let bench_fixtures_dir = tempdir().unwrap();
+            untar(
+                &PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+                    .join("assets/mainnet-zkevm-fixtures-input.tar.gz"),
+                bench_fixtures_dir.path(),
+            );
+            let input_folder = &bench_fixtures_dir
                 .path()
-                .join("mainnet-zkevm-fixtures-input"),
-            ExecutionClient::Reth,
-        )
-        .unwrap();
-        let len_inputs = inputs.len();
-        assert_eq!(len_inputs, 15);
-        run_guest(
-            "stateless-validator/reth",
-            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]),
-            inputs,
-            output_folder.path(),
-            Action::Execute,
-        );
-        assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
+                .join("mainnet-zkevm-fixtures-input");
+            let mut expected_inputs = 15;
+
+            // See issue https://github.com/eth-act/zkevm-benchmark-workload/issues/175
+            if zkvm == &ErezkVM::Pico {
+                let skipped = ["rpc_block_22974584.json", "rpc_block_22974587.json"];
+                for file in &skipped {
+                    println!("Skipping problematic block {file}");
+                    std::fs::remove_file(input_folder.join(file)).unwrap();
+                    expected_inputs -= 1;
+                }
+            }
+
+            let output_folder = tempdir().unwrap();
+            let inputs = stateless_validator::stateless_validator_inputs(
+                input_folder,
+                ExecutionClient::Reth,
+            )
+            .unwrap();
+            let len_inputs = inputs.len();
+            assert_eq!(len_inputs, expected_inputs);
+            run_guest(
+                "stateless-validator/reth",
+                &[*zkvm],
+                inputs,
+                output_folder.path(),
+                Action::Execute,
+            );
+            assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
+        }
     }
 
     #[tokio::test]
@@ -80,7 +121,12 @@ mod tests {
 
         run_guest(
             "stateless-validator/reth",
-            &get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]),
+            &get_env_zkvm_or_default(vec![
+                ErezkVM::SP1,
+                ErezkVM::Risc0,
+                ErezkVM::OpenVM,
+                ErezkVM::Pico,
+            ]),
             inputs,
             output_folder.path(),
             Action::Execute,
@@ -88,17 +134,8 @@ mod tests {
         assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
     }
 
-    async fn empty_block(action: Action) {
-        let el_zkvm_pairs = filter_el_zkvm_pairs_from_env(vec![
-            (ExecutionClient::Reth, ErezkVM::SP1),
-            (ExecutionClient::Reth, ErezkVM::Risc0),
-            (ExecutionClient::Reth, ErezkVM::OpenVM),
-            (ExecutionClient::Ethrex, ErezkVM::SP1),
-            // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See issue https://github.com/eth-act/ere/issues/121
-            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See issue https://github.com/eth-act/ere/issues/168
-        ]);
-
-        for (el, zkvm) in &el_zkvm_pairs {
+    async fn empty_block(action: Action, el_zkvms: &[(ExecutionClient, ErezkVM)]) {
+        for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-empty-block");
             let bench_fixtures_dir = tempdir().unwrap();
             ExecSpecTestBlocksAndWitnessBuilder::default()

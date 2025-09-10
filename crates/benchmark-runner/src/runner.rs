@@ -11,7 +11,7 @@ use tracing::{error, info};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 use zkvm_interface::{zkVM, Compiler, ProverResourceType, PublicValues};
 
-use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier};
+use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -83,7 +83,8 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&io.input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                        .context("Failed to verify public output from execution")?;
 
                     ExecutionMetrics::Success {
                         total_num_cycles: report.total_num_cycles,
@@ -104,10 +105,12 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&io.input)));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                        .context("Failed to verify public output from proof")?;
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
-                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)?;
+                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)
+                        .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.len(),
@@ -205,8 +208,10 @@ fn verify_public_output(
     public_values: &PublicValues,
     output_verifier: &impl OutputVerifier,
 ) -> Result<()> {
-    if !output_verifier.check_serialized(zkvm, public_values)? {
-        return Err(anyhow!("Output mismatch for {}", name));
+    match output_verifier.check_serialized(zkvm, public_values)? {
+        OutputVerifierResult::Match => Ok(()),
+        OutputVerifierResult::Mismatch(msg) => {
+            Err(anyhow!("Output mismatch for {}: {}", name, msg))
+        }
     }
-    Ok(())
 }

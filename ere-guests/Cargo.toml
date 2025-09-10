@@ -14,6 +14,7 @@ members = [
     "empty-program/risc0",
     "empty-program/zisk",
     "empty-program/openvm",
+    "empty-program/pico",
 
     # Block encoding length
     "block-encoding-length/sp1",
@@ -23,6 +24,7 @@ members = [
     "panic-guest/risc0",
     "panic-guest/zisk",
     "panic-guest/openvm",
+    "panic-guest/pico",
 
     # Libs
     "libs",
@@ -121,6 +123,7 @@ zero_sized_map_values = "warn"
 guest-libs = { path = "libs" }
 
 sp1-zkvm = "5.0.5"
+pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
