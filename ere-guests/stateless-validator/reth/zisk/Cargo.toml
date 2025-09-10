@@ -1,5 +1,5 @@
 [package]
-name = "reth-zisk-guest"
+name = "reth-zisk-stateless-validator"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true

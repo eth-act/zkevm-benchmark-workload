@@ -5115,7 +5115,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "reth-zisk-guest"
+name = "reth-zisk-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
