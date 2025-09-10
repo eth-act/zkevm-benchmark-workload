@@ -38,10 +38,12 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::Risc0),
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
+            (ExecutionClient::Reth, ErezkVM::Zisk),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             // (ExecutionClient::Ethrex, ErezkVM::Risc0), // See https://github.com/eth-act/ere/issues/121
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
             // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
+            // (ExecutionClient::Ethrex, ErezkVM::Zisk), // See https://github.com/eth-act/ere/issues/XXX
         ]);
         empty_block(Action::Execute, &el_zkvms).await;
     }
@@ -53,6 +55,7 @@ mod tests {
             ErezkVM::Risc0,
             ErezkVM::OpenVM,
             ErezkVM::Pico,
+            ErezkVM::Zisk,
         ]);
         for zkvm in &zkvms {
             println!("Using zkVM: {zkvm}");
@@ -126,6 +129,7 @@ mod tests {
                 ErezkVM::Risc0,
                 ErezkVM::OpenVM,
                 ErezkVM::Pico,
+                ErezkVM::Zisk,
             ]),
             inputs,
             output_folder.path(),
