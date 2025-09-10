@@ -10,7 +10,7 @@ use pico_sdk::io::{commit, read_as};
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{Genesis, StatelessInput, stateless_validation_with_trie};
+use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
 
 pico_sdk::entrypoint!(main);
 
@@ -52,7 +52,6 @@ pub fn main() {
             commit(&true);
         }
         Err(err) => {
-            println!("block validation error: {}", err);
             commit(&header.hash_slow().0);
             commit(&parent_hash.0);
             commit(&false);
