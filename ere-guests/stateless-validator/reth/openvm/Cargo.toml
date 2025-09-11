@@ -7,20 +7,16 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 # openvm
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = ["std"] }
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = [
+    "std",
+] }
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
 openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
 openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
 guest-libs.workspace = true
 
-# Pin revm version for patching compatibility. This will be removed after switching to CryptoProvider trait
-revm-precompile = { version = "25.0.0", features = [
-    "default",
-] } # this will be patched to "openvm"
-revm-primitives = { version = "=20.1.0", default-features = false }
-revm = { version = "=27.1.0", default-features = false }
-revm-state = { version = "=7.0.2", default-features = false }
-revm-bytecode = { version = "=6.1.0", default-features = false }
+revm = { workspace = true, default-features = false }
+revm-bytecode = { workspace = true, default-features = false }
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

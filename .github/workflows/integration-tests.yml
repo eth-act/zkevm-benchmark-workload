@@ -13,6 +13,7 @@ concurrency:
 env:
   CARGO_TERM_COLOR: always
   ERE_TAG: 0.0.12-2f979db
+  OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
 
 jobs: 
   witness-generator:
@@ -52,7 +53,7 @@ jobs:
           - execute_mainnet_blocks
           - execute_invalid_block
           - prove_empty_block
-        zkvm: [sp1, risc0, openvm, pico, zisk]
+        zkvm: [sp1, risc0, pico, zisk, openvm]
         el: [reth, ethrex]
         exclude:
           # Pico

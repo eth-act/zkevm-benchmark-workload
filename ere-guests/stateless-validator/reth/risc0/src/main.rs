@@ -33,8 +33,9 @@ pub fn main() {
 
     println!("start stateless validation");
     let start = env::cycle_count();
+    let recovered_block = guest_libs::senders::recover_block(input.block, &chain_spec).unwrap();
     let res = stateless_validation_with_trie::<SparseState, _, _>(
-        input.block,
+        recovered_block,
         input.witness,
         chain_spec,
         evm_config,
