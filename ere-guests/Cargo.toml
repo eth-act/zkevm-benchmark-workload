@@ -1,7 +1,7 @@
 [workspace]
 members = [
     # Reth stateless validator
-    # "stateless-validator/reth/openvm",
+    "stateless-validator/reth/openvm",
     "stateless-validator/reth/pico",
     "stateless-validator/reth/risc0",
     "stateless-validator/reth/sp1",
