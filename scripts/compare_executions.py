@@ -84,19 +84,43 @@ def calculate_speedups(unoptimized_metrics: Dict[str, Dict],
     # Find common files
     common_files = set(unoptimized_metrics.keys()) & set(optimized_metrics.keys())
     
+    # First pass: collect all possible regions from both datasets
     for filename in common_files:
         unopt_cycles = extract_region_cycles(unoptimized_metrics[filename])
         opt_cycles = extract_region_cycles(optimized_metrics[filename])
         
-        if not unopt_cycles or not opt_cycles:
+        if unopt_cycles:
+            all_regions.update(unopt_cycles.keys())
+        if opt_cycles:
+            all_regions.update(opt_cycles.keys())
+    
+    # Second pass: calculate speedups for all regions
+    for filename in common_files:
+        unopt_cycles = extract_region_cycles(unoptimized_metrics[filename])
+        opt_cycles = extract_region_cycles(optimized_metrics[filename])
+        
+        if not unopt_cycles and not opt_cycles:
             continue
             
         file_speedups = {}
-        for region in unopt_cycles:
-            if region in opt_cycles and opt_cycles[region] > 0:
-                speedup = unopt_cycles[region] / opt_cycles[region]
+        for region in all_regions:
+            # Get cycles for this region, defaulting to 0 if missing
+            unopt_value = unopt_cycles.get(region, 0)
+            opt_value = opt_cycles.get(region, 0)
+            
+            # Calculate speedup
+            if opt_value > 0:
+                speedup = unopt_value / opt_value
                 file_speedups[region] = speedup
-                all_regions.add(region)
+            elif unopt_value > 0 and opt_value == 0:
+                # Region exists in baseline but not optimized (infinite speedup)
+                # This could indicate the region was eliminated/optimized away
+                file_speedups[region] = float('inf')
+            elif unopt_value == 0 and opt_value > 0:
+                # Region doesn't exist in baseline but exists in optimized (0x speedup)
+                # This indicates a new region was added
+                file_speedups[region] = 0.0
+            # If both are 0, skip this region for this file
         
         if file_speedups:
             speedups[filename] = file_speedups
@@ -108,6 +132,21 @@ def calculate_speedups(unoptimized_metrics: Dict[str, Dict],
         sorted_regions.append("total_num_cycles")
     
     return speedups, sorted_regions
+
+def abbreviate_region_name(region: str) -> str:
+    """Abbreviate long region names for better table formatting."""
+    abbreviations = {
+        "commit_public_inputs": "commit_pub",
+        "public_inputs_preparation": "pub_prep",
+        "public_keys_validation": "pubkey_val",
+        "block_execution": "block_exec",
+        "verify_witness": "verify_wit",
+        "post_state_compute": "post_state",
+        "total_num_cycles": "total_cycles",
+        "validation": "validation",
+        "read_input": "read_input"
+    }
+    return abbreviations.get(region, region[:12])  # Fallback to first 12 chars
 
 def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str]):
     """Print a formatted table of speedups."""
@@ -122,10 +161,11 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
     max_filename_length = max(len(filename) for filename in sorted_files)
     file_column_width = max(max_filename_length + 2, 30)  # At least 30, but wider if needed
     
-    # Print header - use dynamic column width for file names
+    # Print header - use dynamic column width for file names and abbreviated region names
     header = "File".ljust(file_column_width)
     for region in regions:
-        header += region.ljust(18)
+        abbreviated = abbreviate_region_name(region)
+        header += abbreviated.ljust(14)  # Reduced from 18 to 14 for better fit
     print(header)
     print("-" * len(header))
     
@@ -134,10 +174,16 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
         row = filename.ljust(file_column_width)
         for region in regions:
             if region in speedups[filename]:
-                speedup_str = f"{speedups[filename][region]:.2f}x"
+                speedup = speedups[filename][region]
+                if speedup == float('inf'):
+                    speedup_str = "∞x"  # Infinite speedup (region eliminated)
+                elif speedup == 0.0:
+                    speedup_str = "0.00x"  # Zero speedup (new region added)
+                else:
+                    speedup_str = f"{speedup:.2f}x"
             else:
                 speedup_str = "N/A"
-            row += speedup_str.ljust(18)
+            row += speedup_str.ljust(14)  # Reduced from 18 to 14 for better fit
         print(row)
 
 def analyze_speedups(speedups: Dict[str, Dict[str, float]], regions: List[str]):
@@ -161,8 +207,11 @@ def analyze_speedups(speedups: Dict[str, Dict[str, float]], regions: List[str]):
         
         for filename, file_data in speedups.items():
             if region in file_data:
-                region_speedups.append(file_data[region])
-                file_speedups.append((filename, file_data[region]))
+                speedup = file_data[region]
+                # Filter out infinite speedups for statistical analysis
+                if speedup != float('inf') and speedup > 0:
+                    region_speedups.append(speedup)
+                    file_speedups.append((filename, speedup))
         
         if not region_speedups:
             continue
@@ -247,7 +296,10 @@ def main():
         region_speedups = []
         for filename, file_data in speedups.items():
             if region in file_data:
-                region_speedups.append(file_data[region])
+                speedup = file_data[region]
+                # Filter out infinite speedups for overall analysis
+                if speedup != float('inf') and speedup > 0:
+                    region_speedups.append(speedup)
         if region_speedups:
             avg_speedup = statistics.mean(region_speedups)
             region_improvements[region] = avg_speedup
