@@ -38,15 +38,16 @@ pub fn main() {
     let end = env::cycle_count();
     eprintln!("public_inputs_preparation (cycle tracker): {}", end - start);
 
-    println!("start commit_public_inputs");
-    let start = env::cycle_count();
-    match validate_block(
+    let res = validate_block(
         input.block,
         input.witness,
         chain_spec.clone(),
         public_keys,
         evm_config,
-    ) {
+    );
+    println!("start commit_public_inputs");
+    let start = env::cycle_count();
+    match res {
         Ok(block_hash) => {
             env::commit(&block_hash.0);
             env::commit(&parent_hash.0);

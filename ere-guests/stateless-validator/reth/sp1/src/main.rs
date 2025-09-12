@@ -40,14 +40,15 @@ pub fn main() {
     let parent_hash = input.block.parent_hash;
     println!("cycle-tracker-report-end: public_inputs_preparation");
 
-    println!("cycle-tracker-report-start: commit_public_inputs");
-    match validate_block(
+    let res = validate_block(
         input.block,
         input.witness,
         chain_spec.clone(),
         public_keys,
         evm_config,
-    ) {
+    );
+    println!("cycle-tracker-report-start: commit_public_inputs");
+    match res {
         Ok(block_hash) => {
             sp1_zkvm::io::commit(&block_hash.0);
             sp1_zkvm::io::commit(&parent_hash.0);
