@@ -22,7 +22,10 @@ sp1_zkvm::entrypoint!(main);
 pub fn main() {
     println!("cycle-tracker-report-start: read_input");
     let input = sp1_zkvm::io::read::<StatelessInput>();
-    let public_keys = sp1_zkvm::io::read::<Vec<VerifyingKey>>();
+    let public_keys = sp1_zkvm::io::read::<Vec<Box<[u8]>>>()
+        .into_iter()
+        .map(|pk| VerifyingKey::from_sec1_bytes(&pk).expect("Invalid public key"))
+        .collect::<Vec<_>>();
 
     let genesis = Genesis {
         config: input.chain_config.clone(),
