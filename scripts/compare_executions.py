@@ -208,8 +208,8 @@ def analyze_speedups(speedups: Dict[str, Dict[str, float]], regions: List[str]):
         for filename, file_data in speedups.items():
             if region in file_data:
                 speedup = file_data[region]
-                # Filter out infinite speedups for statistical analysis
-                if speedup != float('inf') and speedup > 0:
+                # Filter out infinite speedups for statistical analysis, but include zero speedups
+                if speedup != float('inf'):
                     region_speedups.append(speedup)
                     file_speedups.append((filename, speedup))
         
@@ -297,8 +297,8 @@ def main():
         for filename, file_data in speedups.items():
             if region in file_data:
                 speedup = file_data[region]
-                # Filter out infinite speedups for overall analysis
-                if speedup != float('inf') and speedup > 0:
+                # Filter out infinite speedups for overall analysis, but include zero speedups
+                if speedup != float('inf'):
                     region_speedups.append(speedup)
         if region_speedups:
             avg_speedup = statistics.mean(region_speedups)
