@@ -33,3 +33,4 @@ alloy-primitives = { workspace = true, default-features = false, features = [
 c-kzg = { version = "=2.1.1", default-features = true }
 
 sha2.workspace = true
+k256.workspace = true
