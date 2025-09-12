@@ -4,10 +4,10 @@ Script to compare optimization metrics between unoptimized and optimized zkevm r
 Compares region_cycles data and calculates speedups.
 
 Usage:
-    python3 compare_optimization_metrics.py <baseline_folder> <optimized_folder>
+    python3 compare_executions.py <baseline_folder> <optimized_folder>
 
 Example:
-    python3 compare_optimization_metrics.py baseline-zkevm-metrics optimized-zkevm-metrics
+    python3 compare_executions.py baseline-zkevm-metrics optimized-zkevm-metrics
 
 The script will look for all subfolders with *.json files in both folders and compare:
 - region_cycles data (verify_witness, post_state_compute, validation, etc.)
@@ -118,8 +118,12 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
     # Sort files by name
     sorted_files = sorted(speedups.keys())
     
-    # Print header - use wider column for file names to accommodate subfolder/filename
-    header = "File".ljust(30)
+    # Calculate the optimal width for the file column
+    max_filename_length = max(len(filename) for filename in sorted_files)
+    file_column_width = max(max_filename_length + 2, 30)  # At least 30, but wider if needed
+    
+    # Print header - use dynamic column width for file names
+    header = "File".ljust(file_column_width)
     for region in regions:
         header += region.ljust(18)
     print(header)
@@ -127,7 +131,7 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
     
     # Print data rows
     for filename in sorted_files:
-        row = filename.ljust(30)
+        row = filename.ljust(file_column_width)
         for region in regions:
             if region in speedups[filename]:
                 speedup_str = f"{speedups[filename][region]:.2f}x"
@@ -193,10 +197,10 @@ def analyze_speedups(speedups: Dict[str, Dict[str, float]], regions: List[str]):
 def main():
     """Main function."""
     if len(sys.argv) != 3:
-        print("Usage: python3 compare_optimization_metrics.py <baseline_folder> <optimized_folder>")
+        print("Usage: python3 compare_executions.py <baseline_folder> <optimized_folder>")
         print("\nExample:")
-        print("  python3 compare_optimization_metrics.py zkevm-metrics local-optimized-zkevm-metrics")
-        print("  python3 compare_optimization_metrics.py /path/to/baseline /path/to/optimized")
+        print("  python3 compare_executions.py zkevm-metrics local-optimized-zkevm-metrics")
+        print("  python3 compare_executions.py /path/to/baseline /path/to/optimized")
         sys.exit(1)
     
     baseline_folder = sys.argv[1]
