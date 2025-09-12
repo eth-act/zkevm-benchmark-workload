@@ -3,7 +3,7 @@
 use alloy_consensus::BlockHeader;
 use alloy_primitives::Address;
 use k256::ecdsa::{VerifyingKey, signature::hazmat::PrehashVerifier};
-use reth_chainspec::{ChainSpec, EthereumHardforks};
+use reth_chainspec::EthereumHardforks;
 use reth_ethereum_primitives::{Block, TransactionSigned};
 use reth_primitives_traits::{Block as _, RecoveredBlock};
 
@@ -50,7 +50,7 @@ fn recover_sender(
 /// Verifies all transactions in a block against a list of public keys and signatures.
 ///
 /// Returns a `RecoveredBlock`
-fn recover_block_with_public_keys<ChainSpec>(
+pub fn recover_block_with_public_keys<ChainSpec>(
     block: Block,
     public_keys: Vec<VerifyingKey>,
     chain_spec: &ChainSpec,
@@ -80,7 +80,7 @@ where
 }
 
 /// Recover public keys from transaction signatures.
-fn recover_signers<'a, I>(txs: I) -> Result<Vec<VerifyingKey>, Box<dyn std::error::Error>>
+pub fn recover_signers<'a, I>(txs: I) -> Result<Vec<VerifyingKey>, Box<dyn std::error::Error>>
 where
     I: IntoIterator<Item = &'a TransactionSigned>,
 {
@@ -92,17 +92,4 @@ where
                 .map_err(|e| format!("failed to recover signature for tx #{i}: {e}").into())
         })
         .collect::<Result<Vec<_>, _>>()
-}
-
-/// Recovers the block with verified senders from the given block and chain spec.
-pub fn recover_block(
-    block: Block,
-    chain_spec: &ChainSpec,
-) -> Result<RecoveredBlock<Block>, Box<dyn std::error::Error>>
-where
-    ChainSpec: EthereumHardforks,
-{
-    let public_keys = recover_signers(block.body().transactions.iter())?;
-    let recovered_block = recover_block_with_public_keys(block, public_keys, &chain_spec)?;
-    Ok(recovered_block)
 }

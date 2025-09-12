@@ -31,5 +31,7 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "serde",
     "sha3-keccak",
 ] }
+k256.workspace = true
+
 tracing-subscriber = "*"
 tracing = "*"
