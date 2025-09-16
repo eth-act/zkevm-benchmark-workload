@@ -2,12 +2,12 @@
 
 #![no_main]
 
-use guest_libs::mpt::SparseState;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
 use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
 use sha2::{Digest, Sha256};
+use sparsestate::SparseState;
 use std::sync::Arc;
 
 ziskos::entrypoint!(main);

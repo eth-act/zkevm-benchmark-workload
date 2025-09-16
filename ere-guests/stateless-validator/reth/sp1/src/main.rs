@@ -5,11 +5,11 @@
 extern crate alloc;
 use alloc::sync::Arc;
 
-use guest_libs::mpt::SparseState;
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{Genesis, StatelessInput, stateless_validation_with_trie};
+use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
+use sparsestate::SparseState;
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);

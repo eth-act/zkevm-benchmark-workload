@@ -142,7 +142,7 @@ ethereum_ssz = "0.9"
 
 revm-bytecode = { version = "6.2.2", default-features = false }
 
-risc0-ethereum-trie = { git = "https://github.com/risc0/risc0-ethereum.git", rev = "4a5efe13b3655258b89e7082c57743e445133dc8" }
+sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
 k256 = { version = "0.13", default-features = false, features = ["ecdsa"] }
 
 # misc
