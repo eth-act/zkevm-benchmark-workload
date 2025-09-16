@@ -1,9 +1,9 @@
 //! OpenVM guest program
 use std::sync::Arc;
 
-use guest_libs::mpt::SparseState;
 use openvm::io::{read, reveal_bytes32};
 use sha2::{Digest, Sha256};
+use sparsestate::SparseState;
 
 // For linker declarations:
 use openvm_keccak256 as _;

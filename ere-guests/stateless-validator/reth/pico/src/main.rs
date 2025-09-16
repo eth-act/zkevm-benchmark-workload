@@ -5,12 +5,12 @@
 extern crate alloc;
 use alloc::sync::Arc;
 
-use guest_libs::mpt::SparseState;
 use pico_sdk::io::{commit, read_as};
 use reth_chainspec::ChainSpec;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
 use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
+use sparsestate::SparseState;
 
 pico_sdk::entrypoint!(main);
 
