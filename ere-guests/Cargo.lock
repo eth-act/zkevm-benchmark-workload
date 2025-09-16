@@ -3025,7 +3025,7 @@ dependencies = [
 [[package]]
 name = "mpt"
 version = "0.1.0"
-source = "git+https://github.com/jsign/zkvm-ethereum-mpt.git?rev=b023ee68b653ef9c0575282aab8c175ce3aac61b#b023ee68b653ef9c0575282aab8c175ce3aac61b"
+source = "git+https://github.com/eth-act/zkvm-ethereum-mpt.git?tag=v0.1.0#f7e1ec1a6304ef5c265e488f541456f9b68010e7"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
@@ -6131,7 +6131,7 @@ dependencies = [
 [[package]]
 name = "sparsestate"
 version = "0.1.0"
-source = "git+https://github.com/jsign/zkvm-ethereum-mpt.git?rev=b023ee68b653ef9c0575282aab8c175ce3aac61b#b023ee68b653ef9c0575282aab8c175ce3aac61b"
+source = "git+https://github.com/eth-act/zkvm-ethereum-mpt.git?tag=v0.1.0#f7e1ec1a6304ef5c265e488f541456f9b68010e7"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
