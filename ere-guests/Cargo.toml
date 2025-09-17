@@ -161,15 +161,20 @@ thiserror = { version = "2.0.0", default-features = false }
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
-risc0-ethereum-trie = { git = "https://github.com/risc0/risc0-ethereum.git", rev = "4a5efe13b3655258b89e7082c57743e445133dc8" }
 k256 = { version = "0.13", default-features = false, features = [
     "ecdsa",
     "serde",
     "pem",
 ] }
+sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
 
 # Patch `ziskos` of `zisk-patch-*` to pin to the same version of guest.
 [patch."https://github.com/0xPolygonHermez/zisk.git"]
 ziskos = { git = "https://github.com/0xPolygonHermez//zisk.git", tag = "v0.11.0" }
+
+[patch."https://github.com/paradigmxyz/reth"]
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "6de1d8358ca2790d47852317c457a9a426a2e09f" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "6de1d8358ca2790d47852317c457a9a426a2e09f" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "6de1d8358ca2790d47852317c457a9a426a2e09f" }
 
 [patch.crates-io]

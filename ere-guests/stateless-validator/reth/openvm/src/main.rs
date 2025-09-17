@@ -2,11 +2,11 @@
 use std::{error::Error, sync::Arc};
 
 use alloy_primitives::FixedBytes;
-use guest_libs::mpt::SparseState;
 use k256::ecdsa::VerifyingKey;
 use openvm::io::{read, reveal_bytes32};
 use reth_ethereum_primitives::Block as EthBlock;
 use sha2::{Digest, Sha256};
+use sparsestate::SparseState;
 
 // For linker declarations:
 use openvm_keccak256 as _;

@@ -5,7 +5,6 @@
 use std::{error::Error, sync::Arc};
 
 use alloy_primitives::FixedBytes;
-use guest_libs::mpt::SparseState;
 use k256::ecdsa::VerifyingKey;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
@@ -13,6 +12,8 @@ use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
 use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis, StatelessInput};
 use sha2::{Digest, Sha256};
+use sparsestate::SparseState;
+use std::sync::Arc;
 
 ziskos::entrypoint!(main);
 

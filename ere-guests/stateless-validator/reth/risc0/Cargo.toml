@@ -10,6 +10,7 @@ risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "getrandom",
 ] }
 guest-libs.workspace = true
+sparsestate.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

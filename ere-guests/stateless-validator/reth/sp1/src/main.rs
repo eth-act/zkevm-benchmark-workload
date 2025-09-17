@@ -8,13 +8,13 @@ use std::error::Error;
 use alloc::sync::Arc;
 
 use alloy_primitives::FixedBytes;
-use guest_libs::mpt::SparseState;
 use k256::ecdsa::VerifyingKey;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
 use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis, StatelessInput};
+use sparsestate::SparseState;
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);

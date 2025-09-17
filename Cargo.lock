@@ -114,7 +114,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "alloy-serde",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "alloy-tx-macros",
  "arbitrary",
  "auto_impl",
@@ -260,7 +260,7 @@ dependencies = [
  "alloy-eips",
  "alloy-primitives",
  "alloy-serde",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "serde",
  "serde_with",
 ]
@@ -732,22 +732,6 @@ dependencies = [
 
 [[package]]
 name = "alloy-trie"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "983d99aa81f586cef9dae38443245e585840fcf0fc58b09aee0b1f27aed1d500"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "arrayvec",
- "derive_more 2.0.1",
- "nybbles 0.3.4",
- "serde",
- "smallvec",
- "tracing",
-]
-
-[[package]]
-name = "alloy-trie"
 version = "0.9.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e3412d52bb97c6c6cc27ccc28d4e6e8cf605469101193b50b0bd5813b1f990b5"
@@ -758,7 +742,7 @@ dependencies = [
  "arrayvec",
  "derive_arbitrary",
  "derive_more 2.0.1",
- "nybbles 0.4.4",
+ "nybbles",
  "proptest",
  "proptest-derive",
  "serde",
@@ -3449,19 +3433,12 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
- "alloy-rlp",
- "alloy-trie 0.9.1",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "k256",
  "reth-chainspec",
- "reth-errors",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
- "reth-stateless",
- "reth-trie-common",
- "revm-bytecode",
- "risc0-ethereum-trie",
  "serde",
  "serde_json",
  "serde_with",
@@ -5183,19 +5160,6 @@ dependencies = [
 
 [[package]]
 name = "nybbles"
-version = "0.3.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8983bb634df7248924ee0c4c3a749609b5abcb082c28fffe3254b3eb3602b307"
-dependencies = [
- "alloy-rlp",
- "const-hex",
- "proptest",
- "serde",
- "smallvec",
-]
-
-[[package]]
-name = "nybbles"
 version = "0.4.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f0418987d1aaed324d95b4beffc93635e19be965ed5d63ec07a35980fe3b71a4"
@@ -6225,7 +6189,7 @@ dependencies = [
  "alloy-evm",
  "alloy-genesis",
  "alloy-primitives",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "auto_impl",
  "derive_more 2.0.1",
  "reth-ethereum-forks",
@@ -6260,7 +6224,7 @@ dependencies = [
  "alloy-eips",
  "alloy-genesis",
  "alloy-primitives",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "arbitrary",
  "bytes",
  "modular-bitfield",
@@ -6757,7 +6721,7 @@ dependencies = [
  "alloy-evm",
  "alloy-primitives",
  "alloy-rlp",
- "nybbles 0.4.4",
+ "nybbles",
  "reth-storage-errors",
  "thiserror 2.0.16",
 ]
@@ -7168,7 +7132,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "alloy-rpc-types-eth",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "arbitrary",
  "auto_impl",
  "byteorder",
@@ -7440,7 +7404,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "alloy-rpc-types-debug",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "itertools 0.14.0",
  "reth-chainspec",
  "reth-consensus",
@@ -7600,7 +7564,7 @@ dependencies = [
  "alloy-eips",
  "alloy-primitives",
  "alloy-rlp",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "auto_impl",
  "itertools 0.14.0",
  "metrics",
@@ -7626,13 +7590,13 @@ dependencies = [
  "alloy-rlp",
  "alloy-rpc-types-eth",
  "alloy-serde",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "arbitrary",
  "bytes",
  "derive_more 2.0.1",
  "hash-db",
  "itertools 0.14.0",
- "nybbles 0.4.4",
+ "nybbles",
  "plain_hasher",
  "rayon",
  "reth-codecs",
@@ -7662,7 +7626,7 @@ source = "git+https://github.com/kevaundray/reth?rev=6de1d8358ca2790d47852317c45
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
- "alloy-trie 0.9.1",
+ "alloy-trie",
  "auto_impl",
  "rayon",
  "reth-execution-errors",
@@ -8000,19 +7964,6 @@ checksum = "80f2723fedace48c6c5a505bd8f97ac4e1712bc4cb769083e10536d862b66987"
 dependencies = [
  "bytemuck",
  "rand_core 0.9.3",
-]
-
-[[package]]
-name = "risc0-ethereum-trie"
-version = "0.1.0"
-source = "git+https://github.com/risc0/risc0-ethereum.git?rev=4a5efe13b3655258b89e7082c57743e445133dc8#4a5efe13b3655258b89e7082c57743e445133dc8"
-dependencies = [
- "alloy-primitives",
- "alloy-rlp",
- "alloy-trie 0.8.1",
- "arrayvec",
- "itertools 0.14.0",
- "thiserror 2.0.16",
 ]
 
 [[package]]

@@ -8,7 +8,6 @@ use std::error::Error;
 use alloc::sync::Arc;
 
 use alloy_primitives::FixedBytes;
-use guest_libs::mpt::SparseState;
 use k256::ecdsa::VerifyingKey;
 use pico_sdk::io::{commit, read_as};
 use reth_chainspec::ChainSpec;
