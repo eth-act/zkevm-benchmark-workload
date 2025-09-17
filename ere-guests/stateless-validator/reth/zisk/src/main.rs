@@ -2,7 +2,7 @@
 
 #![no_main]
 
-use std::{error::Error, sync::Arc};
+use std::{error::Error, io::Cursor, sync::Arc};
 
 use alloy_primitives::FixedBytes;
 use k256::ecdsa::VerifyingKey;
@@ -10,21 +10,18 @@ use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis, StatelessInput};
+use reth_stateless::{ExecutionWitness, Genesis, StatelessInput, stateless_validation_with_trie};
 use sha2::{Digest, Sha256};
 use sparsestate::SparseState;
-use std::sync::Arc;
 
 ziskos::entrypoint!(main);
 
 /// Entry point.
 pub fn main() {
     println!("start read_input");
-    let input_bytes = ziskos::read_input();
-    let mut offset = 0;
-    let input: StatelessInput = bincode::deserialize(&input_bytes).unwrap();
-    offset = bincode::serialized_size(&input).unwrap() as usize;
-    let public_keys: Vec<VerifyingKey> = bincode::deserialize(&input_bytes[offset..]).unwrap();
+    let mut input_bytes = Cursor::new(ziskos::read_input());
+    let input: StatelessInput = bincode::deserialize_from(&mut input_bytes).unwrap();
+    let public_keys: Vec<VerifyingKey> = bincode::deserialize_from(&mut input_bytes).unwrap();
     let genesis = Genesis {
         config: input.chain_config.clone(),
         ..Default::default()

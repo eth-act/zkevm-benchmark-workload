@@ -14,7 +14,8 @@ use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis, StatelessInput};
+use reth_stateless::{ExecutionWitness, Genesis, StatelessInput, stateless_validation_with_trie};
+use sparsestate::SparseState;
 
 pico_sdk::entrypoint!(main);
 
