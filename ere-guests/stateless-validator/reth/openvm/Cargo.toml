@@ -39,3 +39,4 @@ alloy-primitives = { workspace = true, default-features = false, features = [
 
 bincode.workspace = true
 sha2.workspace = true
+k256.workspace = true

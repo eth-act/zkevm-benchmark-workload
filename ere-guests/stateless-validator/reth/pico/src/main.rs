@@ -3,13 +3,18 @@
 #![no_main]
 
 extern crate alloc;
+use std::error::Error;
+
 use alloc::sync::Arc;
 
+use alloy_primitives::FixedBytes;
+use k256::ecdsa::VerifyingKey;
 use pico_sdk::io::{commit, read_as};
 use reth_chainspec::ChainSpec;
+use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, Genesis, StatelessInput};
+use reth_stateless::{ExecutionWitness, Genesis, StatelessInput, stateless_validation_with_trie};
 use sparsestate::SparseState;
 
 pico_sdk::entrypoint!(main);
@@ -18,6 +23,7 @@ pico_sdk::entrypoint!(main);
 pub fn main() {
     println!("cycle-tracker-start: read_input");
     let input: StatelessInput = read_as();
+    let public_keys: Vec<VerifyingKey> = read_as();
     let genesis = Genesis {
         config: input.chain_config.clone(),
         ..Default::default()
@@ -31,15 +37,13 @@ pub fn main() {
     let parent_hash = input.block.parent_hash;
     println!("cycle-tracker-end: public_inputs_preparation");
 
-    println!("cycle-tracker-start: validation");
-    let recovered_block = guest_libs::senders::recover_block(input.block, &chain_spec).unwrap();
-    let res = stateless_validation_with_trie::<SparseState, _, _>(
-        recovered_block,
+    let res = validate_block(
+        input.block,
         input.witness,
         chain_spec,
+        public_keys,
         evm_config,
     );
-    println!("cycle-tracker-end: validation");
 
     println!("cycle-tracker-start: commit_public_inputs");
     // The public inputs are:
@@ -53,10 +57,35 @@ pub fn main() {
             commit(&true);
         }
         Err(err) => {
+            println!("Block validation failed: {err}");
             commit(&header.hash_slow().0);
             commit(&parent_hash.0);
             commit(&false);
         }
     }
     println!("cycle-tracker-end: commit_public_inputs");
+}
+
+fn validate_block(
+    block: EthBlock,
+    witness: ExecutionWitness,
+    chain_spec: Arc<ChainSpec>,
+    public_keys: Vec<VerifyingKey>,
+    evm_config: EthEvmConfig,
+) -> Result<FixedBytes<32>, Box<dyn Error>> {
+    println!("cycle-tracker-start: public_keys_validation");
+    let recovered_block =
+        guest_libs::senders::recover_block_with_public_keys(block, public_keys, &chain_spec)?;
+    println!("cycle-tracker-end: public_keys_validation");
+
+    println!("cycle-tracker-start: validation");
+    let block_hash = stateless_validation_with_trie::<SparseState, _, _>(
+        recovered_block,
+        witness,
+        chain_spec,
+        evm_config,
+    )?;
+    println!("cycle-tracker-end: validation");
+
+    Ok(block_hash)
 }

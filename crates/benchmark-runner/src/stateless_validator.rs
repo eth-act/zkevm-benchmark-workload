@@ -148,8 +148,13 @@ impl OutputVerifier for ProgramOutputVerifier {
 fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
     match el {
         ExecutionClient::Reth => {
+            let public_keys =
+                guest_libs::senders::recover_signers(si.block.body.transactions.iter())
+                    .map_err(|err| anyhow::anyhow!("recovering signers: {}", err))?;
             let mut stdin = Input::new();
             stdin.write(si.clone());
+            stdin.write(public_keys);
+
             Ok(stdin)
         }
         ExecutionClient::Ethrex => {

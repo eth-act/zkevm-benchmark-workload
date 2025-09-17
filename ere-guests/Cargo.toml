@@ -161,8 +161,12 @@ thiserror = { version = "2.0.0", default-features = false }
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
+k256 = { version = "0.13", default-features = false, features = [
+    "ecdsa",
+    "serde",
+    "pem",
+] }
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
-k256 = { version = "0.13", default-features = false, features = ["ecdsa"] }
 
 # Patch `ziskos` of `zisk-patch-*` to pin to the same version of guest.
 [patch."https://github.com/0xPolygonHermez/zisk.git"]
