@@ -12,7 +12,7 @@ concurrency:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.12-2f979db
+  ERE_TAG: 0.0.12-7ef4598
   OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
 
 jobs: 
