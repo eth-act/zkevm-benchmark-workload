@@ -93,20 +93,12 @@ def extract_zkvm_and_variant(metrics_dir: Path) -> Tuple[Optional[str], Optional
 
     return None, None
 
-
-def extract_el_from_test_name(test_name: str) -> str:
-    """Extract execution layer (EL) from test name."""
-    test_name_lower = test_name.lower()
-    for potential_el in ['reth', 'ethrex']:
-        if potential_el in test_name_lower:
-            return potential_el
-    return 'reth'  # Default to reth if unknown
-
 def process_metrics_file(
     json_file: Path,
     zkvm: str,
     version: str,
-    zkvm_with_version: str
+    zkvm_with_version: str,
+    el: Optional[str] = None
 ) -> Optional[MetricsFile]:
     """Process a single metrics JSON file and return a MetricsFile object."""
     if json_file.name == 'hardware.json':
@@ -117,7 +109,6 @@ def process_metrics_file(
         return None
 
     test_name = metrics.get('name', json_file.stem)
-    el = extract_el_from_test_name(test_name)
 
     return MetricsFile(
         name=test_name,
@@ -132,23 +123,27 @@ def process_metrics_file(
 def process_metrics_directory(metrics_dir: Path, zkvm_metrics: ZkVMMetrics) -> None:
     """Process a single metrics directory and add to zkvm_metrics."""
     if metrics_dir.name == 'zkevm-metrics':
-        # Process each zkVM subdirectory within the main zkevm-metrics folder
-        for subdir in metrics_dir.iterdir():
-            if subdir.is_dir() and subdir.name != 'hardware.json':
-                match = re.match(r'([^-]+)-(.+)', subdir.name)
-                if match:
-                    zkvm = match.group(1)
-                    version = match.group(2)
-                    zkvm_with_version = f"{zkvm} ({version})"
+        for el_dir in metrics_dir.iterdir():
+            if el_dir.is_dir() and el_dir.name != 'hardware.json':
+                el_name = el_dir.name  
 
-                    for json_file in subdir.glob('*.json'):
-                        metrics_file = process_metrics_file(
-                            json_file, zkvm, version, zkvm_with_version
-                        )
-                        if metrics_file:
-                            zkvm_metrics.add_metrics(
-                                zkvm_with_version, metrics_file.el, metrics_file
-                            )
+                # Process each zkVM subdirectory within the EL folder
+                for zkvm_dir in el_dir.iterdir():
+                    if zkvm_dir.is_dir():
+                        match = re.match(r'([^-]+)-(.+)', zkvm_dir.name)
+                        if match:
+                            zkvm = match.group(1)
+                            version = match.group(2)
+                            zkvm_with_version = f"{zkvm} ({version})"
+
+                            for json_file in zkvm_dir.glob('*.json'):
+                                metrics_file = process_metrics_file(
+                                    json_file, zkvm, version, zkvm_with_version, el_name
+                                )
+                                if metrics_file:
+                                    zkvm_metrics.add_metrics(
+                                        zkvm_with_version, el_name, metrics_file
+                                    )
     else:
         # Process other zkevm-metrics-* directories
         zkvm, variant = extract_zkvm_and_variant(metrics_dir)
