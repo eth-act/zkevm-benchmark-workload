@@ -70,18 +70,17 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input");
 
             let output_folder = OutputDir::new().unwrap();
-            let inputs = stateless_validator::stateless_validator_inputs(
-                input_folder,
-                ExecutionClient::Reth,
-            )
-            .unwrap();
+            let el = ExecutionClient::Reth;
+            let el_str = el.as_ref().to_lowercase();
+            let inputs = stateless_validator::stateless_validator_inputs(input_folder, el).unwrap();
             let len_inputs = inputs.len();
             assert_eq!(len_inputs, 15);
             run_guest(
-                "stateless-validator/reth",
+                &format!("stateless-validator/{el_str}"),
                 &[*zkvm],
                 inputs,
                 output_folder.path(),
+                Some(el_str),
                 Action::Execute,
             );
             assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
@@ -102,17 +101,16 @@ mod tests {
             .unwrap();
 
         let output_folder = OutputDir::new().unwrap();
-        let inputs = stateless_validator::stateless_validator_inputs(
-            bench_fixtures_dir.path(),
-            ExecutionClient::Reth,
-        )
-        .unwrap();
+        let el = ExecutionClient::Reth;
+        let el_str = el.as_ref().to_lowercase();
+        let inputs =
+            stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path(), el).unwrap();
 
         let len_inputs = inputs.len();
         assert_eq!(len_inputs, 1);
 
         run_guest(
-            "stateless-validator/reth",
+            &format!("stateless-validator/{el_str}"),
             &get_env_zkvm_or_default(vec![
                 ErezkVM::SP1,
                 ErezkVM::Risc0,
@@ -122,6 +120,7 @@ mod tests {
             ]),
             inputs,
             output_folder.path(),
+            Some(el_str),
             Action::Execute,
         );
         assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
@@ -141,11 +140,9 @@ mod tests {
                 .unwrap();
 
             let output_folder = OutputDir::new().unwrap();
-            let inputs = stateless_validator::stateless_validator_inputs(
-                bench_fixtures_dir.path(),
-                el.clone(),
-            )
-            .unwrap();
+            let inputs =
+                stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path(), *el)
+                    .unwrap();
 
             let len_inputs = inputs.len();
             assert_eq!(len_inputs, 1);
@@ -155,6 +152,7 @@ mod tests {
                 &[*zkvm],
                 inputs,
                 output_folder.path(),
+                Some(el.as_ref().to_lowercase()),
                 action,
             );
             match action {

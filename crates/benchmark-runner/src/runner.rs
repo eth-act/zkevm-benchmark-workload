@@ -18,6 +18,8 @@ use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifi
 pub struct RunConfig {
     /// Output folder where benchmark results will be stored
     pub output_folder: PathBuf,
+    /// Optional subfolder within the output folder
+    pub sub_folder: Option<String>,
     /// Action to perform: either proving or executing
     pub action: Action,
     /// Force rerun benchmarks even if output files already exist
@@ -70,6 +72,7 @@ where
     let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
         .output_folder
+        .join(config.sub_folder.as_deref().unwrap_or(""))
         .join(format!("{zkvm_name}/{}.json", io.name));
 
     if !config.force_rerun && out_path.exists() {

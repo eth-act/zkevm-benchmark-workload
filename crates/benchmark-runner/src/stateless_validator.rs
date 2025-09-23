@@ -28,7 +28,7 @@ use zkvm_interface::Input;
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
 /// Execution client variants.
-#[derive(Debug, Clone, PartialEq, Eq, EnumString, AsRefStr)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, EnumString, AsRefStr)]
 #[strum(ascii_case_insensitive)]
 pub enum ExecutionClient {
     /// Reth stateless block validation guest program.

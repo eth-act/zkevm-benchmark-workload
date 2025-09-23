@@ -156,12 +156,6 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         resource, action
     );
 
-    let config = RunConfig {
-        output_folder: cli.output_folder,
-        action,
-        force_rerun: cli.force_rerun,
-    };
-
     let workspace_dir = workspace_root().join("ere-guests");
     match &cli.guest_program {
         GuestProgramCommand::StatelessValidator {
@@ -172,10 +166,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let guest_io = stateless_validator::stateless_validator_inputs(
-                input_folder.as_path(),
-                (*execution_client).into(),
-            )?;
+            let el = (*execution_client).into();
+            let guest_io =
+                stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)?;
             let guest_relative = Path::new(execution_client.guest_rel_path());
             let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
@@ -185,6 +178,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 resource,
                 apply_patches,
             )?;
+            let config = RunConfig {
+                output_folder: cli.output_folder,
+                sub_folder: Some(el.as_ref().to_lowercase()),
+                action,
+                force_rerun: cli.force_rerun,
+            };
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
             }
@@ -199,6 +198,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 resource,
                 true,
             )?;
+            let config = RunConfig {
+                output_folder: cli.output_folder,
+                sub_folder: None,
+                action,
+                force_rerun: cli.force_rerun,
+            };
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, vec![guest_io.clone()])?;
             }
@@ -226,6 +231,12 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 resource,
                 true,
             )?;
+            let config = RunConfig {
+                output_folder: cli.output_folder,
+                sub_folder: None,
+                action,
+                force_rerun: cli.force_rerun,
+            };
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
             }
