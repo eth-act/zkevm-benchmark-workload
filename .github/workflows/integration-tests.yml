@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ master ]
+    # branches: [ master ] # TODO: remove before merging, changed for testing
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -50,9 +50,10 @@ jobs:
       matrix:
         test:
           - execute_empty_block
-          - execute_mainnet_blocks
-          - execute_invalid_block
-          - prove_empty_block
+          # TODO: uncomment before merging, commented for testing
+          # - execute_mainnet_blocks 
+          # - execute_invalid_block
+          # - prove_empty_block
         zkvm: [sp1, risc0, pico, zisk, openvm]
         el: [reth, ethrex]
         exclude:
@@ -100,7 +101,20 @@ jobs:
 
       - name: Run benchmark
         run: |
-          ${{ matrix.zkvm == 'openvm' && 'RAYON_NUM_THREADS=1' || '' }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+          ${{ matrix.zkvm == 'openvm' && 'RAYON_NUM_THREADS=1' || '' }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} WORKLOAD_OUTPUT_DIR=./zkevm-metrics cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+
+      - name: Create results archive
+        if: ${{ startsWith(matrix.test, 'execute_') }}
+        run: |
+          tar -czvf benchmark-results.tar.gz ./zkevm-metrics
+
+      - name: Upload benchmark results
+        if: ${{ startsWith(matrix.test, 'execute_') }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ matrix.el }}-${{ matrix.zkvm }}-${{ matrix.test }}
+          path: benchmark-results.tar.gz
+          retention-days: 90 
 
   custom-guest:
     name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
@@ -144,3 +158,58 @@ jobs:
         
       - name: Run benchmark
         run: CI=1 RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+
+  generate-benchmark-website:
+    name: Generate Benchmark Website
+    needs: [stateless-validator]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Download all benchmark artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: benchmark-results-*
+          path: ./downloaded-artifacts
+
+      - name: Merge results and generate website
+        run: |
+          mkdir -p ./merged-results
+          echo "Downloaded artifacts:"
+          ls -la ./downloaded-artifacts/ || echo "No artifacts found"
+
+          # Extract all tar.gz files and merge them
+          for artifact_dir in ./downloaded-artifacts/*/; do
+            if [ -d "$artifact_dir" ]; then
+              echo "Processing $artifact_dir"
+              for tarfile in "$artifact_dir"/*.tar.gz; do
+                if [ -f "$tarfile" ]; then
+                  echo "Extracting $tarfile"
+                  tar -xzf "$tarfile" -C ./merged-results --skip-old-files 2>/dev/null
+                fi
+              done
+            fi
+          done
+
+          echo "Merged results structure:"
+          ls -la ./merged-results/
+          if [ -d ./merged-results/zkevm-metrics ]; then
+            echo "Contents of zkevm-metrics:"
+            ls -la ./merged-results/zkevm-metrics/
+          fi
+
+          echo "Generating website..."
+          python3 scripts/generate-website.py -i ./merged-results -o index.html
+
+      - name: Upload website artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-website
+          path: index.html
+          retention-days: 90
