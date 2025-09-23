@@ -55,12 +55,15 @@ jobs:
       matrix:
         test:
           - execute_empty_block
-          - execute_mainnet_blocks 
+          - execute_mainnet_blocks
           - execute_invalid_block
-          # - prove_empty_block
-        # zkvm: [sp1, risc0, pico, zisk, openvm]
-        zkvm: [zisk, openvm]
+          - prove_empty_block
+        zkvm: [sp1, risc0, pico, zisk, openvm]
         el: [reth, ethrex]
+        include:
+          - zkvm: openvm
+            threads: 2
+          - threads: 12
         exclude:
           # Pico
           - zkvm: pico
@@ -106,7 +109,7 @@ jobs:
 
       - name: Run benchmark
         run: |
-          ${{ matrix.zkvm == 'openvm' && 'RAYON_NUM_THREADS=1' || '' }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} WORKLOAD_OUTPUT_DIR=./zkevm-metrics cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+          RAYON_NUM_THREADS=${{ matrix.threads }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} WORKLOAD_OUTPUT_DIR=./zkevm-metrics cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
 
       - name: Create results archive
         if: ${{ startsWith(matrix.test, 'execute_') }}
