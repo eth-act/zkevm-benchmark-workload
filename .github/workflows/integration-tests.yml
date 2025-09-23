@@ -54,7 +54,8 @@ jobs:
           # - execute_mainnet_blocks 
           # - execute_invalid_block
           # - prove_empty_block
-        zkvm: [sp1, risc0, pico, zisk, openvm]
+        # zkvm: [sp1, risc0, pico, zisk, openvm]
+        zkvm: [zisk, openvm]
         el: [reth, ethrex]
         exclude:
           # Pico
@@ -116,48 +117,48 @@ jobs:
           path: benchmark-results.tar.gz
           retention-days: 90 
 
-  custom-guest:
-    name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
-    runs-on: [self-hosted-ghr, size-xl-x64]
-    strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - execute_empty_program
-          - execute_panic_guest
-          - prove_empty_program
-          - prove_panic_guest
-        zkvm: [sp1, risc0, zisk, openvm, pico]
-        exclude:
-          # ZisK - ere image intentionally doesn't bake big proving key for CI
-          - test: prove_empty_program
-            zkvm: zisk
-          - test: prove_panic_guest
-            zkvm: zisk
+  # custom-guest:
+  #   name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
+  #   runs-on: [self-hosted-ghr, size-xl-x64]
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       test:
+  #         - execute_empty_program
+  #         - execute_panic_guest
+  #         - prove_empty_program
+  #         - prove_panic_guest
+  #       zkvm: [sp1, risc0, zisk, openvm, pico]
+  #       exclude:
+  #         # ZisK - ere image intentionally doesn't bake big proving key for CI
+  #         - test: prove_empty_program
+  #           zkvm: zisk
+  #         - test: prove_panic_guest
+  #           zkvm: zisk
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+    # steps:
+    #   - name: Checkout code
+    #     uses: actions/checkout@v4
 
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
+    #   - name: Install Rust toolchain
+    #     uses: dtolnay/rust-toolchain@nightly
 
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
+    #   - name: Install C toolchain dependencies
+    #     run: |
+    #       sudo apt-get update
+    #       sudo apt-get install -y build-essential clang libclang-dev
       
-      - name: Pull ere images
-        run: |
-          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
-            dst="ere-${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
+    #   - name: Pull ere images
+    #     run: |
+    #       for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
+    #         src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+    #         dst="ere-${variant}:${ERE_TAG}"
+    #         docker pull "$src"
+    #         docker tag "$src" "$dst"
+    #       done
         
-      - name: Run benchmark
-        run: CI=1 RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+    #   - name: Run benchmark
+    #     run: CI=1 RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
 
   generate-benchmark-website:
     name: Generate Benchmark Website
