@@ -179,7 +179,7 @@ mod tests {
             if let Ok(base_dir) = env::var("WORKLOAD_OUTPUT_DIR") {
                 std::fs::create_dir_all(&base_dir)?;
                 Ok(Self {
-                    path: PathBuf::from(base_dir),
+                    path: PathBuf::from(base_dir).canonicalize()?,
                     _temp_dir: None,
                 })
             } else {

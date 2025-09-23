@@ -107,7 +107,7 @@ jobs:
       - name: Create results archive
         if: ${{ startsWith(matrix.test, 'execute_') }}
         run: |
-          tar -czvf benchmark-results.tar.gz ./zkevm-metrics
+          tar -czvf benchmark-results.tar.gz ./tests/zkevm-metrics
 
       - name: Upload benchmark results
         if: ${{ startsWith(matrix.test, 'execute_') }}
