@@ -6,7 +6,7 @@ mod tests {
     };
     use ere_dockerized::ErezkVM;
     use std::{env, path::PathBuf};
-    use tempfile::tempdir;
+    use tempfile::{tempdir, TempDir};
     use witness_generator::{
         eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
     };
@@ -69,7 +69,7 @@ mod tests {
                 .path()
                 .join("mainnet-zkevm-fixtures-input");
 
-            let output_folder = tempdir().unwrap();
+            let output_folder = OutputDir::new().unwrap();
             let inputs = stateless_validator::stateless_validator_inputs(
                 input_folder,
                 ExecutionClient::Reth,
@@ -101,7 +101,7 @@ mod tests {
             .await
             .unwrap();
 
-        let output_folder = tempdir().unwrap();
+        let output_folder = OutputDir::new().unwrap();
         let inputs = stateless_validator::stateless_validator_inputs(
             bench_fixtures_dir.path(),
             ExecutionClient::Reth,
@@ -140,7 +140,7 @@ mod tests {
                 .await
                 .unwrap();
 
-            let output_folder = tempdir().unwrap();
+            let output_folder = OutputDir::new().unwrap();
             let inputs = stateless_validator::stateless_validator_inputs(
                 bench_fixtures_dir.path(),
                 el.clone(),
@@ -165,6 +165,36 @@ mod tests {
                     assert_executions_successful::<BlockMetadata>(output_folder.path(), len_inputs);
                 }
             }
+        }
+    }
+    struct OutputDir {
+        path: PathBuf,
+        // When OutputDir is dropped, the temp dir (if any) meant to be deleted
+        _temp_dir: Option<TempDir>,
+    }
+
+    impl OutputDir {
+        /// Create an output directory from env var or as a temp dir
+        fn new() -> Result<Self, std::io::Error> {
+            if let Ok(base_dir) = env::var("WORKLOAD_OUTPUT_DIR") {
+                std::fs::create_dir_all(&base_dir)?;
+                Ok(Self {
+                    path: PathBuf::from(base_dir),
+                    _temp_dir: None,
+                })
+            } else {
+                let temp_dir = tempdir()?;
+                let path = temp_dir.path().to_path_buf();
+                Ok(Self {
+                    path,
+                    _temp_dir: Some(temp_dir),
+                })
+            }
+        }
+
+        /// Get the path to the directory
+        fn path(&self) -> &PathBuf {
+            &self.path
         }
     }
 }
