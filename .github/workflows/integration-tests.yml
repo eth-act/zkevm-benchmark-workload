@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    # branches: [ master ] # TODO: remove before merging, changed for testing
+    branches: [ master ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -80,7 +80,7 @@ jobs:
           - el: ethrex
             zkvm: pico # See https://github.com/eth-act/ere/issues/174
           - el: ethrex
-            zkvm: zisk # See https://github.com/eth-act/ere/issues/XXX
+            zkvm: zisk # See https://github.com/eth-act/ere/issues/186
     uses: ./.github/workflows/run-benchmark.yml
     with:
       test: ${{ matrix.test }}
