@@ -236,3 +236,12 @@ The Docker workflow (`.github/workflows/docker-build.yml`) provides:
 - Integration with GitHub's container registry with proper authentication
 
 The Docker image provides a self-contained environment for running the witness generator without local Rust toolchain setup.
+
+## License
+
+Licensed under either of
+
+* MIT license (LICENSE‑MIT or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
+* Apache License, Version 2.0 (LICENSE‑APACHE or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
+
+at your option.
