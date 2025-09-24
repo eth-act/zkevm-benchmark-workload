@@ -24,7 +24,7 @@ The workspace is organized into several key components:
 - **`ere-guests/`**: Directory containing guest program implementations organized by program type, with each type containing implementations for different zkVM platforms. See the [Guest Program Types](#guest-program-types) section for detailed information about each type.
 - **`zkevm-fixtures`**: (Git submodule) Contains the Ethereum execution layer test fixtures used by `witness-generator-cli`.
 - **`zkevm-fixtures-input`**: Default directory where `witness-generator-cli` saves individual fixture files (`.json`) that are consumed by `ere-hosts`.
-- **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs, organized by zkVM type.
+- **`zkevm-metrics`**: Directory where benchmark results (cycle counts) are stored by the host programs. For `stateless-validator` guest programs, results are organized by execution client (EL) then zkVM type (e.g., `zkevm-metrics/reth/sp1/`, `zkevm-metrics/ethrex/risc0/`). For other guest program types, results are organized directly by zkVM type.
 - **`scripts`**: Contains helper scripts (e.g., fetching fixtures).
 - **`xtask`**: Cargo xtask runner for automating tasks.
 
@@ -61,7 +61,7 @@ Each zkVM benchmark implementation follows a common pattern using the EreDockeri
     - For stateless-validator, supports multiple execution clients (`--execution-client reth` or `--execution-client ethrex`).
     - Automatically handles zkVM compilation and execution through Docker containers.
     - Collects cycle count metrics reported by each zkVM platform.
-    - Saves results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`.
+    - Saves results using the `metrics` crate into the appropriate subdirectory within `zkevm-metrics/`. For `stateless-validator` guest programs, results are organized by execution client then zkVM type. For other guest program types, results are organized directly by zkVM type.
 
 3. **Automatic zkVM Management:**
     - All zkVMs are now managed through EreDockerized, eliminating the need for manual toolchain setup.

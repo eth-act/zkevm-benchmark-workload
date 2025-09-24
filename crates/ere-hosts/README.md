@@ -117,7 +117,7 @@ cargo run --release -- stateless-validator --execution-client reth --action prov
 
 ### Force Rerun
 
-By default, the benchmarker will skip tests that already have output files in the `zkevm-metrics/` directory to avoid redundant computation. Use `--force-rerun` to override this behavior:
+By default, the benchmarker will skip tests that already have output files in the `zkevm-metrics/` directory to avoid redundant computation. For `stateless-validator` benchmarks, output files are organized by execution client (e.g., `zkevm-metrics/reth/`, `zkevm-metrics/ethrex/`). Use `--force-rerun` to override this behavior:
 
 ```bash
 # Skip tests that already have results (default behavior)
@@ -142,7 +142,7 @@ cargo run --release -- stateless-validator --execution-client reth --output-fold
 cargo run --release -- stateless-validator --execution-client reth --output-folder /tmp/benchmark-results
 ```
 
-The benchmark results will be organized by zkVM type within the specified folder (e.g., `my-custom-results/sp1/`, `my-custom-results/risc0/`, etc.).
+The benchmark results will be organized by execution client then zkVM type for `stateless-validator` benchmarks (e.g., `my-custom-results/reth/sp1/`, `my-custom-results/ethrex/risc0/`), and directly by zkVM type for other guest program types (e.g., `my-custom-results/sp1/`, `my-custom-results/risc0/`).
 
 ### Combined Examples
 
@@ -211,7 +211,7 @@ cargo run --release -- empty-program
 | `--resource` | `-r` | Choose compute resource type | `cpu` | `cpu`, `gpu` |
 | `--action` | `-a` | Select benchmark operation | `execute` | `execute`, `prove` |
 | `--input-folder` | `-i` | Input folder containing fixture files (stateless-validator and block-encoding-length) | `zkevm-fixtures-input` | Any valid directory path |
-| `--output-folder` | `-o` | Output folder for benchmark results | `zkevm-metrics` | Any valid directory path |
+| `--output-folder` | `-o` | Output folder for benchmark results (organized by execution client for stateless-validator) | `zkevm-metrics` | Any valid directory path |
 | `--loop-count` | - | Number of times to loop the benchmark (block-encoding-length only) | Required for block-encoding-length | Any positive integer |
 | `--format` | `-f` | Encoding format for block-encoding-length benchmark | Required for block-encoding-length | `rlp`, `ssz` |
 | `--force-rerun` | - | Rerun benchmarks even if output files already exist | `false` | `true`, `false` |

@@ -25,6 +25,7 @@ pub(crate) fn run_guest<T, OV>(
     zkvms: &[ErezkVM],
     inputs: Vec<GuestIO<T, OV>>,
     output_folder: &Path,
+    sub_folder: Option<String>,
     action: Action,
 ) where
     T: GuestMetadata,
@@ -32,6 +33,7 @@ pub(crate) fn run_guest<T, OV>(
 {
     let config = RunConfig {
         output_folder: output_folder.to_path_buf(),
+        sub_folder,
         action,
         force_rerun: true,
     };
@@ -152,6 +154,7 @@ fn get_result_files(output_path: &Path) -> Vec<PathBuf> {
         .min_depth(2)
         .into_iter()
         .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("json"))
         .map(|entry| entry.path().to_path_buf())
         .collect::<Vec<_>>()
 }

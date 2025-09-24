@@ -39,6 +39,7 @@ mod tests {
             zkvms,
             vec![input],
             output_folder.path(),
+            None,
             action,
         );
         match action {
