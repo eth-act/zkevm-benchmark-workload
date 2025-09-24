@@ -164,7 +164,7 @@ fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
 
             let ethrex_program_input = ProgramInput {
                 blocks: vec![ethrex_block],
-                db: from_reth_witness_to_ethrex_witness(si.block.number, si)?,
+                execution_witness: from_reth_witness_to_ethrex_witness(si.block.number, si)?,
                 elasticity_multiplier: 2u64, // NOTE: Ethrex doesn't derive this value from chain config.
             };
 
@@ -212,30 +212,17 @@ fn from_reth_witness_to_ethrex_witness(
             .map(|ttd| TryInto::<u128>::try_into(ttd).unwrap()),
         terminal_total_difficulty_passed: si.chain_config.terminal_total_difficulty_passed,
         blob_schedule: BlobSchedule {
-            cancun: si
-                .chain_config
-                .blob_schedule
-                .get("Cancun")
-                .map(|s| ForkBlobSchedule {
-                    // Reth and Ethrex have some mismatched data type representations. Reth uses bigger ints.
-                    // Downcasting should never cause an overflow, but let's be safe and panic if this ever happens.
-                    base_fee_update_fraction: s.update_fraction.try_into().unwrap(),
-                    target: s.target_blob_count.try_into().unwrap(),
-                    max: s.max_blob_count.try_into().unwrap(),
-                })
+            cancun: get_blob_schedule(&si.chain_config, "cancun")
                 .unwrap_or_else(|| BlobSchedule::default().cancun),
-            prague: si
-                .chain_config
-                .blob_schedule
-                .get("prague")
-                .map(|s| ForkBlobSchedule {
-                    // Reth and Ethrex have some mismatched data type representations. Reth uses bigger ints.
-                    // Downcasting should never cause an overflow, but let's be safe and panic if this ever happens.
-                    base_fee_update_fraction: s.update_fraction.try_into().unwrap(),
-                    target: s.target_blob_count.try_into().unwrap(),
-                    max: s.max_blob_count.try_into().unwrap(),
-                })
+            prague: get_blob_schedule(&si.chain_config, "prague")
                 .unwrap_or_else(|| BlobSchedule::default().prague),
+            osaka: get_blob_schedule(&si.chain_config, "osaka")
+                .unwrap_or_else(|| BlobSchedule::default().osaka),
+            bpo1: get_blob_schedule(&si.chain_config, "bpo1"),
+            bpo2: get_blob_schedule(&si.chain_config, "bpo2"),
+            bpo3: get_blob_schedule(&si.chain_config, "bpo3"),
+            bpo4: get_blob_schedule(&si.chain_config, "bpo4"),
+            bpo5: get_blob_schedule(&si.chain_config, "bpo5"),
         },
         deposit_contract_address: si
             .chain_config
@@ -267,4 +254,20 @@ fn from_reth_witness_to_ethrex_witness(
         first_block_number: block_number,
         keys,
     })
+}
+
+fn get_blob_schedule(
+    chain_config: &alloy_genesis::ChainConfig,
+    name: &str,
+) -> Option<ethrex_common::types::ForkBlobSchedule> {
+    chain_config
+        .blob_schedule
+        .get(name)
+        .map(|s| ForkBlobSchedule {
+            // Reth and Ethrex have some mismatched data type representations. Reth uses bigger ints.
+            // Downcasting should never cause an overflow, but let's be safe and panic if this ever happens.
+            base_fee_update_fraction: s.update_fraction.try_into().unwrap(),
+            target: s.target_blob_count.try_into().unwrap(),
+            max: s.max_blob_count.try_into().unwrap(),
+        })
 }
