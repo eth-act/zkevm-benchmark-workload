@@ -1,0 +1,76 @@
+name: Run Benchmark
+on:
+  workflow_call:
+    inputs:
+      test:
+        required: true
+        type: string
+        description: Test to run
+      upload_results:
+        required: false
+        type: boolean
+        default: false
+        description: Whether to create and upload benchmark results
+      zkvm:
+        required: true
+        type: string
+        description: ZKVM to use
+      el:
+        required: false
+        type: string
+        default: ''
+        description: Execution layer client
+      threads:
+        required: true
+        type: number
+        description: Number of threads for RAYON_NUM_THREADS
+
+jobs:
+  run-benchmark:
+    name: ${{ inputs.zkvm }} - ${{ inputs.test }}
+    runs-on: [self-hosted-ghr, size-xl-x64]
+    env:
+      ERE_TAG: 0.0.12-7ef4598
+      OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Install C toolchain dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential clang libclang-dev
+
+      - name: Pull ere images
+        run: |
+          for variant in "base" "base-${{ inputs.zkvm }}" "cli-${{ inputs.zkvm }}"; do
+            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            dst="ere-${variant}:${ERE_TAG}"
+            docker pull "$src"
+            docker tag "$src" "$dst"
+          done
+
+      - name: Run benchmark
+        run: |
+            RAYON_NUM_THREADS=${{ inputs.threads }} \
+            RUST_LOG=warn,benchmark_runner=info \
+            ZKVM=${{ inputs.zkvm }} \
+            EL=${{ inputs.el }} \
+            WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
+            cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.test }}
+
+      - name: Create results archive
+        if: ${{ inputs.upload_results }}
+        run: |
+          cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
+
+      - name: Upload benchmark results
+        if: ${{ inputs.upload_results }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
+          path: tests/benchmark-results.tar.gz
+          retention-days: 90

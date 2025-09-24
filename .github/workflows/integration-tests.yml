@@ -17,10 +17,8 @@ permissions:
 
 env:
   CARGO_TERM_COLOR: always
-  ERE_TAG: 0.0.12-7ef4598
-  OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
 
-jobs: 
+jobs:
   witness-generator:
     name: Generate EEST benchmark fixtures
     runs-on: ubuntu-latest
@@ -48,8 +46,7 @@ jobs:
           fi
   
   stateless-validator:
-    name: "${{ format('{0} / {1} / {2}', matrix.el, matrix.test, matrix.zkvm) }}"
-    runs-on: [self-hosted-ghr, size-xl-x64]
+    name: "${{ format('{0} / {1} / {2}', matrix.el, matrix.zkvm, matrix.test) }}"
     strategy:
       fail-fast: false
       matrix:
@@ -70,7 +67,7 @@ jobs:
             test: prove_empty_block # See https://github.com/eth-act/ere/issues/173
           # ZisK
           - zkvm: zisk
-            test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI 
+            test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI
           # Ethrex
           - el: ethrex
             test: execute_mainnet_blocks # Still quite heavy to run in CI
@@ -84,49 +81,16 @@ jobs:
             zkvm: pico # See https://github.com/eth-act/ere/issues/174
           - el: ethrex
             zkvm: zisk # See https://github.com/eth-act/ere/issues/XXX
-
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
-
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
-      
-      - name: Pull ere images
-        run: |
-          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
-            dst="ere-${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
-
-      - name: Run benchmark
-        run: |
-          RAYON_NUM_THREADS=${{ matrix.threads }} RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} EL=${{ matrix.el }} WORKLOAD_OUTPUT_DIR=./zkevm-metrics cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
-
-      - name: Create results archive
-        if: ${{ startsWith(matrix.test, 'execute_') }}
-        run: |
-          cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
-
-      - name: Upload benchmark results
-        if: ${{ startsWith(matrix.test, 'execute_') }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results-${{ matrix.el }}-${{ matrix.zkvm }}-${{ matrix.test }}
-          path: tests/benchmark-results.tar.gz
-          retention-days: 90 
+    uses: ./.github/workflows/run-benchmark.yml
+    with:
+      test: ${{ matrix.test }}
+      zkvm: ${{ matrix.zkvm }}
+      el: ${{ matrix.el }}
+      upload_results: ${{ startsWith(matrix.test, 'execute_') }}
+      threads: ${{ matrix.threads }}
 
   custom-guest:
     name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
-    runs-on: [self-hosted-ghr, size-xl-x64]
     strategy:
       fail-fast: false
       matrix:
@@ -142,30 +106,12 @@ jobs:
             zkvm: zisk
           - test: prove_panic_guest
             zkvm: zisk
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
-
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
-      
-      - name: Pull ere images
-        run: |
-          for variant in "base" "base-${{ matrix.zkvm }}" "cli-${{ matrix.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
-            dst="ere-${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
-        
-      - name: Run benchmark
-        run: CI=1 RUST_LOG=warn,benchmark_runner=info ZKVM=${{ matrix.zkvm }} cargo test --release -p integration-tests -- --test-threads=1 ${{ matrix.test }}
+    uses: ./.github/workflows/run-benchmark.yml
+    with:
+      test: ${{ matrix.test }}
+      zkvm: ${{ matrix.zkvm }}
+      el: 'none'
+      threads: 12
 
   generate-benchmark-website:
     name: Generate Benchmark Website
