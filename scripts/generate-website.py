@@ -398,7 +398,7 @@ def get_css_styles() -> str:
             text-align: center;
             color: #666;
             font-style: italic;
-            margin-top: 30px;
+            margin: 15px 0 25px;
         }
         .section-title {
             color: #007acc;
@@ -649,8 +649,8 @@ def generate_summary_table(metrics_data: Dict[str, Dict[str, List[MetricsFile]]]
         <table class="summary-table">
             <thead>
                 <tr>
-                    <th>zkVM</th>
                     <th>EL</th>
+                    <th>zkVM</th>
                     <th>Successful</th>
                     <th>Crashed</th>
                     <th>Total</th>
@@ -660,15 +660,17 @@ def generate_summary_table(metrics_data: Dict[str, Dict[str, List[MetricsFile]]]
             <tbody>
     '''
 
-    for zkvm in sorted(metrics_data.keys()):
-        for el in sorted(metrics_data[zkvm].keys()):
-            test_data = metrics_data[zkvm][el]
+    summary_rows = []
+    for zkvm, el_data in metrics_data.items():
+        for el, test_data in el_data.items():
             stats = calculate_summary_stats(test_data)
+            summary_rows.append((el, zkvm, stats))
 
-            html += f'''
+    for el, zkvm, stats in sorted(summary_rows, key=lambda item: (item[0].lower(), item[1].lower())):
+        html += f'''
                 <tr>
-                    <td><strong>{zkvm}</strong></td>
                     <td>{el}</td>
+                    <td><strong>{zkvm}</strong></td>
                     <td class="neutral-value">{stats.successful_tests}</td>
                     <td class="error-value">{stats.crashed_tests}</td>
                     <td class="neutral-value">{stats.test_count}</td>
