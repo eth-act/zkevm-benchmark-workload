@@ -116,6 +116,7 @@ jobs:
   generate-benchmark-website:
     name: Generate Benchmark Website
     needs: [stateless-validator]
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -171,7 +172,7 @@ jobs:
   deploy-pages:
     name: Deploy Benchmark Website
     needs: generate-benchmark-website
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
