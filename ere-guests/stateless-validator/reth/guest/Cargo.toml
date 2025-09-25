@@ -1,0 +1,26 @@
+[package]
+name = "ere-reth-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+guest-libs.workspace = true
+sparsestate.workspace = true
+
+# reth
+reth-primitives-traits.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-chainspec.workspace = true
+reth-stateless.workspace = true
+reth-evm-ethereum.workspace = true
+
+# alloy
+alloy-primitives.workspace = true
+
+# external
+k256.workspace = true

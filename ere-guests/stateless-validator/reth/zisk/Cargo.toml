@@ -6,12 +6,9 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
-guest-libs.workspace = true
-sparsestate.workspace = true
+ziskos.workspace = true
+ere-reth-guest.workspace = true
 
-bincode.workspace = true
-sha2.workspace = true
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
@@ -21,8 +18,6 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-evm-ethereum.workspace = true
-reth-chainspec.workspace = true
 
 revm = { workspace = true, default-features = false, features = [
     "kzg-rs",
@@ -34,3 +29,5 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "sha3-keccak",
 ] }
 k256.workspace = true
+bincode.workspace = true
+sha2.workspace = true
