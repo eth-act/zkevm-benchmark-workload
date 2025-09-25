@@ -70,12 +70,6 @@ jobs:
             test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI
           # Ethrex
           - el: ethrex
-            test: execute_mainnet_blocks # Still quite heavy to run in CI
-          - el: ethrex
-            test: execute_invalid_blocks # Still quite heavy to run in CI
-          - el: ethrex
-            zkvm: risc0 # See https://github.com/eth-act/ere/issues/121
-          - el: ethrex
             zkvm: openvm # See https://github.com/eth-act/ere/issues/168
           - el: ethrex
             zkvm: pico # See https://github.com/eth-act/ere/issues/174

@@ -24,6 +24,7 @@ pub fn main() {
         sp1_zkvm::io::commit(&block_hash.0);
         sp1_zkvm::io::commit(&parent_hash.0);
         sp1_zkvm::io::commit(&false);
+        return;
     }
     let res = execution_program(input);
     println!("cycle-tracker-report-end: validation");

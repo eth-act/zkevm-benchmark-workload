@@ -13,6 +13,7 @@ ere-dockerized.workspace = true
 
 alloy-rlp.workspace = true
 alloy-eips.workspace = true
+alloy-genesis.workspace = true
 
 reth-stateless.workspace = true
 
