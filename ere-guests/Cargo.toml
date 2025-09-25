@@ -28,6 +28,9 @@ members = [
 
     # Libs
     "libs",
+
+    # Tries benches
+    "trie-bench/risc0",
 ]
 resolver = "2"
 

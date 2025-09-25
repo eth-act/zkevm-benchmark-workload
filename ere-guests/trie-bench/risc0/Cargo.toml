@@ -1,0 +1,17 @@
+[package]
+name = "risc0-trie-bench"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+risc0-zkvm = { version = "3.0.3", default-features = false, features = [
+    "std",
+    "unstable",
+    "getrandom",
+] }
+
+reth-stateless.workspace = true
+alloy-rlp.workspace = true
+alloy-consensus.workspace = true
+alloy-primitives.workspace = true
+reth-primitives-traits.workspace = true
