@@ -24,6 +24,3 @@ alloy-primitives.workspace = true
 
 # external
 k256.workspace = true
-
-[lints]
-workspace = true

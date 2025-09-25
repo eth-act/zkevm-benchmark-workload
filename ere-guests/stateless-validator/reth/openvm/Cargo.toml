@@ -6,18 +6,11 @@ rust-version = "1.86"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-# openvm
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = [
-    "std",
-] }
-openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-guest-libs.workspace = true
-sparsestate.workspace = true
-
-revm = { workspace = true, default-features = false }
-revm-bytecode = { workspace = true, default-features = false }
+openvm.workspace = true
+openvm-keccak256.workspace = true
+openvm-algebra-guest.workspace = true
+openvm-ecc-guest.workspace = true
+ere-reth-guest.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
@@ -28,8 +21,6 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-evm-ethereum.workspace = true
-reth-chainspec.workspace = true
 
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
@@ -37,6 +28,6 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "native-keccak",
 ] }
 
-bincode.workspace = true
 sha2.workspace = true
 k256.workspace = true
+bincode.workspace = true
