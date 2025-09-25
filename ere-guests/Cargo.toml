@@ -127,6 +127,11 @@ ere-reth-guest = { path = "stateless-validator/reth/guest" }
 sp1-zkvm = "5.0.5"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+risc0-zkvm = { version = "3.0.3", default-features = false, features = [
+    "std",
+    "unstable",
+    "getrandom",
+] }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
