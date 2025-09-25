@@ -132,6 +132,12 @@ risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "unstable",
     "getrandom",
 ] }
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = [
+    "std",
+] }
+openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
