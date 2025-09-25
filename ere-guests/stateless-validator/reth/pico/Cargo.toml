@@ -5,8 +5,7 @@ edition = "2024"
 
 [dependencies]
 pico-sdk.workspace = true
-guest-libs.workspace = true
-sparsestate.workspace = true
+ere-reth-guest.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
@@ -17,8 +16,6 @@ reth-primitives-traits = { workspace = true, features = [
     "serde",
     "serde-bincode-compat",
 ] }
-reth-evm-ethereum = { workspace = true }
-reth-chainspec = { workspace = true }
 
 revm = { workspace = true, default-features = false, features = [
     "kzg-rs",

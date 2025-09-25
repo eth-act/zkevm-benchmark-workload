@@ -6,7 +6,7 @@ use std::io::Cursor;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{SDK, ScopeMarker},
+    sdk::{ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -14,9 +14,8 @@ use sha2::{Digest, Sha256};
 
 ziskos::entrypoint!(main);
 
-/// SDK implementation for Zisk.
 #[allow(missing_debug_implementations)]
-pub struct ZiskSDK;
+struct ZiskSDK;
 
 impl SDK for ZiskSDK {
     fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
