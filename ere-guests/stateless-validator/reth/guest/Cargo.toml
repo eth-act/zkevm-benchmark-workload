@@ -1,5 +1,5 @@
 [package]
-name = "reth-guest"
+name = "ere-reth-guest"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
@@ -21,9 +21,6 @@ reth-evm-ethereum.workspace = true
 
 # alloy
 alloy-primitives.workspace = true
-
-# sdks
-sp1-zkvm.workspace = true
 
 # external
 k256.workspace = true

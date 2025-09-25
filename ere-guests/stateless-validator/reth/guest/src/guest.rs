@@ -18,7 +18,7 @@ use crate::sdk::{CycleScope, SDK};
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(CycleScope::Start, "read_input");
-    let (input, public_keys) = S::read_inputs().unwrap();
+    let (input, public_keys) = S::read_inputs();
 
     let genesis = Genesis {
         config: input.chain_config.clone(),

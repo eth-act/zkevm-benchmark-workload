@@ -1,6 +1,4 @@
-//! Module that defines the SDK trait for interacting with the host environment.
-
-use std::error::Error;
+//! SDK trait for stateless validator guest program.
 
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -8,7 +6,7 @@ use reth_stateless::StatelessInput;
 /// Trait that abstracts the SDK functions for reading inputs and committing outputs.
 pub trait SDK {
     /// Reads the expected inputs for the block validation.
-    fn read_inputs() -> Result<(StatelessInput, Vec<VerifyingKey>), Box<dyn Error>>;
+    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>);
     /// Commits the outputs from the block validation.
     fn commit_outputs(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool);
     /// Prints a message to the host environment.
@@ -23,5 +21,3 @@ pub enum CycleScope {
     /// End of a cycle scope.
     End,
 }
-
-pub mod sp1;

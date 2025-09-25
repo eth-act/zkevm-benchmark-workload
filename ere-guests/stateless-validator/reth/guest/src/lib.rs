@@ -1,4 +1,4 @@
-//! Stateless Ethereum block validator using reth
+//! Stateless Reth guest
 
 pub mod guest;
 pub mod sdk;
