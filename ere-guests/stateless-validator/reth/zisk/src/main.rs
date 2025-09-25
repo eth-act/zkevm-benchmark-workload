@@ -6,7 +6,7 @@ use std::io::Cursor;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{CycleScope, SDK},
+    sdk::{SDK, ScopeMarker},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -37,12 +37,12 @@ impl SDK for ZiskSDK {
             });
     }
 
-    fn cycle_scope(scope: CycleScope, message: &str) {
+    fn cycle_scope(scope: ScopeMarker, message: &str) {
         match scope {
-            CycleScope::Start => {
+            ScopeMarker::Start => {
                 println!("start: {message}")
             }
-            CycleScope::End => {
+            ScopeMarker::End => {
                 println!("end: {message}")
             }
         }

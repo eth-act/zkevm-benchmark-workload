@@ -6,7 +6,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{CycleScope, SDK},
+    sdk::{SDK, ScopeMarker},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -31,12 +31,12 @@ impl SDK for SP1SDK {
         sp1_zkvm::io::commit(&is_valid);
     }
 
-    fn cycle_scope(scope: CycleScope, message: &str) {
+    fn cycle_scope(scope: ScopeMarker, message: &str) {
         match scope {
-            CycleScope::Start => {
+            ScopeMarker::Start => {
                 println!("cycle-tracker-report-start: {message}")
             }
-            CycleScope::End => {
+            ScopeMarker::End => {
                 println!("cycle-tracker-report-end: {message}")
             }
         }

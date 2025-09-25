@@ -4,7 +4,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{CycleScope, SDK},
+    sdk::{ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -25,7 +25,7 @@ impl SDK for Risc0SDK {
         env::commit(&is_valid);
     }
 
-    fn cycle_scope(_scope: CycleScope, _message: &str) {}
+    fn cycle_scope(_scope: ScopeMarker, _message: &str) {}
 }
 
 /// Entry point.

@@ -10,12 +10,12 @@ pub trait SDK {
     /// Commits the outputs from the block validation.
     fn commit_outputs(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool);
     /// Prints a message to the host environment.
-    fn cycle_scope(scope: CycleScope, message: &str);
+    fn cycle_scope(scope: ScopeMarker, message: &str);
 }
 
 /// Enum to represent the start and end of a cycle scope for tracking purposes.
 #[derive(Debug)]
-pub enum CycleScope {
+pub enum ScopeMarker {
     /// Start of a cycle scope.
     Start,
     /// End of a cycle scope.
