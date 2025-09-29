@@ -1490,7 +1490,8 @@ checksum = "460fbee9c2c2f33933d720630a6a0bac33ba7053db5344fac858d4b8952d77d5"
 [[package]]
 name = "crypto-bigint"
 version = "0.5.5"
-source = "git+https://github.com/sp1-patches/RustCrypto-bigint?tag=patch-0.5.5-sp1-4.0.0#d421029772fb604022defd4cae5fffb269ad5155"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0dc92fb57ca44df6db8059111ab3af99a63d5d0f8375d9972e319a379c6bab76"
 dependencies = [
  "generic-array",
  "rand_core 0.6.4",
@@ -1532,14 +1533,14 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek"
 version = "4.1.3"
-source = "git+https://github.com/sp1-patches/curve25519-dalek?tag=patch-4.1.3-sp1-5.0.0#be8c220164a178b5b4ab7fdcb553864ec53d3557"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "97fb8b7c4503de7d6ae7b42ab72a5a59857b4c937ec27a3d4539dba95b5ab2be"
 dependencies = [
  "cfg-if",
  "cpufeatures",
  "curve25519-dalek-derive",
  "fiat-crypto",
  "rustc_version 0.4.1",
- "sp1-lib",
  "subtle",
  "zeroize",
 ]
@@ -1547,7 +1548,8 @@ dependencies = [
 [[package]]
 name = "curve25519-dalek-derive"
 version = "0.1.1"
-source = "git+https://github.com/sp1-patches/curve25519-dalek?tag=patch-4.1.3-sp1-5.0.0#be8c220164a178b5b4ab7fdcb553864ec53d3557"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f46882e17999c6cc590af592290432be3bce0428cb0d5f8b6715e4dc7b383eb3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1855,7 +1857,8 @@ checksum = "d0881ea181b1df73ff77ffaaf9c7544ecc11e82fba9b5f27b262a3c73a332555"
 [[package]]
 name = "ecdsa"
 version = "0.16.9"
-source = "git+https://github.com/sp1-patches/signatures?tag=patch-16.9-sp1-4.1.0#1880299a48fe7ef249edaa616fd411239fb5daf1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ee27f32b5c5292967d2d4a9d7f1e0b0aed2c15daded5a60300e4abb9d8020bca"
 dependencies = [
  "der",
  "digest 0.10.7",
@@ -1905,7 +1908,6 @@ dependencies = [
  "ff 0.13.1",
  "generic-array",
  "group 0.13.0",
- "hkdf",
  "pem-rfc7468",
  "pkcs8",
  "rand_core 0.6.4",
@@ -2443,15 +2445,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
-name = "hkdf"
-version = "0.12.4"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7b5f8eb2ad728638ea2c7d47a21db23b7b58a72ed6a38256b8a1849f15fbbdf7"
-dependencies = [
- "hmac",
-]
-
-[[package]]
 name = "hmac"
 version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2769,17 +2762,16 @@ dependencies = [
 [[package]]
 name = "k256"
 version = "0.13.4"
-source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-k256-13.4-sp1-5.0.0#f7d8998e05d8cbcbd8e543eba1030a7385011fa8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6e3919bbaa2945715f0bb6d3934a173d1e9a59ac23767fbaaef277265a7411b"
 dependencies = [
  "cfg-if",
  "ecdsa",
  "elliptic-curve",
- "hex",
  "once_cell",
  "serdect",
  "sha2 0.10.9",
  "signature",
- "sp1-lib",
 ]
 
 [[package]]
@@ -3504,14 +3496,13 @@ dependencies = [
 [[package]]
 name = "p256"
 version = "0.13.2"
-source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-p256-13.2-sp1-5.0.0#10cca2ef98bebbad35e2475849433fc3e75e27d9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c9863ad85fa8f4460f9c48cb909d38a0d689dba1f6f6988a5e3e0d31071bcd4b"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
- "hex",
  "primeorder",
  "sha2 0.10.9",
- "sp1-lib",
 ]
 
 [[package]]
@@ -4396,8 +4387,9 @@ dependencies = [
 
 [[package]]
 name = "primeorder"
-version = "0.13.1"
-source = "git+https://github.com/sp1-patches/elliptic-curves?tag=patch-p256-13.2-sp1-5.0.0#10cca2ef98bebbad35e2475849433fc3e75e27d9"
+version = "0.13.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "353e1ca18966c16d9deb1c69278edbc5f194139612772bd9537af60ac231e1e6"
 dependencies = [
  "elliptic-curve",
 ]
@@ -4903,6 +4895,7 @@ dependencies = [
  "alloy-primitives",
  "bincode",
  "guest-libs",
+ "k256",
  "openvm",
  "openvm-algebra-guest",
  "openvm-ecc-guest",
@@ -4924,6 +4917,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "guest-libs",
+ "k256",
  "pico-sdk",
  "reth-chainspec",
  "reth-ethereum-primitives",
@@ -4991,6 +4985,7 @@ dependencies = [
  "alloy-primitives",
  "c-kzg",
  "guest-libs",
+ "k256",
  "reth-chainspec",
  "reth-ethereum-primitives",
  "reth-evm-ethereum",
@@ -5008,6 +5003,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "guest-libs",
+ "k256",
  "reth-chainspec",
  "reth-ethereum-primitives",
  "reth-evm-ethereum",
@@ -5152,6 +5148,7 @@ dependencies = [
  "alloy-primitives",
  "bincode",
  "guest-libs",
+ "k256",
  "reth-chainspec",
  "reth-ethereum-primitives",
  "reth-evm-ethereum",
@@ -5366,7 +5363,8 @@ dependencies = [
 [[package]]
 name = "rfc6979"
 version = "0.4.0"
-source = "git+https://github.com/sp1-patches/signatures?tag=patch-16.9-sp1-4.1.0#1880299a48fe7ef249edaa616fd411239fb5daf1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
 dependencies = [
  "hmac",
  "subtle",
@@ -5494,6 +5492,18 @@ dependencies = [
 name = "risc0-panic-guest"
 version = "0.1.0"
 dependencies = [
+ "risc0-zkvm",
+]
+
+[[package]]
+name = "risc0-trie-bench"
+version = "0.1.0"
+dependencies = [
+ "alloy-consensus",
+ "alloy-primitives",
+ "alloy-rlp",
+ "reth-primitives-traits",
+ "reth-stateless",
  "risc0-zkvm",
 ]
 
@@ -5982,7 +5992,8 @@ dependencies = [
 [[package]]
 name = "sha2"
 version = "0.10.9"
-source = "git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha2-0.10.9-sp1-4.0.0#0b1945eea7d9a776fd6e50ffd5fc51f0c5e6f155"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a7507d819769d01a365ab707794a4084392c824f54a7a6a7862f8c3d0892b283"
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -5992,7 +6003,8 @@ dependencies = [
 [[package]]
 name = "sha3"
 version = "0.10.8"
-source = "git+https://github.com/sp1-patches/RustCrypto-hashes?tag=patch-sha3-0.10.8-sp1-4.0.0#8f6d303c0861ba7e5adcc36207c0f41fe5edaabc"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "75872d278a8f37ef87fa0ddbda7802605cb18344497949862c0d4dcb291eba60"
 dependencies = [
  "digest 0.10.7",
  "keccak",
@@ -6071,7 +6083,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0e1fe81b6f87134f9170cb642f948ae41e0ee1cd3785e0cb665add5b67106d1a"
 dependencies = [
  "bincode",
- "elliptic-curve",
  "serde",
  "sp1-primitives",
 ]
@@ -6239,17 +6250,14 @@ dependencies = [
 [[package]]
 name = "substrate-bn"
 version = "0.6.0"
-source = "git+https://github.com/sp1-patches/bn?tag=patch-0.6.0-sp1-5.0.0#e0d67f219b2ad6a1887e3275b7ba09ada4b1afb6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72b5bbfa79abbae15dd642ea8176a21a635ff3c00059961d1ea27ad04e5b441c"
 dependencies = [
- "bytemuck",
  "byteorder",
- "cfg-if",
  "crunchy",
  "lazy_static",
- "num-bigint 0.4.6",
  "rand 0.8.5",
  "rustc-hex",
- "sp1-lib",
 ]
 
 [[package]]
@@ -6458,9 +6466,9 @@ dependencies = [
 [[package]]
 name = "tiny-keccak"
 version = "2.0.2"
-source = "git+https://github.com/sp1-patches/tiny-keccak?tag=patch-2.0.2-sp1-4.0.0#d2ffd330259c8f290b07d99cc1ef1f74774382c2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2c9d3793400a45f954c52e73d068316d76b6f4e36977e3fcebb13a2721e80237"
 dependencies = [
- "cfg-if",
  "crunchy",
 ]
 

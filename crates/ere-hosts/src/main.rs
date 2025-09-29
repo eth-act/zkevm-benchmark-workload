@@ -6,6 +6,7 @@ use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
     stateless_validator::{self},
+    trie_bench
 };
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::ErezkVM;
@@ -48,6 +49,14 @@ struct Cli {
 enum GuestProgramCommand {
     /// Ethereum Stateless Validator
     StatelessValidator {
+        /// Input folder for benchmark fixtures
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
+        #[arg(short, long)]
+        execution_client: ExecutionClient,
+    },
+    /// Trie benchmark
+    TrieBenchmark {
         /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
@@ -225,6 +234,30 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 Path::new("block-encoding-length"),
                 resource,
                 true,
+            )?;
+            for zkvm in zkvms {
+                run_benchmark(&zkvm, &config, guest_io.clone())?;
+            }
+        }
+        GuestProgramCommand::TrieBenchmark {
+            input_folder,
+            execution_client,
+        } => {
+            info!(
+                "Running trie benchmark for input folder: {}",
+                input_folder.display()
+            );
+            let guest_io = trie_bench::trie_bench_inputs(
+                input_folder.as_path()
+            )?;
+            let guest_relative = Path::new(execution_client.guest_rel_path());
+            let apply_patches = matches!(execution_client, ExecutionClient::Reth);
+            let zkvms = get_zkvm_instances(
+                &cli.zkvms,
+                &workspace_dir,
+                guest_relative,
+                resource,
+                apply_patches,
             )?;
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
