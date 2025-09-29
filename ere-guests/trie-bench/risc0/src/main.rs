@@ -9,6 +9,7 @@ use reth_primitives_traits::SealedHeader;
 use reth_stateless::validation::StatelessValidationError;
 use reth_stateless::{ExecutionWitness, StatelessTrie};
 use reth_stateless::trie::StatelessSparseTrie;
+use sparsestate::SparseState;
 use std::collections::HashMap;
 
 fn create_stateless_trie<T: StatelessTrie>(
@@ -46,6 +47,8 @@ fn account_bench<T: StatelessTrie>(trie: &mut T, witness: &ExecutionWitness) {
 fn storage_bench<T: StatelessTrie>(trie: &mut T, witness: &ExecutionWitness) {
     let storage = build_storage_hash_map(&witness);
 
+    println!("storage_bench {}", std::any::type_name::<T>());
+    let start = env::cycle_count();
     for (address, slots) in storage.iter() {
         // `account` must be called before `storage`
         let r = trie.account(address.clone());
@@ -59,6 +62,8 @@ fn storage_bench<T: StatelessTrie>(trie: &mut T, witness: &ExecutionWitness) {
             }
         }
     }
+    let end = env::cycle_count();
+    eprintln!("storage_bench {} (cycle tracker): {}", std::any::type_name::<T>(), end - start);
 }
 
 fn run_trie_bench<T: StatelessTrie>(witness: &ExecutionWitness, state_root: B256) {
@@ -74,6 +79,7 @@ pub fn main() {
     let state_root = get_state_root(&witness);
 
     run_trie_bench::<StatelessSparseTrie>(&witness, state_root);
+    run_trie_bench::<SparseState>(&witness, state_root);
 }
 
 pub fn get_state_root(witness: &ExecutionWitness) -> B256 {
