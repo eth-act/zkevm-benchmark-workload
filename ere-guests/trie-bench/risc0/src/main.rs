@@ -50,13 +50,15 @@ fn storage_bench<T: StatelessTrie>(trie: &mut T, witness: &ExecutionWitness) {
     println!("storage_bench {}", std::any::type_name::<T>());
     let start = env::cycle_count();
     for (address, slots) in storage.iter() {
-        for slot in slots {
-            println!("storage_bench {} : {}", address, slot);
-            let r = trie.storage(address.clone(), slot.clone());
-            if r.is_err() {
-                panic!("storage_bench {}: {:?}", std::any::type_name::<T>(), r);
+        if trie.account(address.clone()).unwrap().is_some() {
+            for slot in slots {
+                let r = trie.storage(address.clone(), slot.clone());
+                if r.is_err() {
+                    panic!("storage_bench {}: {:?}", std::any::type_name::<T>(), r);
+                }
             }
         }
+
     }
     let end = env::cycle_count();
     eprintln!("storage_bench {} (cycle tracker): {}", std::any::type_name::<T>(), end - start);
