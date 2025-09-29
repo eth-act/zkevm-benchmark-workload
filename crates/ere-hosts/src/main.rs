@@ -250,12 +250,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             let guest_io = trie_bench::trie_bench_inputs(
                 input_folder.as_path()
             )?;
-            let guest_relative = Path::new(execution_client.guest_rel_path());
             let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
-                guest_relative,
+                Path::new("trie-bench"),
                 resource,
                 apply_patches,
             )?;

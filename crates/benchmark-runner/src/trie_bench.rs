@@ -1,3 +1,5 @@
+//! Trie benchmarking guest program.
+
 use std::path::Path;
 use ere_dockerized::ErezkVM;
 use reth_stateless::ExecutionWitness;
