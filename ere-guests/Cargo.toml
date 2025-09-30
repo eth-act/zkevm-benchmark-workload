@@ -141,13 +141,13 @@ openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
 
 
 # alloy
@@ -188,8 +188,8 @@ sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = 
 ziskos = { git = "https://github.com/0xPolygonHermez//zisk.git", tag = "v0.11.0" }
 
 [patch."https://github.com/paradigmxyz/reth"]
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "cca0d6063574de934421d71aa9f2e16eeca14828" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
 
 [patch.crates-io]
