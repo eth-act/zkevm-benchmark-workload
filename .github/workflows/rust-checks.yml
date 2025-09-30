@@ -20,7 +20,7 @@ jobs:
       - name: Download and Extract Fixtures
         run: |
           chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh
+          ./scripts/download-and-extract-fixtures.sh v5.1.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
