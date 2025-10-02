@@ -62,9 +62,6 @@ jobs:
             threads: 2
           - threads: 12
         exclude:
-          # Pico
-          - zkvm: pico
-            test: prove_empty_block # See https://github.com/eth-act/ere/issues/173
           # ZisK
           - zkvm: zisk
             test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI

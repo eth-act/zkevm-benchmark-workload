@@ -126,7 +126,7 @@ ere-reth-guest = { path = "stateless-validator/reth/guest" }
 
 sp1-zkvm = "5.0.5"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.12.0" }
 risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "std",
     "unstable",
@@ -182,10 +182,6 @@ k256 = { version = "0.13", default-features = false, features = [
     "pem",
 ] }
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
-
-# Patch `ziskos` of `zisk-patch-*` to pin to the same version of guest.
-[patch."https://github.com/0xPolygonHermez/zisk.git"]
-ziskos = { git = "https://github.com/0xPolygonHermez//zisk.git", tag = "v0.11.0" }
 
 [patch."https://github.com/paradigmxyz/reth"]
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
