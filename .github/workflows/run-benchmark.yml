@@ -30,7 +30,7 @@ jobs:
     name: ${{ inputs.zkvm }} - ${{ inputs.test }}
     runs-on: [self-hosted-ghr, size-xl-x64]
     env:
-      ERE_TAG: 0.0.12-7ef4598
+      ERE_TAG: 0.0.13-b8a1cfa
       OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
     steps:
       - name: Checkout code
