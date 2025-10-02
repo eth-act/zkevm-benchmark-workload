@@ -169,7 +169,7 @@ k256 = { version = "0.13", default-features = false, features = [
     "serde",
     "pem",
 ] }
-sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
+sparsestate = { git = "https://github.com/rodiazet/zkvm-ethereum-mpt.git", rev = "b03704241a083df4752342f4fcd0ec6b3cd3ac09" }
 
 # Patch `ziskos` of `zisk-patch-*` to pin to the same version of guest.
 [patch."https://github.com/0xPolygonHermez/zisk.git"]
