@@ -11,9 +11,8 @@ use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis, StatelessInput};
+use reth_stateless::{validation::stateless_validation, ExecutionWitness, Genesis, StatelessInput};
 use risc0_zkvm::guest::env;
-use sparsestate::SparseState;
 
 /// Entry point.
 pub fn main() {
@@ -80,7 +79,7 @@ fn validate_block(
 
     println!("start stateless_validation");
     let start = env::cycle_count();
-    let block_hash = stateless_validation_with_trie::<SparseState, _, _>(
+    let block_hash = stateless_validation(
         recovered_block,
         witness,
         chain_spec,
