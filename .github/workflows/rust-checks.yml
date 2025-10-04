@@ -57,7 +57,7 @@ jobs:
             exit 1
           fi
 
-  check-non-ere-hosts:
+  fmt-clippy-tests:
     name: Checks on non ere-hosts crates
     runs-on: ubuntu-latest
     steps:
@@ -76,31 +76,10 @@ jobs:
         run: cargo fmt --check --all
 
       - name: Check clippy
-        run: cargo clippy --bins --lib --examples --tests --benches --all-features -p witness-generator -p zkevm-metrics -p benchmark-runner
+        run: cargo clippy --workspace --bins --lib --examples --tests --benches --all-features -- -D warnings 
 
-      - name: Run tests
+      - name: Run all tests except integration tests
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
           RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
-        run: cargo test -p zkevm-metrics -p witness-generator -- --no-capture
- 
-  check-ere-host:
-    name: Checks crate ere-hosts
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
-        with:
-          components: clippy, rustfmt
-
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-
-      - name: Cargo check
-        run: cargo check -p ere-hosts
-
-      - name: Check clippy
-        run: cargo clippy --bins --examples --tests --benches -p ere-hosts 
+        run: cargo test --workspace --execlude tests -- --no-capture

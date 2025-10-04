@@ -166,7 +166,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                 let (recovered_block, witness) = BlockchainTestCase::run_single_case(name, case)?
                     .into_iter()
                     .next_back()
-                    .ok_or_else(|| anyhow!("No target block found for test case {}", name))?;
+                    .ok_or_else(|| anyhow!("No target block found for test case {name}"))?;
                 let block_and_witness = StatelessInput {
                     block: recovered_block.into_block(),
                     witness,

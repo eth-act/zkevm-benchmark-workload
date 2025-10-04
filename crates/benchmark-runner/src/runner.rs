@@ -213,8 +213,6 @@ fn verify_public_output(
 ) -> Result<()> {
     match output_verifier.check_serialized(zkvm, public_values)? {
         OutputVerifierResult::Match => Ok(()),
-        OutputVerifierResult::Mismatch(msg) => {
-            Err(anyhow!("Output mismatch for {}: {}", name, msg))
-        }
+        OutputVerifierResult::Mismatch(msg) => Err(anyhow!("Output mismatch for {name}: {msg}")),
     }
 }
