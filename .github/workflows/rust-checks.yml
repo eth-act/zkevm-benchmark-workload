@@ -35,6 +35,10 @@ jobs:
             xtask: sp1
           - zkVM: reth-risc0-stateless-validator
             xtask: risc0
+          - zkVM: reth-zisk-stateless-validator
+            xtask: zisk
+          # - zkVM: reth-openvm-stateless-validator # See #168
+          #   xtask: openvm
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
