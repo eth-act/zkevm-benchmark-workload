@@ -180,7 +180,7 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                     .expect_exception
                     .is_none();
                 Ok(BlockAndWitness {
-                    name: name.to_string(),
+                    name: name.clone(),
                     block_and_witness,
                     success,
                 })
