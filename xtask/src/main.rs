@@ -135,10 +135,10 @@ fn display_patch_sets(dir: &PathBuf) -> Result<String> {
     let mut names = Vec::new();
     for entry in fs::read_dir(dir)? {
         let path = entry?.path();
-        if path.extension().and_then(|s| s.to_str()) == Some("toml") {
-            if let Some(stem) = path.file_stem().and_then(|s| s.to_str()) {
-                names.push(stem.to_string());
-            }
+        if path.extension().and_then(|s| s.to_str()) == Some("toml")
+            && let Some(stem) = path.file_stem().and_then(|s| s.to_str())
+        {
+            names.push(stem.to_string());
         }
     }
     names.sort();

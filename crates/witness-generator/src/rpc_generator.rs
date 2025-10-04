@@ -93,7 +93,7 @@ impl RpcBlocksAndWitnessesBuilder {
             Some(NamedChain::Hoodi) => HOODI.genesis.config.clone(),
             Some(NamedChain::Holesky) => HOLESKY.genesis.config.clone(),
             _ => {
-                return Err(anyhow::anyhow!("Unsupported chain ID: {}", chain_id));
+                return Err(anyhow::anyhow!("Unsupported chain ID: {chain_id}"));
             }
         };
 
@@ -194,7 +194,7 @@ impl RpcBlocksAndWitnesses {
                 true,
             )
             .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for number {}", n))?;
+            .ok_or_else(|| anyhow::anyhow!("No block found for number {n}"))?;
             hashes.push((n, block.header.parent_hash));
         }
 
@@ -213,7 +213,7 @@ impl RpcBlocksAndWitnesses {
                 Header,
             >::block_by_hash(&self.client, block_hash, true)
             .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for hash {}", block_hash))?;
+            .ok_or_else(|| anyhow::anyhow!("No block found for hash {block_hash}"))?;
 
             blocks_and_witnesses.push(BlockAndWitness {
                 name: format!("rpc_block_{block_num}"),
@@ -254,7 +254,7 @@ impl RpcBlocksAndWitnesses {
                 Header,
             >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
             .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for number {}", block_num))?;
+            .ok_or_else(|| anyhow::anyhow!("No block found for number {block_num}"))?;
 
         let bw = BlockAndWitness {
             name: format!("rpc_block_{block_num}"),
