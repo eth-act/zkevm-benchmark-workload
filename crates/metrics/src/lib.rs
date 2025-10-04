@@ -78,16 +78,15 @@ fn detect_gpus() -> Vec<GpuInfo> {
         .arg("--query-gpu=gpu_name")
         .arg("--format=csv,noheader,nounits")
         .output()
+        && output.status.success()
     {
-        if output.status.success() {
-            let gpu_names = String::from_utf8_lossy(&output.stdout);
-            for line in gpu_names.lines() {
-                let gpu_name = line.trim();
-                if !gpu_name.is_empty() {
-                    gpus.push(GpuInfo {
-                        model: gpu_name.to_string(),
-                    });
-                }
+        let gpu_names = String::from_utf8_lossy(&output.stdout);
+        for line in gpu_names.lines() {
+            let gpu_name = line.trim();
+            if !gpu_name.is_empty() {
+                gpus.push(GpuInfo {
+                    model: gpu_name.to_string(),
+                });
             }
         }
     }
