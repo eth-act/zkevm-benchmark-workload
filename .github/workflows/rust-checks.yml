@@ -37,6 +37,8 @@ jobs:
             xtask: risc0
           - zkVM: reth-zisk-stateless-validator
             xtask: zisk
+          - zkVM: reth-pico-stateless-validator
+            xtask: pico
           # - zkVM: reth-openvm-stateless-validator # See #168
           #   xtask: openvm
     steps:
