@@ -82,4 +82,4 @@ jobs:
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
           RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
-        run: cargo test --workspace --execlude tests -- --no-capture
+        run: cargo test --workspace --exclude tests -- --no-capture
