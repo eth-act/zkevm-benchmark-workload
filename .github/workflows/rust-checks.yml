@@ -35,6 +35,12 @@ jobs:
             xtask: sp1
           - zkVM: reth-risc0-stateless-validator
             xtask: risc0
+          - zkVM: reth-zisk-stateless-validator
+            xtask: zisk
+          - zkVM: reth-pico-stateless-validator
+            xtask: pico
+          # - zkVM: reth-openvm-stateless-validator # See #168
+          #   xtask: openvm
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -103,4 +109,22 @@ jobs:
         run: cargo check -p ere-hosts
 
       - name: Check clippy
-        run: cargo clippy --bins --examples --tests --benches -p ere-hosts 
+        run: cargo clippy --bins --examples --tests --benches -p ere-hosts
+
+  check-empty-patch-crates-io:
+    name: Check [patch.crates-io] is empty
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Check patch.crates-io is empty in ere-guests/Cargo.toml
+        run: |
+          # Extract lines between [patch.crates-io] and the next section
+          # Fail if there are non-empty, non-comment lines
+          sed -n '/^\[patch\.crates-io\]/,/^\[/p' ere-guests/Cargo.toml | \
+            sed '1d;$d' | \
+            grep -v '^[[:space:]]*#' | \
+            grep -v '^[[:space:]]*$' && \
+            { echo "ERROR: [patch.crates-io] section in ere-guests/Cargo.toml must be empty"; exit 1; } || \
+            echo "✓ [patch.crates-io] section is empty"
