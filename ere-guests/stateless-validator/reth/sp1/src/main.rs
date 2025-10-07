@@ -6,7 +6,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{ScopeMarker, SDK},
+    sdk::{PublicInputs, SDK, ScopeMarker},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -24,10 +24,13 @@ impl SDK for SP1SDK {
         (input, public_keys)
     }
 
-    fn commit_outputs(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
-        sp1_zkvm::io::commit(&block_hash);
-        sp1_zkvm::io::commit(&parent_hash);
-        sp1_zkvm::io::commit(&is_valid);
+    fn commit_outputs(pi: &PublicInputs) {
+        sp1_zkvm::io::commit(&pi.block_hash);
+        sp1_zkvm::io::commit(&pi.parent_hash);
+        sp1_zkvm::io::commit(&pi.versioned_hashes_hash);
+        sp1_zkvm::io::commit(&pi.parent_beacon_block_root);
+        sp1_zkvm::io::commit(&pi.requests_hash);
+        sp1_zkvm::io::commit(&pi.is_valid);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {

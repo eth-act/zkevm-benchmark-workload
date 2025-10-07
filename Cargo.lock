@@ -3444,6 +3444,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
+ "alloy-genesis",
  "alloy-primitives",
  "ethereum_ssz",
  "ethereum_ssz_derive",

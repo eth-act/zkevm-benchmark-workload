@@ -15,6 +15,7 @@ use ethrex_common::{
 };
 use ethrex_guest_program::input::ProgramInput;
 use ethrex_rlp::decode::RLPDecode;
+use guest_libs::blobs::calculate_versioned_hashes_hash;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -61,6 +62,16 @@ pub fn stateless_validator_inputs(
                 output: ProgramOutputVerifier {
                     block_hash: bw.block_and_witness.block.hash_slow().0,
                     parent_hash: bw.block_and_witness.block.parent_hash.0,
+                    versioned_hashes_hash: calculate_versioned_hashes_hash(
+                        &bw.block_and_witness.chain_config,
+                        &bw.block_and_witness.block,
+                    ),
+                    parent_beacon_block_root: bw
+                        .block_and_witness
+                        .block
+                        .parent_beacon_block_root
+                        .map(|root| root.0),
+                    requests_hash: bw.block_and_witness.block.requests_hash.map(|h| h.0),
                     success: bw.success,
                 },
             })
@@ -96,6 +107,9 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<BlockAndWitness
 pub struct ProgramOutputVerifier {
     block_hash: [u8; 32],
     parent_hash: [u8; 32],
+    versioned_hashes_hash: Option<[u8; 32]>,
+    parent_beacon_block_root: Option<[u8; 32]>,
+    requests_hash: Option<[u8; 32]>,
     success: bool,
 }
 
@@ -106,6 +120,10 @@ impl OutputVerifier for ProgramOutputVerifier {
                 let mut bytes: &[u8] = bytes;
                 let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
+                let versioned_hashes_hash: Option<[u8; 32]> = zkvm.deserialize_from(&mut bytes)?;
+                let parent_beacon_block_root: Option<[u8; 32]> =
+                    zkvm.deserialize_from(&mut bytes)?;
+                let requests_hash: Option<[u8; 32]> = zkvm.deserialize_from(&mut bytes)?;
                 let success: bool = zkvm.deserialize_from(&mut bytes)?;
 
                 if block_hash != self.block_hash {
@@ -118,6 +136,24 @@ impl OutputVerifier for ProgramOutputVerifier {
                     return Ok(OutputVerifierResult::Mismatch(format!(
                         "Parent hash mismatch: expected {:?}, got {:?}",
                         self.parent_hash, parent_hash
+                    )));
+                }
+                if versioned_hashes_hash != self.versioned_hashes_hash {
+                    return Ok(OutputVerifierResult::Mismatch(format!(
+                        "Versioned hashes hash mismatch: expected {:?}, got {:?}",
+                        self.versioned_hashes_hash, versioned_hashes_hash
+                    )));
+                }
+                if parent_beacon_block_root != self.parent_beacon_block_root {
+                    return Ok(OutputVerifierResult::Mismatch(format!(
+                        "Parent beacon block root mismatch: expected {:?}, got {:?}",
+                        self.parent_beacon_block_root, parent_beacon_block_root
+                    )));
+                }
+                if requests_hash != self.requests_hash {
+                    return Ok(OutputVerifierResult::Mismatch(format!(
+                        "Requests hash mismatch: expected {:?}, got {:?}",
+                        self.requests_hash, requests_hash
                     )));
                 }
                 if success != self.success {

@@ -2,7 +2,7 @@
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{ScopeMarker, SDK},
+    sdk::{PublicInputs, ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use openvm::io::{read, reveal_bytes32};
@@ -23,8 +23,15 @@ impl SDK for OpenVMSDK {
         (input, public_keys)
     }
 
-    fn commit_outputs(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
-        let public_inputs = (block_hash, parent_hash, is_valid);
+    fn commit_outputs(pi: &PublicInputs) {
+        let public_inputs = (
+            pi.block_hash,
+            pi.parent_hash,
+            pi.versioned_hashes_hash,
+            pi.parent_beacon_block_root,
+            pi.requests_hash,
+            pi.is_valid,
+        );
         let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs).unwrap());
         reveal_bytes32(public_inputs_hash.into());
     }
