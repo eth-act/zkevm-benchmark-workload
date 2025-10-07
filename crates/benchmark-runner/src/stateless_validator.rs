@@ -164,7 +164,14 @@ impl OutputVerifier for ProgramOutputVerifier {
                 }
             }
             ErezkVM::OpenVM | ErezkVM::Zisk => {
-                let public_inputs = (self.block_hash, self.parent_hash, self.success);
+                let public_inputs = (
+                    self.block_hash,
+                    self.parent_hash,
+                    self.versioned_hashes_hash,
+                    self.parent_beacon_block_root,
+                    self.requests_hash,
+                    self.success,
+                );
                 let public_inputs_hash =
                     Sha256::digest(bincode::serialize(&public_inputs).unwrap());
 

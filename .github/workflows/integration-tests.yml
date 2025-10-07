@@ -1,8 +1,7 @@
 name: Integration tests
 on:
   push:
-    # branches: [ master ]
-    branches: **
+    branches: [ master ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
