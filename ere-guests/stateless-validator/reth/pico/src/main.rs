@@ -6,7 +6,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{SDK, ScopeMarker},
+    sdk::{PublicInputs, SDK, ScopeMarker},
 };
 use k256::ecdsa::VerifyingKey;
 use pico_sdk::io::{commit, read_as};
@@ -23,10 +23,13 @@ impl SDK for PicoSDK {
         (input, public_keys)
     }
 
-    fn commit_outputs(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
-        commit(&block_hash);
-        commit(&parent_hash);
-        commit(&is_valid);
+    fn commit_outputs(pi: &PublicInputs) {
+        commit(&pi.block_hash);
+        commit(&pi.parent_hash);
+        commit(&pi.versioned_hashes_hash);
+        commit(&pi.parent_beacon_block_root);
+        commit(&pi.requests_hash);
+        commit(&pi.is_valid);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {
