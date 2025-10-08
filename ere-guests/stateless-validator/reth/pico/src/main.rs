@@ -6,7 +6,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{PublicInputs, ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use pico_sdk::io::{commit, read_as};
@@ -26,9 +26,6 @@ impl SDK for PicoSDK {
     fn commit_outputs(pi: &PublicInputs) {
         commit(&pi.block_hash);
         commit(&pi.parent_hash);
-        commit(&pi.versioned_hashes_hash);
-        commit(&pi.parent_beacon_block_root);
-        commit(&pi.requests_hash);
         commit(&pi.is_valid);
     }
 

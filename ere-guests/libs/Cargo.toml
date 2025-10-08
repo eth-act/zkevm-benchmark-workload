@@ -16,7 +16,6 @@ reth-chainspec.workspace = true
 alloy-consensus.workspace = true
 alloy-primitives.workspace = true
 alloy-eips.workspace = true
-alloy-genesis.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 serde_with.workspace = true

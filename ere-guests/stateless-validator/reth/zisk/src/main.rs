@@ -6,7 +6,7 @@ use std::io::Cursor;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{PublicInputs, ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -26,14 +26,7 @@ impl SDK for ZiskSDK {
     }
 
     fn commit_outputs(pi: &PublicInputs) {
-        let public_inputs = (
-            pi.block_hash,
-            pi.parent_hash,
-            pi.versioned_hashes_hash,
-            pi.parent_beacon_block_root,
-            pi.requests_hash,
-            pi.is_valid,
-        );
+        let public_inputs = (pi.block_hash, pi.parent_hash, pi.is_valid);
         let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs).unwrap());
         public_inputs_hash
             .chunks_exact(4)
