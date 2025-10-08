@@ -19,6 +19,7 @@ fn main() {
     // and just checking them again.
     input.blocks[0].header.hash = Default::default();
     let parent_hash = input.blocks[0].header.parent_hash;
+    let withdrawals_root = input.blocks[0].header.withdrawals_root.map(|h| h.0);
     let versioned_hashes_hash: Option<[u8; 32]> = input
         .execution_witness
         .chain_config
@@ -47,6 +48,7 @@ fn main() {
     if input.blocks.len() != 1 {
         env::commit(&block_hash.0);
         env::commit(&parent_hash.0);
+        env::commit(&withdrawals_root);
         env::commit(&versioned_hashes_hash);
         env::commit(&parent_beacon_block_root);
         env::commit(&requests_hash);
@@ -67,6 +69,7 @@ fn main() {
         Ok(out) => {
             env::commit(&out.last_block_hash.0);
             env::commit(&parent_hash.0);
+            env::commit(&withdrawals_root);
             env::commit(&versioned_hashes_hash);
             env::commit(&parent_beacon_block_root);
             env::commit(&requests_hash);
@@ -75,6 +78,7 @@ fn main() {
         Err(_) => {
             env::commit(&block_hash.0);
             env::commit(&parent_hash.0);
+            env::commit(&withdrawals_root);
             env::commit(&versioned_hashes_hash);
             env::commit(&parent_beacon_block_root);
             env::commit(&requests_hash);

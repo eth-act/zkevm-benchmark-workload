@@ -6,7 +6,7 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{PublicInputs, ScopeMarker, SDK},
 };
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
@@ -27,6 +27,7 @@ impl SDK for SP1SDK {
     fn commit_outputs(pi: &PublicInputs) {
         sp1_zkvm::io::commit(&pi.block_hash);
         sp1_zkvm::io::commit(&pi.parent_hash);
+        sp1_zkvm::io::commit(&pi.withdrawals_root);
         sp1_zkvm::io::commit(&pi.versioned_hashes_hash);
         sp1_zkvm::io::commit(&pi.parent_beacon_block_root);
         sp1_zkvm::io::commit(&pi.requests_hash);

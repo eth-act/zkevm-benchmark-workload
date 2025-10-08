@@ -16,6 +16,7 @@ pub trait SDK {
 pub struct PublicInputs {
     pub block_hash: [u8; 32],
     pub parent_hash: [u8; 32],
+    pub withdrawals_root: Option<[u8; 32]>,
     pub versioned_hashes_hash: Option<[u8; 32]>,
     pub parent_beacon_block_root: Option<[u8; 32]>,
     pub requests_hash: Option<[u8; 32]>,

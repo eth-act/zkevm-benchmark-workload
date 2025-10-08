@@ -62,6 +62,11 @@ pub fn stateless_validator_inputs(
                 output: ProgramOutputVerifier {
                     block_hash: bw.block_and_witness.block.hash_slow().0,
                     parent_hash: bw.block_and_witness.block.parent_hash.0,
+                    withdraws_root: bw
+                        .block_and_witness
+                        .block
+                        .withdrawals_root
+                        .map(|root| root.0),
                     versioned_hashes_hash: calculate_versioned_hashes_hash(
                         &bw.block_and_witness.chain_config,
                         &bw.block_and_witness.block,
@@ -107,6 +112,7 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<BlockAndWitness
 pub struct ProgramOutputVerifier {
     block_hash: [u8; 32],
     parent_hash: [u8; 32],
+    withdraws_root: Option<[u8; 32]>,
     versioned_hashes_hash: Option<[u8; 32]>,
     parent_beacon_block_root: Option<[u8; 32]>,
     requests_hash: Option<[u8; 32]>,
@@ -120,6 +126,7 @@ impl OutputVerifier for ProgramOutputVerifier {
                 let mut bytes: &[u8] = bytes;
                 let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
                 let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
+                let withdraws_root: Option<[u8; 32]> = zkvm.deserialize_from(&mut bytes)?;
                 let versioned_hashes_hash: Option<[u8; 32]> = zkvm.deserialize_from(&mut bytes)?;
                 let parent_beacon_block_root: Option<[u8; 32]> =
                     zkvm.deserialize_from(&mut bytes)?;
@@ -136,6 +143,12 @@ impl OutputVerifier for ProgramOutputVerifier {
                     return Ok(OutputVerifierResult::Mismatch(format!(
                         "Parent hash mismatch: expected {:?}, got {:?}",
                         self.parent_hash, parent_hash
+                    )));
+                }
+                if withdraws_root != self.withdraws_root {
+                    return Ok(OutputVerifierResult::Mismatch(format!(
+                        "Withdraws root mismatch: expected {:?}, got {:?}",
+                        self.withdraws_root, withdraws_root
                     )));
                 }
                 if versioned_hashes_hash != self.versioned_hashes_hash {
@@ -167,6 +180,7 @@ impl OutputVerifier for ProgramOutputVerifier {
                 let public_inputs = (
                     self.block_hash,
                     self.parent_hash,
+                    self.withdraws_root,
                     self.versioned_hashes_hash,
                     self.parent_beacon_block_root,
                     self.requests_hash,

@@ -27,6 +27,7 @@ impl SDK for OpenVMSDK {
         let public_inputs = (
             pi.block_hash,
             pi.parent_hash,
+            pi.withdrawals_root,
             pi.versioned_hashes_hash,
             pi.parent_beacon_block_root,
             pi.requests_hash,

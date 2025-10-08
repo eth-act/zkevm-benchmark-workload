@@ -8,12 +8,12 @@ use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{ExecutionWitness, Genesis, stateless_validation_with_trie};
+use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis};
 use sparsestate::SparseState;
 
 use guest_libs::{blobs::calculate_versioned_hashes_hash, senders::recover_block_with_public_keys};
 
-use crate::sdk::{PublicInputs, SDK, ScopeMarker};
+use crate::sdk::{PublicInputs, ScopeMarker, SDK};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
@@ -31,6 +31,7 @@ pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");
     let header = input.block.header().clone();
     let parent_hash = input.block.parent_hash;
+    let withdrawals_root = input.block.withdrawals_root.map(|h| h.0);
     let versioned_hashes_hash = calculate_versioned_hashes_hash(&input.chain_config, &input.block);
     let parent_beacon_block_root = input.block.parent_beacon_block_root.map(|h| h.0);
     let requests_hash = input.block.requests_hash.map(|h| h.0);
@@ -49,6 +50,7 @@ pub fn ethereum_guest<S: SDK>() {
             let public_inputs = PublicInputs {
                 block_hash: block_hash.0,
                 parent_hash: parent_hash.0,
+                withdrawals_root
                 versioned_hashes_hash,
                 parent_beacon_block_root,
                 requests_hash,
@@ -61,6 +63,7 @@ pub fn ethereum_guest<S: SDK>() {
             let public_inputs = PublicInputs {
                 block_hash: header.hash_slow().0,
                 parent_hash: parent_hash.0,
+                withdrawals_root,
                 versioned_hashes_hash,
                 parent_beacon_block_root,
                 requests_hash,

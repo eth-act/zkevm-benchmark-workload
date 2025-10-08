@@ -18,6 +18,7 @@ pub fn main() {
     // and just checking them again.
     input.blocks[0].header.hash = Default::default();
     let parent_hash = input.blocks[0].header.parent_hash;
+    let withdrawals_root = input.blocks[0].header.withdrawals_root.map(|h| h.0);
     let versioned_hashes_hash: Option<[u8; 32]> = input
         .execution_witness
         .chain_config
@@ -44,6 +45,7 @@ pub fn main() {
     if input.blocks.len() != 1 {
         sp1_zkvm::io::commit(&block_hash.0);
         sp1_zkvm::io::commit(&parent_hash.0);
+        sp1_zkvm::io::commit(&withdrawals_root);
         sp1_zkvm::io::commit(&versioned_hashes_hash);
         sp1_zkvm::io::commit(&parent_beacon_block_root);
         sp1_zkvm::io::commit(&requests_hash);
@@ -58,6 +60,7 @@ pub fn main() {
         Ok(out) => {
             sp1_zkvm::io::commit(&out.last_block_hash.0);
             sp1_zkvm::io::commit(&parent_hash.0);
+            sp1_zkvm::io::commit(&withdrawals_root);
             sp1_zkvm::io::commit(&versioned_hashes_hash);
             sp1_zkvm::io::commit(&parent_beacon_block_root);
             sp1_zkvm::io::commit(&requests_hash);
@@ -66,6 +69,7 @@ pub fn main() {
         Err(_) => {
             sp1_zkvm::io::commit(&block_hash.0);
             sp1_zkvm::io::commit(&parent_hash.0);
+            sp1_zkvm::io::commit(&withdrawals_root);
             sp1_zkvm::io::commit(&versioned_hashes_hash);
             sp1_zkvm::io::commit(&parent_beacon_block_root);
             sp1_zkvm::io::commit(&requests_hash);
