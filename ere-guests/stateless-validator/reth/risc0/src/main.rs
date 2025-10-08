@@ -22,9 +22,6 @@ impl SDK for Risc0SDK {
     fn commit_outputs(pi: &PublicInputs) {
         env::commit(&pi.block_hash);
         env::commit(&pi.parent_hash);
-        env::commit(&pi.versioned_hashes_hash);
-        env::commit(&pi.parent_beacon_block_root);
-        env::commit(&pi.requests_hash);
         env::commit(&pi.is_valid);
     }
 

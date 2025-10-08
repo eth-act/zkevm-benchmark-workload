@@ -1,7 +1,6 @@
 use risc0_zkvm::guest::env;
 
 use guest_program::{execution::execution_program, input::ProgramInput};
-use k256::sha2::{Digest, Sha256};
 use rkyv::rancor::Error;
 
 fn main() {
@@ -19,26 +18,6 @@ fn main() {
     // and just checking them again.
     input.blocks[0].header.hash = Default::default();
     let parent_hash = input.blocks[0].header.parent_hash;
-    let versioned_hashes_hash: Option<[u8; 32]> = input
-        .execution_witness
-        .chain_config
-        .is_cancun_activated(input.blocks[0].header.timestamp)
-        .then_some(
-            Sha256::digest(
-                input.blocks[0]
-                    .body
-                    .transactions
-                    .iter()
-                    .flat_map(|tx| tx.blob_versioned_hashes())
-                    .fold(Vec::new(), |mut acc, h| {
-                        acc.extend_from_slice(&h.0);
-                        acc
-                    }),
-            )
-            .into(),
-        );
-    let parent_beacon_block_root = input.blocks[0].header.parent_beacon_block_root.map(|h| h.0);
-    let requests_hash = input.blocks[0].header.requests_hash.map(|h| h.0);
     let end = env::cycle_count();
     eprintln!("public inputs preparation (cycle tracker): {}", end - start);
 
@@ -47,9 +26,6 @@ fn main() {
     if input.blocks.len() != 1 {
         env::commit(&block_hash.0);
         env::commit(&parent_hash.0);
-        env::commit(&versioned_hashes_hash);
-        env::commit(&parent_beacon_block_root);
-        env::commit(&requests_hash);
         env::commit(&false);
         return;
     }
@@ -67,17 +43,11 @@ fn main() {
         Ok(out) => {
             env::commit(&out.last_block_hash.0);
             env::commit(&parent_hash.0);
-            env::commit(&versioned_hashes_hash);
-            env::commit(&parent_beacon_block_root);
-            env::commit(&requests_hash);
             env::commit(&true);
         }
         Err(_) => {
             env::commit(&block_hash.0);
             env::commit(&parent_hash.0);
-            env::commit(&versioned_hashes_hash);
-            env::commit(&parent_beacon_block_root);
-            env::commit(&requests_hash);
             env::commit(&false);
         }
     }

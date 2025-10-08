@@ -8,7 +8,6 @@ edition = "2024"
 [dependencies]
 sp1-zkvm = { version = "=5.0.8" }
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
-k256 = { version = "=0.13.4", default-features = false }
 
 
 guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28" }
