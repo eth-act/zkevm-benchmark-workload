@@ -50,7 +50,7 @@ pub fn ethereum_guest<S: SDK>() {
             let public_inputs = PublicInputs {
                 block_hash: block_hash.0,
                 parent_hash: parent_hash.0,
-                withdrawals_root
+                withdrawals_root,
                 versioned_hashes_hash,
                 parent_beacon_block_root,
                 requests_hash,
