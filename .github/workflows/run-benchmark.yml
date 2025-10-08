@@ -56,7 +56,7 @@ jobs:
       - name: Run benchmark
         run: |
             RAYON_NUM_THREADS=${{ inputs.threads }} \
-            RUST_LOG=warn,benchmark_runner=info \
+            RUST_LOG=info,benchmark_runner=info \
             ZKVM=${{ inputs.zkvm }} \
             EL=${{ inputs.el }} \
             WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
