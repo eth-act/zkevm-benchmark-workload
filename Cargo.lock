@@ -1612,7 +1612,7 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=bae0330c2485551eee2ca35bbfb33f278c6fba0b#bae0330c2485551eee2ca35bbfb33f278c6fba0b"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=0d3402c18d0c04e598bc2b8dfb6f3612c793f795#0d3402c18d0c04e598bc2b8dfb6f3612c793f795"
 dependencies = [
  "cargo_metadata",
  "thiserror 2.0.17",
@@ -2736,7 +2736,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=bae0330c2485551eee2ca35bbfb33f278c6fba0b#bae0330c2485551eee2ca35bbfb33f278c6fba0b"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=0d3402c18d0c04e598bc2b8dfb6f3612c793f795#0d3402c18d0c04e598bc2b8dfb6f3612c793f795"
 dependencies = [
  "anyhow",
  "bincode",
@@ -2767,7 +2767,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=bae0330c2485551eee2ca35bbfb33f278c6fba0b#bae0330c2485551eee2ca35bbfb33f278c6fba0b"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=0d3402c18d0c04e598bc2b8dfb6f3612c793f795#0d3402c18d0c04e598bc2b8dfb6f3612c793f795"
 dependencies = [
  "anyhow",
  "bincode",
@@ -10847,7 +10847,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=bae0330c2485551eee2ca35bbfb33f278c6fba0b#bae0330c2485551eee2ca35bbfb33f278c6fba0b"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=0d3402c18d0c04e598bc2b8dfb6f3612c793f795#0d3402c18d0c04e598bc2b8dfb6f3612c793f795"
 dependencies = [
  "auto_impl",
  "clap",
