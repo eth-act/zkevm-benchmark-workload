@@ -8,7 +8,7 @@ mod tests {
     use ere_dockerized::ErezkVM;
     use tempfile::tempdir;
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute_empty_program() {
         let zkvms = get_env_zkvm_or_default(vec![
             ErezkVM::SP1,
@@ -20,7 +20,7 @@ mod tests {
         empty_program(&zkvms, Action::Execute).await;
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn prove_empty_program() {
         let zkvms = get_env_zkvm_or_default(vec![
             ErezkVM::SP1,

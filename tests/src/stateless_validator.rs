@@ -16,7 +16,7 @@ mod tests {
         run_guest, untar,
     };
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn prove_empty_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
             (ExecutionClient::Reth, ErezkVM::SP1),
@@ -31,7 +31,7 @@ mod tests {
         empty_block(Action::Prove, &el_zkvms).await;
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute_empty_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
             (ExecutionClient::Reth, ErezkVM::SP1),
@@ -48,7 +48,7 @@ mod tests {
         empty_block(Action::Execute, &el_zkvms).await;
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute_mainnet_blocks() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
             (ExecutionClient::Reth, ErezkVM::SP1),
@@ -89,7 +89,7 @@ mod tests {
         }
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute_invalid_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
             (ExecutionClient::Reth, ErezkVM::SP1),

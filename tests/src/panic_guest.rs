@@ -8,7 +8,7 @@ mod tests {
     use ere_dockerized::ErezkVM;
     use tempfile::tempdir;
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn execute_panic_guest() {
         let zkvms = get_env_zkvm_or_default(vec![
             ErezkVM::SP1,
@@ -19,7 +19,7 @@ mod tests {
         panic_guest(&zkvms, Action::Execute).await;
     }
 
-    #[tokio::test]
+    #[tokio::test(flavor = "multi_thread")]
     async fn prove_panic_guest() {
         let zkvms = get_env_zkvm_or_default(vec![ErezkVM::SP1, ErezkVM::Risc0, ErezkVM::OpenVM]);
         panic_guest(&zkvms, Action::Prove).await;
