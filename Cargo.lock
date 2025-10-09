@@ -1268,6 +1268,58 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c08606f8c3cbf4ce6ec8e28fb0014a2c086708fe954eaa885384a6165172e7e8"
 
 [[package]]
+name = "axum"
+version = "0.8.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a18ed336352031311f4e0b4dd2ff392d4fbb370777c9d18d7fc9d7359f73871"
+dependencies = [
+ "axum-core",
+ "bytes",
+ "form_urlencoded",
+ "futures-util",
+ "http",
+ "http-body",
+ "http-body-util",
+ "hyper",
+ "hyper-util",
+ "itoa",
+ "matchit",
+ "memchr",
+ "mime",
+ "percent-encoding",
+ "pin-project-lite",
+ "serde_core",
+ "serde_json",
+ "serde_path_to_error",
+ "serde_urlencoded",
+ "sync_wrapper",
+ "tokio",
+ "tower",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
+name = "axum-core"
+version = "0.5.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59446ce19cd142f8833f856eb31f3eb097812d1479ab224f54d72428ca21ea22"
+dependencies = [
+ "bytes",
+ "futures-core",
+ "http",
+ "http-body",
+ "http-body-util",
+ "mime",
+ "pin-project-lite",
+ "sync_wrapper",
+ "tower-layer",
+ "tower-service",
+ "tracing",
+]
+
+[[package]]
 name = "az"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1560,7 +1612,7 @@ dependencies = [
 [[package]]
 name = "build-utils"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17#b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6449699ec65229c464afed9ad88f81f697ce3bcf#6449699ec65229c464afed9ad88f81f697ce3bcf"
 dependencies = [
  "cargo_metadata",
  "thiserror 2.0.17",
@@ -2682,29 +2734,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "ere-cli"
+name = "ere-dockerized"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17#b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6449699ec65229c464afed9ad88f81f697ce3bcf#6449699ec65229c464afed9ad88f81f697ce3bcf"
 dependencies = [
  "anyhow",
  "bincode",
- "serde",
- "zkvm-interface",
-]
-
-[[package]]
-name = "ere-dockerized"
-version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17#b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17"
-dependencies = [
- "bincode",
  "build-utils",
  "bytemuck",
- "ere-cli",
+ "ere-server",
  "risc0-zkvm",
  "serde",
  "tempfile",
  "thiserror 2.0.17",
+ "tokio",
  "tracing",
  "zkvm-interface",
 ]
@@ -2718,6 +2761,22 @@ dependencies = [
  "ere-dockerized",
  "tracing",
  "tracing-subscriber 0.3.20",
+ "zkvm-interface",
+]
+
+[[package]]
+name = "ere-server"
+version = "0.0.13"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6449699ec65229c464afed9ad88f81f697ce3bcf#6449699ec65229c464afed9ad88f81f697ce3bcf"
+dependencies = [
+ "anyhow",
+ "bincode",
+ "prost",
+ "prost-build",
+ "serde",
+ "tokio",
+ "twirp",
+ "twirp-build",
  "zkvm-interface",
 ]
 
@@ -3106,6 +3165,12 @@ dependencies = [
  "rustc-hex",
  "static_assertions",
 ]
+
+[[package]]
+name = "fixedbitset"
+version = "0.5.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d674e81391d1e1ab681a28d99df07927c6d4aa5b027d7da16ba32d1d21ecd99"
 
 [[package]]
 name = "flate2"
@@ -4789,6 +4854,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "matchit"
+version = "0.8.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "47e1ffaa40ddd1f3ed91f717a33c8c0ee23fff369e3aa8772b9605cc1d22f4c3"
+
+[[package]]
 name = "memchr"
 version = "2.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4851,6 +4922,12 @@ dependencies = [
  "regex",
  "syn 2.0.106",
 ]
+
+[[package]]
+name = "mime"
+version = "0.3.17"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6877bb514081ee2a7ff5ef9de3281f14a4dd4bceac4c09388074a6b5df8a139a"
 
 [[package]]
 name = "minimal-lexical"
@@ -4964,6 +5041,12 @@ dependencies = [
  "core2",
  "unsigned-varint",
 ]
+
+[[package]]
+name = "multimap"
+version = "0.10.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1d87ecb2933e8aeadb3e3a02b828fed80a7528047e68b4f424523a0981a3a084"
 
 [[package]]
 name = "munge"
@@ -5531,6 +5614,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "petgraph"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3672b37090dbd86368a4145bc067582552b29c27377cad4e0a306c97f9bd7772"
+dependencies = [
+ "fixedbitset",
+ "indexmap 2.11.4",
+]
+
+[[package]]
 name = "phf"
 version = "0.11.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5685,6 +5778,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "prettyplease"
+version = "0.2.37"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "479ca8adacdd7ce8f1fb39ce9ecccbfe93a3f1344b3d0d97f20bc0196208f62b"
+dependencies = [
+ "proc-macro2",
+ "syn 2.0.106",
+]
+
+[[package]]
 name = "primeorder"
 version = "0.13.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5807,6 +5910,58 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.106",
+]
+
+[[package]]
+name = "prost"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2796faa41db3ec313a31f7624d9286acf277b52de526150b7e69f3debf891ee5"
+dependencies = [
+ "bytes",
+ "prost-derive",
+]
+
+[[package]]
+name = "prost-build"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "be769465445e8c1474e9c5dac2018218498557af32d9ed057325ec9a41ae81bf"
+dependencies = [
+ "heck",
+ "itertools 0.10.5",
+ "log",
+ "multimap",
+ "once_cell",
+ "petgraph",
+ "prettyplease",
+ "prost",
+ "prost-types",
+ "regex",
+ "syn 2.0.106",
+ "tempfile",
+]
+
+[[package]]
+name = "prost-derive"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8a56d757972c98b346a9b766e3f02746cde6dd1cd1d1d563472929fdd74bec4d"
+dependencies = [
+ "anyhow",
+ "itertools 0.10.5",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.106",
+]
+
+[[package]]
+name = "prost-types"
+version = "0.13.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52c2c1bf36ddb1a1c396b3601a3cec27c2462e45f07c386894ec3ccf5332bd16"
+dependencies = [
+ "prost",
 ]
 
 [[package]]
@@ -8630,6 +8785,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "serde_path_to_error"
+version = "0.1.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "10a9ff822e371bb5403e391ecd83e182e0e77ba7f6fe0160b795797109d1b457"
+dependencies = [
+ "itoa",
+ "serde",
+ "serde_core",
+]
+
+[[package]]
 name = "serde_spanned"
 version = "0.6.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9407,6 +9573,7 @@ dependencies = [
  "tokio",
  "tower-layer",
  "tower-service",
+ "tracing",
 ]
 
 [[package]]
@@ -9583,6 +9750,42 @@ name = "try-lock"
 version = "0.2.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
+
+[[package]]
+name = "twirp"
+version = "0.9.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e3c52cc4e4423b6b3e2e2659523c8c9e19af514a06422fe77a95d86f6bf3478a"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "axum",
+ "futures",
+ "http",
+ "http-body-util",
+ "hyper",
+ "prost",
+ "reqwest",
+ "serde",
+ "serde_json",
+ "thiserror 2.0.17",
+ "tokio",
+ "tower",
+ "url",
+]
+
+[[package]]
+name = "twirp-build"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "361c9d2474d96655b8a2fbaefba5801d5b1ffe74157b92cc3eae721ebb48d7a9"
+dependencies = [
+ "prettyplease",
+ "proc-macro2",
+ "prost-build",
+ "quote",
+ "syn 2.0.106",
+]
 
 [[package]]
 name = "typeid"
@@ -10644,7 +10847,7 @@ dependencies = [
 [[package]]
 name = "zkvm-interface"
 version = "0.0.13"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17#b8a1cfae86f18cc9a437b8e8e8bc8d0af5712b17"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6449699ec65229c464afed9ad88f81f697ce3bcf#6449699ec65229c464afed9ad88f81f697ce3bcf"
 dependencies = [
  "auto_impl",
  "clap",
