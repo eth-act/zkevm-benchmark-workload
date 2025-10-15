@@ -1,5 +1,6 @@
 //! SDK trait for stateless validator guest program.
 
+use alloc::vec::Vec;
 use k256::ecdsa::VerifyingKey;
 use reth_stateless::StatelessInput;
 

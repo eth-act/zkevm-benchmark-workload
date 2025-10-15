@@ -24,3 +24,7 @@ alloy-primitives.workspace = true
 
 # external
 k256.workspace = true
+
+[features]
+default = ["std"]
+std = ["guest-libs/std"]

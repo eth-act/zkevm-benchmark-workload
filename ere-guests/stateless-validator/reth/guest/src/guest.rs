@@ -1,6 +1,7 @@
 //! Abstracted guest program
 
-use std::{error::Error, sync::Arc};
+use alloc::{boxed::Box, sync::Arc, vec::Vec};
+use core::error::Error;
 
 use alloy_primitives::FixedBytes;
 use k256::ecdsa::VerifyingKey;
@@ -8,12 +9,12 @@ use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis};
+use reth_stateless::{ExecutionWitness, Genesis, stateless_validation_with_trie};
 use sparsestate::SparseState;
 
 use guest_libs::senders::recover_block_with_public_keys;
 
-use crate::sdk::{PublicInputs, ScopeMarker, SDK};
+use crate::sdk::{PublicInputs, SDK, ScopeMarker};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
@@ -50,8 +51,9 @@ pub fn ethereum_guest<S: SDK>() {
             };
             S::commit_outputs(&public_inputs);
         }
-        Err(err) => {
-            println!("Block validation failed: {err}");
+        Err(_err) => {
+            #[cfg(feature = "std")]
+            println!("Block validation failed: {_err}");
             let public_inputs = PublicInputs {
                 block_hash: header.hash_slow().0,
                 parent_hash: parent_hash.0,

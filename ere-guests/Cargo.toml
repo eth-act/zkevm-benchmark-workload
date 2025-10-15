@@ -122,7 +122,7 @@ zero_sized_map_values = "warn"
 
 [workspace.dependencies]
 guest-libs = { path = "libs", default-features = false }
-ere-reth-guest = { path = "stateless-validator/reth/guest" }
+ere-reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
 
 sp1-zkvm = "5.0.5"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
