@@ -1,5 +1,6 @@
 //! This module provies sender recovery helpers for witness generation and block stateless validation.
 
+use alloc::{boxed::Box, format, vec::Vec};
 use alloy_consensus::BlockHeader;
 use alloy_primitives::Address;
 use k256::ecdsa::{VerifyingKey, signature::hazmat::PrehashVerifier};
@@ -80,7 +81,7 @@ where
 }
 
 /// Recover public keys from transaction signatures.
-pub fn recover_signers<'a, I>(txs: I) -> Result<Vec<VerifyingKey>, Box<dyn std::error::Error>>
+pub fn recover_signers<'a, I>(txs: I) -> Result<Vec<VerifyingKey>, Box<dyn core::error::Error>>
 where
     I: IntoIterator<Item = &'a TransactionSigned>,
 {

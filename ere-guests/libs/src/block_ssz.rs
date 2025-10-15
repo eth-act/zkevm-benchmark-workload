@@ -6,6 +6,7 @@
 //! Reth, so we define our own SSZ-compatible structures here. Whenever Reth adds native SSZ support,
 //! we can consider removing this module and using the native types directly.
 
+use alloc::vec::Vec;
 use alloy_eips::eip4895;
 use alloy_primitives::{Address, B64, B256, BlockNumber, Bloom, Bytes, U256};
 
