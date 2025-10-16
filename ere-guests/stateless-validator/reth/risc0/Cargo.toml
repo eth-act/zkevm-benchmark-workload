@@ -25,6 +25,5 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "serde",
     "tiny-keccak",
 ] }
-c-kzg = { version = "=2.1.4", default-features = true }
 
 k256.workspace = true
