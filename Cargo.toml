@@ -126,20 +126,20 @@ ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb8
 ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
 
 # alloy
-alloy-eips = { version = "1.0.35" }
-alloy-rpc-types-eth = "1.0.35"
-alloy-consensus = { version = "1.0.35", default-features = false }
-alloy-primitives = { version = "1.3.1", default-features = false }
-alloy-hardforks = { version = "0.3.5", default-features = false }
+alloy-eips = { version = "1.0.37" }
+alloy-rpc-types-eth = "1.0.37"
+alloy-consensus = { version = "1.0.37", default-features = false }
+alloy-primitives = { version = "1.4.1", default-features = false }
+alloy-hardforks = { version = "0.4.0", default-features = false }
 alloy-chains = { version = "0.2.5", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 alloy-trie = { version = "0.9.1", default-features = false }
-alloy-genesis = { version = "1.0.35", default-features = false }
+alloy-genesis = { version = "1.0.37", default-features = false }
 
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
-revm-bytecode = { version = "6.2.2", default-features = false }
+revm-bytecode = { version = "7.0.2", default-features = false }
 
 k256 = { version = "0.13", default-features = false }
 
