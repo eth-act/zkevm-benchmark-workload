@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 ziskos.workspace = true
 ere-reth-guest.workspace = true
+guest-libs.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

@@ -1,12 +1,12 @@
 //! SDK trait for stateless validator guest program.
 
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use reth_stateless::StatelessInput;
 
 /// Trait that abstracts the SDK functions for reading inputs and committing outputs.
 pub trait SDK {
     /// Reads the expected inputs for the block validation.
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>);
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>);
     /// Commits the outputs from the block validation.
     fn commit_outputs(pi: &PublicInputs);
     /// Prints a message to the host environment.

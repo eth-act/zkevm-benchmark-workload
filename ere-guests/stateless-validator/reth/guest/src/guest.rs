@@ -3,22 +3,22 @@
 use std::{error::Error, sync::Arc};
 
 use alloy_primitives::FixedBytes;
-use k256::ecdsa::VerifyingKey;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
 use reth_primitives_traits::Block;
-use reth_stateless::{stateless_validation_with_trie, ExecutionWitness, Genesis};
+use reth_stateless::{
+    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
+};
 use sparsestate::SparseState;
 
-use guest_libs::senders::recover_block_with_public_keys;
-
-use crate::sdk::{PublicInputs, ScopeMarker, SDK};
+use crate::sdk::{PublicInputs, SDK, ScopeMarker};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "read_input");
     let (input, public_keys) = S::read_inputs();
+    let public_keys: Vec<UncompressedPublicKey> = public_keys.into_iter().map(|k| k.0).collect();
 
     let genesis = Genesis {
         config: input.chain_config.clone(),
@@ -67,16 +67,13 @@ fn validate_block<S: SDK>(
     block: EthBlock,
     witness: ExecutionWitness,
     chain_spec: Arc<ChainSpec>,
-    public_keys: Vec<VerifyingKey>,
+    public_keys: Vec<UncompressedPublicKey>,
     evm_config: EthEvmConfig,
 ) -> Result<FixedBytes<32>, Box<dyn Error>> {
-    S::cycle_scope(ScopeMarker::Start, "public_keys_validation");
-    let recovered_block = recover_block_with_public_keys(block, public_keys, &chain_spec)?;
-    S::cycle_scope(ScopeMarker::End, "public_keys_validation");
-
     S::cycle_scope(ScopeMarker::Start, "validation");
     let block_hash = stateless_validation_with_trie::<SparseState, _, _>(
-        recovered_block,
+        block,
+        public_keys,
         witness,
         chain_spec,
         evm_config,

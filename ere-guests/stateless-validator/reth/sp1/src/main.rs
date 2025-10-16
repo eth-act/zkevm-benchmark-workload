@@ -6,9 +6,9 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, ScopeMarker, SDK},
+    sdk::{PublicInputs, SDK, ScopeMarker},
 };
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use reth_stateless::StatelessInput;
 use tracing_subscriber::fmt;
 
@@ -18,9 +18,9 @@ sp1_zkvm::entrypoint!(main);
 struct SP1SDK;
 
 impl SDK for SP1SDK {
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
-        let input = sp1_zkvm::io::read::<StatelessInput>();
-        let public_keys = sp1_zkvm::io::read::<Vec<VerifyingKey>>();
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
+        let input = sp1_zkvm::io::read();
+        let public_keys = sp1_zkvm::io::read();
         (input, public_keys)
     }
 

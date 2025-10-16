@@ -6,9 +6,9 @@ use std::io::Cursor;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, ScopeMarker, SDK},
+    sdk::{PublicInputs, SDK, ScopeMarker},
 };
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use reth_stateless::StatelessInput;
 use sha2::{Digest, Sha256};
 
@@ -18,10 +18,10 @@ ziskos::entrypoint!(main);
 struct ZiskSDK;
 
 impl SDK for ZiskSDK {
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
         let mut input_bytes = Cursor::new(ziskos::read_input());
-        let input: StatelessInput = bincode::deserialize_from(&mut input_bytes).unwrap();
-        let public_keys: Vec<VerifyingKey> = bincode::deserialize_from(&mut input_bytes).unwrap();
+        let input = bincode::deserialize_from(&mut input_bytes).unwrap();
+        let public_keys = bincode::deserialize_from(&mut input_bytes).unwrap();
         (input, public_keys)
     }
 

@@ -3506,8 +3506,6 @@ dependencies = [
  "alloy-primitives",
  "ethereum_ssz",
  "ethereum_ssz_derive",
- "k256",
- "reth-chainspec",
  "reth-ethereum-primitives",
  "reth-primitives-traits",
  "serde",

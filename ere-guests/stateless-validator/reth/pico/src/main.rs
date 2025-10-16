@@ -6,9 +6,9 @@ extern crate alloc;
 
 use ere_reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, ScopeMarker, SDK},
+    sdk::{PublicInputs, SDK, ScopeMarker},
 };
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use pico_sdk::io::{commit, read_as};
 use reth_stateless::StatelessInput;
 
@@ -17,7 +17,7 @@ pico_sdk::entrypoint!(main);
 struct PicoSDK;
 
 impl SDK for PicoSDK {
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
         let input = read_as();
         let public_keys = read_as();
         (input, public_keys)
