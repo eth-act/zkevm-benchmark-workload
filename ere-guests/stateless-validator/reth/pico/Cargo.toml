@@ -25,3 +25,5 @@ alloy-primitives = { workspace = true, default-features = false, features = [
     "sha3-keccak",
 ] }
 k256.workspace = true
+
+kzg-rs = { git = "https://github.com/brevis-network/kzg-rs", rev = "b93499a67494bc6d34e108032fd11d375fb886e0" }
