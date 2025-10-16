@@ -141,13 +141,13 @@ openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
 
 
 # alloy
@@ -184,8 +184,8 @@ k256 = { version = "0.13", default-features = false, features = [
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.1.0" }
 
 [patch."https://github.com/paradigmxyz/reth"]
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "bb7a98e4f9a173d19e2e218126e9bfe344201b8d" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
 
 [patch.crates-io]
