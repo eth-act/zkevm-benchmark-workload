@@ -18,7 +18,7 @@ reth-primitives-traits = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 
-revm = { workspace = true, features = ["std", "c-kzg", "blst", "bn"] }
+revm = { workspace = true, features = ["std", "blst", "bn"] }
 
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
