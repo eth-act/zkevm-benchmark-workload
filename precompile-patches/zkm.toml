@@ -5,5 +5,4 @@ curve25519-dalek-ng = { git = "https://github.com/zkMIPS-patches/curve25519-dale
 secp256k1 = { git = "https://github.com/zkMIPS-patches/rust-secp256k1", branch = "patch-0.29.1" }
 substrate-bn = { git = "https://github.com/zkMIPS-patches/bn", branch = "patch-0.6.0" }
 rsa = { git = "https://github.com/zkMIPS-patches/RustCrypto-RSA.git", branch = "patch-rsa-0.9.6" }
-kzg-rs = { git = "https://github.com/zkMIPS-patches/kzg-rs.git", branch = "zkMIPS" }
 # This is missing sha3, patch in the mips crate or do it locally
