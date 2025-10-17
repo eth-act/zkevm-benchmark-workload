@@ -6,16 +6,16 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, ScopeMarker, SDK},
 };
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use reth_stateless::StatelessInput;
 use risc0_zkvm::guest::env;
 
 pub struct Risc0SDK;
 
 impl SDK for Risc0SDK {
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
-        let input = env::read::<StatelessInput>();
-        let public_keys = env::read::<Vec<VerifyingKey>>();
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
+        let input = env::read();
+        let public_keys = env::read();
         (input, public_keys)
     }
 

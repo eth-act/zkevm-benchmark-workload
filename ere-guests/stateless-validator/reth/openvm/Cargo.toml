@@ -10,6 +10,7 @@ openvm.workspace = true
 openvm-keccak256.workspace = true
 openvm-algebra-guest.workspace = true
 openvm-ecc-guest.workspace = true
+guest-libs.workspace = true
 ere-reth-guest.workspace = true
 
 reth-stateless.workspace = true

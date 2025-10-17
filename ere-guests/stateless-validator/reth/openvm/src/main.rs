@@ -4,7 +4,7 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, ScopeMarker, SDK},
 };
-use k256::ecdsa::VerifyingKey;
+use guest_libs::senders::UncompressedPublicKey;
 use openvm::io::{read, reveal_bytes32};
 use sha2::{Digest, Sha256};
 
@@ -17,9 +17,9 @@ openvm::init!();
 struct OpenVMSDK;
 
 impl SDK for OpenVMSDK {
-    fn read_inputs() -> (StatelessInput, Vec<VerifyingKey>) {
+    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
         let input = read();
-        let public_keys = read();
+        let public_keys: Vec<UncompressedPublicKey> = read();
         (input, public_keys)
     }
 

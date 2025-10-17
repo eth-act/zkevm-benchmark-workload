@@ -8,6 +8,7 @@ license.workspace = true
 [dependencies]
 ziskos.workspace = true
 ere-reth-guest.workspace = true
+guest-libs.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
@@ -19,10 +20,7 @@ reth-primitives-traits = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 
-revm = { workspace = true, default-features = false, features = [
-    "kzg-rs",
-    "bn",
-] }
+revm = { workspace = true, default-features = false, features = ["bn"] }
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
