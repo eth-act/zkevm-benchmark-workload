@@ -181,7 +181,7 @@ k256 = { version = "0.13", default-features = false, features = [
     "serde",
     "pem",
 ] }
-sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.2.0" }
+sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.3.0" }
 
 [patch."https://github.com/paradigmxyz/reth"]
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "e855733f68249d490554a93f12c090e76f993640" }
