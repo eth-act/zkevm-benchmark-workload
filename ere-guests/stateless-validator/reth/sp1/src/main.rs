@@ -8,8 +8,7 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, SDK, ScopeMarker},
 };
-use guest_libs::senders::UncompressedPublicKey;
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);

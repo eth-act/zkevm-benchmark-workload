@@ -1,7 +1,6 @@
 //! SDK trait for stateless validator guest program.
 
-use guest_libs::senders::UncompressedPublicKey;
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, UncompressedPublicKey};
 
 /// Trait that abstracts the SDK functions for reading inputs and committing outputs.
 pub trait SDK {

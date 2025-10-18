@@ -1,13 +1,7 @@
 //! This module provies sender recovery helpers for witness generation and block stateless validation.
 
 use reth_ethereum_primitives::TransactionSigned;
-use serde::{Deserialize, Serialize};
-use serde_with::{Bytes, serde_as};
-
-/// Uncompressed public key wrapper that supports bincode serialization
-#[serde_as]
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct UncompressedPublicKey(#[serde_as(as = "Bytes")] pub [u8; 65]);
+use reth_stateless::UncompressedPublicKey;
 
 /// Errors that can occur during stateless validation.
 #[derive(Debug, thiserror::Error)]

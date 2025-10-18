@@ -6,6 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+reth-stateless.workspace = true
 reth-primitives-traits.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
     "serde",
