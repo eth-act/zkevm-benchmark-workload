@@ -6,8 +6,7 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, ScopeMarker, SDK},
 };
-use guest_libs::senders::UncompressedPublicKey;
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use risc0_zkvm::guest::env;
 
 pub struct Risc0SDK;

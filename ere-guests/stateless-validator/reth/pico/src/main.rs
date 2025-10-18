@@ -8,10 +8,9 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, SDK, ScopeMarker},
 };
-use guest_libs::senders::UncompressedPublicKey;
 use kzg_rs::{Bytes32, Bytes48};
 use pico_sdk::io::{commit, read_as};
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use revm::precompile::{Crypto, PrecompileError, interface::install_crypto};
 
 pico_sdk::entrypoint!(main);

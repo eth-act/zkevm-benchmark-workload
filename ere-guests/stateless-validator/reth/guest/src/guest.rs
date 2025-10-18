@@ -18,7 +18,6 @@ use crate::sdk::{PublicInputs, SDK, ScopeMarker};
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "read_input");
     let (input, public_keys) = S::read_inputs();
-    let public_keys: Vec<UncompressedPublicKey> = public_keys.into_iter().map(|k| k.0).collect();
 
     let genesis = Genesis {
         config: input.chain_config.clone(),

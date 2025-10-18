@@ -4,13 +4,12 @@ use ere_reth_guest::{
     guest::ethereum_guest,
     sdk::{PublicInputs, ScopeMarker, SDK},
 };
-use guest_libs::senders::UncompressedPublicKey;
 use openvm::io::{read, reveal_bytes32};
 use sha2::{Digest, Sha256};
 
 // For linker declarations:
 use openvm_keccak256 as _;
-use reth_stateless::StatelessInput;
+use reth_stateless::{StatelessInput, UncompressedPublicKey};
 
 openvm::init!();
 
