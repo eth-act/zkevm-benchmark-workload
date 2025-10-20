@@ -5,7 +5,6 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "ere-guests/empty-program/io",
     "ere-guests/block-encoding-length/io",
     "ere-guests/stateless-validator/reth/io",
     "tests",
@@ -112,7 +111,6 @@ benchmark-runner = { path = "crates/benchmark-runner" }
 guest-libs = { path = "ere-guests/libs" }
 
 reth-guest-io = { path = "ere-guests/stateless-validator/reth/io" }
-empty-program-io = { path = "ere-guests/empty-program/io" }
 block-encoding-length-io = { path = "ere-guests/block-encoding-length/io" }
 
 ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "577f97165eb759cf4515af1ccebb1d1e2b8e1581", package = "ere-zkvm-interface" }

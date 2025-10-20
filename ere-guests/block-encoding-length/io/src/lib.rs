@@ -1,10 +1,7 @@
 //! Input definitions for the block encoding length calculation guest program.
 
 use ere_io_serde::{IoSerde, bincode};
-use guest_libs::{
-    BincodeBlock,
-    io::{ProgramInput, ProgramInputError},
-};
+use guest_libs::BincodeBlock;
 use serde::Serialize;
 
 /// Input for the block encoding length calculation guest program.
@@ -18,12 +15,9 @@ pub struct Input {
     pub format: BlockEncodingFormat,
 }
 
-impl ProgramInput for Input {
-    fn serialize_inputs(&self) -> Result<Vec<u8>, ProgramInputError> {
-        bincode::Bincode::legacy()
-            .serialize(self)
-            .map_err(ProgramInputError::SerializationError)
-    }
+/// Returns the serialization implementation for the block encoding length input.
+pub fn io_serde() -> impl IoSerde {
+    bincode::Bincode::legacy()
 }
 
 /// The encoding format used for the block encoding length calculation.

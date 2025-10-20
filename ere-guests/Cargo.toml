@@ -12,7 +12,6 @@ members = [
     # Ethrex stateless validator is not part of the workspace
 
     # Empty program
-    "empty-program/io",
     "empty-program/sp1",
     "empty-program/risc0",
     "empty-program/zisk",

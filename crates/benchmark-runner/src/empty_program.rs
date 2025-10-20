@@ -1,9 +1,7 @@
 //! Empty program guest program.
 
 use anyhow::Result;
-use empty_program_io::EmptyProgramInput;
 use ere_dockerized::ErezkVM;
-use guest_libs::io::ProgramInput;
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -14,7 +12,7 @@ impl GuestMetadata for () {}
 pub fn empty_program_input() -> Result<GuestIO<(), ProgramOutputVerifier>> {
     Ok(GuestIO {
         name: "empty_program".to_string(),
-        input: EmptyProgramInput.serialize_inputs()?,
+        input: vec![],
         output: ProgramOutputVerifier,
         metadata: (),
     })

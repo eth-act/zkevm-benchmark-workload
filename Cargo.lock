@@ -1327,8 +1327,8 @@ dependencies = [
  "anyhow",
  "bincode 1.3.3",
  "block-encoding-length-io",
- "empty-program-io",
  "ere-dockerized",
+ "ere-io-serde",
  "ere-zkvm-interface",
  "ethrex-common",
  "ethrex-rlp",
@@ -2505,13 +2505,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "empty-program-io"
-version = "0.1.0"
-dependencies = [
- "guest-libs",
-]
-
-[[package]]
 name = "enr"
 version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3350,7 +3343,6 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
- "ere-io-serde",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "reth-ethereum-primitives",

@@ -11,10 +11,10 @@ ere-zkvm-interface.workspace = true
 guest-libs.workspace = true
 
 reth-guest-io.workspace = true
-empty-program-io.workspace = true
 block-encoding-length-io.workspace = true
 
 ere-dockerized.workspace = true
+ere-io-serde.workspace = true
 
 alloy-rlp.workspace = true
 alloy-eips.workspace = true

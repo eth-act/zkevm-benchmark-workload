@@ -6,6 +6,7 @@ use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_rlp::Encodable;
 use anyhow::{Context, Result};
 use ere_dockerized::ErezkVM;
+use ere_io_serde::IoSerde;
 use ethrex_common::{
     types::{
         block_execution_witness::ExecutionWitness, BlobSchedule, Block, ChainConfig,
@@ -14,7 +15,6 @@ use ethrex_common::{
     H160,
 };
 use ethrex_rlp::decode::RLPDecode;
-use guest_libs::io::ProgramInput;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -115,10 +115,11 @@ impl OutputVerifier for ProgramOutputVerifier {
 
 fn get_input(si: &StatelessInput, el: &ExecutionClient) -> Result<Vec<u8>> {
     match el {
-        ExecutionClient::Reth => Ok(reth_guest_io::Input::new(si.clone())
-            .context("Creating Reth inputs")?
-            .serialize_inputs()
-            .context("Serializing Reth inputs")?),
+        ExecutionClient::Reth => reth_guest_io::io_serde()
+            .serialize(
+                &reth_guest_io::Input::new(si.clone()).context("Failed to create Reth input")?,
+            )
+            .map_err(|e| anyhow::anyhow!("Reth serialization error: {e}")),
         ExecutionClient::Ethrex => {
             let mut rlp_bytes = vec![];
             si.block.encode(&mut rlp_bytes);

@@ -2,10 +2,7 @@
 
 use anyhow::Result;
 use ere_io_serde::{IoSerde, bincode};
-use guest_libs::{
-    io::{ProgramInput, ProgramInputError},
-    senders::recover_signers,
-};
+use guest_libs::senders::recover_signers;
 use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use serde::Serialize;
 
@@ -30,11 +27,7 @@ impl Input {
     }
 }
 
-// TODO: Auto-impl?
-impl ProgramInput for Input {
-    fn serialize_inputs(&self) -> Result<Vec<u8>, ProgramInputError> {
-        bincode::Bincode::legacy()
-            .serialize(self)
-            .map_err(ProgramInputError::SerializationError)
-    }
+/// Returns the serialization implementation for the stateless validator input.
+pub fn io_serde() -> impl IoSerde {
+    bincode::Bincode::legacy()
 }

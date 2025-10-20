@@ -2,14 +2,13 @@
 
 use anyhow::{anyhow, bail, Context, Result};
 use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
-use guest_libs::io::ProgramInput;
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{any::Any, panic};
 use tracing::{error, info};
 
-use ere_zkvm_interface::{zkVM, zkVMError, Compiler, ProofKind, ProverResourceType, PublicValues};
+use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType, PublicValues};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
