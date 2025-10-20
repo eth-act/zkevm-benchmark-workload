@@ -6,7 +6,7 @@ extern crate alloc;
 
 use reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{SDK, ScopeMarker},
 };
 use sp1_zkvm::io::read_vec;
 use tracing_subscriber::fmt;
@@ -22,7 +22,7 @@ impl SDK for SP1SDK {
     }
 
     fn commit_output(output: [u8; 32]) {
-        sp1_zkvm::io::commit(&public_inputs_hash);
+        sp1_zkvm::io::commit(&output);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {

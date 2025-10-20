@@ -4,7 +4,7 @@
 
 use reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{SDK, ScopeMarker},
 };
 
 ziskos::entrypoint!(main);
