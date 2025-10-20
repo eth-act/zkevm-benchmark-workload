@@ -8,6 +8,8 @@ license.workspace = true
 [dependencies]
 guest-libs.workspace = true
 sparsestate.workspace = true
+reth-guest-io.workspace = true
+ere-io-serde.workspace = true
 
 # reth
 reth-primitives-traits.workspace = true
@@ -24,5 +26,6 @@ alloy-primitives.workspace = true
 
 # external
 k256.workspace = true
+bincode.workspace = true
 serde.workspace = true
 serde_with.workspace = true

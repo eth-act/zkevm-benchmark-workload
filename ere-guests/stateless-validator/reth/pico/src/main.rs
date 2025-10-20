@@ -9,7 +9,7 @@ use ere_reth_guest::{
     sdk::{PublicInputs, SDK, ScopeMarker},
 };
 use kzg_rs::{Bytes32, Bytes48};
-use pico_sdk::io::{commit, read_as};
+use pico_sdk::io::{commit, read_vec};
 use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use revm::precompile::{Crypto, PrecompileError, interface::install_crypto};
 
@@ -18,16 +18,12 @@ pico_sdk::entrypoint!(main);
 struct PicoSDK;
 
 impl SDK for PicoSDK {
-    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
-        let input = read_as();
-        let public_keys = read_as();
-        (input, public_keys)
+    fn read_input() -> Vec<u8> {
+        read_vec()
     }
 
-    fn commit_outputs(pi: &PublicInputs) {
-        commit(&pi.block_hash);
-        commit(&pi.parent_hash);
-        commit(&pi.is_valid);
+    fn commit_outputs(output: [u8; 32]) {
+        commit(&output);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {

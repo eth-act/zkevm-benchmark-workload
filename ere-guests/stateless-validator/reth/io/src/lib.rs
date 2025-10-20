@@ -4,15 +4,15 @@ use anyhow::Result;
 use ere_io_serde::{IoSerde, bincode};
 use guest_libs::senders::recover_signers;
 use reth_stateless::{StatelessInput, UncompressedPublicKey};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 /// Input for the stateless validator guest program.
-#[derive(Debug, Clone, Serialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Input {
     /// The stateless input for the stateless validation function.
     pub stateless_input: StatelessInput,
     /// The recovered signers for the transactions in the block.
-    pub signers: Vec<UncompressedPublicKey>,
+    pub public_keys: Vec<UncompressedPublicKey>,
 }
 
 impl Input {
@@ -22,7 +22,7 @@ impl Input {
             .map_err(|err| anyhow::anyhow!("recovering signers: {err}"))?;
         Ok(Self {
             stateless_input,
-            signers,
+            public_keys: signers,
         })
     }
 }
