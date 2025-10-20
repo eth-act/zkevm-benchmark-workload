@@ -6,7 +6,7 @@ edition = "2021"
 [dev-dependencies]
 benchmark-runner.workspace = true
 zkevm-metrics.workspace = true
-zkvm-interface.workspace = true
+ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
 witness-generator.workspace = true
 

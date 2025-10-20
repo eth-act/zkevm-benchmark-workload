@@ -9,13 +9,17 @@ license.workspace = true
 default = []
 
 [dependencies]
+benchmark-runner.workspace = true
+block-encoding-length-io.workspace = true
+
+ere-zkvm-interface.workspace = true
+ere-dockerized.workspace = true
+
+anyhow.workspace = true
 clap.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 
-benchmark-runner.workspace = true
-zkvm-interface.workspace = true
-ere-dockerized.workspace = true
 
 [lints]
 workspace = true

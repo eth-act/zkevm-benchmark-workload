@@ -17,6 +17,8 @@ alloy-consensus.workspace = true
 alloy-primitives.workspace = true
 alloy-eips.workspace = true
 
+ere-io-serde.workspace = true
+
 serde = { workspace = true, features = ["derive"] }
 serde_with.workspace = true
 

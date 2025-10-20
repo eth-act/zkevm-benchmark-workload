@@ -4,7 +4,7 @@ use std::{convert::TryInto, path::Path};
 
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_rlp::Encodable;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ere_dockerized::ErezkVM;
 use ethrex_common::{
     types::{
@@ -13,8 +13,8 @@ use ethrex_common::{
     },
     H160,
 };
-use ethrex_guest_program::input::ProgramInput;
 use ethrex_rlp::decode::RLPDecode;
+use guest_libs::io::ProgramInput;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -23,7 +23,6 @@ use sha2::{Digest, Sha256};
 use strum::{AsRefStr, EnumString};
 use walkdir::WalkDir;
 use witness_generator::BlockAndWitness;
-use zkvm_interface::Input;
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -54,7 +53,7 @@ pub fn stateless_validator_inputs(
         .map(|bw| {
             Ok(GuestIO {
                 name: bw.name,
-                input: write_stdin(&bw.block_and_witness, &el)?,
+                input: get_input(&bw.block_and_witness, &el)?,
                 metadata: BlockMetadata {
                     block_used_gas: bw.block_and_witness.block.gas_used,
                 },
@@ -100,78 +99,38 @@ pub struct ProgramOutputVerifier {
 }
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
-        match zkvm {
-            ErezkVM::SP1 | ErezkVM::Risc0 | ErezkVM::Pico => {
-                let mut bytes: &[u8] = bytes;
-                let block_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
-                let parent_hash: [u8; 32] = zkvm.deserialize_from(&mut bytes)?;
-                let success: bool = zkvm.deserialize_from(&mut bytes)?;
+    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
+        let public_inputs = (self.block_hash, self.parent_hash, self.success);
+        let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs).unwrap());
 
-                if block_hash != self.block_hash {
-                    return Ok(OutputVerifierResult::Mismatch(format!(
-                        "Block hash mismatch: expected {:?}, got {:?}",
-                        self.block_hash, block_hash
-                    )));
-                }
-                if parent_hash != self.parent_hash {
-                    return Ok(OutputVerifierResult::Mismatch(format!(
-                        "Parent hash mismatch: expected {:?}, got {:?}",
-                        self.parent_hash, parent_hash
-                    )));
-                }
-                if success != self.success {
-                    return Ok(OutputVerifierResult::Mismatch(format!(
-                        "Success mismatch: expected {:?}, got {:?}",
-                        self.success, success
-                    )));
-                }
-            }
-            ErezkVM::OpenVM | ErezkVM::Zisk => {
-                let public_inputs = (self.block_hash, self.parent_hash, self.success);
-                let public_inputs_hash =
-                    Sha256::digest(bincode::serialize(&public_inputs).unwrap());
-
-                if public_inputs_hash.as_slice() != bytes {
-                    return Ok(OutputVerifierResult::Mismatch(format!(
-                        "Public inputs hash mismatch: expected {public_inputs_hash:?}, got {bytes:?}"
-                    )));
-                }
-            }
-            _ => unimplemented!(),
-        };
+        if public_inputs_hash.as_slice() != bytes {
+            return Ok(OutputVerifierResult::Mismatch(format!(
+                "Public inputs hash mismatch: expected {public_inputs_hash:?}, got {bytes:?}"
+            )));
+        }
 
         Ok(OutputVerifierResult::Match)
     }
 }
 
-fn write_stdin(si: &StatelessInput, el: &ExecutionClient) -> Result<Input> {
+fn get_input(si: &StatelessInput, el: &ExecutionClient) -> Result<Vec<u8>> {
     match el {
-        ExecutionClient::Reth => {
-            let public_keys =
-                guest_libs::senders::recover_signers(si.block.body.transactions.iter())
-                    .map_err(|err| anyhow::anyhow!("recovering signers: {err}"))?;
-            let mut stdin = Input::new();
-            stdin.write(si.clone());
-            stdin.write(public_keys);
-
-            Ok(stdin)
-        }
+        ExecutionClient::Reth => Ok(reth_guest_io::Input::new(si.clone())
+            .context("Creating Reth inputs")?
+            .serialize_inputs()
+            .context("Serializing Reth inputs")?),
         ExecutionClient::Ethrex => {
             let mut rlp_bytes = vec![];
             si.block.encode(&mut rlp_bytes);
             let (ethrex_block, _) = Block::decode_unfinished(&rlp_bytes)?;
 
-            let ethrex_program_input = ProgramInput {
+            let ethrex_program_input = ethrex_guest_program::input::ProgramInput {
                 blocks: vec![ethrex_block],
                 execution_witness: from_reth_witness_to_ethrex_witness(si.block.number, si)?,
                 elasticity_multiplier: 2u64, // NOTE: Ethrex doesn't derive this value from chain config.
             };
 
-            let mut stdin = Input::new();
-            stdin.write_bytes(rkyv::to_bytes::<Error>(&ethrex_program_input)?.to_vec());
-
-            Ok(stdin)
+            Ok(rkyv::to_bytes::<Error>(&ethrex_program_input)?.to_vec())
         }
     }
 }

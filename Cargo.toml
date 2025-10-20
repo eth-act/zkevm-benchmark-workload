@@ -5,6 +5,9 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
+    "ere-guests/empty-program/io",
+    "ere-guests/block-encoding-length/io",
+    "ere-guests/stateless-validator/reth/io",
     "tests",
     "xtask",
 ]
@@ -105,10 +108,16 @@ zero_sized_map_values = "warn"
 witness-generator = { path = "crates/witness-generator" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
+
 guest-libs = { path = "ere-guests/libs" }
 
-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "3d890355f078d29ef5d12dac47bd1241b088f051", package = "zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "3d890355f078d29ef5d12dac47bd1241b088f051", package = "ere-dockerized" }
+reth-guest-io = { path = "ere-guests/stateless-validator/reth/io" }
+empty-program-io = { path = "ere-guests/empty-program/io" }
+block-encoding-length-io = { path = "ere-guests/block-encoding-length/io" }
+
+ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "577f97165eb759cf4515af1ccebb1d1e2b8e1581", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "577f97165eb759cf4515af1ccebb1d1e2b8e1581", package = "ere-dockerized" }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "577f97165eb759cf4515af1ccebb1d1e2b8e1581", package = "ere-io-serde" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

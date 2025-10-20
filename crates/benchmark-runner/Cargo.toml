@@ -6,8 +6,13 @@ edition = "2021"
 [dependencies]
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
-zkvm-interface.workspace = true
+ere-zkvm-interface.workspace = true
+
 guest-libs.workspace = true
+
+reth-guest-io.workspace = true
+empty-program-io.workspace = true
+block-encoding-length-io.workspace = true
 
 ere-dockerized.workspace = true
 

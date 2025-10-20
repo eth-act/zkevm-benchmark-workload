@@ -1,0 +1,16 @@
+[package]
+name = "block-encoding-length-io"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+guest-libs.workspace = true
+ere-io-serde.workspace = true
+
+serde = { workspace = true, features = ["derive"] }
+
+
+[lints]
+workspace = true
