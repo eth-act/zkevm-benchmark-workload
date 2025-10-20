@@ -8,6 +8,8 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 sp1-zkvm.workspace = true
 
+ere-io-serde.workspace = true
+block-encoding-length-io.workspace = true
 guest-libs.workspace = true
 
 tracing = "*"
