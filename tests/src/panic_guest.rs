@@ -27,7 +27,7 @@ mod tests {
 
     async fn panic_guest(zkvms: &[ErezkVM], action: Action) {
         let output_folder = tempdir().unwrap();
-        let input = empty_program::empty_program_input();
+        let input = empty_program::empty_program_input().unwrap();
         run_guest(
             "panic-guest",
             zkvms,

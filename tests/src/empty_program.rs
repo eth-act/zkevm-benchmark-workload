@@ -33,7 +33,7 @@ mod tests {
 
     async fn empty_program(zkvms: &[ErezkVM], action: Action) {
         let output_folder = tempdir().unwrap();
-        let input = empty_program::empty_program_input();
+        let input = empty_program::empty_program_input().unwrap();
         run_guest(
             "empty-program",
             zkvms,
