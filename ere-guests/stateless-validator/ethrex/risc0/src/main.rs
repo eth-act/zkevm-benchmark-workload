@@ -54,5 +54,5 @@ fn commit_output(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
     let public_inputs = (block_hash, parent_hash, is_valid);
     let public_inputs_hash: [u8; 32] =
         Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
-    env::commit(&public_inputs_hash);
+    env::commit_slice(&public_inputs_hash);
 }

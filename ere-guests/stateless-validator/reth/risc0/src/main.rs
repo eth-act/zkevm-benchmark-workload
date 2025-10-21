@@ -22,7 +22,7 @@ impl SDK for Risc0SDK {
     }
 
     fn commit_output(output: [u8; 32]) {
-        env::commit(&output);
+        env::commit_slice(&output);
     }
 
     fn cycle_scope(_scope: ScopeMarker, _message: &str) {}

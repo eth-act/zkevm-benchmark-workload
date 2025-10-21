@@ -13,7 +13,3 @@ reth-stateless.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
 anyhow.workspace = true
-
-
-[lints]
-workspace = true
