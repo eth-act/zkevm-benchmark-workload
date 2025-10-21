@@ -2,6 +2,7 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
+use anyhow::{Context, Result};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
@@ -9,10 +10,10 @@ use benchmark_runner::{
 };
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::ErezkVM;
+use ere_zkvm_interface::ProverResourceType;
 use std::path::{Path, PathBuf};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
-use zkvm_interface::ProverResourceType;
 
 #[derive(Parser)]
 #[command(name = "zkvm-benchmarker")]
@@ -124,7 +125,7 @@ impl From<BenchmarkAction> for Action {
     }
 }
 
-impl From<BlockEncodingFormat> for block_encoding_length_program::BlockEncodingFormat {
+impl From<BlockEncodingFormat> for block_encoding_length_io::BlockEncodingFormat {
     fn from(format: BlockEncodingFormat) -> Self {
         match format {
             BlockEncodingFormat::Rlp => Self::Rlp,
@@ -142,7 +143,7 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
     }
 }
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
@@ -190,7 +191,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let guest_io = empty_program::empty_program_input();
+            let guest_io = empty_program::empty_program_input()
+                .context("Failed to create empty program input")?;
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,

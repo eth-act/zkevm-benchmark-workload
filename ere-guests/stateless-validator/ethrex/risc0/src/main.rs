@@ -1,3 +1,6 @@
+use std::io::Read;
+
+use k256::sha2::{Digest, Sha256};
 use risc0_zkvm::guest::env;
 
 use guest_program::{execution::execution_program, input::ProgramInput};
@@ -6,7 +9,8 @@ use rkyv::rancor::Error;
 fn main() {
     println!("start reading input");
     let start = env::cycle_count();
-    let input = env::read_frame();
+    let mut input = Vec::new();
+    env::stdin().read_to_end(&mut input).unwrap();
     let mut input = rkyv::from_bytes::<ProgramInput, Error>(&input).unwrap();
     let end = env::cycle_count();
     eprintln!("reading input (cycle tracker): {}", end - start);
@@ -24,9 +28,7 @@ fn main() {
     println!("start stateless validation");
     let start = env::cycle_count();
     if input.blocks.len() != 1 {
-        env::commit(&block_hash.0);
-        env::commit(&parent_hash.0);
-        env::commit(&false);
+        commit_output(block_hash.0, parent_hash.0, false);
         return;
     }
     let res = execution_program(input);
@@ -41,16 +43,19 @@ fn main() {
     // - successful_block_validation : bool
     match res {
         Ok(out) => {
-            env::commit(&out.last_block_hash.0);
-            env::commit(&parent_hash.0);
-            env::commit(&true);
+            commit_output(out.last_block_hash.0, parent_hash.0, true);
         }
         Err(_) => {
-            env::commit(&block_hash.0);
-            env::commit(&parent_hash.0);
-            env::commit(&false);
+            commit_output(block_hash.0, parent_hash.0, false);
         }
     }
     let end = env::cycle_count();
     eprintln!("commit public inputs (cycle tracker): {}", end - start);
+}
+
+fn commit_output(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
+    let public_inputs = (block_hash, parent_hash, is_valid);
+    let public_inputs_hash: [u8; 32] =
+        Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
+    env::commit_slice(&public_inputs_hash);
 }

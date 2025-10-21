@@ -14,11 +14,11 @@ use benchmark_runner::{
     stateless_validator::ExecutionClient,
 };
 use ere_dockerized::ErezkVM;
+use ere_zkvm_interface::ProverResourceType;
 use flate2::bufread::GzDecoder;
 use tar::Archive;
 use walkdir::WalkDir;
 use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
-use zkvm_interface::ProverResourceType;
 
 pub(crate) fn run_guest<T, OV>(
     guest_rel: &str,

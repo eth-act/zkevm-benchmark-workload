@@ -4,11 +4,11 @@
 
 extern crate alloc;
 
-use ere_reth_guest::{
+use reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
+    sdk::{SDK, ScopeMarker},
 };
-use reth_stateless::{StatelessInput, UncompressedPublicKey};
+use sp1_zkvm::io::read_vec;
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);
@@ -17,16 +17,12 @@ sp1_zkvm::entrypoint!(main);
 struct SP1SDK;
 
 impl SDK for SP1SDK {
-    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
-        let input = sp1_zkvm::io::read();
-        let public_keys = sp1_zkvm::io::read();
-        (input, public_keys)
+    fn read_input() -> Vec<u8> {
+        read_vec()
     }
 
-    fn commit_outputs(pi: &PublicInputs) {
-        sp1_zkvm::io::commit(&pi.block_hash);
-        sp1_zkvm::io::commit(&pi.parent_hash);
-        sp1_zkvm::io::commit(&pi.is_valid);
+    fn commit_output(output: [u8; 32]) {
+        sp1_zkvm::io::commit(&output);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {

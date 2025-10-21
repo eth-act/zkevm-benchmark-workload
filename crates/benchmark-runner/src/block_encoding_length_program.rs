@@ -3,10 +3,11 @@
 use std::path::Path;
 
 use anyhow::*;
+use block_encoding_length_io::{BlockEncodingFormat, Input};
 use ere_dockerized::ErezkVM;
+use ere_io_serde::IoSerde;
 use guest_libs::BincodeBlock;
 use serde::{Deserialize, Serialize};
-use zkvm_interface::Input;
 
 use crate::{
     guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult},
@@ -22,42 +23,34 @@ pub struct BlockEncodingLengthMetadata {
 }
 impl GuestMetadata for BlockEncodingLengthMetadata {}
 
-/// The encoding format used for the block encoding length calculation.
-#[derive(Debug, Clone, Copy)]
-#[repr(u8)]
-pub enum BlockEncodingFormat {
-    /// RLP encoding format
-    Rlp,
-    /// SSZ encoding format
-    Ssz,
-}
-
 /// Generate inputs for the block encoding lengths calculation guest programs.
 pub fn block_encoding_length_inputs(
     input_folder: &Path,
     loop_count: u16,
     format: BlockEncodingFormat,
-) -> anyhow::Result<Vec<GuestIO<BlockEncodingLengthMetadata, ProgramOutputVerifier>>> {
+) -> Result<Vec<GuestIO<BlockEncodingLengthMetadata, ProgramOutputVerifier>>> {
     let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
-            let mut stdin = Input::new();
-            let metadata = BlockEncodingLengthMetadata {
-                format: format!("{format:?}"),
-                block_hash: bw.block_and_witness.block.hash_slow().to_string(),
+            let input = Input {
+                block: BincodeBlock(bw.block_and_witness.block.clone()),
                 loop_count,
+                format,
             };
-            stdin.write(BincodeBlock(bw.block_and_witness.block));
-            stdin.write(loop_count);
-            stdin.write(format as u8);
-            GuestIO {
+            Ok(GuestIO {
                 name: bw.name,
-                input: stdin,
-                metadata,
+                input: block_encoding_length_io::io_serde()
+                    .serialize(&input)
+                    .map_err(|e| anyhow!("failed to serialize input: {}", e))?,
+                metadata: BlockEncodingLengthMetadata {
+                    format: format!("{format:?}"),
+                    block_hash: bw.block_and_witness.block.hash_slow().to_string(),
+                    loop_count,
+                },
                 output: ProgramOutputVerifier,
-            }
+            })
         })
-        .collect();
+        .collect::<Result<_, Error>>()?;
 
     Ok(guest_inputs)
 }

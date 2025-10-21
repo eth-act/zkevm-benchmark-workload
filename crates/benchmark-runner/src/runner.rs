@@ -1,6 +1,6 @@
 //! Runner for benchmark tests
 
-use anyhow::{anyhow, Context, Result};
+use anyhow::{anyhow, bail, Context, Result};
 use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::path::{Path, PathBuf};
@@ -8,8 +8,8 @@ use std::process::Command;
 use std::{any::Any, panic};
 use tracing::{error, info};
 
+use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType, PublicValues};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
-use zkvm_interface::{zkVM, Compiler, ProverResourceType, PublicValues};
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -105,7 +105,9 @@ where
             (Some(execution), None)
         }
         Action::Prove => {
-            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&io.input)));
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| {
+                zkvm.prove(&io.input, ProofKind::Compressed)
+            }));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
                     verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
@@ -116,7 +118,7 @@ where
                         .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
-                        proof_size: proof.len(),
+                        proof_size: proof.as_bytes().len(),
                         proving_time_ms: report.proving_time.as_millis(),
                     }
                 }
@@ -160,7 +162,7 @@ pub fn get_zkvm_instances(
     guest_relative: &Path,
     resource: ProverResourceType,
     apply_patches: bool,
-) -> Result<Vec<EreDockerizedzkVM>, Box<dyn std::error::Error>> {
+) -> Result<Vec<EreDockerizedzkVM>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
         if apply_patches {
@@ -174,10 +176,7 @@ pub fn get_zkvm_instances(
 }
 
 /// Patches the precompiles for a specific zkvm
-fn run_cargo_patch_command(
-    zkvm_name: &str,
-    workspace_path: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+fn run_cargo_patch_command(zkvm_name: &str, workspace_path: &Path) -> Result<()> {
     info!("Running cargo {}...", zkvm_name);
 
     let output = Command::new("cargo")
@@ -198,7 +197,7 @@ fn run_cargo_patch_command(
         error!("stdout: {}", stdout);
         error!("stderr: {}", stderr);
 
-        return Err(format!("cargo {zkvm_name} command failed").into());
+        bail!("cargo {zkvm_name} command failed");
     }
 
     info!("cargo {zkvm_name} completed successfully");

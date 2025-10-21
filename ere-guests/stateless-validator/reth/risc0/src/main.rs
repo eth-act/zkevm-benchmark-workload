@@ -2,26 +2,27 @@
 
 extern crate alloc;
 
-use ere_reth_guest::{
+use std::io::Read;
+
+use reth_guest::{
     guest::ethereum_guest,
-    sdk::{PublicInputs, ScopeMarker, SDK},
+    sdk::{ScopeMarker, SDK},
 };
-use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use risc0_zkvm::guest::env;
 
 pub struct Risc0SDK;
 
 impl SDK for Risc0SDK {
-    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
-        let input = env::read();
-        let public_keys = env::read();
-        (input, public_keys)
+    fn read_input() -> Vec<u8> {
+        let mut input = Vec::new();
+        env::stdin()
+            .read_to_end(&mut input)
+            .expect("Failed to read input");
+        input
     }
 
-    fn commit_outputs(pi: &PublicInputs) {
-        env::commit(&pi.block_hash);
-        env::commit(&pi.parent_hash);
-        env::commit(&pi.is_valid);
+    fn commit_output(output: [u8; 32]) {
+        env::commit_slice(&output);
     }
 
     fn cycle_scope(_scope: ScopeMarker, _message: &str) {}

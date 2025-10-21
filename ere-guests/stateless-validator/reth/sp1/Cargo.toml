@@ -8,7 +8,7 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 sp1-zkvm.workspace = true
-ere-reth-guest.workspace = true
+reth-guest.workspace = true
 guest-libs.workspace = true
 
 reth-stateless.workspace = true

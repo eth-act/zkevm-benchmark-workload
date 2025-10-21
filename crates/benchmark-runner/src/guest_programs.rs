@@ -3,7 +3,6 @@
 use anyhow::Result;
 use ere_dockerized::ErezkVM;
 use serde::{de::DeserializeOwned, Serialize};
-use zkvm_interface::Input;
 
 /// Represents a guest program input with associated metadata
 #[derive(Debug, Clone, Default)]
@@ -11,8 +10,8 @@ pub struct GuestIO<M: GuestMetadata, Output: OutputVerifier> {
     /// The name of the guest program input.
     pub name: String,
     /// The input to be provided to the guest program.
-    pub input: Input,
-    /// The expected output for the run.
+    pub input: Vec<u8>,
+    /// The output verifier for the guest program.
     pub output: Output,
     /// Associated metadata for the guest program input.
     pub metadata: M,

@@ -2,7 +2,6 @@
 
 use anyhow::Result;
 use ere_dockerized::ErezkVM;
-use zkvm_interface::Input;
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -10,13 +9,13 @@ use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifi
 impl GuestMetadata for () {}
 
 /// Generate inputs for the empty program guest program.
-pub fn empty_program_input() -> GuestIO<(), ProgramOutputVerifier> {
-    GuestIO {
+pub fn empty_program_input() -> Result<GuestIO<(), ProgramOutputVerifier>> {
+    Ok(GuestIO {
         name: "empty_program".to_string(),
-        input: Input::new(),
+        input: vec![],
         output: ProgramOutputVerifier,
         metadata: (),
-    }
+    })
 }
 
 /// Verifies the output of the program.

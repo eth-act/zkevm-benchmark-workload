@@ -5,7 +5,7 @@ edition = "2024"
 
 [dependencies]
 pico-sdk.workspace = true
-ere-reth-guest.workspace = true
+reth-guest.workspace = true
 guest-libs.workspace = true
 
 reth-stateless.workspace = true

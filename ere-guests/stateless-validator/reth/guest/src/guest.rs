@@ -3,24 +3,29 @@
 use std::{error::Error, sync::Arc};
 
 use alloy_primitives::FixedBytes;
+use ere_io_serde::IoSerde;
+use k256::sha2::{Digest, Sha256};
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
+use reth_guest_io::{Input, io_serde};
 use reth_primitives_traits::Block;
 use reth_stateless::{
     ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{PublicInputs, SDK, ScopeMarker};
+use crate::sdk::{SDK, ScopeMarker};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "read_input");
-    let (input, public_keys) = S::read_inputs();
+    let input: Input = io_serde()
+        .deserialize(&S::read_input())
+        .expect("Failed to read input");
 
     let genesis = Genesis {
-        config: input.chain_config.clone(),
+        config: input.stateless_input.chain_config.clone(),
         ..Default::default()
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
@@ -28,35 +33,31 @@ pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::End, "read_input");
 
     S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");
-    let header = input.block.header().clone();
-    let parent_hash = input.block.parent_hash;
+    let header = input.stateless_input.block.header().clone();
+    let parent_hash = input.stateless_input.block.parent_hash;
     S::cycle_scope(ScopeMarker::End, "public_inputs_preparation");
 
     let res = validate_block::<S>(
-        input.block,
-        input.witness,
+        input.stateless_input.block,
+        input.stateless_input.witness,
         chain_spec,
-        public_keys,
+        input.public_keys,
         evm_config,
     );
     S::cycle_scope(ScopeMarker::Start, "commit_public_inputs");
     match res {
         Ok(block_hash) => {
-            let public_inputs = PublicInputs {
-                block_hash: block_hash.0,
-                parent_hash: parent_hash.0,
-                is_valid: true,
-            };
-            S::commit_outputs(&public_inputs);
+            let public_inputs = (block_hash.0, parent_hash.0, true);
+            let public_inputs_hash: [u8; 32] =
+                Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
+            S::commit_output(public_inputs_hash);
         }
         Err(err) => {
             println!("Block validation failed: {err}");
-            let public_inputs = PublicInputs {
-                block_hash: header.hash_slow().0,
-                parent_hash: parent_hash.0,
-                is_valid: false,
-            };
-            S::commit_outputs(&public_inputs);
+            let public_inputs = (header.hash_slow().0, parent_hash.0, false);
+            let public_inputs_hash: [u8; 32] =
+                Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
+            S::commit_output(public_inputs_hash);
         }
     }
     S::cycle_scope(ScopeMarker::End, "commit_public_inputs");

@@ -4,30 +4,25 @@
 
 extern crate alloc;
 
-use ere_reth_guest::{
-    guest::ethereum_guest,
-    sdk::{PublicInputs, SDK, ScopeMarker},
-};
 use kzg_rs::{Bytes32, Bytes48};
-use pico_sdk::io::{commit, read_as};
-use reth_stateless::{StatelessInput, UncompressedPublicKey};
-use revm::precompile::{Crypto, PrecompileError, interface::install_crypto};
+use pico_sdk::io::{commit_bytes, read_vec};
+use reth_guest::{
+    guest::ethereum_guest,
+    sdk::{ScopeMarker, SDK},
+};
+use revm::precompile::{interface::install_crypto, Crypto, PrecompileError};
 
 pico_sdk::entrypoint!(main);
 
 struct PicoSDK;
 
 impl SDK for PicoSDK {
-    fn read_inputs() -> (StatelessInput, Vec<UncompressedPublicKey>) {
-        let input = read_as();
-        let public_keys = read_as();
-        (input, public_keys)
+    fn read_input() -> Vec<u8> {
+        read_vec()
     }
 
-    fn commit_outputs(pi: &PublicInputs) {
-        commit(&pi.block_hash);
-        commit(&pi.parent_hash);
-        commit(&pi.is_valid);
+    fn commit_output(output: [u8; 32]) {
+        commit_bytes(&output);
     }
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {
