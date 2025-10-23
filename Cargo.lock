@@ -2565,7 +2565,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-build-utils"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=577f97165eb759cf4515af1ccebb1d1e2b8e1581#577f97165eb759cf4515af1ccebb1d1e2b8e1581"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
 dependencies = [
  "cargo_metadata",
  "thiserror 2.0.17",
@@ -2575,9 +2575,8 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=577f97165eb759cf4515af1ccebb1d1e2b8e1581#577f97165eb759cf4515af1ccebb1d1e2b8e1581"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
 dependencies = [
- "anyhow",
  "ere-build-utils",
  "ere-server",
  "ere-zkvm-interface",
@@ -2605,7 +2604,7 @@ dependencies = [
 [[package]]
 name = "ere-io-serde"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=577f97165eb759cf4515af1ccebb1d1e2b8e1581#577f97165eb759cf4515af1ccebb1d1e2b8e1581"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
 dependencies = [
  "bincode 2.0.1",
  "serde",
@@ -2614,7 +2613,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=577f97165eb759cf4515af1ccebb1d1e2b8e1581#577f97165eb759cf4515af1ccebb1d1e2b8e1581"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2622,6 +2621,7 @@ dependencies = [
  "prost",
  "prost-build",
  "serde",
+ "thiserror 2.0.17",
  "tokio",
  "twirp",
  "twirp-build",
@@ -2630,7 +2630,7 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=577f97165eb759cf4515af1ccebb1d1e2b8e1581#577f97165eb759cf4515af1ccebb1d1e2b8e1581"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
 dependencies = [
  "auto_impl",
  "clap",
