@@ -11,7 +11,7 @@ openvm-keccak256.workspace = true
 openvm-algebra-guest.workspace = true
 openvm-ecc-guest.workspace = true
 guest-libs.workspace = true
-reth-guest.workspace = true
+reth-guest = { workspace = true, default-features = true }
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

@@ -1990,7 +1990,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -3205,7 +3205,7 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77e878c846a8abae00dd069496dbe8751b16ac1c3d6bd2a7283a938e8228f90d"
 dependencies = [
- "proc-macro-crate 3.3.0",
+ "proc-macro-crate 1.3.1",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -4911,7 +4911,7 @@ name = "reth-guest"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
- "bincode 1.3.3",
+ "bincode 2.0.1",
  "ere-io-serde",
  "guest-libs",
  "k256",
@@ -5150,6 +5150,7 @@ dependencies = [
  "alloy-rpc-types-debug",
  "alloy-trie 0.9.1",
  "itertools 0.14.0",
+ "k256",
  "reth-chainspec 1.8.2 (git+https://github.com/kevaundray/reth?rev=5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb)",
  "reth-consensus",
  "reth-errors",
@@ -5850,7 +5851,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -6481,7 +6482,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.61.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -7035,15 +7036,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f2f500e4d28234f72040990ec9d39e3a6b950f9f22d3dba18416c35882612bcb"
 dependencies = [
  "windows-targets 0.53.3",
-]
-
-[[package]]
-name = "windows-sys"
-version = "0.61.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e201184e40b2ede64bc2ea34968b28e33622acdbbf37104f0e4a33f7abe657aa"
-dependencies = [
- "windows-link 0.2.0",
 ]
 
 [[package]]

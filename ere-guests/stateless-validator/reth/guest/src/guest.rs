@@ -1,6 +1,7 @@
 //! Abstracted guest program
 
-use std::{error::Error, sync::Arc};
+use alloc::{boxed::Box, sync::Arc, vec::Vec};
+use core::error::Error;
 
 use alloy_primitives::FixedBytes;
 use ere_io_serde::IoSerde;
@@ -48,15 +49,22 @@ pub fn ethereum_guest<S: SDK>() {
     match res {
         Ok(block_hash) => {
             let public_inputs = (block_hash.0, parent_hash.0, true);
-            let public_inputs_hash: [u8; 32] =
-                Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
+            let public_inputs_hash: [u8; 32] = Sha256::digest(
+                bincode_v2::serde::encode_to_vec(&public_inputs, bincode_v2::config::legacy())
+                    .unwrap(),
+            )
+            .into();
             S::commit_output(public_inputs_hash);
         }
-        Err(err) => {
-            println!("Block validation failed: {err}");
+        Err(_err) => {
+            #[cfg(feature = "std")]
+            println!("Block validation failed: {_err}");
             let public_inputs = (header.hash_slow().0, parent_hash.0, false);
-            let public_inputs_hash: [u8; 32] =
-                Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
+            let public_inputs_hash: [u8; 32] = Sha256::digest(
+                bincode_v2::serde::encode_to_vec(&public_inputs, bincode_v2::config::legacy())
+                    .unwrap(),
+            )
+            .into();
             S::commit_output(public_inputs_hash);
         }
     }

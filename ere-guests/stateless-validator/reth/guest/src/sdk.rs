@@ -1,5 +1,7 @@
 //! SDK trait for stateless validator guest program.
 
+use alloc::vec::Vec;
+
 /// Trait that abstracts the SDK functions for reading inputs and committing outputs.
 pub trait SDK {
     /// Reads input bytes.

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-reth-guest.workspace = true
+reth-guest = { workspace = true, default-features = true }
 risc0-zkvm.workspace = true
 guest-libs.workspace = true
 

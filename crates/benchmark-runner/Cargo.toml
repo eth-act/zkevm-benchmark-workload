@@ -8,7 +8,7 @@ witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
 
-guest-libs.workspace = true
+guest-libs = { workspace = true, default-features = true }
 
 reth-guest-io.workspace = true
 block-encoding-length-io.workspace = true

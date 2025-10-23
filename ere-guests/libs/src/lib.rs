@@ -1,7 +1,8 @@
 //! Library for guest programs containing shared types and utilities.
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
-#![no_std]
+#![cfg_attr(not(feature = "std"), no_std)]
 
+#[allow(unused_extern_crates)]
 extern crate alloc;
 
 use core::ops::Deref;
