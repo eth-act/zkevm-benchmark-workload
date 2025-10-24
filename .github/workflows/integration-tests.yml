@@ -55,7 +55,7 @@ jobs:
           - execute_mainnet_blocks
           - execute_invalid_block
           - prove_empty_block
-        zkvm: [sp1, risc0, pico, zisk, openvm]
+        zkvm: [sp1, risc0, pico, zisk, openvm, airbender]
         el: [reth, ethrex]
         include:
           - zkvm: openvm
