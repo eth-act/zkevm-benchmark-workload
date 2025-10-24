@@ -74,24 +74,39 @@ fn main() -> Result<()> {
     }
     let chosen_src = fs::read_to_string(&chosen_file)?;
     let chosen_doc: DocumentMut = chosen_src.parse()?;
-    if let Some(tbl) = chosen_doc
+    let Some(patches) = chosen_doc
         .get("patch")
         .and_then(|p| p.get("crates-io"))
         .and_then(Item::as_table)
-    {
-        let ci = root_doc["patch"]["crates-io"].as_table_mut().unwrap();
-        for (k, v) in tbl {
-            ci[k] = v.clone(); // overwrite / insert
-        }
-    } else {
+    else {
         bail!("{} has no [patch.crates-io] table", chosen_file.display());
+    };
+    for (k, v) in patches {
+        root_doc["patch"]["crates-io"].as_table_mut().unwrap()[k] = v.clone(); // overwrite / insert
     }
 
     // 4 ── write the updated manifest back
     fs::write(&manifest_path, root_doc.to_string())
         .with_context(|| format!("writing {}", manifest_path.display()))?;
 
-    // 5 ── forward to Cargo
+    // 5 ── run cargo update for patching crates
+    let status = Command::new("cargo")
+        .current_dir(&manifest_folder)
+        .arg("update")
+        .args(patches.iter().flat_map(|(key, value)| {
+            let pkg = value
+                .get("package")
+                .and_then(|pkg| pkg.as_str())
+                .unwrap_or(key);
+            ["--package", pkg]
+        }))
+        .status()
+        .context("failed to run cargo update")?;
+    if !status.success() {
+        std::process::exit(status.code().unwrap_or(1));
+    }
+
+    // 6 ── forward to Cargo
     let status = Command::new("cargo")
         .current_dir(manifest_folder)
         .args(&cli.cargo_args)

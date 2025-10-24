@@ -1,6 +1,7 @@
 [workspace]
 members = [
     # Reth stateless validator
+    "stateless-validator/reth/airbender",
     "stateless-validator/reth/io",
     "stateless-validator/reth/guest",
     "stateless-validator/reth/openvm",
@@ -127,7 +128,7 @@ guest-libs = { path = "libs", default-features = false }
 reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
 reth-guest-io = { path = "stateless-validator/reth/io", default-features = false }
 block-encoding-length-io = { path = "block-encoding-length/io", default-features = false }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "577f97165eb759cf4515af1ccebb1d1e2b8e1581", default-features = false }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "5c342eec441c5d4cb3c79b57767dfc7041108189", default-features = false }
 
 sp1-zkvm = "5.0.5"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
@@ -190,6 +191,14 @@ k256 = { version = "0.13", default-features = false, features = [
     "pem",
 ] }
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.3.0" }
+
+[profile.release]
+lto = true
+panic = "abort"
+codegen-units = 1
+
+[profile.release.package.reth-airbender-stateless-validator]
+opt-level = "s"
 
 [patch."https://github.com/paradigmxyz/reth"]
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
