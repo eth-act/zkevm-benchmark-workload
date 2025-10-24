@@ -93,7 +93,13 @@ fn main() -> Result<()> {
     let status = Command::new("cargo")
         .current_dir(&manifest_folder)
         .arg("update")
-        .args(patches.iter().flat_map(|(pkg, _)| ["--package", pkg]))
+        .args(patches.iter().flat_map(|(key, value)| {
+            let pkg = value
+                .get("package")
+                .and_then(|pkg| pkg.as_str())
+                .unwrap_or(key);
+            ["--package", pkg]
+        }))
         .status()
         .context("failed to run cargo update")?;
     if !status.success() {
