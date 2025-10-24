@@ -23,6 +23,7 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::Risc0),
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
+            (ExecutionClient::Reth, ErezkVM::Airbender),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             (ExecutionClient::Ethrex, ErezkVM::Risc0),
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
@@ -39,6 +40,7 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
             (ExecutionClient::Reth, ErezkVM::Zisk),
+            (ExecutionClient::Reth, ErezkVM::Airbender),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             (ExecutionClient::Ethrex, ErezkVM::Risc0),
             // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
@@ -56,6 +58,7 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
             (ExecutionClient::Reth, ErezkVM::Zisk),
+            (ExecutionClient::Reth, ErezkVM::Airbender),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             (ExecutionClient::Ethrex, ErezkVM::Risc0),
         ]);
@@ -97,6 +100,7 @@ mod tests {
             (ExecutionClient::Reth, ErezkVM::OpenVM),
             (ExecutionClient::Reth, ErezkVM::Pico),
             (ExecutionClient::Reth, ErezkVM::Zisk),
+            (ExecutionClient::Reth, ErezkVM::Airbender),
             (ExecutionClient::Ethrex, ErezkVM::SP1),
             (ExecutionClient::Ethrex, ErezkVM::Risc0),
         ]);
