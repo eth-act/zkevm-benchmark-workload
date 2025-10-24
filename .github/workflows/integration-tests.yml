@@ -72,6 +72,8 @@ jobs:
             zkvm: pico # See https://github.com/eth-act/ere/issues/174
           - el: ethrex
             zkvm: zisk # See https://github.com/eth-act/ere/issues/186
+          - el: ethrex
+            zkvm: airbender
           # Pico
           - zkvm: pico
             test: prove_empty_block # See https://github.com/eth-act/ere/issues/199
