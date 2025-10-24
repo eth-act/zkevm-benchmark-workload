@@ -4915,6 +4915,7 @@ dependencies = [
  "ere-io-serde",
  "guest-libs",
  "k256",
+ "once_cell",
  "reth-chainspec 1.8.2 (git+https://github.com/kevaundray/reth?rev=5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb)",
  "reth-ethereum-primitives 1.8.2 (git+https://github.com/kevaundray/reth?rev=5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb)",
  "reth-evm-ethereum",

@@ -179,6 +179,7 @@ serde_json = { version = "*", default-features = false }
 serde_with = { version = "3", default-features = false }
 thiserror = { version = "2.0.0", default-features = false }
 anyhow = { version = "1.0", default-features = false }
+once_cell = { version = "1.21", default-features = false }
 
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
