@@ -1,5 +1,10 @@
 //! Input types for the stateless validator guest program.
 
+#![no_std]
+
+extern crate alloc;
+
+use alloc::vec::Vec;
 use anyhow::Result;
 use ere_io_serde::{IoSerde, bincode};
 use guest_libs::senders::recover_signers;

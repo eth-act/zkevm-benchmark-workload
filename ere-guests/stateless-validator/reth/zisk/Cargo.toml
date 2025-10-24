@@ -7,7 +7,7 @@ license.workspace = true
 
 [dependencies]
 ziskos.workspace = true
-reth-guest.workspace = true
+reth-guest = { workspace = true, default-features = true }
 guest-libs.workspace = true
 
 reth-stateless.workspace = true

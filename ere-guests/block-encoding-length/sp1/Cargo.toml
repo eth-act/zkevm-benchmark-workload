@@ -10,7 +10,7 @@ sp1-zkvm.workspace = true
 
 ere-io-serde.workspace = true
 block-encoding-length-io.workspace = true
-guest-libs.workspace = true
+guest-libs = { workspace = true, default-features = true }
 
 tracing = "*"
 tracing-subscriber = "*"
