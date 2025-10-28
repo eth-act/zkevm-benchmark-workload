@@ -97,10 +97,11 @@ jobs:
           retention-days: 90
       
       - name: Save Rust cache
+        if: always()
         uses: EthDevOps/action-cache@v1
         with:
           action: save
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
@@ -109,5 +110,6 @@ jobs:
             target/
           restore-keys: |
             ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
