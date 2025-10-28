@@ -44,7 +44,7 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
-      - name: Save Rust cache
+      - name: Restore Rust cache
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
         with:
           action: restore
