@@ -44,6 +44,22 @@ jobs:
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
 
+      - name: Save Rust cache
+        uses: EthDevOps/action-cache@v1
+        with:
+          action: restore
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+          cache-username: ${{ secrets.CACHE_USERNAME }}
+          cache-password: ${{ secrets.CACHE_PASSWORD }}
+
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
@@ -79,3 +95,19 @@ jobs:
           name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
           path: tests/benchmark-results.tar.gz
           retention-days: 90
+      
+      - name: Save Rust cache
+        uses: EthDevOps/action-cache@v1
+        with:
+          action: save
+          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          path: |
+            ~/.cargo/bin/
+            ~/.cargo/registry/index/
+            ~/.cargo/registry/cache/
+            ~/.cargo/git/db/
+            target/
+          restore-keys: |
+            ${{ runner.os }}-cargo-
+          cache-username: ${{ secrets.CACHE_USERNAME }}
+          cache-password: ${{ secrets.CACHE_PASSWORD }}
