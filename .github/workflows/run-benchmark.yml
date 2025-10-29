@@ -48,7 +48,7 @@ jobs:
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
         with:
           action: restore
-          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
@@ -103,7 +103,7 @@ jobs:
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
         with:
           action: save
-          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
