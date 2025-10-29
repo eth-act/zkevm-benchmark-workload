@@ -57,8 +57,8 @@ jobs:
             target/
             ere-guests/target
           restore-keys: |
-            ${{ runner.os }}-cargo-
             ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
+            ${{ runner.os }}-cargo-
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
 
@@ -66,6 +66,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential clang libclang-dev
+
+      - name: Compile
+        run: CARGO_LOG=cargo::core::compiler::fingerprint=trace cargo build -vv --release -p integration-tests
 
       - name: Pull ere images
         run: |
@@ -111,8 +114,5 @@ jobs:
             ~/.cargo/git/db/
             target/
             ere-guests/target
-          restore-keys: |
-            ${{ runner.os }}-cargo-
-            ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
