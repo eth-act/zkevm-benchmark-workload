@@ -32,14 +32,18 @@ jobs:
     env:
       ERE_TAG: 0.0.14-5c342ee
       OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ~/.cache/sccache
+      SCCACHE_CACHE_SIZE: 10G 
+      CARGO_INCREMENTAL: "0"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install protoc
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y protobuf-compiler
+          sudo apt-get install -y protobuf-compiler pkg-config libssl-dev sccache
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
@@ -54,32 +58,32 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+            ~/.cache/sccache/
             ere-guests/target
           restore-keys: |
             ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
             ${{ runner.os }}-cargo-
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
+      
+      - name: Install sccache
+        run: cargo install sccache --locked
 
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential clang libclang-dev
 
-      - name: Compile
-        run: CARGO_LOG=cargo::core::compiler::fingerprint=trace cargo build -vv --release -p integration-tests
+      # - name: Pull ere images
+      #   run: |
+      #     for variant in "base" "base-${{ inputs.zkvm }}" "compiler-${{ inputs.zkvm }}" "server-${{ inputs.zkvm }}"; do
+      #       src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+      #       dst="ere-${variant}:${ERE_TAG}"
+      #       docker pull "$src"
+      #       docker tag "$src" "$dst"
+      #     done
 
-      - name: Pull ere images
-        run: |
-          for variant in "base" "base-${{ inputs.zkvm }}" "compiler-${{ inputs.zkvm }}" "server-${{ inputs.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
-            dst="ere-${variant}:${ERE_TAG}"
-            docker pull "$src"
-            docker tag "$src" "$dst"
-          done
-
-      - name: Run benchmark
+      - name: Run benchmark 
         run: |
             RAYON_NUM_THREADS=${{ inputs.threads }} \
             RUST_LOG=warn,benchmark_runner=info \
@@ -112,7 +116,7 @@ jobs:
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
-            target/
+            ~/.cache/sccache/
             ere-guests/target
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
