@@ -48,15 +48,17 @@ jobs:
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
         with:
           action: restore
-          key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('**/Cargo.lock') }}
           path: |
             ~/.cargo/bin/
             ~/.cargo/registry/index/
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+            ere-guests/target
           restore-keys: |
             ${{ runner.os }}-cargo-
+            ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
 
@@ -108,6 +110,7 @@ jobs:
             ~/.cargo/registry/cache/
             ~/.cargo/git/db/
             target/
+            ere-guests/target
           restore-keys: |
             ${{ runner.os }}-cargo-
             ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
