@@ -66,9 +66,6 @@ jobs:
           cache-username: ${{ secrets.CACHE_USERNAME }}
           cache-password: ${{ secrets.CACHE_PASSWORD }}
       
-      - name: Install sccache
-        run: cargo install sccache --locked
-
       - name: Install C toolchain dependencies
         run: |
           sudo apt-get update
@@ -92,18 +89,18 @@ jobs:
             WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
             cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.test }}
 
-      - name: Create results archive
-        if: ${{ inputs.upload_results }}
-        run: |
-          cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
+      # - name: Create results archive
+      #   if: ${{ inputs.upload_results }}
+      #   run: |
+      #     cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
 
-      - name: Upload benchmark results
-        if: ${{ inputs.upload_results }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
-          path: tests/benchmark-results.tar.gz
-          retention-days: 90
+      # - name: Upload benchmark results
+      #   if: ${{ inputs.upload_results }}
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
+      #     path: tests/benchmark-results.tar.gz
+      #     retention-days: 90
       
       - name: Save Rust cache
         if: always()
