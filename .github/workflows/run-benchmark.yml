@@ -46,7 +46,7 @@ jobs:
           sudo apt-get install -y protobuf-compiler pkg-config libssl-dev sccache build-essential clang libclang-dev
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@master
+        uses: dtolnay/rust-toolchain@stable
 
       - name: Restore Rust cache
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
