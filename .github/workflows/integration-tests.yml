@@ -60,6 +60,8 @@ jobs:
         include:
           - zkvm: openvm
             threads: 2
+          - zkvm: sp1
+            threads: 6
           - threads: 12
         exclude:
           # ZisK
