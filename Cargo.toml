@@ -119,14 +119,14 @@ ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev 
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
-ef-tests = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "5b4c3a6d75de93c3ad5d2c8c2740c63cb7e74afb" }
+ef-tests = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-rpc-api = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 
 ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", package = "guest_program" }
 ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
@@ -137,7 +137,7 @@ alloy-eips = { version = "1.0.41" }
 alloy-rpc-types-eth = "1.0.41"
 alloy-consensus = { version = "1.0.41", default-features = false }
 alloy-primitives = { version = "1.4.1", default-features = false }
-alloy-hardforks = { version = "0.4.0", default-features = false }
+alloy-hardforks = { version = "0.4.3", default-features = false }
 alloy-chains = { version = "0.2.5", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 alloy-trie = { version = "0.9.1", default-features = false }
@@ -146,7 +146,7 @@ alloy-genesis = { version = "1.0.41", default-features = false }
 ethereum_ssz_derive = "0.9"
 ethereum_ssz = "0.9"
 
-revm-bytecode = { version = "7.0.2", default-features = false }
+revm-bytecode = { version = "7.1.0", default-features = false }
 
 k256 = { version = "0.13", default-features = false }
 
