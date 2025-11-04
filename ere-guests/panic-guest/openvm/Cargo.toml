@@ -6,8 +6,6 @@ rust-version = "1.86"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = [
-    "std",
-] }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+openvm = { workspace = true, features = ["std"] }
+openvm-algebra-guest.workspace = true
+openvm-ecc-guest.workspace = true

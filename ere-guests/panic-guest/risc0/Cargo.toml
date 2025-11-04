@@ -4,8 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-risc0-zkvm = { version = "3.0.3", default-features = false, features = [
-    "std",
-    "unstable",
-    "getrandom",
-] }
+risc0-zkvm = { workspace = true, features = ["std", "unstable", "getrandom"] }
