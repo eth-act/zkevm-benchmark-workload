@@ -1,8 +1,9 @@
-use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
+//! Generate block and witnesses from an RPC endpoint
+
+use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
 use alloy_eips::BlockNumberOrTag;
 use alloy_genesis::ChainConfig;
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
-use anyhow::{Context, Result};
 use async_trait::async_trait;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
@@ -75,15 +76,17 @@ impl RpcBlocksAndWitnessesBuilder {
     }
 
     /// Builds the configured `RpcBlocksAndWitnesses`.
-    pub async fn build(self) -> Result<RpcBlocksAndWitnesses> {
+    pub async fn build(self) -> Result<RpcFixtureGenerator> {
         let client = HttpClientBuilder::default()
             .set_headers(self.header_map)
             .max_response_size(1 << 30)
-            .build(&self.url)?;
+            .build(&self.url)
+            .map_err(|e| WGError::RpcError(e.to_string()))?;
 
         let chain_id = EthApiClient::<(), (), (), (), (), ()>::chain_id(&client)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("Failed to fetch chain ID from RPC"))?;
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?
+            .ok_or(WGError::ChainIdFetchError)?;
 
         let chain = Chain::from_id(chain_id.to());
 
@@ -93,11 +96,11 @@ impl RpcBlocksAndWitnessesBuilder {
             Some(NamedChain::Hoodi) => HOODI.genesis.config.clone(),
             Some(NamedChain::Holesky) => HOLESKY.genesis.config.clone(),
             _ => {
-                return Err(anyhow::anyhow!("Unsupported chain ID: {chain_id}"));
+                return Err(WGError::UnsupportedChain(chain_id.to()));
             }
         };
 
-        Ok(RpcBlocksAndWitnesses {
+        Ok(RpcFixtureGenerator {
             client,
             chain_config,
             last_n_blocks: self.last_n_blocks,
@@ -109,7 +112,7 @@ impl RpcBlocksAndWitnessesBuilder {
 
 /// RPC-based witness generator that fetches blocks and witnesses from an Ethereum node.
 #[derive(Debug, Clone)]
-pub struct RpcBlocksAndWitnesses {
+pub struct RpcFixtureGenerator {
     client: HttpClient,
     chain_config: ChainConfig,
     last_n_blocks: Option<usize>,
@@ -118,16 +121,26 @@ pub struct RpcBlocksAndWitnesses {
 }
 
 #[async_trait]
-impl WitnessGenerator for RpcBlocksAndWitnesses {
+impl FixtureGenerator for RpcFixtureGenerator {
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let count = if self.last_n_blocks.is_some() || self.block.is_some() {
+            let bws = self.generate().await?;
+            self.save_to_path(&bws, path)?;
+            bws.len()
+        } else {
+            self.fetch_live(path).await?
+        };
+
+        Ok(count)
+    }
+
     /// Generates blocks and witnesses based on the configuration.
     ///
     /// Returns either the last N blocks or a specific block with their execution witnesses.
-    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
+    async fn generate(&self) -> Result<Vec<Box<dyn Fixture>>> {
         // If live polling is enabled, we return an error here
         if self.stop.is_some() {
-            return Err(anyhow::anyhow!(
-                "Live polling is not supported in generate method. Use generate_to_path instead."
-            ));
+            return Err(WGError::LivePollingNotSupported);
         }
 
         // Handle last_n_blocks case
@@ -142,23 +155,9 @@ impl WitnessGenerator for RpcBlocksAndWitnesses {
 
         Ok(vec![])
     }
-
-    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
-        let count = if self.last_n_blocks.is_some() || self.block.is_some() {
-            let bws = self.generate().await?;
-            self.save_to_path(&bws, path)?;
-            bws.len()
-        } else {
-            self.fetch_live(path)
-                .await
-                .with_context(|| "Failed to fetch live blocks and witnesses")?
-        };
-
-        Ok(count)
-    }
 }
 
-impl RpcBlocksAndWitnesses {
+impl RpcFixtureGenerator {
     /// Fetches the last N blocks and their execution witnesses.
     ///
     /// # Arguments
@@ -166,7 +165,7 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if any RPC call fails or if blocks cannot be found.
-    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<BlockAndWitness>> {
+    async fn fetch_last_n_blocks(&self, last_n_blocks: usize) -> Result<Vec<Box<dyn Fixture>>> {
         if last_n_blocks == 0 {
             return Ok(vec![]);
         }
@@ -179,8 +178,9 @@ impl RpcBlocksAndWitnesses {
             Header,
             TransactionSigned,
         >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
+        .await
+        .map_err(|e| WGError::RpcError(e.to_string()))?
+        .ok_or(WGError::LatestBlockFetchError)?;
 
         let (block_num_start, block_num_end) = (
             std::cmp::max(0, latest_block.header.number - (last_n_blocks as u64 - 1)),
@@ -199,18 +199,14 @@ impl RpcBlocksAndWitnesses {
                 Header,
                 TransactionSigned,
             >::block_by_hash(&self.client, block_hash, true)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for number {n}"))?;
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?
+            .ok_or(WGError::BlockNotFoundForNumber(n))?;
             hashes.push((n, block.header.parent_hash));
         }
 
         let mut blocks_and_witnesses = Vec::with_capacity(hashes.len());
         for (block_num, block_hash) in hashes {
-            let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
-                &self.client,
-                block_hash,
-            )
-            .await?;
             let block = EthApiClient::<
                 TransactionRequest,
                 Transaction,
@@ -219,18 +215,28 @@ impl RpcBlocksAndWitnesses {
                 Header,
                 TransactionSigned,
             >::block_by_hash(&self.client, block_hash, true)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for hash {block_hash}"))?;
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?
+            .ok_or(WGError::BlockNotFoundForHash(block_hash.to_string()))?;
 
-            blocks_and_witnesses.push(BlockAndWitness {
+            let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
+                &self.client,
+                block_hash,
+            )
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?;
+
+            let bw = Box::new(StatelessValidationFixture {
                 name: format!("rpc_block_{block_num}"),
-                block_and_witness: StatelessInput {
+                stateless_input: StatelessInput {
                     block: block.into_consensus(),
                     witness,
                     chain_config: self.chain_config.clone(),
                 },
                 success: true,
-            });
+            }) as Box<dyn Fixture>;
+
+            blocks_and_witnesses.push(bw);
         }
 
         Ok(blocks_and_witnesses)
@@ -243,13 +249,14 @@ impl RpcBlocksAndWitnesses {
     ///
     /// # Errors
     /// Returns an error if the RPC call fails or if the block cannot be found.
-    async fn fetch_specific_block(&self, block_num: u64) -> Result<BlockAndWitness> {
+    async fn fetch_specific_block(&self, block_num: u64) -> Result<Box<dyn Fixture>> {
         // Fetch the execution witness for the given block
         let witness = DebugApiClient::<()>::debug_execution_witness(
             &self.client,
             BlockNumberOrTag::Number(block_num),
         )
-        .await?;
+        .await
+        .map_err(|e| WGError::RpcError(e.to_string()))?;
 
         // Fetch the block details
         let block =
@@ -261,12 +268,13 @@ impl RpcBlocksAndWitnesses {
                 Header,
                 TransactionSigned,
             >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
-            .await?
-            .ok_or_else(|| anyhow::anyhow!("No block found for number {block_num}"))?;
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?
+            .ok_or(WGError::BlockNotFoundForNumber(block_num))?;
 
-        let bw = BlockAndWitness {
+        let bw = StatelessValidationFixture {
             name: format!("rpc_block_{block_num}"),
-            block_and_witness: StatelessInput {
+            stateless_input: StatelessInput {
                 block: block.into_consensus(),
                 witness,
                 chain_config: self.chain_config.clone(),
@@ -274,7 +282,7 @@ impl RpcBlocksAndWitnesses {
             success: true,
         };
 
-        Ok(bw)
+        Ok(Box::new(bw))
     }
 
     /// Fetches blocks from a specific block number to the latest block and their execution witnesses.
@@ -288,7 +296,7 @@ impl RpcBlocksAndWitnesses {
     /// # Errors
     ///
     /// Returns an error if any RPC call fails or if blocks cannot be found.
-    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlockAndWitness>> {
+    async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<Box<dyn Fixture>>> {
         let latest_block = EthApiClient::<
             TransactionRequest,
             Transaction,
@@ -297,8 +305,9 @@ impl RpcBlocksAndWitnesses {
             Header,
             TransactionSigned,
         >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
+        .await
+        .map_err(|e| WGError::RpcError(e.to_string()))?
+        .ok_or(WGError::LatestBlockFetchError)?;
 
         let mut bws = Vec::new();
         for n in block_num..=latest_block.header.number {
@@ -333,8 +342,9 @@ impl RpcBlocksAndWitnesses {
             Header,
             TransactionSigned,
         >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await?
-        .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
+        .await
+        .map_err(|e| WGError::RpcError(e.to_string()))?
+        .ok_or(WGError::LatestBlockFetchError)?;
 
         let mut count: usize = 0;
         let mut next_block_num = latest_block.header.number;
@@ -343,7 +353,7 @@ impl RpcBlocksAndWitnesses {
         let stop_signal = self
             .stop
             .as_ref()
-            .ok_or_else(|| anyhow::anyhow!("Cancellation token is required for live polling"))?;
+            .ok_or(WGError::CancellationTokenRequired)?;
         loop {
             tokio::select! {
                 _ = stop_signal.cancelled() => {
@@ -357,7 +367,7 @@ impl RpcBlocksAndWitnesses {
                                 match self.save_to_path(&bws, path) {
                                     Ok(_) => {
                                         count += bws.len();
-                                        next_block_num = bws.last().unwrap().block_and_witness.block.number + 1;
+                                        next_block_num = bws.last().unwrap().block_number() + 1;
                                     },
                                     Err(e) => error!("Failed to save data: {e}"),
                                 }
@@ -394,14 +404,21 @@ impl RpcBlocksAndWitnesses {
     /// # Errors
     ///
     /// Returns an error if serialization fails or if any file cannot be written.
-    fn save_to_path(&self, bws: &[BlockAndWitness], path: &Path) -> Result<()> {
+    fn save_to_path(&self, bws: &[Box<dyn Fixture>], path: &Path) -> Result<()> {
         for bw in bws {
-            let output_path = path.join(format!("{}.json", bw.name));
-            let output_data = serde_json::to_string_pretty(&bw)
-                .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
-
-            std::fs::write(&output_path, output_data)
-                .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
+            let output_path = path.join(format!("{}.json", bw.name()));
+            let mut buf = Vec::new();
+            let mut serializer = serde_json::Serializer::pretty(&mut buf);
+            erased_serde::serialize(bw.as_ref(), &mut serializer).map_err(|e| {
+                WGError::FixtureSerializationError {
+                    name: bw.name().to_owned(),
+                    source: e,
+                }
+            })?;
+            std::fs::write(&output_path, buf).map_err(|e| WGError::FixtureWriteError {
+                path: output_path.display().to_string(),
+                source: e,
+            })?;
             info!("Saved block and witness to: {}", output_path.display());
         }
         Ok(())
@@ -427,26 +444,36 @@ impl RpcFlatHeaderKeyValues {
 }
 
 impl TryFrom<RpcFlatHeaderKeyValues> for HeaderMap {
-    type Error = anyhow::Error;
+    type Error = WGError;
 
-    fn try_from(flat_headers: RpcFlatHeaderKeyValues) -> Result<Self, Self::Error> {
+    fn try_from(flat_headers: RpcFlatHeaderKeyValues) -> Result<Self> {
         let header_pairs = flat_headers
             .headers
             .into_iter()
             .map(|header| {
-                let (key, value) = header.split_once(':').ok_or_else(|| {
-                    anyhow::anyhow!("Invalid header format: '{header}'. Expected 'key:value'")
+                let (key, value) =
+                    header
+                        .split_once(':')
+                        .ok_or_else(|| WGError::InvalidHeaderFormat {
+                            header: header.clone(),
+                        })?;
+
+                let name =
+                    HeaderName::from_str(key.trim()).map_err(|e| WGError::InvalidHeaderName {
+                        name: key.to_string(),
+                        source: e,
+                    })?;
+
+                let value = HeaderValue::from_str(value.trim()).map_err(|e| {
+                    WGError::InvalidHeaderValue {
+                        value: value.to_string(),
+                        source: e,
+                    }
                 })?;
-
-                let name = HeaderName::from_str(key.trim())
-                    .map_err(|e| anyhow::anyhow!("Invalid header name '{key}': {e}"))?;
-
-                let value = HeaderValue::from_str(value.trim())
-                    .map_err(|e| anyhow::anyhow!("Invalid header value '{value}': {e}"))?;
 
                 Ok((name, value))
             })
-            .collect::<Result<Vec<_>, Self::Error>>()?;
+            .collect::<Result<Vec<_>>>()?;
 
         let mut header_map = Self::with_capacity(header_pairs.len());
         for (name, value) in header_pairs {
@@ -559,7 +586,8 @@ mod test {
 
         assert_eq!(bws.len(), 1, "Expected 1 block and witness");
         assert_eq!(
-            bws[0].block_and_witness.block.number, block_number,
+            bws[0].block_number(),
+            block_number,
             "Expected block number to match"
         );
 

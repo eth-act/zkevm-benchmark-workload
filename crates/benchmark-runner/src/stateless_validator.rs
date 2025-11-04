@@ -8,10 +8,7 @@ use anyhow::{Context, Result};
 use ere_dockerized::ErezkVM;
 use ere_io_serde::IoSerde;
 use ethrex_common::{
-    types::{
-        block_execution_witness::ExecutionWitness, BlobSchedule, Block, ChainConfig,
-        ForkBlobSchedule,
-    },
+    types::{block_execution_witness, BlobSchedule, Block, ChainConfig, ForkBlobSchedule},
     H160,
 };
 use ethrex_rlp::decode::RLPDecode;
@@ -22,7 +19,7 @@ use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use strum::{AsRefStr, EnumString};
 use walkdir::WalkDir;
-use witness_generator::BlockAndWitness;
+use witness_generator::StatelessValidationFixture;
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -43,34 +40,31 @@ pub struct BlockMetadata {
 }
 impl GuestMetadata for BlockMetadata {}
 
-/// Generate inputs for the stateless validator guest program.
+/// Prepares the inputs for the stateless validator guest program based on the mode.
 pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
 ) -> Result<Vec<GuestIO<BlockMetadata, ProgramOutputVerifier>>> {
-    let guest_inputs = read_benchmark_fixtures_folder(input_folder)?
-        .into_iter()
-        .map(|bw| {
-            Ok(GuestIO {
-                name: bw.name,
-                input: get_input(&bw.block_and_witness, &el)?,
-                metadata: BlockMetadata {
-                    block_used_gas: bw.block_and_witness.block.gas_used,
-                },
-                output: ProgramOutputVerifier {
-                    block_hash: bw.block_and_witness.block.hash_slow().0,
-                    parent_hash: bw.block_and_witness.block.parent_hash.0,
-                    success: bw.success,
-                },
-            })
+    let mut res = vec![];
+    let witnesses = read_benchmark_fixtures_folder(input_folder)?;
+    for bw in &witnesses {
+        let input = get_input_full_validation(bw, &el)?;
+        let metadata = BlockMetadata {
+            block_used_gas: bw.stateless_input.block.gas_used,
+        };
+        let output = ProgramOutputVerifier { bw: bw.clone() };
+        res.push(GuestIO {
+            name: bw.name.clone(),
+            input,
+            metadata,
+            output,
         })
-        .collect::<Result<Vec<_>>>()?;
-
-    Ok(guest_inputs)
+    }
+    Ok(res)
 }
 
 /// Reads the benchmark fixtures folder and returns a list of block and witness pairs.
-pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<BlockAndWitness>> {
+pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<StatelessValidationFixture>> {
     WalkDir::new(path)
         .min_depth(1)
         .into_iter()
@@ -79,29 +73,32 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<BlockAndWitness
         .map(|entry| {
             if entry.file_type().is_file() {
                 let content = std::fs::read(entry.path())?;
-                let bw: BlockAndWitness = serde_json::from_slice(&content).map_err(|e| {
-                    anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
-                })?;
+                let bw: StatelessValidationFixture =
+                    serde_json::from_slice(&content).map_err(|e| {
+                        anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
+                    })?;
                 Ok(bw)
             } else {
                 anyhow::bail!("Invalid input folder structure: expected files only")
             }
         })
-        .collect::<Result<Vec<BlockAndWitness>>>()
+        .collect()
 }
 
 /// Verifies the output of the program.
 #[derive(Debug, Clone)]
 pub struct ProgramOutputVerifier {
-    block_hash: [u8; 32],
-    parent_hash: [u8; 32],
-    success: bool,
+    bw: StatelessValidationFixture,
 }
 
 impl OutputVerifier for ProgramOutputVerifier {
     fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
-        let public_inputs = (self.block_hash, self.parent_hash, self.success);
-        let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs).unwrap());
+        let block_hash = self.bw.stateless_input.block.hash_slow().0;
+        let parent_hash = self.bw.stateless_input.block.parent_hash.0;
+        let success = self.bw.success;
+
+        let public_inputs = (block_hash, parent_hash, success);
+        let public_inputs_hash = Sha256::digest(bincode::serialize(&public_inputs)?);
 
         if public_inputs_hash.as_slice() != bytes {
             return Ok(OutputVerifierResult::Mismatch(format!(
@@ -113,7 +110,11 @@ impl OutputVerifier for ProgramOutputVerifier {
     }
 }
 
-fn get_input(si: &StatelessInput, el: &ExecutionClient) -> Result<Vec<u8>> {
+fn get_input_full_validation(
+    bw: &StatelessValidationFixture,
+    el: &ExecutionClient,
+) -> Result<Vec<u8>> {
+    let si = &bw.stateless_input;
     match el {
         ExecutionClient::Reth => reth_guest_io::io_serde()
             .serialize(
@@ -139,7 +140,7 @@ fn get_input(si: &StatelessInput, el: &ExecutionClient) -> Result<Vec<u8>> {
 fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
     si: &StatelessInput,
-) -> Result<ExecutionWitness> {
+) -> Result<block_execution_witness::ExecutionWitness> {
     let codes = si.witness.codes.iter().map(|b| b.to_vec()).collect();
     let block_headers_bytes = si.witness.headers.iter().map(|h| h.to_vec()).collect();
 
@@ -206,7 +207,7 @@ fn from_reth_witness_to_ethrex_witness(
 
     let keys = si.witness.keys.iter().map(|k| k.to_vec()).collect();
 
-    Ok(ExecutionWitness {
+    Ok(block_execution_witness::ExecutionWitness {
         codes,
         block_headers_bytes,
         chain_config,

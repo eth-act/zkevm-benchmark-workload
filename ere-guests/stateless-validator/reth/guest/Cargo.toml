@@ -20,6 +20,7 @@ reth-ethereum-primitives = { workspace = true, features = [
 reth-chainspec.workspace = true
 reth-stateless.workspace = true
 reth-evm-ethereum.workspace = true
+reth-trie-common.workspace = true
 
 # alloy
 alloy-primitives.workspace = true

@@ -8,140 +8,16 @@ use benchmark_runner::{
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
     stateless_validator::{self},
 };
-use clap::{Parser, Subcommand, ValueEnum};
-use ere_dockerized::ErezkVM;
+
+use clap::Parser;
 use ere_zkvm_interface::ProverResourceType;
 use std::path::{Path, PathBuf};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-#[derive(Parser)]
-#[command(name = "zkvm-benchmarker")]
-#[command(about = "Benchmark different Ere compatible zkVMs")]
-#[command(version)]
-struct Cli {
-    /// Resource type for proving
-    #[arg(short, long, value_enum, default_value = "cpu")]
-    resource: Resource,
+use crate::cli::{Cli, ExecutionClient, GuestProgramCommand};
 
-    /// Action to perform
-    #[arg(short, long, value_enum, default_value = "execute")]
-    action: BenchmarkAction,
-
-    /// zkVM instances to benchmark
-    #[arg(long, required(true), value_parser = <ErezkVM as std::str::FromStr>::from_str)]
-    zkvms: Vec<ErezkVM>,
-
-    /// Rerun the benchmarks even if the output folder already contains results
-    #[arg(long, default_value_t = false)]
-    force_rerun: bool,
-
-    /// Guest program to benchmark
-    #[command(subcommand)]
-    guest_program: GuestProgramCommand,
-
-    /// Output folder for benchmark results
-    #[arg(short, long, default_value = "zkevm-metrics")]
-    output_folder: PathBuf,
-}
-
-#[derive(Subcommand, Clone, Debug)]
-enum GuestProgramCommand {
-    /// Ethereum Stateless Validator
-    StatelessValidator {
-        /// Input folder for benchmark fixtures
-        #[arg(short, long, default_value = "zkevm-fixtures-input")]
-        input_folder: PathBuf,
-        #[arg(short, long)]
-        execution_client: ExecutionClient,
-    },
-    /// Empty program
-    EmptyProgram,
-
-    /// Block encoding length
-    BlockEncodingLength {
-        /// Input folder for benchmark fixtures
-        #[arg(short, long, default_value = "zkevm-fixtures-input")]
-        input_folder: PathBuf,
-
-        /// Number of times to loop the benchmark
-        #[arg(long)]
-        loop_count: u16,
-
-        /// Encoding format
-        #[arg(short, long, value_enum)]
-        format: BlockEncodingFormat,
-    },
-}
-
-#[derive(Debug, Clone, ValueEnum)]
-enum BlockEncodingFormat {
-    Rlp,
-    Ssz,
-}
-
-#[derive(Debug, Copy, Clone, ValueEnum)]
-enum ExecutionClient {
-    Reth,
-    Ethrex,
-}
-
-impl ExecutionClient {
-    const fn guest_rel_path(&self) -> &str {
-        match self {
-            Self::Reth => "stateless-validator/reth",
-            Self::Ethrex => "stateless-validator/ethrex",
-        }
-    }
-}
-
-#[derive(Clone, ValueEnum)]
-enum Resource {
-    Cpu,
-    Gpu,
-}
-
-#[derive(Clone, ValueEnum)]
-enum BenchmarkAction {
-    Execute,
-    Prove,
-}
-
-impl From<Resource> for ProverResourceType {
-    fn from(resource: Resource) -> Self {
-        match resource {
-            Resource::Cpu => Self::Cpu,
-            Resource::Gpu => Self::Gpu,
-        }
-    }
-}
-
-impl From<BenchmarkAction> for Action {
-    fn from(action: BenchmarkAction) -> Self {
-        match action {
-            BenchmarkAction::Execute => Self::Execute,
-            BenchmarkAction::Prove => Self::Prove,
-        }
-    }
-}
-
-impl From<BlockEncodingFormat> for block_encoding_length_io::BlockEncodingFormat {
-    fn from(format: BlockEncodingFormat) -> Self {
-        match format {
-            BlockEncodingFormat::Rlp => Self::Rlp,
-            BlockEncodingFormat::Ssz => Self::Ssz,
-        }
-    }
-}
-
-impl From<ExecutionClient> for stateless_validator::ExecutionClient {
-    fn from(client: ExecutionClient) -> Self {
-        match client {
-            ExecutionClient::Reth => Self::Reth,
-            ExecutionClient::Ethrex => Self::Ethrex,
-        }
-    }
-}
+pub mod cli;
 
 fn main() -> Result<()> {
     tracing_subscriber::fmt()
@@ -158,7 +34,7 @@ fn main() -> Result<()> {
     );
 
     let workspace_dir = workspace_root().join("ere-guests");
-    match &cli.guest_program {
+    match cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
             execution_client,
@@ -167,15 +43,17 @@ fn main() -> Result<()> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let el = (*execution_client).into();
+            let el = execution_client.into();
             let guest_io =
                 stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)?;
-            let guest_relative = Path::new(execution_client.guest_rel_path());
+            let guest_relative = execution_client
+                .guest_rel_path()
+                .context("Failed to get guest relative path")?;
             let apply_patches = matches!(execution_client, ExecutionClient::Reth);
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,
                 &workspace_dir,
-                guest_relative,
+                &guest_relative,
                 resource,
                 apply_patches,
             )?;
@@ -223,8 +101,8 @@ fn main() -> Result<()> {
             );
             let guest_io = block_encoding_length_program::block_encoding_length_inputs(
                 input_folder.as_path(),
-                *loop_count,
-                format.clone().into(),
+                loop_count,
+                format.into(),
             )?;
             let zkvms = get_zkvm_instances(
                 &cli.zkvms,

@@ -33,7 +33,7 @@ pub fn block_encoding_length_inputs(
         .into_iter()
         .map(|bw| {
             let input = Input {
-                block: BincodeBlock(bw.block_and_witness.block.clone()),
+                block: BincodeBlock(bw.stateless_input.block.clone()),
                 loop_count,
                 format,
             };
@@ -44,7 +44,7 @@ pub fn block_encoding_length_inputs(
                     .map_err(|e| anyhow!("failed to serialize input: {}", e))?,
                 metadata: BlockEncodingLengthMetadata {
                     format: format!("{format:?}"),
-                    block_hash: bw.block_and_witness.block.hash_slow().to_string(),
+                    block_hash: bw.stateless_input.block.hash_slow().to_string(),
                     loop_count,
                 },
                 output: ProgramOutputVerifier,

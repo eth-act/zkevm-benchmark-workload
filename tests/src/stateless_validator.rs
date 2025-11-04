@@ -7,9 +7,7 @@ mod tests {
     use ere_dockerized::ErezkVM;
     use std::{env, path::PathBuf};
     use tempfile::{tempdir, TempDir};
-    use witness_generator::{
-        eest_generator::ExecSpecTestBlocksAndWitnessBuilder, WitnessGenerator,
-    };
+    use witness_generator::{eest_generator::EESTFixtureGeneratorBuilder, FixtureGenerator};
 
     use crate::utils::{
         assert_executions_successful, assert_proving_successful, filter_el_zkvm_pairs_from_env,
@@ -107,7 +105,7 @@ mod tests {
         for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-invalid-block");
             let bench_fixtures_dir = tempdir().unwrap();
-            ExecSpecTestBlocksAndWitnessBuilder::default()
+            EESTFixtureGeneratorBuilder::default()
                 .with_input_folder(eest_fixtures_path)
                 .unwrap()
                 .build()
@@ -141,7 +139,7 @@ mod tests {
         for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-empty-block");
             let bench_fixtures_dir = tempdir().unwrap();
-            ExecSpecTestBlocksAndWitnessBuilder::default()
+            EESTFixtureGeneratorBuilder::default()
                 .with_input_folder(eest_fixtures_path)
                 .unwrap()
                 .build()

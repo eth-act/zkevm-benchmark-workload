@@ -1,6 +1,5 @@
-//! Generate fixtures for zkEVM benchmarking tool
+//! Generate benchmark fixtures for EEST blockchain tests.
 
-use anyhow::{Context, Result, anyhow, bail};
 use async_trait::async_trait;
 use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
@@ -12,58 +11,55 @@ use std::{
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
-use crate::{BlockAndWitness, blocks_and_witnesses::WitnessGenerator};
+use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
 use reth_stateless::StatelessInput;
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
-pub struct ExecSpecTestBlocksAndWitnessBuilder {
+pub struct EESTFixtureGeneratorBuilder {
     input_folder: Option<PathBuf>,
     tag: Option<String>,
     include: Option<Vec<String>>,
     exclude: Option<Vec<String>>,
 }
 
-impl ExecSpecTestBlocksAndWitnessBuilder {
+impl EESTFixtureGeneratorBuilder {
     const TEMP_EEST_FIXTURES_PATH: &str = "./zkevm-fixtures";
 
-    /// Sets the tag for the execution-spec-test fixtures.
+    /// Configures which execution-spec-test version tag to download.
     pub fn with_tag(mut self, tag: String) -> Self {
         self.tag = Some(tag);
         self
     }
 
-    /// Sets the input folder for the execution-spec-test fixtures.
-    /// Returns an error if the path doesn't exist or isn't a directory.
+    /// Specifies a local directory containing pre-downloaded EEST fixtures, skipping automatic download.
     pub fn with_input_folder(mut self, path: PathBuf) -> Result<Self> {
         if !path.exists() {
-            bail!("EEST fixtures path '{}' does not exist", path.display());
+            return Err(WGError::EestPathNotFound(path.display().to_string()));
         }
         if !path.is_dir() {
-            bail!("EEST fixtures path '{}' is not a directory", path.display());
+            return Err(WGError::EestPathNotDirectory(path.display().to_string()));
         }
-        let canonical_path = path
-            .canonicalize()
-            .with_context(|| format!("Failed to resolve path '{}'", path.display()))?;
+        let canonical_path = path.canonicalize()?;
 
         self.input_folder = Some(canonical_path);
         Ok(self)
     }
 
-    /// Includes only test names that contain the provided strings.
+    /// Filters to include only test cases whose names contain any of the specified substrings.
     pub fn with_includes(mut self, includes: Vec<String>) -> Self {
         self.include = Some(includes);
         self
     }
 
-    /// Excludes all test names that contain the provided strings.
+    /// Filters to exclude test cases whose names contain any of the specified substrings.
     pub fn with_excludes(mut self, exclude: Vec<String>) -> Self {
         self.exclude = Some(exclude);
         self
     }
 
-    /// Builds the `ExecSpecTestBlocksAndWitnesses` instance.
-    pub fn build(self) -> Result<ExecSpecTestBlocksAndWitnesses> {
+    /// Constructs the generator, downloading EEST fixtures if no local path was specified.
+    pub fn build(self) -> Result<EESTFixtureGenerator> {
         let input_folder = self.input_folder;
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
@@ -78,43 +74,42 @@ impl ExecSpecTestBlocksAndWitnessBuilder {
             if let Some(tag) = tag {
                 cmd.arg(tag);
             }
-            let output = cmd.output().context("Failed to execute download script")?;
+            let output = cmd.output()?;
 
             if !output.status.success() {
-                bail!(
-                    "Failed to download EEST benchmark fixtures: {}",
-                    String::from_utf8_lossy(&output.stderr)
-                );
+                return Err(WGError::DownloadScriptFailed(
+                    String::from_utf8_lossy(&output.stderr).to_string(),
+                ));
             }
             (PathBuf::from(&Self::TEMP_EEST_FIXTURES_PATH), true)
         };
 
-        Ok(ExecSpecTestBlocksAndWitnesses {
-            directory_path,
-            include,
-            exclude,
-            delete_eest_folder,
+        Ok(EESTFixtureGenerator {
+            eest_fixtures: directory_path,
+            filter_include: include,
+            filter_exclude: exclude,
+            delete_eest_fixtures: delete_eest_folder,
         })
     }
 }
 
 /// Witness generator that produces `BlockAndWitness` fixtures for EEST fixtures.
 #[derive(Debug, Clone)]
-pub struct ExecSpecTestBlocksAndWitnesses {
-    directory_path: PathBuf,
-    include: Vec<String>,
-    exclude: Vec<String>,
-    delete_eest_folder: bool,
+pub struct EESTFixtureGenerator {
+    eest_fixtures: PathBuf,
+    filter_include: Vec<String>,
+    filter_exclude: Vec<String>,
+    delete_eest_fixtures: bool,
 }
 
-impl Drop for ExecSpecTestBlocksAndWitnesses {
+impl Drop for EESTFixtureGenerator {
     fn drop(&mut self) {
-        if self.delete_eest_folder && self.directory_path.exists() {
-            match std::fs::remove_dir_all(&self.directory_path) {
+        if self.delete_eest_fixtures && self.eest_fixtures.exists() {
+            match std::fs::remove_dir_all(&self.eest_fixtures) {
                 Ok(_) => {}
                 Err(e) => error!(
                     "Failed to remove directory {}: {}",
-                    self.directory_path.display(),
+                    self.eest_fixtures.display(),
                     e
                 ),
             }
@@ -123,25 +118,25 @@ impl Drop for ExecSpecTestBlocksAndWitnesses {
 }
 
 #[async_trait]
-impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
-    // Generates blocks and witnesses from the EEST fixtures located in the specified directory,
-    // filtering by the provided include and exclude patterns.
-    async fn generate(&self) -> Result<Vec<BlockAndWitness>> {
-        let suite_path = self.directory_path.join("fixtures/blockchain_tests");
+impl FixtureGenerator for EESTFixtureGenerator {
+    /// Loads EEST blockchain tests, applies include/exclude filters, and generates typed witness fixtures in parallel.
+    async fn generate(&self) -> Result<Vec<Box<dyn Fixture>>> {
+        let suite_path = self.eest_fixtures.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
-            bail!("Test suite path does not exist: {}.", suite_path.display());
+            return Err(WGError::TestSuitePathNotFound(
+                suite_path.display().to_string(),
+            ));
         }
 
         let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
         let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
         for path in test_file_paths {
-            let test_case = match BlockchainTestCase::load(&path) {
-                Ok(case) => case,
-                Err(e) => {
-                    bail!("Failed to load test case from {}: {e}", path.display());
-                }
-            };
+            let test_case =
+                BlockchainTestCase::load(&path).map_err(|e| WGError::TestCaseLoadError {
+                    path: path.display().to_string(),
+                    source: Box::new(e) as Box<dyn std::error::Error + Send + Sync>,
+                })?;
 
             let file_tests: Vec<(String, BlockchainTest)> = test_case
                 .tests
@@ -152,277 +147,65 @@ impl WitnessGenerator for ExecSpecTestBlocksAndWitnesses {
                         case,
                     )
                 })
-                .filter(|(name, _)| !self.exclude.iter().any(|filter| name.contains(filter)))
-                .filter(|(name, _)| self.include.iter().all(|f| name.contains(f)))
+                .filter(|(name, _)| {
+                    !self
+                        .filter_exclude
+                        .iter()
+                        .any(|filter| name.contains(filter))
+                })
+                .filter(|(name, _)| self.filter_include.iter().all(|f| name.contains(f)))
                 .collect();
             tests.extend(file_tests);
         }
 
-        let bws: Result<Vec<_>> = tests
+        let bws = tests
             .par_iter()
-            .map(|(name, case)| {
-                let chain_spec: ChainSpec = case.network.into();
-                let chain_config = chain_spec.genesis.config;
-                let (recovered_block, witness) = BlockchainTestCase::run_single_case(name, case)?
-                    .into_iter()
-                    .next_back()
-                    .ok_or_else(|| anyhow!("No target block found for test case {name}"))?;
-                let block_and_witness = StatelessInput {
-                    block: recovered_block.into_block(),
-                    witness,
-                    chain_config,
-                };
-                let success = case
-                    .blocks
-                    .iter()
-                    .next_back()
-                    .unwrap()
-                    .expect_exception
-                    .is_none();
-                Ok(BlockAndWitness {
-                    name: name.clone(),
-                    block_and_witness,
-                    success,
-                })
-            })
-            .collect();
+            .map(|(name, case)| gen_fixture(name, case))
+            .collect::<Result<Vec<_>>>()?;
 
-        bws
-    }
-
-    /// Generates `BlockAndWitness` fixtures from EEST test cases and writes them to the specified path.
-    ///
-    /// This method processes all matching EEST test cases, generates the corresponding
-    /// witness data, and writes each fixture as a separate JSON file in the output directory.
-    ///
-    /// # Arguments
-    /// * `path` - The directory path where JSON fixture files will be written
-    ///
-    /// # Returns
-    /// The number of fixture files successfully generated and written
-    ///
-    /// # Errors
-    /// Returns an error if fixture generation fails, serialization fails, or file writing fails.
-    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
-        let bws = self.generate().await?;
-        for bw in &bws {
-            let output_path = path.join(format!("{}.json", bw.name));
-            let output_data = serde_json::to_string_pretty(&bw)
-                .with_context(|| format!("Failed to serialize fixture: {}", bw.name))?;
-
-            std::fs::write(&output_path, output_data)
-                .with_context(|| format!("Failed to write fixture to: {output_path:?}"))?;
-        }
-        Ok(bws.len())
+        Ok(bws)
     }
 }
 
-/// Recursively finds all files within `path` that end with `extension`.
-// This function was copied from `ef-tests`
+fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
+    let spec: ChainSpec = case.network.into();
+    let config = spec.genesis.config;
+
+    let (block, witness) = BlockchainTestCase::run_single_case(name, case)
+        .map_err(|e| WGError::TestCaseExecutionError {
+            source: Box::new(e),
+        })?
+        .into_iter()
+        .next_back()
+        .map(|(block, witnesses)| (block.into_block(), witnesses))
+        .ok_or_else(|| WGError::NoTargetBlock(name.to_owned()))?;
+
+    let success = case
+        .blocks
+        .iter()
+        .next_back()
+        .unwrap()
+        .expect_exception
+        .is_none();
+
+    let res: Box<dyn Fixture> = Box::new(StatelessValidationFixture {
+        name: name.to_owned(),
+        stateless_input: StatelessInput {
+            block,
+            witness,
+            chain_config: config,
+        },
+        success,
+    });
+
+    Ok(res)
+}
+
 fn find_all_files_with_extension(path: &Path, extension: &str) -> Vec<PathBuf> {
     WalkDir::new(path)
         .into_iter()
-        .filter_map(Result::ok)
+        .filter_map(std::result::Result::ok)
         .filter(|e| e.file_name().to_string_lossy().ends_with(extension))
         .map(DirEntry::into_path)
         .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use flate2::bufread::GzDecoder;
-    use tar::Archive;
-
-    use super::*;
-    use std::{fs::File, str::FromStr};
-
-    fn decompress_eest_release(dest_dir: &Path) -> Result<()> {
-        let path =
-            PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("testdata/zkevm_fixtures_v0.1.0.tar.gz");
-        let file = File::open(path)?;
-        let buf_reader = std::io::BufReader::new(file);
-        let tar = GzDecoder::new(buf_reader);
-        let mut archive = Archive::new(tar);
-        archive.unpack(dest_dir)?;
-        Ok(())
-    }
-
-    fn prepare_downgraded_eest_fixtures(target_path: &Path) -> Result<()> {
-        let decompress_dir = tempfile::tempdir()?;
-        let decompress_path = decompress_dir.path();
-        decompress_eest_release(decompress_path)?;
-
-        let single_fixture_path =
-            PathBuf::from_str("fixtures/blockchain_tests/zkevm/worst_compute/worst_jumps.json")?;
-        std::fs::create_dir_all(target_path.join(single_fixture_path.parent().unwrap()))?;
-        std::fs::copy(
-            decompress_path
-                .join("zkevm-fixtures")
-                .join(&single_fixture_path),
-            target_path.join(&single_fixture_path),
-        )?;
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_custom_input_folder() -> Result<()> {
-        let target_dir = tempfile::tempdir()?;
-        let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(target_path)?;
-
-        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.to_path_buf())?
-            .build()?;
-
-        let bws = wg.generate().await?;
-
-        // The worst_jumps.json suite has two fixtures.
-        assert_eq!(
-            bws.len(),
-            2,
-            "Only two fixtures are expected for the worst_jumps EEST fixture"
-        );
-
-        // All blocks should expect a successful block validation.
-        assert!(bws.iter().all(|bw| bw.success));
-
-        // Then the `input_folder` is used, the folder must not be deleted.
-        drop(wg);
-        assert!(
-            target_path.exists(),
-            "Directory should still exist after drop"
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_filters() -> Result<()> {
-        let target_dir = tempfile::tempdir()?;
-        let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(target_path)?;
-
-        let bw_with_include = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.to_path_buf())?
-            .with_includes(vec!["Prague".to_string()])
-            .build()?
-            .generate()
-            .await?;
-        assert_eq!(
-            bw_with_include.len(),
-            1,
-            "Only one fixture should match the include filter"
-        );
-        assert!(
-            bw_with_include[0].name.contains("Prague"),
-            "The fixture should contain 'Prague' in its name"
-        );
-
-        let bw_with_exclude = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.to_path_buf())?
-            .with_excludes(vec!["Prague".to_string()])
-            .build()?
-            .generate()
-            .await?;
-        assert_eq!(
-            bw_with_exclude.len(),
-            1,
-            "Only one fixture should match the exclude filter"
-        );
-        assert!(
-            !bw_with_exclude[0].name.contains("Prague"),
-            "The fixture should not contain 'Prague' in its name"
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_generate_to_path() -> Result<()> {
-        let target_dir = tempfile::tempdir()?;
-        let target_path = target_dir.path();
-        prepare_downgraded_eest_fixtures(target_path)?;
-
-        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.to_path_buf())?
-            .build()?;
-
-        let generation_dir = tempfile::tempdir()?;
-        let generation_path = generation_dir.path();
-        let count = wg.generate_to_path(generation_path).await?;
-        assert_eq!(
-            count, 2,
-            "Only two fixtures are expected for the worst_jumps EEST fixture"
-        );
-        assert_eq!(
-            generation_path.read_dir()?.count(),
-            2,
-            "There should be two generated fixture files in the output directory"
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    #[cfg(feature = "slow-tests")]
-    async fn test_generate_latest_release() -> Result<()> {
-        let target_dir = tempfile::tempdir()?;
-        let target_path = target_dir.path();
-        decompress_eest_release(target_path)?;
-
-        let mut bw = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(target_path.join("zkevm-fixtures"))?
-            .with_includes(vec!["Prague".to_string()])
-            .build()?;
-
-        let generated = bw.generate().await?;
-        assert!(
-            !generated.is_empty(),
-            "Expected to generate at least one fixture from the latest EEST release"
-        );
-
-        // Simulate that the EEST fixures were downloaded using the script.
-        bw.delete_eest_folder = true;
-
-        // Since we downloaded using the script, the temporary directory of EEST fixtures created by the script
-        // should be deleted when the `ExecSpecTestBlocksAndWitnesses` is dropped.
-        drop(bw);
-        assert!(
-            !PathBuf::from(ExecSpecTestBlocksAndWitnessBuilder::TEMP_EEST_FIXTURES_PATH).exists(),
-            "Directory should be deleted after drop"
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn test_invalid_block() -> Result<()> {
-        let path =
-            PathBuf::from(env!("CARGO_WORKSPACE_DIR")).join("tests/assets/eest-invalid-block");
-
-        let wg = ExecSpecTestBlocksAndWitnessBuilder::default()
-            .with_input_folder(path)?
-            .build()?;
-
-        let generated = wg.generate().await?;
-
-        assert_eq!(
-            generated.len(),
-            1,
-            "Expected single fixture for the invalid block test"
-        );
-
-        // The provided test with an invalid block fails due to header consensus checks.
-        let witness = generated.into_iter().next().unwrap();
-        assert!(
-            witness.block_and_witness.witness.headers.len() == 1
-                && witness.block_and_witness.witness.keys.is_empty()
-                && witness.block_and_witness.witness.codes.is_empty()
-                && witness.block_and_witness.witness.state.is_empty(),
-            "Witnesses must only have one header value and no other data"
-        );
-        assert!(!witness.success, "The test must fail");
-
-        Ok(())
-    }
 }
