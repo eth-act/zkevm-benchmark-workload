@@ -113,9 +113,9 @@ guest-libs = { path = "ere-guests/libs" }
 reth-guest-io = { path = "ere-guests/stateless-validator/reth/io" }
 block-encoding-length-io = { path = "ere-guests/block-encoding-length/io" }
 
-ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "5c342eec441c5d4cb3c79b57767dfc7041108189", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "5c342eec441c5d4cb3c79b57767dfc7041108189", package = "ere-dockerized" }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "5c342eec441c5d4cb3c79b57767dfc7041108189", package = "ere-io-serde" }
+ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "52643911bc3cdb505b20630d04603cb54843a3f8", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "52643911bc3cdb505b20630d04603cb54843a3f8", package = "ere-dockerized" }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "52643911bc3cdb505b20630d04603cb54843a3f8", package = "ere-io-serde" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

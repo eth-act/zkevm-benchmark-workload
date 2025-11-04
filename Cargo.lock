@@ -2576,18 +2576,17 @@ dependencies = [
 [[package]]
 name = "ere-build-utils"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=52643911bc3cdb505b20630d04603cb54843a3f8#52643911bc3cdb505b20630d04603cb54843a3f8"
 dependencies = [
  "cargo_metadata",
- "thiserror 2.0.17",
- "tracing",
 ]
 
 [[package]]
 name = "ere-dockerized"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=52643911bc3cdb505b20630d04603cb54843a3f8#52643911bc3cdb505b20630d04603cb54843a3f8"
 dependencies = [
+ "anyhow",
  "ere-build-utils",
  "ere-server",
  "ere-zkvm-interface",
@@ -2615,7 +2614,7 @@ dependencies = [
 [[package]]
 name = "ere-io-serde"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=52643911bc3cdb505b20630d04603cb54843a3f8#52643911bc3cdb505b20630d04603cb54843a3f8"
 dependencies = [
  "bincode 2.0.1",
  "serde",
@@ -2624,7 +2623,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=52643911bc3cdb505b20630d04603cb54843a3f8#52643911bc3cdb505b20630d04603cb54843a3f8"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2641,8 +2640,9 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=5c342eec441c5d4cb3c79b57767dfc7041108189#5c342eec441c5d4cb3c79b57767dfc7041108189"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=52643911bc3cdb505b20630d04603cb54843a3f8#52643911bc3cdb505b20630d04603cb54843a3f8"
 dependencies = [
+ "anyhow",
  "auto_impl",
  "clap",
  "indexmap 2.11.4",
