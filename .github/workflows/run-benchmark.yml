@@ -43,7 +43,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y protobuf-compiler pkg-config libssl-dev sccache build-essential clang libclang-dev
+          sudo apt-get install -y protobuf-compiler pkg-config libssl-dev sccache build-essential clang libclang-dev nasm
 
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@stable
