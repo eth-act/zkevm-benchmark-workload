@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ master, jsign-update-reth-fork-8 ]
+    branches: [ master ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:

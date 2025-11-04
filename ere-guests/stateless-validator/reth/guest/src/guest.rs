@@ -79,7 +79,7 @@ fn validate_block<S: SDK>(
     evm_config: EthEvmConfig,
 ) -> Result<FixedBytes<32>, Box<dyn Error>> {
     S::cycle_scope(ScopeMarker::Start, "validation");
-    let block_hash = stateless_validation_with_trie::<SparseState, _, _>(
+    let (block_hash, _) = stateless_validation_with_trie::<SparseState, _, _>(
         block,
         public_keys,
         witness,

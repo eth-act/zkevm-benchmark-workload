@@ -3,14 +3,15 @@
 OPENVM_RUST_TOOLCHAIN = "nightly-2025-08-19"
 
 [patch.crates-io]
-# we only need to patch revm-precompile but the other revm crates are patched for dependency resolution
-revm = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-primitives = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }         # default feature contains "openvm"
-revm-interpreter = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-precompile = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-database = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-database-interface = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-state = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
-revm-bytecode = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# See issue #183
+
+# revm = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-primitives = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }         # default feature contains "openvm"
+# revm-interpreter = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-precompile = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-database = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-database-interface = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-state = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
+# revm-bytecode = { git = "https://github.com/axiom-crypto/revm", branch = "v83-openvm-v1.4.0" }
 # k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-ruint = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+# ruint = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
