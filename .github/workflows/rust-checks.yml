@@ -1,7 +1,7 @@
 name: Rust Checks
 on:
   push:
-    branches: [ master ]
+    branches: [ master, jsign-update-reth-fork-8 ]
   pull_request:
     branches: [ master ]
 

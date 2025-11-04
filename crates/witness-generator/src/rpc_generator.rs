@@ -81,7 +81,7 @@ impl RpcBlocksAndWitnessesBuilder {
             .max_response_size(1 << 30)
             .build(&self.url)?;
 
-        let chain_id = EthApiClient::<(), (), (), (), ()>::chain_id(&client)
+        let chain_id = EthApiClient::<(), (), (), (), (), ()>::chain_id(&client)
             .await?
             .ok_or_else(|| anyhow::anyhow!("Failed to fetch chain ID from RPC"))?;
 
@@ -171,11 +171,14 @@ impl RpcBlocksAndWitnesses {
             return Ok(vec![]);
         }
 
-        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
-            &self.client,
-            BlockNumberOrTag::Latest,
-            false,
-        )
+        let latest_block = EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block,
+            Receipt,
+            Header,
+            TransactionSigned,
+        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
         .await?
         .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
 
@@ -188,11 +191,14 @@ impl RpcBlocksAndWitnesses {
         hashes.push((latest_block.header.number, latest_block.header.hash));
         for n in (block_num_start..block_num_end).rev() {
             let block_hash = hashes.last().unwrap().1;
-            let block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_hash(
-                &self.client,
-                block_hash,
-                true,
-            )
+            let block = EthApiClient::<
+                TransactionRequest,
+                Transaction,
+                Block,
+                Receipt,
+                Header,
+                TransactionSigned,
+            >::block_by_hash(&self.client, block_hash, true)
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for number {n}"))?;
             hashes.push((n, block.header.parent_hash));
@@ -211,6 +217,7 @@ impl RpcBlocksAndWitnesses {
                 Block<TransactionSigned>,
                 Receipt,
                 Header,
+                TransactionSigned,
             >::block_by_hash(&self.client, block_hash, true)
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for hash {block_hash}"))?;
@@ -252,6 +259,7 @@ impl RpcBlocksAndWitnesses {
                 Block<TransactionSigned>,
                 Receipt,
                 Header,
+                TransactionSigned,
             >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
             .await?
             .ok_or_else(|| anyhow::anyhow!("No block found for number {block_num}"))?;
@@ -281,11 +289,14 @@ impl RpcBlocksAndWitnesses {
     ///
     /// Returns an error if any RPC call fails or if blocks cannot be found.
     async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<BlockAndWitness>> {
-        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
-            &self.client,
-            BlockNumberOrTag::Latest,
-            false,
-        )
+        let latest_block = EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block,
+            Receipt,
+            Header,
+            TransactionSigned,
+        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
         .await?
         .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
 
@@ -314,11 +325,14 @@ impl RpcBlocksAndWitnesses {
     /// Returns an error if the cancellation token is not set, if RPC calls fail,
     /// or if file writing fails.
     async fn fetch_live(&self, path: &Path) -> Result<usize> {
-        let latest_block = EthApiClient::<TransactionRequest, Transaction, Block, Receipt, Header>::block_by_number(
-            &self.client,
-            BlockNumberOrTag::Latest,
-            false,
-        )
+        let latest_block = EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block,
+            Receipt,
+            Header,
+            TransactionSigned,
+        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
         .await?
         .ok_or_else(|| anyhow::anyhow!("Failed to fetch latest block"))?;
 
@@ -516,6 +530,7 @@ mod test {
             Block,
             Receipt,
             Header,
+            TransactionSigned,
         >::block_by_number(
             &build_base_rpc().build().await.unwrap().client,
             BlockNumberOrTag::Latest,
