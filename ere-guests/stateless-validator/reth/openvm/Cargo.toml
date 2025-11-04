@@ -6,10 +6,16 @@ rust-version = "1.86"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-openvm.workspace = true
-openvm-keccak256.workspace = true
-openvm-algebra-guest.workspace = true
-openvm-ecc-guest.workspace = true
+openvm-ecc-guest = { workspace = true }
+openvm-sha2 = { workspace = true }
+openvm-pairing = { workspace = true, features = ["bn254"] }
+openvm-k256 = { workspace = true }
+openvm-p256 = { workspace = true }
+openvm-kzg = { workspace = true }
+openvm = { workspace = true, features = ["std"] }
+openvm-algebra-guest = { workspace = true }
+openvm-keccak256 = { workspace = true }
+
 guest-libs.workspace = true
 reth-guest = { workspace = true, default-features = true }
 
@@ -23,11 +29,14 @@ reth-primitives-traits = { workspace = true, features = [
     "serde-bincode-compat",
 ] }
 
+alloy-consensus = { workspace = true, features = ["crypto-backend"] }
 alloy-primitives = { workspace = true, default-features = false, features = [
     "map-foldhash",
     "serde",
     "native-keccak",
 ] }
+
+revm = { workspace = true }
 
 sha2.workspace = true
 k256.workspace = true
