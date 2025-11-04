@@ -32,22 +32,36 @@ jobs:
     env:
       ERE_TAG: 0.0.14-5c342ee
       OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
+      RUSTC_WRAPPER: sccache
+      SCCACHE_DIR: ${{ github.workspace }}/.sccache/
+      SCCACHE_CACHE_SIZE: 10G 
+      CARGO_INCREMENTAL: "0"
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install protoc
+      - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y protobuf-compiler
+          sudo apt-get install -y protobuf-compiler pkg-config libssl-dev sccache build-essential clang libclang-dev
 
       - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@stable
 
-      - name: Install C toolchain dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y build-essential clang libclang-dev
+      - name: Restore Rust cache
+        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        with:
+          action: restore
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
+          path: |
+            ${{ github.workspace }}/.sccache/
+            target
+            ere-guests/target
+          restore-keys: |
+            ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-
+            ${{ runner.os }}-cargo-
+          cache-username: ${{ secrets.CACHE_USERNAME }}
+          cache-password: ${{ secrets.CACHE_PASSWORD }}
 
       - name: Pull ere images
         run: |
@@ -66,6 +80,9 @@ jobs:
             EL=${{ inputs.el }} \
             WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
             cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.test }}
+      
+      - name: sccache stats
+        run: sccache --show-stats || true
 
       - name: Create results archive
         if: ${{ inputs.upload_results }}
@@ -79,3 +96,16 @@ jobs:
           name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
           path: tests/benchmark-results.tar.gz
           retention-days: 90
+      
+      - name: Save Rust cache
+        if: always()
+        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        with:
+          action: save
+          key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
+          path: |
+            ${{ github.workspace }}/.sccache/
+            target
+            ere-guests/target
+          cache-username: ${{ secrets.CACHE_USERNAME }}
+          cache-password: ${{ secrets.CACHE_PASSWORD }}
