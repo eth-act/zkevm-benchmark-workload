@@ -9,8 +9,8 @@ use tokio_util::sync::CancellationToken;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 use witness_generator::{
-    WitnessGenerator,
-    eest_generator::ExecSpecTestBlocksAndWitnessBuilder,
+    FixtureGenerator,
+    eest_generator::EESTFixtureGeneratorBuilder,
     rpc_generator::{RpcBlocksAndWitnessesBuilder, RpcFlatHeaderKeyValues},
 };
 
@@ -85,10 +85,9 @@ async fn main() -> Result<()> {
             .with_context(|| format!("Failed to create output folder: {:?}", cli.output_folder))?;
     }
 
-    let generator: Box<dyn WitnessGenerator> = build_generator(cli.source).await?;
-
     info!("Generating fixtures...");
-    let count = generator
+    let count = build_generator(cli.source)
+        .await?
         .generate_to_path(&cli.output_folder)
         .await
         .context("Failed to generate blocks and witnesses")?;
@@ -98,7 +97,7 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerator>> {
+async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerator>> {
     match source {
         SourceCommand::Tests {
             tag,
@@ -106,7 +105,7 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn WitnessGenerat
             exclude,
             eest_fixtures_path,
         } => {
-            let mut builder = ExecSpecTestBlocksAndWitnessBuilder::default();
+            let mut builder = EESTFixtureGeneratorBuilder::default();
 
             if let Some(tag) = tag {
                 builder = builder.with_tag(tag);

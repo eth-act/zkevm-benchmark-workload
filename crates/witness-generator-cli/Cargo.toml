@@ -7,6 +7,7 @@ license.workspace = true
 
 [dependencies]
 witness-generator.workspace = true
+
 clap.workspace = true
 anyhow.workspace = true
 tokio.workspace = true
