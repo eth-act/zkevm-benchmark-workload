@@ -5,24 +5,24 @@ use core::error::Error;
 
 use alloy_primitives::FixedBytes;
 use ere_io_serde::IoSerde;
-use k256::sha2::{Digest, Sha256};
+use ere_platform_trait::Platform;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{Input, io_serde};
+use reth_guest_io::{io_serde, Input};
 use reth_primitives_traits::Block;
 use reth_stateless::{
-    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
+    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{SDK, ScopeMarker};
+use crate::sdk::{ScopeMarker, SDK};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "read_input");
     let input: Input = io_serde()
-        .deserialize(&S::read_input())
+        .deserialize(&S::Platform::read_whole_input())
         .expect("Failed to read input");
 
     let genesis = Genesis {
@@ -46,28 +46,20 @@ pub fn ethereum_guest<S: SDK>() {
         evm_config,
     );
     S::cycle_scope(ScopeMarker::Start, "commit_public_inputs");
-    match res {
+    let public_input_bytes = match res {
         Ok(block_hash) => {
             let public_inputs = (block_hash.0, parent_hash.0, true);
-            let public_inputs_hash: [u8; 32] = Sha256::digest(
-                bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy())
-                    .unwrap(),
-            )
-            .into();
-            S::commit_output(public_inputs_hash);
+            bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy()).unwrap()
         }
         Err(_err) => {
             #[cfg(feature = "std")]
             println!("Block validation failed: {_err}");
+
             let public_inputs = (header.hash_slow().0, parent_hash.0, false);
-            let public_inputs_hash: [u8; 32] = Sha256::digest(
-                bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy())
-                    .unwrap(),
-            )
-            .into();
-            S::commit_output(public_inputs_hash);
+            bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy()).unwrap()
         }
-    }
+    };
+    S::Platform::write_whole_output(&public_input_bytes);
     S::cycle_scope(ScopeMarker::End, "commit_public_inputs");
 }
 
