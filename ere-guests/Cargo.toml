@@ -130,6 +130,7 @@ reth-guest-io = { path = "stateless-validator/reth/io", default-features = false
 block-encoding-length-io = { path = "block-encoding-length/io", default-features = false }
 ere-io-serde = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 ere-platform-trait = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd" }
+ere-platform-openvm = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 ere-platform-sp1 = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
@@ -139,9 +140,7 @@ risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "unstable",
     "getrandom",
 ] }
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", features = [
-    "std",
-] }
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
