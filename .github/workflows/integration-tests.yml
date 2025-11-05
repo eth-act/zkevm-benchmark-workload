@@ -63,7 +63,7 @@ jobs:
           - zkvm: sp1
             threads: 6
           - zkvm: zisk
-            threads: 3
+            threads: 1
           - threads: 12
         exclude:
           # ZisK
