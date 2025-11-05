@@ -215,4 +215,8 @@ reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b873
 reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 
+# Temporary solution since openvm-kzg indirectly pulls openvm@main which generates a compilation error.
+[patch."https://github.com/openvm-org/openvm"]
+openvm = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.1" }
+
 [patch.crates-io]
