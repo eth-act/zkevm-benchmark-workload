@@ -2,8 +2,6 @@
 
 extern crate alloc;
 
-use std::io::Read;
-
 use reth_guest::{
     guest::ethereum_guest,
     sdk::{ScopeMarker, SDK},
@@ -14,7 +12,6 @@ pub struct Risc0SDK;
 
 impl SDK for Risc0SDK {
     fn read_input() -> Vec<u8> {
-        let mut input = Vec::new();
         let len = {
             let mut bytes = [0; 4];
             env::read_slice(&mut bytes);
@@ -22,6 +19,7 @@ impl SDK for Risc0SDK {
         };
         let mut input = vec![0u8; len as usize];
         env::read_slice(&mut input);
+        input
     }
 
     fn commit_output(output: [u8; 32]) {

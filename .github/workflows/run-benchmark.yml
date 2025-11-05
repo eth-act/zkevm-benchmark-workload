@@ -66,7 +66,7 @@ jobs:
       - name: Pull ere images
         run: |
           for variant in "base" "base-${{ inputs.zkvm }}" "compiler-${{ inputs.zkvm }}" "server-${{ inputs.zkvm }}"; do
-            src="docker.ethquokkaops.io/gh/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
             dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
             docker tag "$src" "$dst"
