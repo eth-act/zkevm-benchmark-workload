@@ -1,5 +1,3 @@
-use std::io::Read;
-
 use k256::sha2::{Digest, Sha256};
 use risc0_zkvm::guest::env;
 
@@ -9,7 +7,6 @@ use rkyv::rancor::Error;
 fn main() {
     println!("start reading input");
     let start = env::cycle_count();
-    let mut input = Vec::new();
     let len = {
         let mut bytes = [0; 4];
         env::read_slice(&mut bytes);
@@ -17,6 +14,7 @@ fn main() {
     };
     let mut input = vec![0u8; len as usize];
     env::read_slice(&mut input);
+    let mut input = rkyv::from_bytes::<ProgramInput, Error>(&input).unwrap();
     let end = env::cycle_count();
     eprintln!("reading input (cycle tracker): {}", end - start);
 
