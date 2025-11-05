@@ -65,6 +65,8 @@ jobs:
           # ZisK
           - zkvm: zisk
             test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI
+          - zkvm: zisk
+            test: execute_mainnet_blocks # Since v0.13.0 ZisK uses too much memory for CI runners.
           # Ethrex
           - el: ethrex
             zkvm: openvm # See https://github.com/eth-act/ere/issues/168

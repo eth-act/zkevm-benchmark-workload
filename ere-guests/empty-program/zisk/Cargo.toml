@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git" }
+ziskos.workspace = true
 
 [lints]
 workspace = true

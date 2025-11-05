@@ -128,22 +128,22 @@ guest-libs = { path = "libs", default-features = false }
 reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
 reth-guest-io = { path = "stateless-validator/reth/io", default-features = false }
 block-encoding-length-io = { path = "block-encoding-length/io", default-features = false }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "5c342eec441c5d4cb3c79b57767dfc7041108189", default-features = false }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "1de217d43a8c65d6b29abe4c2537cddcbb96afc1", default-features = false }
 
-sp1-zkvm = "5.0.5"
+sp1-zkvm = "5.2.2"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.12.0" }
+ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.13.0" }
 risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "std",
     "unstable",
     "getrandom",
 ] }
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0", features = [
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", features = [
     "std",
 ] }
-openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.0" }
+openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
