@@ -15,10 +15,13 @@ pub struct Risc0SDK;
 impl SDK for Risc0SDK {
     fn read_input() -> Vec<u8> {
         let mut input = Vec::new();
-        env::stdin()
-            .read_to_end(&mut input)
-            .expect("Failed to read input");
-        input
+        let len = {
+            let mut bytes = [0; 4];
+            env::read_slice(&mut bytes);
+            u32::from_le_bytes(bytes)
+        };
+        let mut input = vec![0u8; len as usize];
+        env::read_slice(&mut input);
     }
 
     fn commit_output(output: [u8; 32]) {
