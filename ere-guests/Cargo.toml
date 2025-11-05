@@ -132,18 +132,15 @@ ere-io-serde = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c2
 ere-platform-trait = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd" }
 ere-platform-openvm = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 ere-platform-pico = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
+ere-platform-risc0 = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 ere-platform-sp1 = { git = "https://github.com/eth-act/ere", rev = "6547820fc82823c243905641207238ee4e1526dd", default-features = false }
 
 ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.13.0" }
-risc0-zkvm = { version = "3.0.3", default-features = false, features = [
-    "std",
-    "unstable",
-    "getrandom",
-] }
 openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
+risc0-zkvm-platform = { version = "2.2.1", default-features = false, features = ["sys-getenv"] }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

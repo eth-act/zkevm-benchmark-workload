@@ -4,4 +4,4 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-risc0-zkvm = { workspace = true, features = ["std", "unstable", "getrandom"] }
+ere-platform-risc0 = { workspace = true, features = ["std"] }
