@@ -2,10 +2,12 @@
 
 #![no_main]
 
+use ere_platform_zisk::{ZiskPlatform, ziskos};
 use reth_guest::{
     guest::ethereum_guest,
     sdk::{SDK, ScopeMarker},
 };
+use sha2::Sha256;
 
 ziskos::entrypoint!(main);
 
@@ -13,15 +15,7 @@ ziskos::entrypoint!(main);
 struct ZiskSDK;
 
 impl SDK for ZiskSDK {
-    fn read_input() -> Vec<u8> {
-        ziskos::read_input()
-    }
-
-    fn commit_output(output: [u8; 32]) {
-        output.chunks_exact(4).enumerate().for_each(|(idx, bytes)| {
-            ziskos::set_output(idx, u32::from_le_bytes(bytes.try_into().unwrap()))
-        });
-    }
+    type Platform = ZiskPlatform<Sha256>;
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {
         match scope {
