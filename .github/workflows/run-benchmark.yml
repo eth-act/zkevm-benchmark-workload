@@ -6,11 +6,6 @@ on:
         required: true
         type: string
         description: Space-separated list of tests to run
-      upload_results:
-        required: false
-        type: boolean
-        default: false
-        description: Whether to create and upload benchmark results
       zkvm:
         required: true
         type: string
@@ -78,25 +73,11 @@ jobs:
             RUST_LOG=warn,benchmark_runner=info \
             ZKVM=${{ inputs.zkvm }} \
             EL=${{ inputs.el }} \
-            WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
             cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.tests }}
       
       - name: sccache stats
         run: sccache --show-stats || true
 
-      - name: Create results archive
-        if: ${{ inputs.upload_results }}
-        run: |
-          cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
-
-      - name: Upload benchmark results
-        if: ${{ inputs.upload_results }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}
-          path: tests/benchmark-results.tar.gz
-          retention-days: 90
-      
       - name: Save Rust cache
         if: always()
         uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de

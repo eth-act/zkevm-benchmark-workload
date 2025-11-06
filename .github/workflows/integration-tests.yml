@@ -55,164 +55,63 @@ jobs:
           - zkvm: sp1
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 12
           - zkvm: risc0
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 12
           - zkvm: openvm
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 2
           - zkvm: pico
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block"
-            upload_results: true
             threads: 12
           - zkvm: zisk
             el: reth
             tests: "execute_empty_block execute_invalid_block"
-            upload_results: true
             threads: 12
           - zkvm: airbender
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 12
 
           # Stateless Validator - Ethrex
           - zkvm: sp1
             el: ethrex
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 12
           - zkvm: risc0
             el: ethrex
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
-            upload_results: true
             threads: 12
 
           # Custom Guest Programs
           - zkvm: sp1
             el: none
             tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
-            upload_results: false
             threads: 12
           - zkvm: risc0
             el: none
             tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
-            upload_results: false
             threads: 12
           - zkvm: openvm
             el: none
             tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
-            upload_results: false
             threads: 12
           - zkvm: pico
             el: none
             tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
-            upload_results: false
             threads: 12
           - zkvm: zisk
             el: none
             tests: "execute_empty_program execute_panic_guest"
-            upload_results: false
             threads: 12
     uses: ./.github/workflows/run-benchmark.yml
     with:
       tests: ${{ matrix.tests }}
       zkvm: ${{ matrix.zkvm }}
       el: ${{ matrix.el }}
-      upload_results: ${{ matrix.upload_results }}
       threads: ${{ matrix.threads }}
     secrets: inherit
-
-  generate-benchmark-website:
-    name: Generate Benchmark Website
-    needs: [integration-tests]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Download all benchmark artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: benchmark-results-*
-          path: ./downloaded-artifacts
-
-      - name: Merge results and generate website
-        run: |
-          mkdir -p ./merged-results
-          echo "Downloaded artifacts:"
-          ls -la ./downloaded-artifacts/ || echo "No artifacts found"
-
-          # Extract all tar.gz files and merge them
-          for artifact_dir in ./downloaded-artifacts/*/; do
-            if [ -d "$artifact_dir" ]; then
-              echo "Processing $artifact_dir"
-              for tarfile in "$artifact_dir"/*.tar.gz; do
-                if [ -f "$tarfile" ]; then
-                  echo "Extracting $tarfile"
-                  tar -xzf "$tarfile" -C ./merged-results --skip-old-files 2>/dev/null
-                fi
-              done
-            fi
-          done
-
-          echo "Merged results structure:"
-          ls -la ./merged-results/
-          if [ -d ./merged-results/zkevm-metrics ]; then
-            echo "Contents of zkevm-metrics:"
-            ls -la ./merged-results/zkevm-metrics/
-          fi
-
-          echo "Generating website..."
-          python3 scripts/generate-website.py -i ./merged-results -o index.html
-
-      - name: Upload website artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-website
-          path: index.html
-          retention-days: 90
-
-  deploy-pages:
-    name: Deploy Benchmark Website
-    needs: generate-benchmark-website
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Download website artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: benchmark-website
-          path: ./website
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./website
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
