@@ -90,7 +90,7 @@ fn main() -> Result<()> {
         .with_context(|| format!("writing {}", manifest_path.display()))?;
 
     // 5 ── run cargo update for patching crates
-    let status = Command::new("cargo")
+    let _ = Command::new("cargo")
         .current_dir(&manifest_folder)
         .arg("update")
         .args(patches.iter().flat_map(|(key, value)| {
@@ -100,11 +100,7 @@ fn main() -> Result<()> {
                 .unwrap_or(key);
             ["--package", pkg]
         }))
-        .status()
-        .context("failed to run cargo update")?;
-    if !status.success() {
-        std::process::exit(status.code().unwrap_or(1));
-    }
+        .status();
 
     // 6 ── forward to Cargo
     let status = Command::new("cargo")
