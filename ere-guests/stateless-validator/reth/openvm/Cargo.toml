@@ -6,15 +6,11 @@ rust-version = "1.86"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-openvm-ecc-guest = { workspace = true }
-openvm-sha2 = { workspace = true }
-openvm-pairing = { workspace = true, features = ["bn254"] }
-openvm-k256 = { workspace = true }
-openvm-p256 = { workspace = true }
-openvm-kzg = { workspace = true }
 openvm = { workspace = true, features = ["std"] }
-openvm-algebra-guest = { workspace = true }
-openvm-keccak256 = { workspace = true }
+openvm-algebra-guest.workspace = true
+openvm-ecc-guest.workspace = true
+openvm-keccak256.workspace = true
+openvm-revm-crypto.workspace = true
 
 guest-libs.workspace = true
 reth-guest = { workspace = true, default-features = true }

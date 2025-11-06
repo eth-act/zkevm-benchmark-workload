@@ -25,10 +25,9 @@ impl SDK for OpenVMSDK {
     fn cycle_scope(_scope: ScopeMarker, _message: &str) {}
 }
 
-mod crypto;
-
 /// Entry point.
 pub fn main() {
-    crypto::install_openvm_crypto().expect("failed to install OpenVM crypto provider");
+    openvm_revm_crypto::install_openvm_crypto()
+        .expect("failed to install OpenVM revm crypto provider");
     ethereum_guest::<OpenVMSDK>();
 }
