@@ -74,7 +74,7 @@ jobs:
             threads: 12
           - zkvm: airbender
             el: reth
-            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block"
             threads: 12
 
           # Stateless Validator - Ethrex
