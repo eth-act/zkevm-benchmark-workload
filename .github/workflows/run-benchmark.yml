@@ -2,15 +2,10 @@ name: Run Benchmark
 on:
   workflow_call:
     inputs:
-      test:
+      tests:
         required: true
         type: string
-        description: Test to run
-      upload_results:
-        required: false
-        type: boolean
-        default: false
-        description: Whether to create and upload benchmark results
+        description: Space-separated list of tests to run
       zkvm:
         required: true
         type: string
@@ -27,7 +22,7 @@ on:
 
 jobs:
   run-benchmark:
-    name: ${{ inputs.zkvm }} - ${{ inputs.test }}
+    name: ${{ inputs.zkvm }} / ${{ inputs.el }}
     runs-on: [self-hosted-ghr, size-xl-x64]
     env:
       ERE_TAG: 0.0.14-1de217d
@@ -49,7 +44,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Restore Rust cache
-        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: restore
           key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
@@ -66,7 +61,7 @@ jobs:
       - name: Pull ere images
         run: |
           for variant in "base" "base-${{ inputs.zkvm }}" "compiler-${{ inputs.zkvm }}" "server-${{ inputs.zkvm }}"; do
-            src="ghcr.io/eth-act/ere/ere-${variant}:${ERE_TAG}"
+            src="docker.ethquokkaops.io/gh/eth-act/ere/ere-${variant}:${ERE_TAG}"
             dst="ere-${variant}:${ERE_TAG}"
             docker pull "$src"
             docker tag "$src" "$dst"
@@ -78,28 +73,13 @@ jobs:
             RUST_LOG=warn,benchmark_runner=info \
             ZKVM=${{ inputs.zkvm }} \
             EL=${{ inputs.el }} \
-            WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
-            cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.test }}
+            cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.tests }}
       
       - name: sccache stats
         run: sccache --show-stats || true
 
-      - name: Create results archive
-        if: ${{ inputs.upload_results }}
-        run: |
-          cd tests && tar -czvf benchmark-results.tar.gz ./zkevm-metrics
-
-      - name: Upload benchmark results
-        if: ${{ inputs.upload_results }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
-          path: tests/benchmark-results.tar.gz
-          retention-days: 90
-      
       - name: Save Rust cache
-        if: always()
-        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: save
           key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}

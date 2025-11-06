@@ -45,157 +45,73 @@ jobs:
             exit 1
           fi
   
-  stateless-validator:
-    name: "${{ format('{0} / {1} / {2}', matrix.el, matrix.zkvm, matrix.test) }}"
+  integration-tests:
+    name: "${{ format('{0} / {1}', matrix.zkvm, matrix.el) }}"
     strategy:
       fail-fast: false
       matrix:
-        test:
-          - execute_empty_block
-          - execute_mainnet_blocks
-          - execute_invalid_block
-          - prove_empty_block
-        zkvm: [sp1, risc0, pico, zisk, openvm, airbender]
-        el: [reth, ethrex]
         include:
+          # Stateless Validator - Reth
+          - zkvm: sp1
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            threads: 12
+          - zkvm: risc0
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            threads: 12
           - zkvm: openvm
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
             threads: 2
-          - threads: 12
-        exclude:
-          # ZisK
-          - zkvm: zisk
-            test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI
-          - zkvm: zisk
-            test: execute_mainnet_blocks # Since v0.13.0 ZisK uses too much memory for CI runners.
-          # Ethrex
-          - el: ethrex
-            zkvm: openvm # See https://github.com/eth-act/ere/issues/168
-          - el: ethrex
-            zkvm: pico # See https://github.com/eth-act/ere/issues/174
-          - el: ethrex
-            zkvm: zisk # See https://github.com/eth-act/ere/issues/186
-          - el: ethrex
-            zkvm: airbender
-          # Pico
           - zkvm: pico
-            test: prove_empty_block # See https://github.com/eth-act/ere/issues/199
+            el: reth
+            tests: "execute_empty_block execute_invalid_block"
+            threads: 12
+          - zkvm: zisk
+            el: reth
+            tests: "execute_empty_block execute_invalid_block"
+            threads: 12
+          - zkvm: airbender
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block"
+            threads: 12
+
+          # Stateless Validator - Ethrex
+          - zkvm: sp1
+            el: ethrex
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            threads: 12
+          - zkvm: risc0
+            el: ethrex
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            threads: 12
+
+          # Custom Guest Programs
+          - zkvm: sp1
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            threads: 12
+          - zkvm: risc0
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            threads: 12
+          - zkvm: openvm
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            threads: 12
+          - zkvm: pico
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            threads: 12
+          - zkvm: zisk
+            el: none
+            tests: "execute_empty_program execute_panic_guest"
+            threads: 12
     uses: ./.github/workflows/run-benchmark.yml
     with:
-      test: ${{ matrix.test }}
+      tests: ${{ matrix.tests }}
       zkvm: ${{ matrix.zkvm }}
       el: ${{ matrix.el }}
-      upload_results: ${{ startsWith(matrix.test, 'execute_') }}
       threads: ${{ matrix.threads }}
     secrets: inherit
-
-  custom-guest:
-    name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
-    strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - execute_empty_program
-          - execute_panic_guest
-          - prove_empty_program
-          - prove_panic_guest
-        zkvm: [sp1, risc0, zisk, openvm, pico]
-        exclude:
-          # ZisK - ere image intentionally doesn't bake big proving key for CI
-          - test: prove_empty_program
-            zkvm: zisk
-          - test: prove_panic_guest
-            zkvm: zisk
-    uses: ./.github/workflows/run-benchmark.yml
-    with:
-      test: ${{ matrix.test }}
-      zkvm: ${{ matrix.zkvm }}
-      el: 'none'
-      threads: 12
-    secrets: inherit
-
-  generate-benchmark-website:
-    name: Generate Benchmark Website
-    needs: [stateless-validator]
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Download all benchmark artifacts
-        uses: actions/download-artifact@v4
-        with:
-          pattern: benchmark-results-*
-          path: ./downloaded-artifacts
-
-      - name: Merge results and generate website
-        run: |
-          mkdir -p ./merged-results
-          echo "Downloaded artifacts:"
-          ls -la ./downloaded-artifacts/ || echo "No artifacts found"
-
-          # Extract all tar.gz files and merge them
-          for artifact_dir in ./downloaded-artifacts/*/; do
-            if [ -d "$artifact_dir" ]; then
-              echo "Processing $artifact_dir"
-              for tarfile in "$artifact_dir"/*.tar.gz; do
-                if [ -f "$tarfile" ]; then
-                  echo "Extracting $tarfile"
-                  tar -xzf "$tarfile" -C ./merged-results --skip-old-files 2>/dev/null
-                fi
-              done
-            fi
-          done
-
-          echo "Merged results structure:"
-          ls -la ./merged-results/
-          if [ -d ./merged-results/zkevm-metrics ]; then
-            echo "Contents of zkevm-metrics:"
-            ls -la ./merged-results/zkevm-metrics/
-          fi
-
-          echo "Generating website..."
-          python3 scripts/generate-website.py -i ./merged-results -o index.html
-
-      - name: Upload website artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-website
-          path: index.html
-          retention-days: 90
-
-  deploy-pages:
-    name: Deploy Benchmark Website
-    needs: generate-benchmark-website
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
-      id-token: write
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    steps:
-      - name: Configure GitHub Pages
-        uses: actions/configure-pages@v5
-
-      - name: Download website artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: benchmark-website
-          path: ./website
-
-      - name: Upload Pages artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: ./website
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v4
