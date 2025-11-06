@@ -39,8 +39,6 @@ jobs:
             xtask: zisk
           - zkVM: reth-pico-stateless-validator
             xtask: pico
-          # - zkVM: reth-openvm-stateless-validator # See #168
-          #   xtask: openvm
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
