@@ -46,7 +46,7 @@ jobs:
           fi
   
   integration-tests:
-    name: "${{ format('{0} / {1}', matrix.el, matrix.zkvm) }}"
+    name: "${{ format('{0} / {1}', matrix.zkvm, matrix.el) }}"
     strategy:
       fail-fast: false
       matrix:
