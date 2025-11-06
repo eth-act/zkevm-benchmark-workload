@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ master ]
+    branches: [ master, jsign-ci-aggr ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
@@ -45,77 +45,94 @@ jobs:
             exit 1
           fi
   
-  stateless-validator:
-    name: "${{ format('{0} / {1} / {2}', matrix.el, matrix.zkvm, matrix.test) }}"
+  integration-tests:
+    name: "${{ format('{0} / {1}', matrix.el, matrix.zkvm) }}"
     strategy:
       fail-fast: false
       matrix:
-        test:
-          - execute_empty_block
-          - execute_mainnet_blocks
-          - execute_invalid_block
-          - prove_empty_block
-        zkvm: [sp1, risc0, pico, zisk, openvm, airbender]
-        el: [reth, ethrex]
         include:
+          # Stateless Validator - Reth
+          - zkvm: sp1
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
+            threads: 12
+          - zkvm: risc0
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
+            threads: 12
           - zkvm: openvm
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
             threads: 2
-          - threads: 12
-        exclude:
-          # ZisK
-          - zkvm: zisk
-            test: prove_empty_block # ere image intentionally doesn't bake big proving key for CI
-          - zkvm: zisk
-            test: execute_mainnet_blocks # Since v0.13.0 ZisK uses too much memory for CI runners.
-          # Ethrex
-          - el: ethrex
-            zkvm: openvm # See https://github.com/eth-act/ere/issues/168
-          - el: ethrex
-            zkvm: pico # See https://github.com/eth-act/ere/issues/174
-          - el: ethrex
-            zkvm: zisk # See https://github.com/eth-act/ere/issues/186
-          - el: ethrex
-            zkvm: airbender
-          # Pico
           - zkvm: pico
-            test: prove_empty_block # See https://github.com/eth-act/ere/issues/199
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block"
+            upload_results: true
+            threads: 12
+          - zkvm: zisk
+            el: reth
+            tests: "execute_empty_block execute_invalid_block"
+            upload_results: true
+            threads: 12
+          - zkvm: airbender
+            el: reth
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
+            threads: 12
+
+          # Stateless Validator - Ethrex
+          - zkvm: sp1
+            el: ethrex
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
+            threads: 12
+          - zkvm: risc0
+            el: ethrex
+            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            upload_results: true
+            threads: 12
+
+          # Custom Guest Programs
+          - zkvm: sp1
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            upload_results: false
+            threads: 12
+          - zkvm: risc0
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            upload_results: false
+            threads: 12
+          - zkvm: openvm
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            upload_results: false
+            threads: 12
+          - zkvm: pico
+            el: none
+            tests: "execute_empty_program execute_panic_guest prove_empty_program prove_panic_guest"
+            upload_results: false
+            threads: 12
+          - zkvm: zisk
+            el: none
+            tests: "execute_empty_program execute_panic_guest"
+            upload_results: false
+            threads: 12
     uses: ./.github/workflows/run-benchmark.yml
     with:
-      test: ${{ matrix.test }}
+      tests: ${{ matrix.tests }}
       zkvm: ${{ matrix.zkvm }}
       el: ${{ matrix.el }}
-      upload_results: ${{ startsWith(matrix.test, 'execute_') }}
+      upload_results: ${{ matrix.upload_results }}
       threads: ${{ matrix.threads }}
-    secrets: inherit
-
-  custom-guest:
-    name: "${{ format('{0} / {1}', matrix.test, matrix.zkvm) }}"
-    strategy:
-      fail-fast: false
-      matrix:
-        test:
-          - execute_empty_program
-          - execute_panic_guest
-          - prove_empty_program
-          - prove_panic_guest
-        zkvm: [sp1, risc0, zisk, openvm, pico]
-        exclude:
-          # ZisK - ere image intentionally doesn't bake big proving key for CI
-          - test: prove_empty_program
-            zkvm: zisk
-          - test: prove_panic_guest
-            zkvm: zisk
-    uses: ./.github/workflows/run-benchmark.yml
-    with:
-      test: ${{ matrix.test }}
-      zkvm: ${{ matrix.zkvm }}
-      el: 'none'
-      threads: 12
     secrets: inherit
 
   generate-benchmark-website:
     name: Generate Benchmark Website
-    needs: [stateless-validator]
+    needs: [integration-tests]
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/master' || github.event_name == 'workflow_dispatch' }}
     runs-on: ubuntu-latest
     steps:

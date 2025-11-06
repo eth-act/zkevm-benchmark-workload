@@ -2,10 +2,10 @@ name: Run Benchmark
 on:
   workflow_call:
     inputs:
-      test:
+      tests:
         required: true
         type: string
-        description: Test to run
+        description: Space-separated list of tests to run
       upload_results:
         required: false
         type: boolean
@@ -27,7 +27,7 @@ on:
 
 jobs:
   run-benchmark:
-    name: ${{ inputs.zkvm }} - ${{ inputs.test }}
+    name: ${{ inputs.zkvm }} / ${{ inputs.el }}
     runs-on: [self-hosted-ghr, size-xl-x64]
     env:
       ERE_TAG: 0.0.14-1de217d
@@ -79,7 +79,7 @@ jobs:
             ZKVM=${{ inputs.zkvm }} \
             EL=${{ inputs.el }} \
             WORKLOAD_OUTPUT_DIR=./zkevm-metrics \
-            cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.test }}
+            cargo test --release -p integration-tests -- --test-threads=1 ${{ inputs.tests }}
       
       - name: sccache stats
         run: sccache --show-stats || true
@@ -93,7 +93,7 @@ jobs:
         if: ${{ inputs.upload_results }}
         uses: actions/upload-artifact@v4
         with:
-          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}-${{ inputs.test }}
+          name: benchmark-results-${{ inputs.el }}-${{ inputs.zkvm }}
           path: tests/benchmark-results.tar.gz
           retention-days: 90
       
