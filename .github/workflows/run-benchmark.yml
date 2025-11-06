@@ -44,7 +44,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Restore Rust cache
-        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: restore
           key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
@@ -79,7 +79,7 @@ jobs:
         run: sccache --show-stats || true
 
       - name: Save Rust cache
-        uses: EthDevOps/action-cache@846782e812a5f02b48f3317d7dee5bff3d9e34de
+        uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: save
           key: ${{ runner.os }}-cargo-${{ inputs.zkvm }}-${{ inputs.el }}-${{ hashFiles('Cargo.lock') }}
