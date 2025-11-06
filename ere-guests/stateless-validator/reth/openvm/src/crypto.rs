@@ -2,6 +2,7 @@
 //!
 //! This module provides OpenVM-optimized implementations of cryptographic operations
 //! for both transaction validation (via Alloy crypto provider) and precompile execution.
+
 use alloy_consensus::crypto::{
     backend::{install_default_provider, CryptoProvider},
     RecoveryError,
@@ -15,7 +16,7 @@ use openvm_ecc_guest::{
 use openvm_k256::ecdsa::{RecoveryId, Signature, VerifyingKey};
 use openvm_keccak256::keccak256;
 use openvm_kzg::{Bytes32, Bytes48, KzgProof};
-#[allow(unused_imports)]
+#[allow(unused_imports, clippy::single_component_path_imports)]
 use openvm_p256; // ensure this is linked in for the standard OpenVM config
 use openvm_pairing::{
     bn254::{Bn254, Fp, Fp2, G1Affine, G2Affine, Scalar},
@@ -80,9 +81,9 @@ impl CryptoProvider for OpenVmK256Provider {
 
 /// OpenVM custom crypto implementation for faster precompiles
 #[derive(Debug, Default)]
-struct OpenVMCrypto;
+struct OpenVmCrypto;
 
-impl Crypto for OpenVMCrypto {
+impl Crypto for OpenVmCrypto {
     /// Custom SHA-256 implementation with openvm optimization
     fn sha256(&self, input: &[u8]) -> [u8; 32] {
         openvm_sha2::sha256(input)
@@ -201,12 +202,12 @@ impl Crypto for OpenVMCrypto {
 }
 
 /// Install OpenVM crypto implementations globally
-pub(crate) fn install_openvm_crypto() -> Result<bool, Box<dyn std::error::Error>> {
+pub fn install_openvm_crypto() -> Result<bool, Box<dyn std::error::Error>> {
     // Install OpenVM k256 provider for Alloy (transaction validation)
-    install_default_provider(Arc::new(OpenVmK256Provider::default()))?;
+    install_default_provider(Arc::new(OpenVmK256Provider))?;
 
     // Install OpenVM crypto for REVM precompiles
-    let installed = install_crypto(OpenVMCrypto::default());
+    let installed = install_crypto(OpenVmCrypto);
 
     Ok(installed)
 }
