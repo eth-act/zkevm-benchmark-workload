@@ -150,7 +150,7 @@ openvm-pairing = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4
 ] }
 openvm-k256 = { git = "https://github.com/openvm-org/openvm.git", package = "k256", tag = "v1.4.1" }
 openvm-p256 = { git = "https://github.com/openvm-org/openvm.git", package = "p256", tag = "v1.4.1" }
-openvm-kzg = { git = "https://github.com/axiom-crypto/openvm-kzg.git", branch = "openvm-main", default-features = false }
+openvm-kzg = { git = "https://github.com/axiom-crypto/openvm-kzg.git", rev = "530a6ed413def5296b7e4967650ba4fc8fd92ea1", default-features = false }
 openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 
@@ -214,9 +214,5 @@ opt-level = "s"
 reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
-
-# Temporary solution since openvm-kzg indirectly pulls openvm@main which generates a compilation error.
-[patch."https://github.com/openvm-org/openvm"]
-openvm = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.1" }
 
 [patch.crates-io]
