@@ -2,7 +2,7 @@
 
 extern crate alloc;
 
-use risc0_zkvm::guest::env;
+use ere_platform_risc0::risc0_zkvm as _;
 
 /// Entry point.
 pub fn main() {

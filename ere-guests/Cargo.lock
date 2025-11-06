@@ -1994,10 +1994,72 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io-serde"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
 dependencies = [
  "bincode 2.0.1",
  "serde",
+]
+
+[[package]]
+name = "ere-platform-airbender"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "riscv_common",
+]
+
+[[package]]
+name = "ere-platform-openvm"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "openvm",
+]
+
+[[package]]
+name = "ere-platform-pico"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "pico-sdk",
+]
+
+[[package]]
+name = "ere-platform-risc0"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "risc0-zkvm",
+]
+
+[[package]]
+name = "ere-platform-sp1"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "sp1-zkvm",
+]
+
+[[package]]
+name = "ere-platform-trait"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "digest 0.10.7",
+]
+
+[[package]]
+name = "ere-platform-zisk"
+version = "0.0.14"
+source = "git+https://github.com/eth-act/ere?rev=6547820fc82823c243905641207238ee4e1526dd#6547820fc82823c243905641207238ee4e1526dd"
+dependencies = [
+ "ere-platform-trait",
+ "ziskos",
 ]
 
 [[package]]
@@ -4146,14 +4208,14 @@ dependencies = [
 name = "pico-empty-program"
 version = "0.1.0"
 dependencies = [
- "pico-sdk",
+ "ere-platform-pico",
 ]
 
 [[package]]
 name = "pico-panic-guest"
 version = "0.1.0"
 dependencies = [
- "pico-sdk",
+ "ere-platform-pico",
 ]
 
 [[package]]
@@ -4644,6 +4706,7 @@ name = "reth-airbender-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-airbender",
  "guest-libs",
  "k256",
  "reth-ethereum-primitives 1.8.3",
@@ -4651,7 +4714,6 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "riscv_common",
  "sha2",
 ]
 
@@ -4941,6 +5003,7 @@ dependencies = [
  "alloy-primitives",
  "bincode 2.0.1",
  "ere-io-serde",
+ "ere-platform-trait",
  "guest-libs",
  "k256",
  "once_cell",
@@ -4997,6 +5060,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bincode 1.3.3",
+ "ere-platform-openvm",
  "guest-libs",
  "k256",
  "openvm",
@@ -5015,15 +5079,16 @@ name = "reth-pico-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-pico",
  "guest-libs",
  "k256",
  "kzg-rs",
- "pico-sdk",
  "reth-ethereum-primitives 1.8.3",
  "reth-guest",
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
+ "sha2",
 ]
 
 [[package]]
@@ -5124,6 +5189,7 @@ name = "reth-risc0-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-risc0",
  "guest-libs",
  "k256",
  "reth-ethereum-primitives 1.8.3",
@@ -5131,7 +5197,7 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "risc0-zkvm",
+ "sha2",
 ]
 
 [[package]]
@@ -5139,6 +5205,7 @@ name = "reth-sp1-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-sp1",
  "guest-libs",
  "k256",
  "reth-ethereum-primitives 1.8.3",
@@ -5146,7 +5213,7 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "sp1-zkvm",
+ "sha2",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -5334,6 +5401,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bincode 1.3.3",
+ "ere-platform-zisk",
  "guest-libs",
  "k256",
  "reth-ethereum-primitives 1.8.3",
@@ -5342,7 +5410,6 @@ dependencies = [
  "reth-stateless",
  "revm 31.0.0",
  "sha2",
- "ziskos",
 ]
 
 [[package]]
@@ -5765,7 +5832,7 @@ dependencies = [
 name = "risc0-empty-program"
 version = "0.1.0"
 dependencies = [
- "risc0-zkvm",
+ "ere-platform-risc0",
 ]
 
 [[package]]
@@ -5793,7 +5860,7 @@ dependencies = [
 name = "risc0-panic-guest"
 version = "0.1.0"
 dependencies = [
- "risc0-zkvm",
+ "ere-platform-risc0",
 ]
 
 [[package]]
@@ -6534,13 +6601,13 @@ dependencies = [
  "alloy-consensus",
  "block-encoding-length-io",
  "ere-io-serde",
+ "ere-platform-sp1",
  "ethereum_ssz",
  "guest-libs",
  "reth-ethereum-primitives 1.8.3",
  "reth-primitives-traits 1.8.3",
  "serde",
  "serde_with",
- "sp1-zkvm",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -6549,14 +6616,14 @@ dependencies = [
 name = "succinct-empty-guest"
 version = "0.1.0"
 dependencies = [
- "sp1-zkvm",
+ "ere-platform-sp1",
 ]
 
 [[package]]
 name = "succinct-panic-guest"
 version = "0.1.0"
 dependencies = [
- "sp1-zkvm",
+ "ere-platform-sp1",
 ]
 
 [[package]]
@@ -7481,14 +7548,14 @@ dependencies = [
 name = "zisk-empty-program"
 version = "0.1.0"
 dependencies = [
- "ziskos",
+ "ere-platform-zisk",
 ]
 
 [[package]]
 name = "zisk-panic-guest"
 version = "0.1.0"
 dependencies = [
- "ziskos",
+ "ere-platform-zisk",
 ]
 
 [[package]]

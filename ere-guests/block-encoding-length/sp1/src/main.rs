@@ -1,6 +1,9 @@
 //! SP1 block encoding length benchmark
 
 #![no_main]
+
+use ere_platform_sp1::sp1_zkvm;
+
 sp1_zkvm::entrypoint!(main);
 
 use block_encoding_length_io::{BlockEncodingFormat, Input, io_serde};

@@ -4,11 +4,12 @@
 
 extern crate alloc;
 
+use ere_platform_sp1::{SP1Platform, sp1_zkvm};
 use reth_guest::{
     guest::ethereum_guest,
     sdk::{SDK, ScopeMarker},
 };
-use sp1_zkvm::io::read_vec;
+use sha2::Sha256;
 use tracing_subscriber::fmt;
 
 sp1_zkvm::entrypoint!(main);
@@ -17,13 +18,7 @@ sp1_zkvm::entrypoint!(main);
 struct SP1SDK;
 
 impl SDK for SP1SDK {
-    fn read_input() -> Vec<u8> {
-        read_vec()
-    }
-
-    fn commit_output(output: [u8; 32]) {
-        sp1_zkvm::io::commit(&output);
-    }
+    type Platform = SP1Platform<Sha256>;
 
     fn cycle_scope(scope: ScopeMarker, message: &str) {
         match scope {

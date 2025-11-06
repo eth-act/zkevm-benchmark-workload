@@ -1,5 +1,6 @@
 #![no_main]
 
+use ere_platform_sp1::sp1_zkvm;
 use guest_program::{execution::execution_program, input::ProgramInput};
 use k256::sha2::{Digest, Sha256};
 use rkyv::rancor::Error;

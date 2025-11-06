@@ -10,6 +10,7 @@ guest-libs.workspace = true
 sparsestate.workspace = true
 reth-guest-io.workspace = true
 ere-io-serde.workspace = true
+ere-platform-trait.workspace = true
 
 # reth
 reth-primitives-traits.workspace = true

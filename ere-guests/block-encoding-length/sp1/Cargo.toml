@@ -6,7 +6,7 @@ rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
-sp1-zkvm.workspace = true
+ere-platform-sp1.workspace = true
 
 ere-io-serde.workspace = true
 block-encoding-length-io.workspace = true
