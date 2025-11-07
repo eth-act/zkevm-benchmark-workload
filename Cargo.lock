@@ -2576,7 +2576,7 @@ dependencies = [
 [[package]]
 name = "ere-build-utils"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8#7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8"
 dependencies = [
  "cargo_metadata",
 ]
@@ -2584,7 +2584,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8#7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8"
 dependencies = [
  "anyhow",
  "ere-build-utils",
@@ -2614,7 +2614,7 @@ dependencies = [
 [[package]]
 name = "ere-io-serde"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8#7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8"
 dependencies = [
  "bincode 2.0.1",
  "serde",
@@ -2623,7 +2623,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8#7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2640,7 +2640,7 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.14"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=1de217d43a8c65d6b29abe4c2537cddcbb96afc1#1de217d43a8c65d6b29abe4c2537cddcbb96afc1"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8#7b8bb6adcdaae68b2b3c1c410b1d3c40721a82e8"
 dependencies = [
  "anyhow",
  "auto_impl",
