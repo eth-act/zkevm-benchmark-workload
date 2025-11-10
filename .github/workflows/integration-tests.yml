@@ -1,7 +1,7 @@
 name: Integration tests
 on:
   push:
-    branches: [ master ]
+    branches: [ master, jsign-test-new-devops-machine ]
   pull_request:
     branches: [ master ]
   workflow_dispatch:
