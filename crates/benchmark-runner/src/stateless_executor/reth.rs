@@ -13,16 +13,15 @@ use witness_generator::StatelessExecutorFixture;
 pub fn stateless_executor_inputs(
     input_folder: &Path,
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    let fixtures = read_benchmark_fixtures_folder(input_folder)?;
-    stateless_executor_inputs_from_fixture(&fixtures)
+    stateless_executor_inputs_from_fixtures(read_benchmark_fixtures_folder(input_folder)?)
 }
 
-/// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
-pub fn stateless_executor_inputs_from_fixture(
-    fixture: &[StatelessExecutorFixture],
+/// Prepares the inputs from pre-loaded fixtures.
+pub fn stateless_executor_inputs_from_fixtures(
+    fixtures: Vec<StatelessExecutorFixture>,
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    fixture
-        .iter()
+    fixtures
+        .into_iter()
         .map(|bw| {
             let input = get_input_execution(bw)?;
             let metadata = BlockMetadata {

@@ -1,7 +1,7 @@
 //! Stateless validator guest program.
 
 use crate::guest_programs::GuestFixture;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -34,10 +34,31 @@ pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
+    stateless_validator_inputs_from(input_folder, None, el)
+}
+
+/// Prepares inputs from either a folder or a single file.
+pub fn stateless_validator_inputs_from(
+    input_folder: &Path,
+    input_file: Option<&Path>,
+    el: ExecutionClient,
+) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
+    let fixtures = match input_file {
+        Some(file) => vec![read_benchmark_fixture_file(file)?],
+        None => read_benchmark_fixtures_folder(input_folder)?,
+    };
     match el {
-        ExecutionClient::Reth => reth::stateless_validator_inputs(input_folder),
-        ExecutionClient::Ethrex => ethrex::stateless_validator_inputs(input_folder),
+        ExecutionClient::Reth => reth::stateless_validator_inputs_from_fixtures(fixtures),
+        ExecutionClient::Ethrex => ethrex::stateless_validator_inputs_from_fixtures(fixtures),
     }
+}
+
+/// Reads a single benchmark fixture file.
+fn read_benchmark_fixture_file(path: &Path) -> Result<StatelessValidationFixture> {
+    let content = std::fs::read(path)
+        .with_context(|| format!("Failed to read file: {}", path.display()))?;
+    serde_json::from_slice(&content)
+        .with_context(|| format!("Failed to parse {}", path.display()))
 }
 
 /// Reads the benchmark fixtures folder and returns a list of block and witness pairs.
