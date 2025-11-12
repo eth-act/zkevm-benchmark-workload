@@ -3,6 +3,10 @@ name = "benchmark-runner"
 version = "0.1.0"
 edition = "2021"
 
+[features]
+default = []
+memory-tracking = []
+
 [dependencies]
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
