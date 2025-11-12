@@ -5,7 +5,7 @@ pub use chrono;
 
 use serde_derive::{Deserialize, Serialize};
 use std::{collections::HashMap, fs, io, path::Path, time::Duration};
-use sysinfo::{CpuExt, System, SystemExt};
+use sysinfo::{CpuExt, System, SystemExt, Pid, ProcessExt};
 use thiserror::Error;
 
 /// Represents a single benchmark run.
@@ -41,6 +41,85 @@ pub struct HardwareInfo {
 pub struct GpuInfo {
     /// GPU model name.
     pub model: String,
+}
+
+/// Memory tracker for monitoring memory usage during proving.
+#[derive(Debug, Clone)]
+pub struct MemoryTracker {
+    process_id: Pid,
+    initial_memory: u64,
+    peak_memory: u64,
+    memory_samples: Vec<u64>,
+}
+
+impl MemoryTracker {
+    /// Creates a new memory tracker
+    pub fn new() -> Self {
+        let process_id = Pid::from (std::process::id() as i32);
+
+        Self {
+            process_id,
+            initial_memory: 0,
+            peak_memory: 0,
+            memory_samples: Vec::new(),
+        }
+    }
+
+    /// Starts tracking memory usage
+    pub fn start_tracking(&mut self) {
+        let mut system = System::new_all();
+        system.refresh_all();
+        if let Some(process) = system.process(self.process_id) {
+            self.initial_memory = process.memory() * 1024; // Convert from KiB to bytes
+            self.peak_memory = self.initial_memory;
+        }
+    }
+
+    /// Stops tracking memory usage
+    pub fn stop_tracking(&mut self) {
+        let mut system = System::new_all();
+        system.refresh_all();
+        if let Some(process) = system.process(self.process_id) {
+            let final_memory = process.memory() * 1024; // Convert from KiB to bytes
+            self.peak_memory = self.peak_memory.max(final_memory);
+            self.memory_samples.push(final_memory);
+        }
+    }
+
+    /// Samples the current memory usage and updates the peak memory usage if necessary.
+    /// Also records the sampled memory usage for future analysis.
+    pub fn sample_memory(&mut self) {
+        let mut system = System::new_all();
+        system.refresh_all();
+        if let Some(process) = system.process(self.process_id) {
+            let memory = process.memory() * 1024; // Convert from KiB to bytes
+            self.peak_memory = self.peak_memory.max(memory);
+            self.memory_samples.push(memory);
+        }
+    }
+
+    /// Gets the average memory usage across all samples
+    pub fn get_average_memory(&self) -> u64 {
+        if self.memory_samples.is_empty() {
+            return self.initial_memory;
+        }
+        self.memory_samples.iter().sum::<u64>() / self.memory_samples.len() as u64
+    }
+
+    /// Gets the peak memory usage in bytes
+    pub fn get_peak_memory(&self) -> u64 {
+        self.peak_memory
+    }
+
+    /// Gets the memory samples
+    pub fn get_memory_samples(&self) -> &[u64] {
+        &self.memory_samples
+    }
+
+    /// Gets the initial memory usage
+    pub fn get_initial_memory(&self) -> u64 {
+        self.initial_memory
+    }
 }
 
 impl HardwareInfo {
@@ -128,6 +207,15 @@ pub enum ProvingMetrics {
         proof_size: usize,
         /// Proving time in milliseconds.
         proving_time_ms: u128,
+                /// Peak memory usage during proving in bytes.
+                #[serde(skip_serializing_if = "Option::is_none")]
+                peak_memory_usage_bytes: Option<u64>,
+                /// Average memory usage during proving in bytes.
+                #[serde(skip_serializing_if = "Option::is_none")]
+                average_memory_usage_bytes: Option<u64>,
+                /// Memory usage at start of proving in bytes.
+                #[serde(skip_serializing_if = "Option::is_none")]
+                initial_memory_usage_bytes: Option<u64>,
     },
     /// Metrics for a crashed proving workload.
     Crashed(CrashInfo),
@@ -259,6 +347,9 @@ mod tests {
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 256,
                     proving_time_ms: 2_000,
+                    peak_memory_usage_bytes: None,
+                    average_memory_usage_bytes: None,
+                    initial_memory_usage_bytes: None,
                 }),
             },
             BenchmarkRun {
@@ -271,6 +362,9 @@ mod tests {
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 512,
                     proving_time_ms: 5_000,
+                    peak_memory_usage_bytes: None,
+                    average_memory_usage_bytes: None,
+                    initial_memory_usage_bytes: None,
                 }),
             },
         ]
@@ -343,6 +437,9 @@ mod tests {
             proving: Some(ProvingMetrics::Success {
                 proof_size: 128,
                 proving_time_ms: 1500,
+                peak_memory_usage_bytes: None,
+                average_memory_usage_bytes: None,
+                initial_memory_usage_bytes: None,
             }),
         };
         let json = BenchmarkRun::to_json(std::slice::from_ref(&bench)).expect("serialize mixed");

@@ -9,8 +9,11 @@ use std::process::Command;
 use std::{any::Any, panic};
 use tracing::{error, info};
 
-use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
-use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
+use std::sync::{Arc, Mutex};
+use std::time::Duration as StdDuration;
+
+use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType, PublicValues};
+use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, MemoryTracker, ProvingMetrics};
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
@@ -108,9 +111,39 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
             (Some(execution), None)
         }
         Action::Prove => {
+            // Set up memory tracking
+            let memory_tracker = Arc::new(Mutex::new(MemoryTracker::new()));
+            let memory_tracker_clone = memory_tracker.clone();
+
+            // Start memory tracking
+            {
+                let mut tracker = memory_tracker.lock().unwrap();
+                tracker.start_tracking();
+            }
+
+            // Start background memory sampling thread
+            let sample_handle = {
+                let tracker = memory_tracker_clone.clone();
+                thread::spawn(move || {
+                    let start = std::time::Instant::now();
+                    while start.elapsed().as_secs() < 3600 { // Max 1 hour timeout
+                        {
+                            let mut tracker = tracker.lock().unwrap();
+                            tracker.sample_memory();
+                        }
+                        thread::sleep(StdDuration::from_millis(100)); // Sample every 100ms
+                    }
+                })
+            };
+
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| {
                 zkvm.prove(&input, ProofKind::Compressed)
             }));
+
+            // Stop memory tracking
+            drop(sample_handle);
+            let final_tracker = memory_tracker.lock().unwrap().clone();
+
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
                     verify_public_output(&io, &public_values)
@@ -123,6 +156,9 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
                     ProvingMetrics::Success {
                         proof_size: proof.as_bytes().len(),
                         proving_time_ms: report.proving_time.as_millis(),
+                        peak_memory_usage_bytes: Some(final_tracker.get_peak_memory()),
+                        average_memory_usage_bytes: Some(final_tracker.get_average_memory()),
+                        initial_memory_usage_bytes: Some(final_tracker.get_initial_memory()),
                     }
                 }
                 Ok(Err(e)) => ProvingMetrics::Crashed(CrashInfo {
