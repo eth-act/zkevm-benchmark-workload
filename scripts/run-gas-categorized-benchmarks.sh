@@ -263,17 +263,27 @@ check_workspace() {
 
 # Function to build the project if needed
 build_project() {
-    local features="$ZKVM"
+    local features=""
     if [ "$MEMORY_TRACKING" = true ]; then
-        features="${features},memory-tracking"
+        features="memory-tracking"
     fi
     
-    print_status "$BLUE" "🔨 Building ere-hosts with features: $features..."
-    if cargo build --release --bin ere-hosts --features "$features"; then
-        print_status "$GREEN" "✅ Build successful"
+    if [ -n "$features" ]; then
+        print_status "$BLUE" "🔨 Building ere-hosts with features: $features..."
+        if cargo build --release --bin ere-hosts --features "$features"; then
+            print_status "$GREEN" "✅ Build successful"
+        else
+            print_status "$RED" "❌ Build failed"
+            exit 1
+        fi
     else
-        print_status "$RED" "❌ Build failed"
-        exit 1
+        print_status "$BLUE" "🔨 Building ere-hosts..."
+        if cargo build --release --bin ere-hosts; then
+            print_status "$GREEN" "✅ Build successful"
+        else
+            print_status "$RED" "❌ Build failed"
+            exit 1
+        fi
     fi
 }
 
@@ -327,16 +337,22 @@ run_benchmark() {
     fi
     
     # Build features list (memory-tracking is a cargo feature, not a CLI arg)
-    local features="$ZKVM"
+    local features=""
     if [ "$MEMORY_TRACKING" = true ]; then
-        features="${features},memory-tracking"
+        features="memory-tracking"
     fi
     
     # Run the benchmark
     local cmd_args=(
         --release
         --bin ere-hosts
-        --features "$features"
+    )
+    
+    if [ -n "$features" ]; then
+        cmd_args+=(--features "$features")
+    fi
+    
+    cmd_args+=(
         --
         --zkvms "$ZKVM"
         -a "$ACTION"
@@ -417,9 +433,9 @@ main() {
             local metrics_dir="${BASE_METRICS_DIR}-${ZKVM}-${gas_value}"
             
             # Build features list
-            local features="$ZKVM"
+            local features=""
             if [ "$MEMORY_TRACKING" = true ]; then
-                features="${features},memory-tracking"
+                features="memory-tracking"
             fi
             
             local force_arg=""
@@ -427,7 +443,11 @@ main() {
                 force_arg="--force-rerun"
             fi
             
-            local cmd_preview="cargo run --release --bin ere-hosts --features $features -- --zkvms $ZKVM -a $ACTION -r $RESOURCE"
+            local cmd_preview="cargo run --release --bin ere-hosts"
+            if [ -n "$features" ]; then
+                cmd_preview="$cmd_preview --features $features"
+            fi
+            cmd_preview="$cmd_preview -- --zkvms $ZKVM -a $ACTION -r $RESOURCE"
             if [ -n "$force_arg" ]; then
                 cmd_preview="$cmd_preview $force_arg"
             fi
