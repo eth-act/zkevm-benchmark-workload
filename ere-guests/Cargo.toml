@@ -138,12 +138,16 @@ risc0-zkvm = { version = "3.0.3", default-features = false, features = [
     "unstable",
     "getrandom",
 ] }
+
 openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", features = [
     "std",
 ] }
-openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
+openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
+openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
+openvm-revm-crypto = { git = "https://github.com/axiom-crypto/openvm-reth-benchmark.git", branch = "openvm-v1.4.1-reth-1.8.3", default-features = false }
+
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

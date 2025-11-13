@@ -6,9 +6,6 @@ use reth_guest::{
     sdk::{ScopeMarker, SDK},
 };
 
-// For linker declarations:
-use openvm_keccak256 as _;
-
 openvm::init!();
 
 struct OpenVMSDK;
@@ -27,5 +24,7 @@ impl SDK for OpenVMSDK {
 
 /// Entry point.
 pub fn main() {
+    openvm_revm_crypto::install_openvm_crypto()
+        .expect("failed to install OpenVM revm crypto provider");
     ethereum_guest::<OpenVMSDK>();
 }
