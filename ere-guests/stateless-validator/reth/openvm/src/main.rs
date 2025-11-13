@@ -6,9 +6,6 @@ use reth_guest::{
     sdk::{ScopeMarker, SDK},
 };
 
-// For linker declarations:
-use openvm_keccak256 as _;
-
 openvm::init!();
 
 struct OpenVMSDK;
