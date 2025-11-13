@@ -8,30 +8,31 @@ edition = "2024"
 [dependencies]
 sp1-zkvm = { version = "=5.0.8" }
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
-
-
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28" }
-
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
-ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28" }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
-ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "cfb805c6c70df1f6172f1982c9ed8952b7399d28", default-features = false }
-
 k256 = "0.13"
 bincode = "1.0"
+
+
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0" }
+
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0" }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
+    "sp1",
+] }
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
 
 [patch.crates-io]
 sha2-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha2", tag = "patch-sha2-0.10.8-sp1-4.0.0" }
 sha3-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha3", tag = "patch-sha3-0.10.8-sp1-4.0.0" }
 crypto-bigint = { git = "https://github.com/sp1-patches/RustCrypto-bigint", tag = "patch-0.5.5-sp1-4.0.0" }
 tiny-keccak = { git = "https://github.com/sp1-patches/tiny-keccak", tag = "patch-2.0.2-sp1-4.0.0" }
-
 p256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-p256-13.2-sp1-5.0.0" }
-secp256k1 = { git = "https://github.com/sp1-patches/rust-secp256k1", tag = "patch-0.29.1-sp1-5.0.0" }
+secp256k1 = { git = "https://github.com/sp1-patches/rust-secp256k1", tag = "patch-0.30.0-sp1-5.0.0" }
 ecdsa = { git = "https://github.com/sp1-patches/signatures", tag = "patch-16.9-sp1-4.1.0" }
 k256 = { git = "https://github.com/sp1-patches/elliptic-curves", tag = "patch-k256-13.4-sp1-5.0.0" }
+substrate-bn = { git = "https://github.com/sp1-patches/bn", tag = "patch-0.6.0-sp1-5.0.0" }
 
 [patch."https://github.com/lambdaclass/bls12_381"]
 bls12_381 = { git = "https://github.com/lambdaclass/bls12_381-patch/", branch = "expose-fp-struct" }

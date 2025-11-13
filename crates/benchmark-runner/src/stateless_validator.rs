@@ -130,6 +130,7 @@ fn get_input_full_validation(
                 blocks: vec![ethrex_block],
                 execution_witness: from_reth_witness_to_ethrex_witness(si.block.number, si)?,
                 elasticity_multiplier: 2u64, // NOTE: Ethrex doesn't derive this value from chain config.
+                fee_configs: Default::default(),
             };
 
             Ok(rkyv::to_bytes::<Error>(&ethrex_program_input)?.to_vec())
@@ -179,8 +180,10 @@ fn from_reth_witness_to_ethrex_witness(
                 .unwrap_or_else(|| BlobSchedule::default().prague),
             osaka: get_blob_schedule(&si.chain_config, "osaka")
                 .unwrap_or_else(|| BlobSchedule::default().osaka),
-            bpo1: get_blob_schedule(&si.chain_config, "bpo1"),
-            bpo2: get_blob_schedule(&si.chain_config, "bpo2"),
+            bpo1: get_blob_schedule(&si.chain_config, "bpo1")
+                .unwrap_or_else(|| BlobSchedule::default().bpo1),
+            bpo2: get_blob_schedule(&si.chain_config, "bpo2")
+                .unwrap_or_else(|| BlobSchedule::default().bpo2),
             bpo3: get_blob_schedule(&si.chain_config, "bpo3"),
             bpo4: get_blob_schedule(&si.chain_config, "bpo4"),
             bpo5: get_blob_schedule(&si.chain_config, "bpo5"),
