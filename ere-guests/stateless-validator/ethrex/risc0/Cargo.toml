@@ -23,10 +23,13 @@ bincode = "1.0"
 rkyv = { version = "0.8.10", features = ["unaligned"] }
 
 
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
+    "risc0",
+] }
 ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
 ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
     "c-kzg",
+    "risc0",
 ] }
 ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
 ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
