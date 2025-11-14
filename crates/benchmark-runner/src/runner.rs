@@ -3,6 +3,7 @@
 use anyhow::{anyhow, bail, Context, Result};
 use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{any::Any, panic};
@@ -24,6 +25,8 @@ pub struct RunConfig {
     pub action: Action,
     /// Force rerun benchmarks even if output files already exist
     pub force_rerun: bool,
+    /// Optional folder to dump input files
+    pub dump_inputs_folder: Option<PathBuf>,
 }
 
 /// Action specifies whether we should prove or execute
@@ -78,6 +81,16 @@ where
     if !config.force_rerun && out_path.exists() {
         info!("Skipping {} (already exists)", &io.name);
         return Ok(());
+    }
+
+    // Dump input if requested
+    if let Some(ref dump_folder) = config.dump_inputs_folder {
+        dump_input(
+            &io.input,
+            &io.name,
+            dump_folder,
+            config.sub_folder.as_deref(),
+        )?;
     }
 
     info!("Running {}", io.name);
@@ -201,6 +214,32 @@ fn run_cargo_patch_command(zkvm_name: &str, workspace_path: &Path) -> Result<()>
     }
 
     info!("cargo {zkvm_name} completed successfully");
+    Ok(())
+}
+
+/// Dumps the raw input bytes to disk
+fn dump_input(
+    input: &[u8],
+    name: &str,
+    dump_folder: &Path,
+    sub_folder: Option<&str>,
+) -> Result<()> {
+    let input_dir = dump_folder.join(sub_folder.unwrap_or(""));
+
+    fs::create_dir_all(&input_dir).context(format!(
+        "Failed to create directory: {}",
+        input_dir.display()
+    ))?;
+
+    let input_path = input_dir.join(format!("{}.bin", name));
+
+    // Only write if it doesn't exist (avoid duplicate writes across zkVMs)
+    if !input_path.exists() {
+        fs::write(&input_path, input)
+            .context(format!("Failed to write input to {}", input_path.display()))?;
+        info!("Dumped input to {}", input_path.display());
+    }
+
     Ok(())
 }
 

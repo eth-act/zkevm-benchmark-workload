@@ -5,6 +5,8 @@ target
 zkevm-fixtures*
 # zkevm metrics file
 zkevm-metrics*
+# zkevm dump
+zkevm-dump
 
 # vscode settings
 .vscode

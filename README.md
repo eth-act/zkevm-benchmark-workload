@@ -137,9 +137,40 @@ This repository contains an `xtask` that will automate this process by calling `
     
     # Use custom input folder for stateless validator benchmarks
     cargo run --release -- stateless-validator --execution-client reth --input-folder my-fixtures
+
+    # Dump raw input files used in benchmarks (opt-in)
+    cargo run --release -- --zkvms sp1 --dump-inputs my-inputs stateless-validator --execution-client reth
     ```
 
     See the respective README files in each crate for detailed usage instructions.
+
+### Dumping Input Files
+
+The `--dump-inputs` flag allows you to save the raw serialized input bytes used for each benchmark run. This is useful for:
+- Debugging guest programs independently
+- Analyzing input data characteristics
+- Replaying specific test cases outside the benchmark framework
+
+When specified, input files are saved to the designated folder with the following structure:
+```
+{dump-folder}/
+  └── {sub-folder}/       # e.g., "reth" for stateless-validator, empty for others
+      └── {name}.bin      # Input files (one per benchmark)
+```
+
+Example usage:
+```bash
+cd crates/ere-hosts
+
+# Dump inputs for stateless validator with Reth
+cargo run --release -- --zkvms sp1 --dump-inputs debug-inputs stateless-validator --execution-client reth
+
+# This creates files like:
+# debug-inputs/reth/block-12345.bin
+# debug-inputs/reth/block-12346.bin
+```
+
+Note: Input files are zkVM-independent (the same input is used across all zkVMs), so they're only written once even when benchmarking multiple zkVMs.
 
 ## Guest Program Types
 
