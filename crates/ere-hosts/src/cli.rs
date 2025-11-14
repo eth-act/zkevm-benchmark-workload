@@ -38,6 +38,10 @@ pub struct Cli {
     /// Output folder for benchmark results
     #[arg(short, long, default_value = "zkevm-metrics")]
     pub output_folder: PathBuf,
+
+    /// Output folder for dumping input files used in benchmarks
+    #[arg(long)]
+    pub dump_inputs: Option<PathBuf>,
 }
 
 /// Subcommands for different guest programs

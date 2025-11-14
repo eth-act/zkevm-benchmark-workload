@@ -36,6 +36,7 @@ pub(crate) fn run_guest<T, OV>(
         sub_folder,
         action,
         force_rerun: true,
+        dump_inputs_folder: None,
     };
     let instances = get_zkvm_instances(
         zkvms,
