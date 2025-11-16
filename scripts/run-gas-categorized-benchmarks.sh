@@ -11,7 +11,7 @@
 # Options:
 #   --dry-run       Show what would be executed without actually running
 #   --help, -h      Show this help message
-#   --force-rerun   Force rerun of benchmarks (default: true)
+#   --force-rerun   Force rerun of benchmarks (default: false)
 #   --no-force-rerun Disable force rerun
 #   --action <ACTION> Benchmark action to run (default: prove)
 #   --resource <RESOURCE> Resource type to use (default: gpu)
@@ -55,7 +55,7 @@ set -euo pipefail
 
 # Default values
 DRY_RUN=false
-FORCE_RERUN=true
+FORCE_RERUN=false
 ACTION="prove"
 RESOURCE="gpu"
 GUEST="stateless-executor"
@@ -101,7 +101,7 @@ show_help() {
     echo "Options:"
     echo "  --dry-run              Show what would be executed without actually running"
     echo "  --help, -h             Show this help message"
-    echo "  --force-rerun          Force rerun of benchmarks (default: true)"
+    echo "  --force-rerun          Force rerun of benchmarks (default: false)"
     echo "  --no-force-rerun       Disable force rerun"
     echo "  --action <ACTION>      Benchmark action to run (default: prove)"
     echo "  --resource <RESOURCE>  Resource type to use (default: gpu)"
