@@ -71,11 +71,11 @@ jobs:
           - zkvm: zisk
             el: reth
             tests: "execute_empty_block execute_invalid_block execute_mainnet_blocks"
-            threads: 12
+            threads: 1
           - zkvm: airbender
             el: reth
             tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block"
-            threads: 1
+            threads: 12
 
           # Stateless Validator - Ethrex
           - zkvm: sp1
