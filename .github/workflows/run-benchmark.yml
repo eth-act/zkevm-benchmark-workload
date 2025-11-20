@@ -23,7 +23,7 @@ on:
 jobs:
   run-benchmark:
     name: ${{ inputs.zkvm }} / ${{ inputs.el }}
-    runs-on: [self-hosted-ghr, size-xl-x64]
+    runs-on: [self-hosted-ghr, size-chungus-x64]
     env:
       ERE_TAG: 0.0.14-7b8bb6a
       OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
