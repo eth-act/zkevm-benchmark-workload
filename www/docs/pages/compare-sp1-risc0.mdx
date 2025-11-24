@@ -1,0 +1,624 @@
+# Compare SP1 vs RISC0
+
+This guide explains how to use the `compare_sp1_risc0.py` script to generate comprehensive comparison reports between SP1 and RISC0 zkVM implementations. The script analyzes benchmark metrics and produces detailed summaries in both text and markdown formats.
+
+## Overview
+
+The `compare_sp1_risc0.py` script performs in-depth analysis of SP1 vs RISC0 performance metrics, providing:
+
+- **Executive summaries** with key performance indicators
+- **Detailed statistical analysis** of proving time, proof size, and memory usage
+- **Top performers** identification for both zkVMs
+- **Test coverage analysis** showing common and unique tests
+- **Multiple output formats** (text console output or markdown files)
+
+This is ideal for understanding which zkVM performs better for specific workloads and generating reports for documentation or presentations.
+
+## Script Location
+
+```bash
+scripts/compare_sp1_risc0.py
+```
+
+## Basic Usage
+
+```bash
+# Text output to console (default)
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# Generate markdown summary file
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output comparison-summary.md
+```
+
+## Command Line Arguments
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `--risc0-folder` | Path to the folder containing RISC0 metrics |
+| `--sp1-folder` | Path to the folder containing SP1 metrics |
+
+### Optional Arguments
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--output` | Output file path (required for saving markdown) | Print to stdout |
+| `--format` | Output format: `text` or `markdown` | `text` |
+| `--top-n` | Number of top performers to show | `10` |
+| `--help`, `-h` | Show help message | - |
+
+## Output Formats
+
+### Text Format (Console)
+
+The text format provides an interactive console output with:
+
+- **Summary statistics** with emoji indicators
+- **Top performers** for each metric
+- **Detailed comparison tables** with proving times
+- **Test coverage** information
+
+Perfect for quick analysis and interactive exploration.
+
+### Markdown Format
+
+The markdown format generates structured documentation with:
+
+- **Executive summary table** comparing key metrics
+- **Detailed performance analysis** sections
+- **Top 10 performers** for each zkVM
+- **Test coverage tables**
+- **Professional formatting** ready for documentation sites
+
+Perfect for reports, documentation, and sharing with stakeholders.
+
+## Usage Examples
+
+### Basic Text Comparison
+
+```bash
+# Quick console comparison for 1M gas category
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# Compare with more top performers
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --top-n 20
+```
+
+### Generate Markdown Reports
+
+```bash
+# Generate markdown summary for 1M gas category
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output benchmark-results/comparisons/1M-summary.md
+
+# Generate for 10M gas category
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-10M \
+  --sp1-folder zkevm-metrics-sp1-10M \
+  --format markdown \
+  --output benchmark-results/comparisons/10M-summary.md
+```
+
+### Print Markdown to Console
+
+```bash
+# Preview markdown output without saving
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown
+
+# Redirect to file using shell redirection
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown > summary.md
+```
+
+### Multiple Gas Categories
+
+```bash
+# Generate reports for all gas categories
+for gas in 1M 10M 30M 100M; do
+  python3 scripts/compare_sp1_risc0.py \
+    --risc0-folder "zkevm-metrics-risc0-${gas}" \
+    --sp1-folder "zkevm-metrics-sp1-${gas}" \
+    --format markdown \
+    --output "benchmark-results/comparisons/${gas}-summary.md"
+done
+```
+
+## Output Structure
+
+### Text Format Output
+
+```
+================================================================================
+SP1 vs RISC0 METRICS COMPARISON
+================================================================================
+
+Loading RISC0 metrics from: zkevm-metrics-risc0-1M
+Loaded 85 RISC0 test results
+
+Loading SP1 metrics from: zkevm-metrics-sp1-1M
+Loaded 214 SP1 test results
+
+Comparing metrics...
+
+================================================================================
+TEST COVERAGE
+================================================================================
+
+Common tests: 75
+RISC0 only: 10
+SP1 only: 139
+
+================================================================================
+SUMMARY STATISTICS
+================================================================================
+
+📊 PROVING TIME (Lower is better, speedup = RISC0 time / SP1 time):
+  Average speedup: 1.47x
+  Median speedup: 1.45x
+  Min speedup: 0.39x
+  Max speedup: 2.87x
+  → SP1 is 1.47x FASTER on average
+
+  Total proving time (all common tests):
+    RISC0: 14,655 seconds (4.1 hours)
+    SP1:   6,445 seconds (1.8 hours)
+    Time difference: 8,210 seconds
+
+📦 PROOF SIZE (Lower is better, ratio = RISC0 size / SP1 size):
+  Average ratio: 0.15x
+  Median ratio: 0.15x
+  → RISC0 proofs are 6.60x SMALLER on average
+
+💾 MEMORY USAGE (Lower is better, ratio = RISC0 memory / SP1 memory):
+  Average ratio: 0.92x
+  Median ratio: 0.88x
+  → RISC0 uses 1.09x LESS memory on average
+
+================================================================================
+TOP 10 BEST SPEEDUPS (Where SP1 is Fastest)
+================================================================================
+
+1. mod_400_gas_exp_heavy
+   Speedup: 2.87x
+   RISC0: 1,343s | SP1: 468s | Time saved: 875s
+
+2. worst_bytecode_call
+   Speedup: 2.86x
+   RISC0: 360s | SP1: 126s | Time saved: 234s
+...
+```
+
+### Markdown Format Output
+
+The markdown output includes:
+
+#### Executive Summary Table
+
+| Metric | Winner | Performance Advantage |
+|--------|--------|----------------------|
+| **Proving Speed** | ✅ **SP1** | **1.47x faster** on average |
+| **Proof Size** | ✅ **RISC0** | **6.60x smaller** proofs |
+| **Memory Usage** | ✅ **RISC0** | **1.09x less** memory |
+
+#### Detailed Performance Analysis
+
+- 🚀 **Proving Time Performance** - Comprehensive timing analysis
+- 📦 **Proof Size Analysis** - Size comparison metrics
+- 💾 **Memory Usage Analysis** - Memory efficiency data
+
+#### Top Performance Winners
+
+- 🏆 **Top 10 Tests Where SP1 Dominates**
+- 🏆 **Top 10 Tests Where RISC0 Dominates**
+
+#### Test Coverage
+
+| Category | Count | Notes |
+|----------|-------|-------|
+| **Common tests** | 75 | Tests executed by both systems |
+| **RISC0 only** | 10 | Tests only in RISC0 |
+| **SP1 only** | 139 | Tests only in SP1 |
+
+## Comparison Metrics
+
+### Proving Time Speedup
+
+```
+speedup = risc0_proving_time / sp1_proving_time
+```
+
+- **Value > 1.0**: SP1 is faster
+- **Value < 1.0**: RISC0 is faster
+- **Example**: 2.47x means SP1 proves 2.47 times faster
+
+### Proof Size Ratio
+
+```
+ratio = risc0_proof_size / sp1_proof_size
+```
+
+- **Value < 1.0**: RISC0 produces smaller proofs (typical)
+- **Value > 1.0**: SP1 produces smaller proofs
+- **Example**: 0.15x means RISC0 proofs are 15% the size of SP1 proofs
+
+### Memory Ratio
+
+```
+ratio = risc0_peak_memory / sp1_peak_memory
+```
+
+- **Value < 1.0**: RISC0 uses less memory
+- **Value > 1.0**: SP1 uses less memory
+- **Example**: 0.92x means RISC0 uses 92% of SP1's memory
+
+## Integration with Workflow
+
+### Complete Analysis Pipeline
+
+```bash
+# 1. Run benchmarks for both zkVMs
+./scripts/run-gas-categorized-benchmarks.sh --zkvm risc0 --gas-category 1M
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --gas-category 1M
+
+# 2. Generate text comparison (quick review)
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# 3. Generate markdown summary for documentation
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output benchmark-results/comparisons/1M-summary.md
+
+# 4. Export detailed CSV for data analysis
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output benchmark-results/comparisons/1M-data.csv
+```
+
+### Automated Report Generation
+
+Create a script to generate all comparison reports:
+
+```bash
+#!/bin/bash
+# generate_all_comparisons.sh
+
+GAS_CATEGORIES=("1M" "10M" "30M" "45M" "60M" "100M")
+
+echo "📊 Generating SP1 vs RISC0 comparison reports..."
+
+for gas in "${GAS_CATEGORIES[@]}"; do
+  echo "Processing ${gas} gas category..."
+  
+  # Generate markdown summary
+  python3 scripts/compare_sp1_risc0.py \
+    --risc0-folder "zkevm-metrics-risc0-${gas}" \
+    --sp1-folder "zkevm-metrics-sp1-${gas}" \
+    --format markdown \
+    --output "benchmark-results/comparisons/${gas}-summary.md"
+  
+  # Generate CSV data
+  python3 scripts/export_comparison_csv.py \
+    --risc0-folder "zkevm-metrics-risc0-${gas}" \
+    --sp1-folder "zkevm-metrics-sp1-${gas}" \
+    --output "benchmark-results/comparisons/${gas}-data.csv"
+done
+
+echo "✅ All comparison reports generated!"
+```
+
+## Use Cases
+
+### 1. Performance Analysis
+
+Understand which zkVM performs better for your workload:
+
+```bash
+# Generate comprehensive comparison
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-10M \
+  --sp1-folder zkevm-metrics-sp1-10M \
+  --top-n 20
+
+# Analyze the results to choose optimal zkVM
+```
+
+### 2. Documentation Generation
+
+Create professional reports for documentation:
+
+```bash
+# Generate markdown for docs
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output www/docs/pages/benchmark-results/gas-categorized/1m/summary.md
+```
+
+### 3. Performance Tracking
+
+Track performance changes over time:
+
+```bash
+# Generate timestamped reports
+DATE=$(date +%Y-%m-%d)
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output "tracking/comparison-${DATE}.md"
+```
+
+### 4. Optimization Validation
+
+Verify optimization improvements:
+
+```bash
+# Compare baseline vs optimized
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder baseline-risc0-1M \
+  --sp1-folder optimized-sp1-1M \
+  --format markdown \
+  --output optimization-results.md
+```
+
+## Analysis Features
+
+### Statistical Summary
+
+The script provides comprehensive statistics:
+
+- **Mean, median, min, max** for all metrics
+- **Total proving time** for all common tests
+- **Time savings** calculations
+- **Performance distributions**
+
+### Top Performers Identification
+
+Automatically identifies:
+
+- **Best speedups** where SP1 excels
+- **Worst speedups** where RISC0 excels
+- **Time saved** for each test
+- **Customizable top-N** count
+
+### Test Coverage Analysis
+
+Shows complete test coverage:
+
+- **Common tests** between both systems
+- **Unique tests** for each zkVM
+- **Sample listings** of unique tests
+- **Total counts** for each category
+
+## Advanced Usage
+
+### Custom Top-N Count
+
+```bash
+# Show top 20 performers instead of default 10
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --top-n 20
+
+# Show top 5 for quick summary
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --top-n 5
+```
+
+### Combining with Other Tools
+
+```bash
+# Generate markdown and immediately view it
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output comparison.md && open comparison.md
+
+# Generate and commit to git
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output benchmark-results/comparisons/latest.md
+git add benchmark-results/comparisons/latest.md
+git commit -m "Update comparison results"
+```
+
+### Pipeline with Other Scripts
+
+```bash
+# Complete analysis pipeline
+# 1. Generate markdown summary
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output summary.md
+
+# 2. Export CSV for detailed analysis
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output data.csv
+
+# 3. Generate markdown tables
+python3 scripts/generate_markdown_tables.py \
+  --compare \
+  zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M \
+  --output detailed-tables.md
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Missing Metrics Folders
+
+```bash
+# Check if metrics folders exist
+ls -la zkevm-metrics-risc0-* zkevm-metrics-sp1-*
+
+# Run benchmarks if missing
+./scripts/run-gas-categorized-benchmarks.sh --zkvm risc0 --gas-category 1M
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --gas-category 1M
+```
+
+#### No Common Tests Found
+
+```bash
+# Verify both folders have test results
+ls zkevm-metrics-risc0-1M/*/*.json | wc -l
+ls zkevm-metrics-sp1-1M/*/*.json | wc -l
+
+# Check test names match
+ls zkevm-metrics-risc0-1M/*/*.json | head -5
+ls zkevm-metrics-sp1-1M/*/*.json | head -5
+```
+
+#### Invalid JSON Files
+
+```bash
+# Validate JSON files
+find zkevm-metrics-risc0-1M -name "*.json" -exec python3 -m json.tool {} \; > /dev/null
+
+# Remove corrupted files if found
+find zkevm-metrics-risc0-1M -name "*.json" -size 0 -delete
+```
+
+#### Output File Issues
+
+```bash
+# Check directory permissions
+ls -ld benchmark-results/comparisons/
+
+# Create directory if missing
+mkdir -p benchmark-results/comparisons/
+
+# Check disk space
+df -h
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `Folder does not exist` | Check folder paths and ensure benchmarks have been run |
+| `No common tests to compare` | Verify both zkVMs ran the same test suite |
+| `Error loading JSON` | Validate JSON files and remove corrupted ones |
+| `Permission denied` | Check write permissions for output directory |
+| `No data to display` | Ensure metrics folders contain valid results |
+
+## Output Interpretation
+
+### Understanding Speedup Values
+
+**Speedup > 1.0** (SP1 is faster):
+- `1.5x`: SP1 is 50% faster than RISC0
+- `2.0x`: SP1 is 2x faster (proves in half the time)
+- `3.0x`: SP1 is 3x faster (proves in one-third the time)
+
+**Speedup < 1.0** (RISC0 is faster):
+- `0.8x`: RISC0 is 1.25x faster than SP1
+- `0.5x`: RISC0 is 2x faster than SP1
+- `0.3x`: RISC0 is 3.33x faster than SP1
+
+### Performance Patterns
+
+**SP1 typically excels at:**
+- Cryptographic operations (modexp, pairings)
+- Complex computations (Blake2f precompile)
+- General arithmetic operations
+
+**RISC0 typically excels at:**
+- Memory-intensive operations
+- Large data movements (CALLDATACOPY, LOG opcodes)
+- Storage operations (SSTORE, SLOAD)
+- Proof size (significantly smaller proofs)
+
+## Best Practices
+
+### Report Generation
+
+1. **Run benchmarks first**: Ensure both zkVMs have complete benchmark data
+2. **Use markdown for docs**: Generate markdown summaries for documentation
+3. **Use text for quick checks**: Use text format for rapid analysis
+4. **Archive reports**: Keep historical reports for trend analysis
+5. **Include metadata**: Document hardware, versions, and test conditions
+
+### Analysis Workflow
+
+1. **Start with text output**: Get quick overview of performance
+2. **Generate markdown**: Create formal reports for documentation
+3. **Export CSV**: Perform detailed statistical analysis
+4. **Combine insights**: Use all three formats for comprehensive understanding
+5. **Track changes**: Compare reports over time to track improvements
+
+### Documentation Integration
+
+1. **Organize by gas category**: Keep reports organized by gas limits
+2. **Include in website**: Add markdown reports to documentation site
+3. **Update regularly**: Regenerate reports when benchmarks change
+4. **Cross-reference**: Link between markdown reports and CSV data
+5. **Version control**: Track report changes in git
+
+## Related Tools
+
+### Comparison Scripts
+
+- **[export_comparison_csv.py](/export-comparison-csv)**: Export comparison data to CSV format
+- **[compare_executions.py](/scripts)**: Compare execution metrics
+- **[compare_provings.py](/scripts)**: Compare proving metrics
+
+### Analysis Tools
+
+- **[generate_markdown_tables.py](/markdown-tables)**: Generate detailed markdown tables
+- **[generate_results.sh](/markdown-tables)**: Wrapper script for result generation
+
+## Next Steps
+
+After generating comparison reports:
+
+1. **Review Performance**: Analyze the summary to understand performance characteristics
+2. **Choose zkVM**: Select optimal zkVM based on your requirements
+3. **Optimize Configuration**: Use insights to tune benchmark parameters
+4. **Share Results**: Distribute markdown reports to stakeholders
+5. **Track Progress**: Monitor performance improvements over time
+
+## Related Documentation
+
+- [Export Comparison CSV](/export-comparison-csv) - Export detailed data for analysis
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run benchmarks
+- [Markdown Tables](/markdown-tables) - Generate formatted tables
+- [Scripts](/scripts) - Overview of all available scripts
+- [Benchmark Results](/benchmark-results) - View organized results
+

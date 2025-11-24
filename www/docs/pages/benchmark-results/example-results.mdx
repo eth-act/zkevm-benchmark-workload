@@ -1,0 +1,57 @@
+# Example Results
+
+This is an example of what the benchmark results would look like when displayed in the documentation.
+
+## Gas Category Analysis
+
+### 1M Gas Limit Results
+
+| Benchmark | Total Cycles | Duration (ms) | Proof Size (bytes) | Proving Time (ms) |
+|-----------|--------------|---------------|-------------------|-------------------|
+| block_001 | 1,234,567 | 45.2 | 2,048 | 1,250.5 |
+| block_002 | 1,345,678 | 49.1 | 2,096 | 1,300.2 |
+| block_003 | 1,456,789 | 52.8 | 2,144 | 1,350.8 |
+
+### 10M Gas Limit Results
+
+| Benchmark | Total Cycles | Duration (ms) | Proof Size (bytes) | Proving Time (ms) |
+|-----------|--------------|---------------|-------------------|-------------------|
+| block_001 | 12,345,678 | 452.1 | 4,096 | 12,505.0 |
+| block_002 | 13,456,789 | 491.2 | 4,192 | 13,002.1 |
+| block_003 | 14,567,890 | 528.3 | 4,288 | 13,508.2 |
+
+## zkVM Implementation Comparison
+
+### RISC0 vs SP1 (10M Gas)
+
+| Metric | RISC0 | SP1 | Difference |
+|--------|-------|-----|------------|
+| Avg Cycles | 13,456,789 | 12,345,678 | -8.3% |
+| Avg Duration (ms) | 491.2 | 452.1 | -8.0% |
+| Avg Proof Size (bytes) | 4,192 | 4,096 | -2.3% |
+| Avg Proving Time (ms) | 13,002.1 | 12,505.0 | -3.8% |
+
+## Statistical Analysis
+
+### Execution Statistics
+- **Total Cycles**: Min: 1,000,000, Max: 15,000,000, Avg: 8,000,000
+- **Duration**: Min: 30.0ms, Max: 600.0ms, Avg: 315.0ms
+
+### Proving Statistics
+- **Proof Size**: Min: 2,048 bytes, Max: 8,192 bytes, Avg: 5,120 bytes
+- **Proving Time**: Min: 1,000.0ms, Max: 15,000.0ms, Avg: 8,000.0ms
+- **Peak Memory**: Min: 512.0MB, Max: 2,048.0MB, Avg: 1,280.0MB
+
+## Key Insights
+
+1. **Gas Scaling**: Performance scales linearly with gas limit for most opcodes
+2. **zkVM Differences**: SP1 shows 3-8% better performance than RISC0
+3. **Memory Usage**: Peak memory usage correlates with gas limit
+4. **Proving Efficiency**: Larger gas limits show better proving efficiency per cycle
+
+## Optimization Opportunities
+
+1. **Memory Management**: Optimize memory usage for high gas limit operations
+2. **zkVM Selection**: Consider SP1 for better performance in high-throughput scenarios
+3. **Gas Limit Tuning**: Find optimal gas limits for different opcode types
+4. **Proving Optimization**: Focus on reducing proving time for frequently used opcodes

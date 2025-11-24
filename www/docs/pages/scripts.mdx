@@ -1,0 +1,478 @@
+# Scripts Documentation
+
+This page provides comprehensive documentation for all scripts in the zkEVM benchmark workload system. These scripts handle benchmark execution, results analysis, fixture management, and various utilities.
+
+## Overview
+
+The scripts are organized into several categories:
+
+- **Benchmark Execution**: Run benchmarks on fixtures
+- **Results Analysis**: Generate reports and compare results  
+- **Fixture Management**: Download, generate, and process test fixtures
+- **Utilities**: Helper scripts for data processing and naming
+
+## Benchmark Execution Scripts
+
+### Single File Benchmark
+
+The `run-single-file-benchmark.sh` script allows you to run benchmarks on individual fixture files instead of entire folders.
+
+#### Usage
+
+```bash
+./scripts/run-single-file-benchmark.sh <FIXTURE_FILE> [OPTIONS]
+```
+
+#### Arguments
+
+- `FIXTURE_FILE`: Path to the fixture file to benchmark
+
+#### Key Options
+
+- `--dry-run`: Show what would be executed without running
+- `--action <ACTION>`: Benchmark action (default: prove)
+- `--resource <RESOURCE>`: Resource type (default: gpu)
+- `--zkvm <ZKVM>`: zkVM implementation (default: risc0)
+- `--execution-client <CLIENT>`: Execution client (default: reth)
+- `--output-dir <DIR>`: Output directory for metrics (default: ./zkevm-metrics-single)
+- `--memory-tracking`: Enable memory tracking (default: false)
+
+#### Examples
+
+```bash
+# Run benchmark on a single fixture file with defaults
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json
+
+# Run with custom action and resource
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --action execute --resource cpu
+
+# Run with specific zkVM and execution client
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm sp1 --execution-client ethrex
+
+# Preview what would be executed
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --dry-run
+```
+
+### Gas Categorized Benchmarks
+
+The `run-gas-categorized-benchmarks.sh` script runs benchmarks on each gas-categorized fixtures folder and outputs results to metrics folders.
+
+#### Usage
+
+```bash
+./scripts/run-gas-categorized-benchmarks.sh [OPTIONS]
+```
+
+#### Key Options
+
+- `--dry-run`: Show what would be executed without running
+- `--action <ACTION>`: Benchmark action (default: prove)
+- `--resource <RESOURCE>`: Resource type (default: gpu)
+- `--zkvm <ZKVM>`: zkVM implementation (default: risc0)
+- `--execution-client <CLIENT>`: Execution client (default: reth)
+- `--gas-category <CATEGORY>`: Run on specific gas category only
+- `--memory-tracking`: Enable memory tracking (default: false)
+
+#### Examples
+
+```bash
+# Run all gas categories with default settings
+./scripts/run-gas-categorized-benchmarks.sh
+
+# Run with specific zkVM and execution client
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --execution-client ethrex
+
+# Run on just one gas category
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M
+```
+
+## Results Analysis Scripts
+
+### Markdown Table Generator
+
+The `generate_markdown_tables.py` script generates markdown tables from benchmark results stored in JSON files.
+
+#### Usage
+
+```bash
+python3 scripts/generate_markdown_tables.py [OPTIONS] <metrics_folder> [<metrics_folder2> ...]
+```
+
+#### Key Options
+
+- `--output, -o <file>`: Output file (default: benchmark_results.md)
+- `--format, -f <format>`: Output format: markdown, html, csv (default: markdown)
+- `--compare`: Compare metrics between multiple folders
+- `--execution-only`: Only show execution metrics
+- `--proving-only`: Only show proving metrics
+- `--statistics`: Include statistical analysis
+- `--name-format <format>`: Format for benchmark names (original, display, simplified, category)
+
+#### Examples
+
+```bash
+# Generate tables from single metrics folder
+python3 scripts/generate_markdown_tables.py zkevm-metrics-1M
+
+# Compare multiple gas categories
+python3 scripts/generate_markdown_tables.py --compare \
+  zkevm-metrics-1M zkevm-metrics-10M zkevm-metrics-100M
+
+# Generate with statistics and display names
+python3 scripts/generate_markdown_tables.py --statistics --name-format display --output results.md zkevm-metrics-1M
+```
+
+### Results Generator Wrapper
+
+The `generate_results.sh` script provides a convenient wrapper for generating markdown tables with common use cases.
+
+#### Usage
+
+```bash
+./scripts/generate_results.sh [OPTIONS]
+```
+
+#### Key Options
+
+- `--all`: Generate tables for all available gas categories
+- `--compare`: Compare all available gas categories
+- `--output <file>`: Output file (default: benchmark_results.md)
+- `--execution-only`: Only show execution metrics
+- `--proving-only`: Only show proving metrics
+- `--statistics`: Include statistical analysis
+- `--name-format <format>`: Format for benchmark names (default: display)
+- `--open`: Open the generated file after creation
+
+#### Examples
+
+```bash
+# Generate tables for all categories
+./scripts/generate_results.sh --all
+
+# Compare all with statistics
+./scripts/generate_results.sh --compare --statistics
+
+# Generate execution-only and open
+./scripts/generate_results.sh --all --execution-only --open
+```
+
+## Comparison Scripts
+
+### Execution Comparison
+
+The `compare_executions.py` script compares execution metrics between baseline and optimized runs, focusing on region cycles and total execution cycles.
+
+#### Usage
+
+```bash
+python3 scripts/compare_executions.py <baseline_folder> <optimized_folder>
+```
+
+#### Features
+
+- Detailed speedup analysis by region
+- Statistical analysis with best/worst performers
+- Overall performance summary with total cycles
+
+### Proving Comparison
+
+The `compare_provings.py` script compares proving time metrics between baseline and optimized runs.
+
+#### Usage
+
+```bash
+python3 scripts/compare_provings.py <baseline_folder> <optimized_folder>
+```
+
+#### Features
+
+- Proving time speedup analysis
+- Time savings calculations
+- Efficiency gain reporting
+
+### CSV Export Comparison
+
+The `export_comparison_csv.py` script exports SP1 vs RISC0 comparison data to CSV format for analysis in spreadsheet applications and data processing tools.
+
+#### Usage
+
+```bash
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder <risc0_metrics_folder> \
+  --sp1-folder <sp1_metrics_folder> \
+  [--output <output_file.csv>]
+```
+
+#### Arguments
+
+- `--risc0-folder`: Path to RISC0 metrics folder (required)
+- `--sp1-folder`: Path to SP1 metrics folder (required)
+- `--output`: Output CSV file (default: sp1_vs_risc0_comparison.csv)
+
+#### Features
+
+- Exports proving time, proof size, and memory usage comparisons
+- Calculates speedup, proof size ratio, and memory ratio
+- CSV format for easy import into Excel, Google Sheets, pandas, R
+- Supports multiple gas categories
+
+#### Example
+
+```bash
+# Export comparison for 1M gas category
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output comparisons/1M-comparison.csv
+```
+
+For detailed usage examples and data analysis workflows, see the [Export Comparison CSV](/export-comparison-csv) guide.
+
+### SP1 vs RISC0 Comparison Report
+
+The `compare_sp1_risc0.py` script generates comprehensive comparison reports between SP1 and RISC0 zkVM implementations in both text and markdown formats.
+
+#### Usage
+
+```bash
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder <risc0_metrics_folder> \
+  --sp1-folder <sp1_metrics_folder> \
+  [--format <text|markdown>] \
+  [--output <output_file>] \
+  [--top-n <number>]
+```
+
+#### Arguments
+
+- `--risc0-folder`: Path to RISC0 metrics folder (required)
+- `--sp1-folder`: Path to SP1 metrics folder (required)
+- `--format`: Output format - `text` (console) or `markdown` (default: text)
+- `--output`: Output file path for markdown (optional, prints to stdout if not specified)
+- `--top-n`: Number of top performers to show (default: 10)
+
+#### Features
+
+- **Text format**: Interactive console output with statistics and tables
+- **Markdown format**: Professional documentation-ready reports
+- **Statistical analysis**: Comprehensive performance metrics
+- **Top performers**: Identifies best/worst performers for each zkVM
+- **Test coverage**: Shows common and unique tests between zkVMs
+- **Executive summary**: Quick overview of key performance indicators
+
+#### Examples
+
+```bash
+# Quick text comparison
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# Generate markdown report
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --format markdown \
+  --output benchmark-results/comparisons/1M-summary.md
+
+# Show top 20 performers
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --top-n 20
+```
+
+For detailed usage examples, output format details, and integration workflows, see the [Compare SP1 vs RISC0](/compare-sp1-risc0) guide.
+
+## Fixture Management Scripts
+
+### Gas Categorized Fixtures
+
+The `generate-gas-categorized-fixtures.sh` script generates gas-categorized fixtures for benchmarking by running the witness-generator-cli for each gas category.
+
+#### Usage
+
+```bash
+./scripts/generate-gas-categorized-fixtures.sh [EEST_TAG] [BASE_OUTPUT_DIR]
+```
+
+#### Features
+
+- Generates fixtures for all gas categories (1M, 10M, 30M, 45M, 60M, 100M, 500M)
+- Supports custom EEST tags and output directories
+- Dry-run mode for previewing operations
+
+### Fixture Download
+
+The `download-and-extract-fixtures.sh` script downloads and extracts test fixtures from the ethereum/execution-spec-tests repository.
+
+#### Usage
+
+```bash
+./scripts/download-and-extract-fixtures.sh [TAG|latest] [DEST_DIR]
+```
+
+#### Features
+
+- Automatic latest release detection
+- Multiple download strategies with retries
+- Support for different fixture types (benchmark, stable, etc.)
+
+### Chain Config Migration
+
+The `migrate_mainnet_fixtures_chainconfig.py` script processes zkevm fixture JSON files by updating chain configuration to a standardized format.
+
+#### Usage
+
+```bash
+python3 scripts/migrate_mainnet_fixtures_chainconfig.py <input_folder> [-o <output_folder>]
+```
+
+## Utility Scripts
+
+### Test Name Simplification
+
+The `simplify_test_names.py` script simplifies complex test file names by extracting meaningful parameters and removing redundant information.
+
+#### Usage
+
+```bash
+python3 scripts/simplify_test_names.py <directory> [--dry-run] [--execute] [--create-script]
+```
+
+#### Features
+
+- Converts complex names to readable format
+- Dry-run mode for previewing changes
+- Shell script generation for batch renaming
+
+### Test Name Parser
+
+The `test_name_parser.py` script provides parsing functionality for complex test file names, used by other scripts for name formatting.
+
+#### Features
+
+- Extracts test categories, functions, and parameters
+- Generates display names and simplified names
+- Supports multiple naming formats
+
+## Complete Workflow Examples
+
+### Standard Benchmark Workflow
+
+1. **Download fixtures:**
+   ```bash
+   ./scripts/download-and-extract-fixtures.sh
+   ```
+
+2. **Generate gas-categorized fixtures:**
+   ```bash
+   ./scripts/generate-gas-categorized-fixtures.sh
+   ```
+
+3. **Run benchmarks:**
+   ```bash
+   ./scripts/run-gas-categorized-benchmarks.sh
+   ```
+
+4. **Generate results:**
+   ```bash
+   ./scripts/generate_results.sh --compare --statistics --open
+   ```
+
+### Performance Comparison Workflow
+
+1. **Run baseline benchmarks:**
+   ```bash
+   ./scripts/run-gas-categorized-benchmarks.sh --zkvm risc0
+   ```
+
+2. **Run optimized benchmarks:**
+   ```bash
+   ./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1
+   ```
+
+3. **Compare results:**
+   ```bash
+   python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+   python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+   ```
+
+### Single File Testing Workflow
+
+1. **Test individual fixture:**
+   ```bash
+   ./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm sp1
+   ```
+
+2. **Generate results for single file:**
+   ```bash
+   python3 scripts/generate_markdown_tables.py zkevm-metrics-single
+   ```
+
+## Configuration
+
+### Gas Categories
+
+The system supports the following gas categories:
+
+- **1M**: 1 million gas limit
+- **10M**: 10 million gas limit  
+- **30M**: 30 million gas limit
+- **45M**: 45 million gas limit
+- **60M**: 60 million gas limit
+- **100M**: 100 million gas limit
+- **500M**: 500 million gas limit
+
+### zkVM Implementations
+
+- **risc0**: RISC0 zkVM implementation (default)
+- **sp1**: SP1 zkVM implementation
+- **openvm**: OpenVM zkVM implementation
+- **pico**: Pico zkVM implementation
+- **zisk**: Zisk zkVM implementation
+
+### Execution Clients
+
+- **reth**: Reth execution client (default)
+- **ethrex**: Ethrex execution client
+
+## Output Formats
+
+The markdown table generator supports multiple output formats:
+
+- **Markdown** (default): Well-formatted tables for GitHub, documentation
+- **HTML**: For web viewing
+- **CSV**: For spreadsheet analysis
+
+## Metrics Structure
+
+The benchmark system generates JSON files containing:
+
+### Execution Metrics
+
+- `total_num_cycles`: Total execution cycles
+- `region_cycles`: Cycles by region (setup, compute, teardown, etc.)
+- `execution_duration`: Execution time
+
+### Proving Metrics
+
+- `proof_size`: Proof size in bytes
+- `proving_time_ms`: Proving time in milliseconds
+- `peak_memory_usage_bytes`: Peak memory usage during proving
+- `average_memory_usage_bytes`: Average memory usage during proving
+
+### Metadata
+
+- `name`: Benchmark name
+- `timestamp_completed`: Completion timestamp
+- `metadata`: Additional benchmark-specific data (gas used, etc.)
+
+## Getting Help
+
+All scripts support `--help` or `-h` flags for detailed usage information:
+
+```bash
+./scripts/run-single-file-benchmark.sh --help
+python3 scripts/generate_markdown_tables.py --help
+```

@@ -1,0 +1,319 @@
+# Gas Categorized Fixtures
+
+This guide explains how to generate gas-categorized fixtures for zkGas profiling. Gas-categorized fixtures organize test data by different gas limit categories, allowing you to profile the resource requirements for proving different OPCODEs across various computational complexity levels.
+
+## Overview
+
+The gas-categorized fixture generation process creates separate fixture directories for different gas categories, each containing test data optimized for specific gas limits. This approach enables comprehensive analysis of how different Ethereum opcodes consume resources (cycles, memory, proving time) across various computational workloads in zk environments.
+
+## Supported Gas Categories
+
+The system supports the following gas categories:
+
+| Gas Category | Gas Limit | Description |
+|--------------|-----------|-------------|
+| 1M | 1,000,000 | Light computational workload |
+| 10M | 10,000,000 | Medium computational workload |
+| 30M | 30,000,000 | Heavy computational workload |
+| 45M | 45,000,000 | Very heavy computational workload |
+| 60M | 60,000,000 | Maximum computational workload |
+| 100M | 100,000,000 | Extreme computational workload |
+| 500M | 500,000,000 | Ultra-extreme computational workload |
+
+## Script: `generate-gas-categorized-fixtures.sh`
+
+### Basic Usage
+
+```bash
+# Generate fixtures for all gas categories using latest EEST release
+./scripts/generate-gas-categorized-fixtures.sh
+
+# Generate fixtures using specific EEST release
+./scripts/generate-gas-categorized-fixtures.sh v0.1.0
+
+# Generate fixtures in custom output directory
+./scripts/generate-gas-categorized-fixtures.sh v0.1.0 /tmp/fixtures
+```
+
+### Command Line Options
+
+| Option | Description |
+|--------|-------------|
+| `--help`, `-h` | Show help message and usage examples |
+| `--dry-run` | Show what would be executed without actually running |
+| `EEST_TAG` | EEST release tag to use (e.g., v0.1.0). If empty, latest will be used |
+| `BASE_OUTPUT_DIR` | Base output directory (default: ./zkevm-fixtures-input) |
+
+### Examples
+
+#### Generate All Gas Categories
+```bash
+# Use latest EEST release with default output directory
+./scripts/generate-gas-categorized-fixtures.sh
+
+# Use specific EEST release
+./scripts/generate-gas-categorized-fixtures.sh v0.1.0
+
+# Use custom output directory
+./scripts/generate-gas-categorized-fixtures.sh v0.1.0 /tmp/my-fixtures
+```
+
+#### Preview Mode
+```bash
+# See what would be executed without running
+./scripts/generate-gas-categorized-fixtures.sh --dry-run
+```
+
+## Output Structure
+
+The script generates the following directory structure:
+
+```
+zkevm-fixtures-input-1M/     # 1 million gas limit fixtures
+zkevm-fixtures-input-10M/    # 10 million gas limit fixtures
+zkevm-fixtures-input-30M/    # 30 million gas limit fixtures
+zkevm-fixtures-input-45M/    # 45 million gas limit fixtures
+zkevm-fixtures-input-60M/    # 60 million gas limit fixtures
+zkevm-fixtures-input-100M/   # 100 million gas limit fixtures
+zkevm-fixtures-input-500M/   # 500 million gas limit fixtures
+```
+
+Each directory contains:
+- Individual JSON fixture files for opcode profiling
+- Test data optimized for the specific gas category
+- Metadata about the test cases, gas parameters, and opcode usage patterns
+
+## Prerequisites
+
+Before running the fixture generation script, ensure you have:
+
+1. **Rust Toolchain**: Standard Rust installation managed by `rustup`
+2. **Project Dependencies**: All project dependencies built
+3. **Sufficient Disk Space**: Each gas category can generate significant amounts of test data
+4. **Network Access**: For downloading EEST releases (if not using local fixtures)
+
+## Workflow Details
+
+### 1. Pre-flight Checks
+The script performs several validation steps:
+- Verifies `cargo` is available
+- Confirms the script is run from the project root directory
+- Validates the project structure (presence of `Cargo.toml` and `crates/witness-generator-cli`)
+
+### 2. Gas Category Validation
+The script validates all gas categories to ensure they follow the correct format:
+- Pattern: `benchmark-gas-value_{VALUE}`
+- Values: 1M, 10M, 30M, 45M, 60M, 100M, 500M
+
+### 3. Project Build
+The script automatically builds the `witness-generator-cli` in release mode:
+```bash
+cargo build --release --bin witness-generator-cli
+```
+
+### 4. Fixture Generation
+For each gas category, the script:
+- Creates the output directory
+- Runs the witness generator with the specific gas parameter
+- Includes both the gas category and "Prague" test cases
+- Counts and reports the number of generated files
+
+### 5. Summary Report
+After completion, the script provides:
+- Summary of generated fixtures for each gas category
+- File counts for each directory
+- Location of all generated fixtures
+
+## Advanced Usage
+
+### Custom EEST Tags
+```bash
+# Use a specific EEST release
+./scripts/generate-gas-categorized-fixtures.sh v0.2.0
+
+# Use latest (default behavior)
+./scripts/generate-gas-categorized-fixtures.sh ""
+```
+
+### Custom Output Directories
+```bash
+# Generate in a different location
+./scripts/generate-gas-categorized-fixtures.sh v0.1.0 /path/to/custom/fixtures
+
+# This creates:
+# /path/to/custom/fixtures-1M/
+# /path/to/custom/fixtures-10M/
+# etc.
+```
+
+### Dry Run Mode
+```bash
+# Preview all commands that would be executed
+./scripts/generate-gas-categorized-fixtures.sh --dry-run
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Build Failures
+```bash
+# Ensure you're in the project root directory
+pwd  # Should show: .../zkevm-benchmark-workload
+
+# Check if Cargo.toml exists
+ls Cargo.toml
+
+# Verify witness-generator-cli crate exists
+ls crates/witness-generator-cli/
+```
+
+#### Permission Issues
+```bash
+# Make the script executable
+chmod +x scripts/generate-gas-categorized-fixtures.sh
+```
+
+#### Disk Space Issues
+```bash
+# Check available disk space
+df -h
+
+# Clean up old fixtures if needed
+rm -rf zkevm-fixtures-input-*
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `cargo is not installed` | Install Rust toolchain via `rustup` |
+| `Cargo.toml not found` | Run script from project root directory |
+| `witness-generator-cli crate not found` | Ensure project is properly cloned and built |
+| `Build failed` | Check Rust installation and dependencies |
+
+## Integration with OPCODE Profiling
+
+The generated gas-categorized fixtures are designed to work seamlessly with the opcode profiling system:
+
+1. **Input for Profiling**: Each gas category directory serves as input for the profiling runner
+2. **Consistent Naming**: The naming convention `zkevm-fixtures-input-{GAS}` is expected by the profiling scripts
+3. **Optimized Test Cases**: Each category contains test cases optimized for its specific gas limit and opcode usage patterns
+
+## Running Benchmarks for Specific Gas Categories
+
+The `run-gas-categorized-benchmarks.sh` script allows you to run benchmarks for specific gas categories, which is useful for targeted testing and faster iteration during development.
+
+### Using the `--gas-category` Option
+
+To run benchmarks for a specific gas category, use the `--gas-category` option:
+
+```bash
+# Run benchmark for 1M gas limit only
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 1M
+
+# Run benchmark for 10M gas limit with SP1 zkVM
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M --zkvm sp1
+
+# Run benchmark for 30M gas limit with custom action
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 30M --action execute
+
+# Run benchmark for 100M gas limit with CPU resource
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 100M --resource cpu
+```
+
+### Available Gas Categories
+
+The following gas categories can be specified with the `--gas-category` option:
+
+| Category | Gas Limit | Use Case |
+|----------|-----------|----------|
+| `1M` | 1,000,000 | Light computational workload testing |
+| `10M` | 10,000,000 | Medium computational workload testing |
+| `30M` | 30,000,000 | Heavy computational workload testing |
+| `45M` | 45,000,000 | Very heavy computational workload testing |
+| `60M` | 60,000,000 | Maximum computational workload testing |
+| `100M` | 100,000,000 | Extreme computational workload testing |
+| `500M` | 500,000,000 | Ultra-extreme computational workload testing |
+
+### Examples by Workload Type
+
+#### Light Workload Testing (1M)
+```bash
+# Quick test with light computational workload
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 1M
+
+# Test with different zkVM for comparison
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 1M --zkvm sp1
+```
+
+#### Medium Workload Testing (10M)
+```bash
+# Standard medium workload testing
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M
+
+# Test with CPU resource instead of GPU
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M --resource cpu
+```
+
+#### Heavy Workload Testing (30M-60M)
+```bash
+# Heavy computational workload testing
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 30M
+
+# Maximum workload testing
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 60M --zkvm sp1
+```
+
+#### Extreme Workload Testing (100M-500M)
+```bash
+# Extreme computational workload testing
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 100M
+
+# Ultra-extreme workload testing (may take significant time)
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 500M --resource gpu
+```
+
+### Output Structure
+
+When running benchmarks for specific gas categories, the script generates metrics in the following structure:
+
+```
+zkevm-metrics-{ZKVM}-{GAS}/
+├── metric_file_1.json
+├── metric_file_2.json
+└── ...
+```
+
+For example:
+- `zkevm-metrics-risc0-1M/` - RISC0 metrics for 1M gas category
+- `zkevm-metrics-sp1-10M/` - SP1 metrics for 10M gas category
+- `zkevm-metrics-risc0-100M/` - RISC0 metrics for 100M gas category
+
+### Dry Run Mode
+
+Preview what would be executed without actually running the benchmarks:
+
+```bash
+# Preview specific gas category
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M --dry-run
+
+# Preview with custom options
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 30M --zkvm sp1 --dry-run
+```
+
+## Next Steps
+
+After generating gas-categorized fixtures, you can:
+
+1. **Run OPCODE Profiling**: Use the generated fixtures with the profiling runner
+   ```bash
+   ./scripts/run-gas-categorized-benchmarks.sh
+   ```
+
+2. **Analyze Resource Requirements**: Generate markdown tables from profiling results
+   ```bash
+   ./scripts/generate_results.sh --compare --statistics
+   ```
+
+3. **Compare OPCODE Costs**: Use comparison scripts to analyze resource requirements across gas categories and opcodes

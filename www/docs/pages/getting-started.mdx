@@ -1,3 +1,80 @@
-# Get started
+# Getting Started
 
-Hello world!
+Welcome to the zkGas profiling documentation! This guide will help you understand the project structure and get started with profiling the resources needed for proving different OPCODEs in zk environments.
+
+## Project Overview
+
+zkGas profiling is a comprehensive framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments. The project focuses on analyzing the computational costs, memory usage, and proving time required for various Ethereum opcodes across different gas categories and zkVM implementations.
+
+## Key Features
+
+- **OPCODE Profiling**: Detailed analysis of resource requirements for different Ethereum opcodes
+- **Gas-Categorized Analysis**: Organize profiling data by gas limits (1M, 10M, 30M, 45M, 60M, 100M, 500M)
+- **Multi-zkVM Support**: Compare opcode costs across RISC0 and SP1 zkVMs
+- **Resource Metrics**: Comprehensive measurement of cycles, memory usage, and proving time
+- **Automated Workflows**: Scripts for fixture download, generation, profiling execution, and results analysis
+
+## Quick Start
+
+1. **Clone and Setup the Repository**
+   ```bash
+   git clone https://github.com/NethermindEth/zkevm-benchmark-workload/
+   cd zkevm-benchmark-workload/
+   git checkout profiling
+   ```
+
+2. **Download and Extract Fixtures**
+   ```bash
+   ./scripts/download-and-extract-fixtures.sh zkevm@v0.1.0
+   ```
+
+3. **Generate Gas-Categorized Fixtures**
+   ```bash
+   ./scripts/generate-gas-categorized-fixtures.sh
+   ```
+
+4. **Run OPCODE Profiling**
+   ```bash
+   # Run on all gas categories
+   ./scripts/run-gas-categorized-benchmarks.sh
+   
+   # Or run on a single fixture file
+   ./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json
+   ```
+
+5. **Analyze Resource Requirements**
+   ```bash
+   ./scripts/generate_results.sh --compare --statistics
+   ```
+
+## Project Structure
+
+```
+zkGas-profiling/
+├── scripts/                    # Automation scripts
+├── crates/                     # Core Rust crates
+├── ere-guests/                 # zkVM guest programs
+├── zkevm-fixtures-input-*/     # Generated test fixtures
+├── zkevm-metrics-*/           # Raw profiling results
+├── benchmark-results/          # Organized results and analysis reports
+└── www/                       # Documentation website
+```
+
+## Results Organization
+
+The `benchmark-results/` directory provides organized access to profiling results:
+
+- **`gas-categorized/`**: Results organized by gas categories (1M, 10M, 30M, etc.)
+- **`zkvm-comparisons/`**: Results organized by zkVM implementations (RISC0, SP1, etc.)
+- **`markdown-reports/`**: Human-readable analysis reports and comparisons
+- **`archived/`**: Historical results for long-term analysis
+
+## Next Steps
+
+- [Scripts](/scripts) - Comprehensive documentation for all automation scripts
+- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Learn how to generate test fixtures for opcode profiling
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run opcode profiling across different gas categories
+- [Single File Benchmark](/single-file-benchmark) - Run benchmarks on individual fixture files
+- [Markdown Tables](/markdown-tables) - Generate and analyze resource requirement results
+- [Simplified Naming](/simplified-naming) - Understand the test file naming scheme
+- [Benchmark Results](/benchmark-results) - View and organize generated profiling results

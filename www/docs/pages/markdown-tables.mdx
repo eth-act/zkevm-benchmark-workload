@@ -1,0 +1,406 @@
+# Markdown Tables
+
+This guide explains how to generate markdown tables from zkGas profiling results. The markdown table generation system provides comprehensive analysis and visualization of profiling data, including execution metrics, proving metrics, and statistical analysis for understanding OPCODE resource requirements.
+
+## Overview
+
+The markdown table generation system processes JSON profiling results and creates well-formatted markdown tables for easy viewing and analysis. It supports multiple output formats, comparison modes, and statistical analysis to provide comprehensive insights into OPCODE resource requirements across different zkVM implementations.
+
+## Core Script: `generate_markdown_tables.py`
+
+### Basic Usage
+
+```bash
+# Generate markdown table from single metrics folder
+python3 scripts/generate_markdown_tables.py zkevm-metrics-1M
+
+# Compare multiple gas categories
+python3 scripts/generate_markdown_tables.py --compare --gas-categories zkevm-metrics-1M zkevm-metrics-10M
+
+# Generate with statistics and save to file
+python3 scripts/generate_markdown_tables.py --statistics --output results.md zkevm-metrics-1M
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `metrics_folders` | One or more metrics folders to process | Required |
+| `--output`, `-o <file>` | Output markdown file | benchmark_results.md |
+| `--format`, `-f <format>` | Output format (markdown, html, csv) | markdown |
+| `--compare` | Compare metrics between multiple folders | false |
+| `--execution-only` | Only show execution metrics | false |
+| `--proving-only` | Only show proving metrics | false |
+| `--gas-categories` | Group results by gas categories | false |
+| `--statistics` | Include statistical analysis | false |
+| `--help`, `-h` | Show help message | - |
+
+### Supported Output Formats
+
+| Format | Description | Use Case |
+|--------|-------------|----------|
+| `markdown` | Well-formatted markdown tables | GitHub, documentation, reports |
+| `html` | HTML tables | Web viewing, presentations |
+| `csv` | Comma-separated values | Spreadsheet analysis, data processing |
+
+## Wrapper Script: `generate_results.sh`
+
+The wrapper script provides convenient shortcuts for common use cases and automatically discovers available metrics folders.
+
+### Basic Usage
+
+```bash
+# Generate tables for all available gas categories
+./scripts/generate_results.sh --all
+
+# Compare all gas categories with statistics
+./scripts/generate_results.sh --compare --statistics
+
+# Generate execution-only results and open them
+./scripts/generate_results.sh --all --execution-only --open
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--help`, `-h` | Show help message | - |
+| `--all` | Generate tables for all available gas categories | false |
+| `--compare` | Compare all available gas categories | false |
+| `--output <file>` | Output file | benchmark_results.md |
+| `--execution-only` | Only show execution metrics | false |
+| `--proving-only` | Only show proving metrics | false |
+| `--statistics` | Include statistical analysis | false |
+| `--open` | Open the generated file after creation | false |
+
+## Usage Examples
+
+### Single Metrics Folder Analysis
+
+#### Basic Analysis
+```bash
+# Generate basic markdown table
+python3 scripts/generate_markdown_tables.py zkevm-metrics-risc0-10M
+
+# Generate with statistics
+python3 scripts/generate_markdown_tables.py --statistics zkevm-metrics-risc0-10M
+
+# Generate execution-only results
+python3 scripts/generate_markdown_tables.py --execution-only zkevm-metrics-risc0-10M
+```
+
+#### Custom Output
+```bash
+# Save to custom file
+python3 scripts/generate_markdown_tables.py --output my-results.md zkevm-metrics-risc0-10M
+
+# Generate HTML format
+python3 scripts/generate_markdown_tables.py --format html --output results.html zkevm-metrics-risc0-10M
+
+# Generate CSV format
+python3 scripts/generate_markdown_tables.py --format csv --output results.csv zkevm-metrics-risc0-10M
+```
+
+### Multi-Folder Comparison
+
+#### Compare Gas Categories
+```bash
+# Compare multiple gas categories
+python3 scripts/generate_markdown_tables.py --compare --gas-categories \
+  zkevm-metrics-risc0-1M zkevm-metrics-risc0-10M zkevm-metrics-risc0-100M
+
+# Compare with statistics
+python3 scripts/generate_markdown_tables.py --compare --statistics \
+  zkevm-metrics-risc0-1M zkevm-metrics-risc0-10M zkevm-metrics-risc0-100M
+```
+
+#### Compare zkVM Implementations
+```bash
+# Compare different zkVM implementations
+python3 scripts/generate_markdown_tables.py --compare \
+  zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
+
+# Compare with execution-only metrics
+python3 scripts/generate_markdown_tables.py --compare --execution-only \
+  zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
+```
+
+### Wrapper Script Examples
+
+#### Generate All Categories
+```bash
+# Generate tables for all available gas categories
+./scripts/generate_results.sh --all
+
+# Generate with statistics
+./scripts/generate_results.sh --all --statistics
+
+# Generate execution-only and open
+./scripts/generate_results.sh --all --execution-only --open
+```
+
+#### Compare All Categories
+```bash
+# Compare all available gas categories
+./scripts/generate_results.sh --compare
+
+# Compare with statistics
+./scripts/generate_results.sh --compare --statistics
+
+# Compare proving-only metrics
+./scripts/generate_results.sh --compare --proving-only
+```
+
+## Output Structure
+
+### Markdown Tables
+
+The generated markdown includes several sections:
+
+#### 1. Header Information
+```markdown
+# zkGas Profiling Results
+
+Generated on: 2024-01-15 14:30:25
+
+Comparing 3 metrics folders:
+- zkevm-metrics-risc0-1M (Gas: 1M)
+- zkevm-metrics-risc0-10M (Gas: 10M)
+- zkevm-metrics-risc0-100M (Gas: 100M)
+```
+
+#### 2. Summary Table
+```markdown
+## Summary by Gas Category
+
+| Gas Category | Total Benchmarks | Execution | Proving | Avg Cycles | Avg Duration (ms) | Avg Proof Size (bytes) | Avg Proving Time (ms) |
+|--------------|------------------|-----------|---------|------------|-------------------|------------------------|----------------------|
+| 1M | 25 | 25 | 25 | 1,234,567 | 45.2 | 2,048 | 1,250.5 |
+| 10M | 30 | 30 | 30 | 12,345,678 | 452.1 | 4,096 | 12,505.0 |
+| 100M | 15 | 15 | 15 | 123,456,789 | 4,521.0 | 8,192 | 125,050.0 |
+```
+
+#### 3. Execution Metrics Table
+```markdown
+## Execution Metrics
+
+| Benchmark | Gas Category | Total Cycles | Duration (ms) | Setup Cycles | Compute Cycles | Teardown Cycles |
+|-----------|--------------|--------------|---------------|--------------|----------------|-----------------|
+| block_001 | 1M | 1,234,567 | 45.2 | 12,345 | 1,200,000 | 22,222 |
+| block_002 | 1M | 1,345,678 | 49.1 | 13,456 | 1,300,000 | 32,222 |
+```
+
+#### 4. Proving Metrics Table
+```markdown
+## Proving Metrics
+
+| Benchmark | Gas Category | Proof Size (bytes) | Proving Time (ms) | Proving Time (s) | Peak Memory (MB) | Avg Memory (MB) | Initial Memory (MB) |
+|-----------|--------------|-------------------|-------------------|------------------|------------------|-----------------|-------------------|
+| block_001 | 1M | 2,048 | 1,250.5 | 1.25 | 512.0 | 256.0 | 128.0 |
+| block_002 | 1M | 2,096 | 1,300.2 | 1.30 | 520.0 | 260.0 | 130.0 |
+```
+
+#### 5. Statistical Analysis
+```markdown
+## Statistics
+
+### Execution Statistics
+- **Total Cycles**: Min: 1,000,000, Max: 2,000,000, Avg: 1,500,000
+- **Duration**: Min: 30.0ms, Max: 60.0ms, Avg: 45.0ms
+
+### Proving Statistics
+- **Proof Size**: Min: 2,048 bytes, Max: 4,096 bytes, Avg: 3,072 bytes
+- **Proving Time**: Min: 1,000.0ms, Max: 2,000.0ms, Avg: 1,500.0ms
+- **Peak Memory**: Min: 512.0MB, Max: 1,024.0MB, Avg: 768.0MB
+```
+
+## Metrics Structure
+
+### Execution Metrics
+
+| Metric | Description | Unit |
+|--------|-------------|------|
+| `total_num_cycles` | Total execution cycles | cycles |
+| `execution_duration` | Execution time | milliseconds |
+| `region_cycles` | Cycles by region (setup, compute, teardown, etc.) | cycles |
+
+### Proving Metrics
+
+| Metric | Description | Unit |
+|--------|-------------|------|
+| `proof_size` | Size of the generated proof | bytes |
+| `proving_time_ms` | Time to generate the proof | milliseconds |
+| `peak_memory_usage_bytes` | Peak memory usage during proving | bytes |
+| `average_memory_usage_bytes` | Average memory usage during proving | bytes |
+| `initial_memory_usage_bytes` | Initial memory usage before proving | bytes |
+
+## Advanced Features
+
+### Statistical Analysis
+
+The `--statistics` flag provides comprehensive statistical analysis:
+
+- **Min/Max/Average**: For all numerical metrics
+- **Performance Ranges**: Understanding the spread of performance
+- **Memory Analysis**: Memory usage patterns and efficiency
+- **Time Analysis**: Execution and proving time distributions
+
+### Comparison Mode
+
+The `--compare` flag enables side-by-side comparison:
+
+- **Cross-Category Analysis**: Compare performance across gas categories
+- **zkVM Comparison**: Compare different zkVM implementations
+- **OPCODE Cost Analysis**: Identify resource requirement patterns for different opcodes
+- **Optimization Opportunities**: Highlight areas for improvement
+
+### Filtering Options
+
+#### Execution-Only Analysis
+```bash
+# Focus on execution performance
+python3 scripts/generate_markdown_tables.py --execution-only zkevm-metrics-risc0-10M
+```
+
+#### Proving-Only Analysis
+```bash
+# Focus on proving performance
+python3 scripts/generate_markdown_tables.py --proving-only zkevm-metrics-risc0-10M
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Missing Metrics Folders
+```bash
+# Check if metrics folders exist
+ls -la zkevm-metrics-*
+
+# Run profiling first if missing
+./scripts/run-gas-categorized-benchmarks.sh
+```
+
+#### No JSON Files Found
+```bash
+# Check for JSON files in metrics folders
+find zkevm-metrics-* -name "*.json" | head -10
+
+# Verify profiling execution completed successfully
+```
+
+#### Permission Issues
+```bash
+# Make scripts executable
+chmod +x scripts/generate_results.sh
+chmod +x scripts/generate_markdown_tables.py
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `Folder does not exist` | Check folder path and run profiling first |
+| `No JSON files found` | Verify profiling execution completed successfully |
+| `Cannot specify both --execution-only and --proving-only` | Use only one filter option |
+| `No data to display` | Check if metrics folders contain valid profiling results |
+
+## Integration with Other Tools
+
+### Comparison Scripts
+
+The markdown table generator works seamlessly with comparison scripts:
+
+```bash
+# Generate detailed comparison tables
+python3 scripts/compare_executions.py baseline-folder optimized-folder
+python3 scripts/compare_provings.py baseline-folder optimized-folder
+
+# Generate markdown tables from comparison results
+python3 scripts/generate_markdown_tables.py --compare baseline-folder optimized-folder
+```
+
+### Automated Workflows
+
+```bash
+# Complete workflow: generate fixtures, run profiling, analyze results, update docs
+./scripts/generate-gas-categorized-fixtures.sh
+./scripts/run-gas-categorized-benchmarks.sh
+./scripts/generate_results.sh --compare --statistics --output benchmark-results/markdown-reports/latest/profiling-results.md
+./scripts/update-docs-with-results.sh
+```
+
+### Results Organization
+
+Generated reports are automatically organized in the `benchmark-results/` directory:
+
+```bash
+# Generate reports in organized structure
+./scripts/generate_results.sh --compare --statistics \
+  --output benchmark-results/markdown-reports/latest/comprehensive-analysis.md
+
+# Generate comparison reports
+python3 scripts/generate_markdown_tables.py --compare \
+  zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M \
+  --output benchmark-results/markdown-reports/comparisons/zkvm-comparison.md
+
+# Generate statistical analysis
+python3 scripts/generate_markdown_tables.py --statistics \
+  zkevm-metrics-risc0-10M \
+  --output benchmark-results/markdown-reports/statistics/risc0-10M-statistics.md
+```
+
+## Best Practices
+
+### Result Analysis
+
+1. **Start with Summary**: Review the summary table for overall performance trends
+2. **Focus on Key Metrics**: Pay attention to total cycles and proving time
+3. **Compare Categories**: Use comparison mode to identify performance patterns
+4. **Statistical Analysis**: Use statistics to understand performance distributions
+
+### Report Generation
+
+1. **Use Descriptive Names**: Use meaningful output file names
+2. **Include Statistics**: Always include statistical analysis for comprehensive reports
+3. **Multiple Formats**: Generate both markdown and CSV formats for different use cases
+4. **Documentation**: Document the purpose and configuration of each analysis
+
+### Performance Optimization
+
+1. **Filter Results**: Use execution-only or proving-only filters to focus analysis
+2. **Batch Processing**: Process multiple folders in a single command
+3. **Automated Workflows**: Use wrapper scripts for common analysis tasks
+4. **Version Control**: Track analysis results and configurations
+
+## Results Directory Structure
+
+The `benchmark-results/` directory provides organized access to all profiling results:
+
+```
+benchmark-results/
+├── gas-categorized/           # Results by gas categories
+│   ├── 1M/                   # 1M gas limit results
+│   ├── 10M/                  # 10M gas limit results
+│   └── ...                   # Other gas categories
+├── zkvm-comparisons/          # Results by zkVM implementations
+│   ├── risc0/                # RISC0 results
+│   ├── sp1/                  # SP1 results
+│   └── ...                   # Other zkVMs
+├── markdown-reports/          # Analysis reports
+│   ├── latest/               # Most recent reports
+│   ├── comparisons/          # Comparison reports
+│   └── statistics/           # Statistical analysis
+└── archived/                 # Historical results
+```
+
+## Next Steps
+
+After generating markdown tables, you can:
+
+1. **Analyze Results**: Review the generated tables for OPCODE resource requirement insights
+2. **Compare Performance**: Use comparison scripts for detailed analysis
+3. **Optimize Configuration**: Use results to optimize profiling parameters
+4. **Generate Reports**: Create comprehensive resource requirement reports for stakeholders
+5. **Organize Results**: Use the `benchmark-results/` directory structure for easy access and analysis
+6. **Update Documentation**: Use `./scripts/update-docs-with-results.sh` to display results in the documentation

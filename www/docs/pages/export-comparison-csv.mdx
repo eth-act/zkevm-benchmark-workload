@@ -1,0 +1,515 @@
+# Export Comparison CSV
+
+This guide explains how to use the `export_comparison_csv.py` script to export SP1 vs RISC0 benchmark comparison data to CSV format for further analysis in spreadsheet applications or data processing tools.
+
+## Overview
+
+The `export_comparison_csv.py` script processes benchmark metrics from SP1 and RISC0 zkVM implementations, compares their performance, and exports the results to a CSV file. This is particularly useful for:
+
+- Statistical analysis in spreadsheet applications (Excel, Google Sheets)
+- Data visualization in tools like Python pandas, R, or Tableau
+- Automated reporting and dashboards
+- Historical performance tracking
+- Detailed side-by-side comparisons
+
+## Script Location
+
+```bash
+scripts/export_comparison_csv.py
+```
+
+## Basic Usage
+
+```bash
+# Export comparison data to CSV
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# Export to custom output file
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output my-comparison.csv
+```
+
+## Command Line Arguments
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `--risc0-folder` | Path to the folder containing RISC0 metrics |
+| `--sp1-folder` | Path to the folder containing SP1 metrics |
+
+### Optional Arguments
+
+| Argument | Description | Default |
+|----------|-------------|---------|
+| `--output` | Output CSV file path | `sp1_vs_risc0_comparison.csv` |
+| `--help`, `-h` | Show help message | - |
+
+## CSV Output Structure
+
+The generated CSV file contains the following columns:
+
+### Test Identification
+- **test_name**: Name of the benchmark test
+
+### RISC0 Metrics
+- **risc0_proving_time_s**: RISC0 proving time in seconds
+- **risc0_proof_size_kb**: RISC0 proof size in kilobytes
+- **risc0_peak_memory_gb**: RISC0 peak memory usage in gigabytes
+
+### SP1 Metrics
+- **sp1_proving_time_s**: SP1 proving time in seconds
+- **sp1_proof_size_kb**: SP1 proof size in kilobytes
+- **sp1_peak_memory_gb**: SP1 peak memory usage in gigabytes
+
+### Comparison Ratios
+- **speedup**: Ratio of RISC0 to SP1 proving time (>1.0 means SP1 is faster)
+- **proof_size_ratio**: Ratio of RISC0 to SP1 proof size (>1.0 means SP1 produces smaller proofs)
+- **memory_ratio**: Ratio of RISC0 to SP1 peak memory (>1.0 means SP1 uses less memory)
+
+## Usage Examples
+
+### Basic Comparison Export
+
+```bash
+# Compare 1M gas category
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M
+
+# Compare 10M gas category
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-10M \
+  --sp1-folder zkevm-metrics-sp1-10M
+```
+
+### Custom Output Location
+
+```bash
+# Save to custom directory
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output benchmark-results/comparisons/sp1-vs-risc0-1M.csv
+
+# Save to organized location by gas category
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-10M \
+  --sp1-folder zkevm-metrics-sp1-10M \
+  --output benchmark-results/comparisons/10M/comparison.csv
+```
+
+### Multiple Gas Categories
+
+```bash
+# Export comparisons for all gas categories
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output comparisons/1M.csv
+
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-10M \
+  --sp1-folder zkevm-metrics-sp1-10M \
+  --output comparisons/10M.csv
+
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-100M \
+  --sp1-folder zkevm-metrics-sp1-100M \
+  --output comparisons/100M.csv
+```
+
+## Output Example
+
+Here's an example of what the CSV output looks like:
+
+```csv
+test_name,risc0_proving_time_s,sp1_proving_time_s,speedup,risc0_proof_size_kb,sp1_proof_size_kb,proof_size_ratio,risc0_peak_memory_gb,sp1_peak_memory_gb,memory_ratio
+binop_simple_div,234.73,93.29,2.52,218.42,1442.44,0.15,0.19,0.19,1.00
+binop_simple_mul,67.34,39.59,1.70,218.42,1442.44,0.15,0.24,0.28,0.87
+memory_access_mstore8,40.28,27.78,1.45,218.42,1442.44,0.15,0.22,0.25,0.88
+modexp_400_gas_exp_heavy,1342.86,467.71,2.87,218.42,1442.44,0.15,0.22,0.26,0.85
+```
+
+## Data Analysis Workflows
+
+### Spreadsheet Analysis
+
+#### Import into Excel/Google Sheets
+
+1. **Open the CSV file**:
+   ```bash
+   # Generate CSV
+   python3 scripts/export_comparison_csv.py \
+     --risc0-folder zkevm-metrics-risc0-1M \
+     --sp1-folder zkevm-metrics-sp1-1M \
+     --output comparison.csv
+   
+   # Open in default application
+   open comparison.csv  # macOS
+   xdg-open comparison.csv  # Linux
+   ```
+
+2. **Analyze in spreadsheet**:
+   - Sort by speedup to find fastest implementations
+   - Filter by test categories
+   - Create pivot tables for category analysis
+   - Generate charts and visualizations
+
+#### Example Analyses
+
+**Find tests where SP1 is fastest:**
+```
+Filter: speedup > 1.0
+Sort: speedup descending
+```
+
+**Find tests where RISC0 has smaller proofs:**
+```
+Filter: proof_size_ratio < 1.0
+Sort: proof_size_ratio ascending
+```
+
+**Find memory-efficient tests:**
+```
+Filter: memory_ratio < 1.0
+Sort: memory_ratio ascending
+```
+
+### Python pandas Analysis
+
+```python
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# Load the CSV
+df = pd.read_csv('sp1_vs_risc0_comparison.csv')
+
+# Basic statistics
+print(df[['speedup', 'proof_size_ratio', 'memory_ratio']].describe())
+
+# Find best performers
+print("\nTop 10 tests where SP1 is fastest:")
+print(df.nlargest(10, 'speedup')[['test_name', 'speedup']])
+
+# Visualize speedup distribution
+df['speedup'].hist(bins=30)
+plt.xlabel('Speedup (RISC0/SP1)')
+plt.ylabel('Frequency')
+plt.title('SP1 vs RISC0 Proving Time Speedup Distribution')
+plt.show()
+
+# Calculate averages
+print(f"\nAverage speedup: {df['speedup'].mean():.2f}x")
+print(f"Average proof size ratio: {df['proof_size_ratio'].mean():.2f}x")
+print(f"Average memory ratio: {df['memory_ratio'].mean():.2f}x")
+```
+
+### R Analysis
+
+```r
+# Load the CSV
+data <- read.csv("sp1_vs_risc0_comparison.csv")
+
+# Summary statistics
+summary(data[c("speedup", "proof_size_ratio", "memory_ratio")])
+
+# Find outliers
+speedup_outliers <- data[data$speedup > quantile(data$speedup, 0.95), ]
+print(speedup_outliers[c("test_name", "speedup")])
+
+# Create visualizations
+library(ggplot2)
+ggplot(data, aes(x = speedup)) +
+  geom_histogram(bins = 30, fill = "blue", alpha = 0.7) +
+  labs(title = "SP1 vs RISC0 Speedup Distribution",
+       x = "Speedup (RISC0/SP1)",
+       y = "Count")
+```
+
+## Integration with Workflow
+
+### Complete Analysis Pipeline
+
+```bash
+# 1. Run benchmarks for both zkVMs
+./scripts/run-gas-categorized-benchmarks.sh --zkvm risc0 --gas-category 1M
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --gas-category 1M
+
+# 2. Export comparison to CSV
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output benchmark-results/comparisons/1M-comparison.csv
+
+# 3. Generate markdown summary (optional)
+python3 scripts/compare_sp1_risc0.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output benchmark-results/markdown-reports/comparisons/1M-summary.md
+```
+
+### Automated Comparison Script
+
+Create a script to export all gas categories:
+
+```bash
+#!/bin/bash
+# export_all_comparisons.sh
+
+GAS_CATEGORIES=("1M" "10M" "30M" "45M" "60M" "100M")
+
+for gas in "${GAS_CATEGORIES[@]}"; do
+  echo "Exporting comparison for ${gas}..."
+  python3 scripts/export_comparison_csv.py \
+    --risc0-folder "zkevm-metrics-risc0-${gas}" \
+    --sp1-folder "zkevm-metrics-sp1-${gas}" \
+    --output "benchmark-results/comparisons/${gas}-comparison.csv"
+done
+
+echo "✅ All comparisons exported!"
+```
+
+## Data Format Details
+
+### Metrics Extraction
+
+The script extracts the following metrics from each zkVM's JSON files:
+
+#### Proving Time
+```json
+{
+  "proving": {
+    "success": {
+      "proving_time_ms": 15078.0
+    }
+  }
+}
+```
+Converted to seconds: `15078.0 / 1000 = 15.08s`
+
+#### Proof Size
+```json
+{
+  "proving": {
+    "success": {
+      "proof_size": 1477259
+    }
+  }
+}
+```
+Converted to kilobytes: `1477259 / 1024 = 1442.44 KB`
+
+#### Peak Memory
+```json
+{
+  "proving": {
+    "success": {
+      "peak_memory_usage_bytes": 284940000
+    }
+  }
+}
+```
+Converted to gigabytes: `284940000 / (1024³) = 0.27 GB`
+
+### Ratio Calculations
+
+**Speedup** (higher is better for SP1):
+```
+speedup = risc0_proving_time_s / sp1_proving_time_s
+```
+- Value > 1.0: SP1 is faster
+- Value < 1.0: RISC0 is faster
+- Example: 2.52x means SP1 is 2.52 times faster
+
+**Proof Size Ratio**:
+```
+proof_size_ratio = risc0_proof_size_kb / sp1_proof_size_kb
+```
+- Value < 1.0: RISC0 produces smaller proofs (common)
+- Value > 1.0: SP1 produces smaller proofs
+
+**Memory Ratio**:
+```
+memory_ratio = risc0_peak_memory_gb / sp1_peak_memory_gb
+```
+- Value < 1.0: RISC0 uses less memory
+- Value > 1.0: SP1 uses less memory
+
+## Troubleshooting
+
+### Common Issues
+
+#### Missing Metrics Folders
+
+```bash
+# Check if metrics folders exist
+ls -la zkevm-metrics-risc0-* zkevm-metrics-sp1-*
+
+# Run benchmarks if missing
+./scripts/run-gas-categorized-benchmarks.sh --zkvm risc0 --gas-category 1M
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --gas-category 1M
+```
+
+#### No Common Tests Found
+
+```bash
+# Check what tests exist in each folder
+ls zkevm-metrics-risc0-1M/*.json | wc -l
+ls zkevm-metrics-sp1-1M/*.json | wc -l
+
+# Verify test names match
+ls zkevm-metrics-risc0-1M/*.json | head -5
+ls zkevm-metrics-sp1-1M/*.json | head -5
+```
+
+#### Invalid JSON Files
+
+```bash
+# Validate JSON files
+find zkevm-metrics-risc0-1M -name "*.json" -exec python3 -m json.tool {} \; > /dev/null
+
+# Fix or remove corrupted files if found
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `Folder does not exist` | Check folder paths and ensure benchmarks have been run |
+| `No common tests found` | Ensure both zkVMs ran the same test suite |
+| `Error loading JSON` | Validate JSON files and remove corrupted ones |
+| `Permission denied` | Check write permissions for output directory |
+
+## Use Cases
+
+### Performance Tracking
+
+Track zkVM performance over time:
+
+```bash
+# Export current results
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder zkevm-metrics-risc0-1M \
+  --sp1-folder zkevm-metrics-sp1-1M \
+  --output "tracking/comparison-$(date +%Y-%m-%d).csv"
+
+# Compare with historical data
+# Use spreadsheet or pandas to analyze trends
+```
+
+### Optimization Analysis
+
+Identify optimization opportunities:
+
+```bash
+# Export baseline
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder baseline-risc0-1M \
+  --sp1-folder baseline-sp1-1M \
+  --output baseline.csv
+
+# Export after optimization
+python3 scripts/export_comparison_csv.py \
+  --risc0-folder optimized-risc0-1M \
+  --sp1-folder optimized-sp1-1M \
+  --output optimized.csv
+
+# Compare in spreadsheet to see improvements
+```
+
+### Cost Analysis
+
+Calculate infrastructure costs based on proving time and memory:
+
+```python
+import pandas as pd
+
+# Load comparison
+df = pd.read_csv('sp1_vs_risc0_comparison.csv')
+
+# Define costs (example: AWS pricing)
+COMPUTE_COST_PER_HOUR = 3.06  # GPU instance
+MEMORY_COST_PER_GB_HOUR = 0.42
+
+# Calculate costs per test
+df['risc0_compute_cost'] = (df['risc0_proving_time_s'] / 3600) * COMPUTE_COST_PER_HOUR
+df['sp1_compute_cost'] = (df['sp1_proving_time_s'] / 3600) * COMPUTE_COST_PER_HOUR
+
+df['risc0_memory_cost'] = df['risc0_peak_memory_gb'] * (df['risc0_proving_time_s'] / 3600) * MEMORY_COST_PER_GB_HOUR
+df['sp1_memory_cost'] = df['sp1_peak_memory_gb'] * (df['sp1_proving_time_s'] / 3600) * MEMORY_COST_PER_GB_HOUR
+
+df['risc0_total_cost'] = df['risc0_compute_cost'] + df['risc0_memory_cost']
+df['sp1_total_cost'] = df['sp1_compute_cost'] + df['sp1_memory_cost']
+
+df['cost_savings'] = df['risc0_total_cost'] - df['sp1_total_cost']
+
+# Export with cost analysis
+df.to_csv('comparison_with_costs.csv', index=False)
+
+print(f"Total cost savings with SP1: ${df['cost_savings'].sum():.2f}")
+```
+
+## Best Practices
+
+### Data Management
+
+1. **Organize by Date**: Include timestamps in output filenames
+   ```bash
+   --output "comparisons/sp1-vs-risc0-$(date +%Y-%m-%d).csv"
+   ```
+
+2. **Organize by Gas Category**: Keep comparisons organized
+   ```bash
+   --output "comparisons/1M/comparison.csv"
+   ```
+
+3. **Version Control**: Track CSV files for historical analysis
+   ```bash
+   git add benchmark-results/comparisons/*.csv
+   git commit -m "Add comparison results for YYYY-MM-DD"
+   ```
+
+### Analysis Tips
+
+1. **Filter Outliers**: Remove extreme values that might skew analysis
+2. **Group by Category**: Analyze performance by opcode category
+3. **Trend Analysis**: Compare results over multiple runs
+4. **Cost-Benefit**: Consider both speed and proof size in decisions
+
+## Related Tools
+
+### Comparison Scripts
+
+- **[compare_sp1_risc0.py](/scripts)**: Generate detailed markdown comparison report
+- **[compare_executions.py](/scripts)**: Compare execution metrics between runs
+- **[compare_provings.py](/scripts)**: Compare proving metrics between runs
+
+### Visualization Tools
+
+- **Excel/Google Sheets**: Create charts and pivot tables
+- **Python pandas**: Advanced data analysis and visualization
+- **R**: Statistical analysis and publication-quality plots
+- **Tableau/Power BI**: Interactive dashboards
+
+## Next Steps
+
+After exporting comparison data:
+
+1. **Analyze Results**: Open CSV in your preferred analysis tool
+2. **Generate Reports**: Create visualizations and summaries
+3. **Track Performance**: Monitor zkVM improvements over time
+4. **Make Decisions**: Choose optimal zkVM for your use case
+5. **Optimize Configuration**: Use insights to tune benchmark parameters
+
+## Related Documentation
+
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run benchmarks to generate metrics
+- [Markdown Tables](/markdown-tables) - Generate formatted tables from results
+- [Scripts](/scripts) - Overview of all available scripts
+- [Benchmark Results](/benchmark-results) - View organized benchmark results
+

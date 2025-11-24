@@ -1,0 +1,409 @@
+# Single File Benchmark
+
+This guide explains how to use the `run-single-file-benchmark.sh` script to run zkGas profiling on individual fixture files instead of entire directories. This is particularly useful for testing specific test cases, debugging individual fixtures, or running targeted benchmarks on specific opcodes or scenarios.
+
+## Overview
+
+The single file benchmark script allows you to run the ere-hosts benchmark on a single fixture file using the `--input-file` option. This provides a more targeted approach to profiling compared to running benchmarks on entire directories of fixtures.
+
+## Script: `run-single-file-benchmark.sh`
+
+### Basic Usage
+
+```bash
+# Run benchmark on a single fixture file with defaults
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json
+
+# Run with custom configuration
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm sp1 --action execute
+
+# Preview what would be executed (dry run)
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --dry-run
+```
+
+### Command Line Syntax
+
+```bash
+./scripts/run-single-file-benchmark.sh <FIXTURE_FILE> [OPTIONS]
+```
+
+### Required Arguments
+
+| Argument | Description |
+|----------|-------------|
+| `FIXTURE_FILE` | Path to the JSON fixture file to benchmark |
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--help`, `-h` | Show help message and usage examples | - |
+| `--dry-run` | Show what would be executed without actually running | false |
+| `--force-rerun` | Force rerun of benchmarks | true |
+| `--no-force-rerun` | Disable force rerun | false |
+| `--action <ACTION>` | Benchmark action to run | prove |
+| `--resource <RESOURCE>` | Resource type to use | gpu |
+| `--guest <GUEST>` | Guest program type | stateless-executor |
+| `--zkvm <ZKVM>` | zkVM implementation to use | risc0 |
+| `--execution-client <CLIENT>` | Execution client to use | reth |
+| `--output-dir <DIR>` | Output directory for metrics | ./zkevm-metrics-single |
+| `--memory-tracking` | Enable memory tracking | false |
+
+## Configuration Options
+
+### Benchmark Actions
+
+| Action | Description | Use Case |
+|--------|-------------|----------|
+| `prove` | Generate zero-knowledge proof | Standard benchmarking, performance analysis |
+| `execute` | Execute without proving | Quick testing, execution-only analysis |
+
+### Resource Types
+
+| Resource | Description | Requirements |
+|----------|-------------|--------------|
+| `gpu` | Use GPU acceleration | NVIDIA GPU with CUDA support |
+| `cpu` | Use CPU only | Multi-core CPU with sufficient RAM |
+
+### Guest Programs
+
+| Guest | Description | Use Case |
+|-------|-------------|----------|
+| `stateless-executor` | Stateless execution verification | Standard opcode profiling |
+| `stateless-validator` | Stateless validation | Validation-specific testing |
+| `empty-program` | Empty program execution | Baseline performance testing |
+| `block-encoding-length` | Block encoding length analysis | Block processing analysis |
+
+### zkVM Implementations
+
+| zkVM | Description | Status |
+|------|-------------|--------|
+| `risc0` | RISC0 zkVM implementation | ✅ Default |
+| `sp1` | SP1 zkVM implementation | ✅ Supported |
+| `openvm` | OpenVM zkVM implementation | ✅ Supported |
+| `pico` | Pico zkVM implementation | ✅ Supported |
+| `zisk` | Zisk zkVM implementation | ✅ Supported |
+
+### Execution Clients
+
+| Client | Description | Status |
+|--------|-------------|--------|
+| `reth` | Reth execution client | ✅ Default |
+| `ethrex` | Ethrex execution client | ✅ Supported |
+
+## Usage Examples
+
+### Basic Benchmark Execution
+
+#### Run with Default Settings
+```bash
+# Run benchmark on a single fixture file with all defaults
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json
+```
+
+#### Run with Different zkVM
+```bash
+# Run with SP1 zkVM
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm sp1
+
+# Run with OpenVM zkVM
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm openvm
+```
+
+#### Run with Different Execution Client
+```bash
+# Run with Ethrex execution client
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --execution-client ethrex
+
+# Run with Reth execution client (default)
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --execution-client reth
+```
+
+### Advanced Configuration
+
+#### Custom Action and Resource
+```bash
+# Run with CPU resource and execute action
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --action execute --resource cpu
+
+# Run with GPU resource and prove action (default)
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --action prove --resource gpu
+```
+
+#### Memory Tracking
+```bash
+# Enable memory tracking for detailed memory analysis
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --memory-tracking
+
+# Run with memory tracking and specific zkVM
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --memory-tracking --zkvm sp1
+```
+
+#### Custom Output Directory
+```bash
+# Run with custom output directory
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --output-dir ./my-results
+
+# Run with custom output directory and specific configuration
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --output-dir ./sp1-results --zkvm sp1
+```
+
+### Preview and Validation
+
+#### Dry Run Mode
+```bash
+# Preview what would be executed
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --dry-run
+
+# Preview with specific configuration
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --dry-run --zkvm sp1 --action execute
+
+# Preview with memory tracking enabled
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --dry-run --memory-tracking --zkvm sp1
+```
+
+#### Force Rerun Control
+```bash
+# Force rerun (default behavior)
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --force-rerun
+
+# Disable force rerun (skip if results exist)
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --no-force-rerun
+```
+
+## Output Structure
+
+The script generates metrics in the specified output directory:
+
+```
+zkevm-metrics-single/          # Default output directory
+├── metric_file_1.json         # Individual metric files
+├── metric_file_2.json
+└── ...
+```
+
+### Custom Output Directory Example
+```bash
+# With custom output directory
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --output-dir ./my-results
+
+# Results in:
+my-results/
+├── metric_file_1.json
+└── ...
+```
+
+## Workflow Details
+
+### 1. Pre-flight Checks
+The script performs several validation steps:
+- Verifies `cargo` is available
+- Confirms the script is run from the project root directory
+- Validates the project structure (presence of `Cargo.toml` and `crates/ere-hosts`)
+- Validates the fixture file exists and is valid JSON
+
+### 2. Fixture File Validation
+The script validates the input fixture file:
+- Checks if the file exists
+- Warns if the file doesn't have a `.json` extension
+- Attempts to validate JSON syntax using `python3 -m json.tool`
+
+### 3. Project Build
+The script automatically builds the `ere-hosts` binary with the specified zkVM feature:
+```bash
+cargo build --release --bin ere-hosts
+```
+
+### 4. Benchmark Execution
+The script runs the benchmark with the specified configuration:
+- Creates the output directory if it doesn't exist
+- Executes the benchmark using the `--input-file` option
+- Collects execution and proving metrics
+- Saves results in JSON format
+
+### 5. Summary Report
+After completion, the script provides:
+- Summary of benchmark results
+- Count of generated metric files
+- List of generated files
+- Location of all metrics
+
+## Memory Tracking
+
+When memory tracking is enabled (`--memory-tracking`), the benchmark system provides detailed memory analysis:
+
+### Memory Metrics Collected
+- **Peak Memory Usage**: Maximum memory consumption during execution
+- **Memory Allocation Patterns**: Detailed tracking of memory allocations and deallocations
+- **Memory Efficiency**: Analysis of memory utilization vs. waste
+- **Memory Growth Trends**: How memory usage scales with different operations
+- **Memory Hotspots**: Identification of memory-intensive operations
+
+### Use Cases for Memory Tracking
+- **Performance Optimization**: Identify memory bottlenecks in zkVM implementations
+- **Resource Planning**: Determine optimal memory requirements for specific fixtures
+- **Memory Leak Detection**: Monitor for potential memory leaks during execution
+- **Comparative Analysis**: Compare memory efficiency between different zkVM implementations
+
+### Performance Impact
+- **Overhead**: Memory tracking adds approximately 5-10% execution time overhead
+- **Storage**: Generates additional JSON files with memory metrics
+- **Recommended**: Enable for detailed analysis, disable for maximum performance
+
+## Integration with Workflow
+
+### Finding Fixture Files
+
+#### From Gas-Categorized Fixtures
+```bash
+# Find fixture files from gas-categorized directories
+find zkevm-fixtures-input-10M -name "*.json" | head -5
+
+# Run benchmark on a specific fixture
+./scripts/run-single-file-benchmark.sh zkevm-fixtures-input-10M/block_001.json
+```
+
+#### From Downloaded Fixtures
+```bash
+# Find fixture files from downloaded fixtures
+find zkevm-fixtures -name "*.json" | head -5
+
+# Run benchmark on a specific fixture
+./scripts/run-single-file-benchmark.sh zkevm-fixtures/blockchain_tests/GeneralStateTests/block_001.json
+```
+
+### Combining with Analysis
+
+#### Generate Analysis from Single File Results
+```bash
+# Run single file benchmark
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --output-dir ./single-results
+
+# Generate markdown table from results
+python3 scripts/generate_markdown_tables.py ./single-results --output single-results.md
+```
+
+#### Compare Single File Results
+```bash
+# Run with different zkVM implementations
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm risc0 --output-dir ./risc0-results
+./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json --zkvm sp1 --output-dir ./sp1-results
+
+# Compare results
+python3 scripts/generate_markdown_tables.py --compare ./risc0-results ./sp1-results
+```
+
+## Troubleshooting
+
+### Common Issues
+
+#### Missing Fixture File
+```bash
+# Check if fixture file exists
+ls -la ./fixtures/block_12345.json
+
+# Find available fixture files
+find . -name "*.json" -type f | head -10
+```
+
+#### Build Failures
+```bash
+# Ensure you're in the project root directory
+pwd  # Should show: .../zkevm-benchmark-workload
+
+# Check if Cargo.toml exists
+ls Cargo.toml
+
+# Verify ere-hosts crate exists
+ls crates/ere-hosts/
+```
+
+#### Permission Issues
+```bash
+# Make the script executable
+chmod +x scripts/run-single-file-benchmark.sh
+```
+
+#### Invalid JSON Files
+```bash
+# Validate JSON syntax
+python3 -m json.tool ./fixtures/block_12345.json
+
+# Check file encoding
+file ./fixtures/block_12345.json
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `cargo is not installed` | Install Rust toolchain via `rustup` |
+| `Cargo.toml not found` | Run script from project root directory |
+| `ere-hosts crate not found` | Ensure project is properly cloned and built |
+| `Fixture file does not exist` | Check file path and ensure file exists |
+| `Invalid JSON` | Validate JSON syntax using `python3 -m json.tool` |
+| `Multiple fixture files specified` | Provide only one fixture file path |
+
+## Performance Considerations
+
+### Execution Time Estimates
+
+| Configuration | Estimated Time |
+|---------------|----------------|
+| Single file with GPU | 1-5 minutes |
+| Single file with CPU | 5-15 minutes |
+| Single file with memory tracking | +5-10% overhead |
+
+*Times are estimates and may vary based on fixture complexity and hardware*
+
+### Resource Requirements
+
+#### GPU Resources
+- **Recommended**: NVIDIA GPU with CUDA support
+- **Memory**: At least 4GB VRAM for most fixtures
+- **Performance**: Significantly faster for proving operations
+
+#### CPU Resources
+- **Recommended**: Multi-core CPU with at least 8GB RAM
+- **Performance**: Slower but more accessible for development
+
+## Best Practices
+
+### Fixture Selection
+1. **Start Simple**: Begin with simple fixtures to validate setup
+2. **Use Dry Run**: Always preview commands with `--dry-run` before execution
+3. **Validate Files**: Ensure fixture files are valid JSON before running
+4. **Document Results**: Use descriptive output directory names
+
+### Performance Optimization
+1. **Use GPU**: GPU resources provide significant speedup for proving operations
+2. **Memory Tracking**: Enable only when detailed memory analysis is needed
+3. **Output Organization**: Use descriptive output directory names for different runs
+4. **Resource Management**: Ensure sufficient disk space for results
+
+### Result Management
+1. **Organize Results**: Use descriptive directory names for different benchmark runs
+2. **Backup Important Results**: Archive significant benchmark results
+3. **Version Control**: Consider versioning benchmark configurations
+4. **Documentation**: Document the purpose and configuration of each benchmark run
+
+## Next Steps
+
+After running single file benchmarks, you can:
+
+1. **Analyze Results**: Review the generated JSON metrics for detailed insights
+2. **Generate Reports**: Create markdown tables from single file results
+   ```bash
+   python3 scripts/generate_markdown_tables.py ./zkevm-metrics-single --output single-results.md
+   ```
+
+3. **Compare Implementations**: Run the same fixture with different zkVM implementations
+4. **Scale Up**: Use insights from single file benchmarks to optimize larger benchmark runs
+5. **Integration**: Incorporate single file benchmarking into your development workflow
+
+## Related Documentation
+
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run benchmarks on entire directories of fixtures
+- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Generate test fixtures for benchmarking
+- [Markdown Tables](/markdown-tables) - Generate analysis reports from benchmark results
+- [Getting Started](/getting-started) - Overview of the zkGas profiling framework

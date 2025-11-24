@@ -1,0 +1,192 @@
+# Download Fixtures
+
+This guide explains how to download and extract execution spec test fixtures for zkEVM benchmarking using the automated download script.
+
+## Overview
+
+The `download-and-extract-fixtures.sh` script automatically downloads execution spec test fixtures from the [ethereum/execution-spec-tests](https://github.com/ethereum/execution-spec-tests) repository. These fixtures are essential for running zkEVM benchmarks and profiling different opcodes across various gas categories.
+
+
+## Recommended Fixtures
+
+The recommended fixture to download for zkGas profiling is `zkevm@v0.1.0`.
+
+```bash
+./scripts/download-and-extract-fixtures.sh zkevm@v0.1.0
+```
+
+## Quick Start
+
+The simplest way to download fixtures is to use the default settings:
+
+```bash
+./scripts/download-and-extract-fixtures.sh
+```
+
+This will:
+- Find the latest release with the `benchmark@` prefix
+- Download the appropriate fixture archive
+- Extract it to `./zkevm-fixtures/` directory
+
+## Script Usage
+
+### Basic Syntax
+
+```bash
+./scripts/download-and-extract-fixtures.sh [TAG|latest] [DEST_DIR]
+```
+
+### Parameters
+
+- **TAG** (optional): Specific release tag to download. Can be:
+  - `latest` - Explicitly fetch the latest release
+  - `benchmark@v0.1.0` - Download a specific benchmark release
+  - `zkevm@v0.1.0` - Download a specific zkEVM release
+  - Any other valid release tag
+- **DEST_DIR** (optional): Destination directory for extraction (default: `./zkevm-fixtures`)
+
+## Examples
+
+### Download Latest Release
+
+```bash
+# Download latest benchmark release to default directory
+./scripts/download-and-extract-fixtures.sh
+
+# Explicitly download latest release
+./scripts/download-and-extract-fixtures.sh latest
+```
+
+### Download to Custom Directory
+
+```bash
+# Download latest release to a custom directory
+./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
+
+# Download to a specific path
+./scripts/download-and-extract-fixtures.sh latest ./my-test-fixtures
+```
+
+### Download Specific Release
+
+```bash
+# Download a specific benchmark release
+./scripts/download-and-extract-fixtures.sh benchmark@v0.1.0
+
+# Download a specific zkEVM release
+./scripts/download-and-extract-fixtures.sh zkevm@v0.1.0
+
+# Download to custom directory
+./scripts/download-and-extract-fixtures.sh benchmark@v0.1.0 /tmp/fixtures
+```
+
+## Asset Name Resolution
+
+The script automatically determines the correct asset name based on the release tag:
+
+| Tag Pattern | Asset Name |
+|-------------|------------|
+| `v4.5.0` (version tags) | `fixtures_stable.tar.gz` |
+| `benchmark@v0.1.0` | `fixtures_benchmark.tar.gz` |
+| `zkevm@v0.1.0` | `fixtures_zkevm.tar.gz` |
+| `verkle@v0.1.0` | `fixtures_verkle.tar.gz` |
+| Other tags | `fixtures_benchmark.tar.gz` (fallback) |
+
+## Authentication
+
+The script supports GitHub token authentication for higher rate limits:
+
+```bash
+# Set GitHub token for authenticated requests
+export GITHUB_TOKEN=your_github_token_here
+./scripts/download-and-extract-fixtures.sh
+```
+
+When authenticated, the script will display:
+```
+🔑  Using GitHub token for API authentication
+```
+
+## Download Strategies
+
+The script uses multiple download strategies with automatic fallback:
+
+1. **HTTP/1.1 with retries** - Primary method with 3 retries
+2. **HTTP/2 with extended options** - Fallback if HTTP/1.1 fails
+3. **wget fallback** - Final fallback if curl fails
+
+## Error Handling
+
+The script includes comprehensive error handling:
+
+- **Missing releases**: Fails gracefully if no releases with the specified prefix are found
+- **Missing assets**: Validates that the required asset exists in the release
+- **Download failures**: Tries multiple strategies before failing
+- **Network issues**: Includes retry logic with exponential backoff
+
+## Directory Structure
+
+After successful extraction, the fixtures will be organized in the destination directory:
+
+```
+zkevm-fixtures/
+├── blockchain_tests/           # Main test fixtures
+│   ├── GeneralStateTests/     # General state tests
+│   ├── LegacyTests/           # Legacy test cases
+│   └── ...                    # Other test categories
+└── ...                        # Additional fixture data
+```
+
+## Integration with Workflow
+
+This script is typically used as the first step in the zkEVM profiling workflow:
+
+```bash
+# 1. Download fixtures
+./scripts/download-and-extract-fixtures.sh
+
+# 2. Generate gas-categorized fixtures
+./scripts/generate-gas-categorized-fixtures.sh
+
+# 3. Run benchmarks
+./scripts/run-gas-categorized-benchmarks.sh
+
+# 4. Generate results
+./scripts/generate_results.sh
+```
+
+## Troubleshooting
+
+### Common Issues
+
+**Script fails with "Could not find any releases"**
+- Check your internet connection
+- Verify the repository has releases with the expected prefix
+- Try using a specific tag instead of relying on automatic detection
+
+**Download fails with network errors**
+- The script will automatically retry with different strategies
+- Check if you're behind a corporate firewall
+- Consider using a GitHub token for authenticated requests
+
+**Extraction fails**
+- Ensure you have sufficient disk space
+- Check that the downloaded archive is not corrupted
+- Verify you have write permissions to the destination directory
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check the script output for specific error messages
+2. Verify your network connection and GitHub access
+3. Try downloading a specific release tag instead of using automatic detection
+4. Ensure you have the required dependencies (`curl`, `jq`, `tar`)
+
+## Next Steps
+
+After downloading fixtures, you can proceed with:
+
+- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Generate test fixtures for specific gas categories
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run opcode profiling across different gas limits
+- [Getting Started](/getting-started) - Return to the main getting started guide

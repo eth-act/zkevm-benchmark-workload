@@ -1,0 +1,137 @@
+# Simplified Test File Naming Scheme
+
+This document explains the simplified naming scheme for test files in the zkEVM benchmark workload project.
+
+## Overview
+
+The original test file names follow a complex pattern that includes redundant information:
+
+```
+test_file.py::test_function[fork_Prague-benchmark-gas-value_1M-blockchain_test-{additional_params}].json
+```
+
+The simplified naming scheme extracts only the meaningful additional parameters:
+
+```
+{category}_{additional_params}.json
+```
+
+## Naming Rules
+
+### Category Prefixes
+
+| Original Test File | Category Prefix |
+|-------------------|-----------------|
+| `test_worst_blocks.py` | `blocks` |
+| `test_worst_bytecode.py` | `bytecode` |
+| `test_worst_compute.py` | `compute` |
+| `test_worst_memory.py` | `memory` |
+| `test_worst_opcode.py` | `opcode` |
+| `test_worst_stateful_opcodes.py` | `stateful` |
+
+### Parameter Simplifications
+
+#### Common Parameters (Removed)
+- `fork_Prague` - All tests use Prague fork
+- `benchmark-gas-value_1M` - All tests use 1M gas limit
+- `blockchain_test` - Test source type
+- `blockchain_test_from_state_test` - Test source type
+
+#### Memory Parameters
+- `big_memory_expansion_True` → `big_mem`
+- `big_memory_expansion_False` → `small_mem`
+- `offset_initialized_True` → `init_offset`
+- `offset_initialized_False` → `uninit_offset`
+- `offset_N` → `off_N`
+
+#### Data Parameters
+- `non_zero_data_True` → `non_zero`
+- `non_zero_data_False` → `zero_data`
+- `fixed_offset_True` → `fixed`
+- `fixed_offset_False` → `dynamic`
+- `zeros_topic` → `zero_topic`
+- `non_zero_topic` → `non_zero_topic`
+
+#### Value Parameters
+- `value_bearing_True` → `with_value`
+- `value_bearing_False` → `no_value`
+- `absent_target_True` → `absent_target`
+- `absent_target_False` → `present_target`
+
+#### Size Parameters
+- `0 bytes` → `0bytes`
+- `100 bytes` → `100bytes`
+- `1 MiB` → `1MiB`
+- `0.25x max code size` → `0.25x_max_code`
+- `max code size` → `max_code`
+
+#### Opcode Parameters
+- `opcode_OPCODE_NAME` → `OPCODE_NAME`
+
+#### Case Parameters
+- `case_id_CASE_NAME` → `CASE_NAME`
+
+## Examples
+
+### Original vs Simplified Names
+
+| Original Name | Simplified Name |
+|---------------|-----------------|
+| `test_worst_compute.py::test_worst_memory_access[fork_Prague-benchmark-gas-value_1M-blockchain_test_from_state_test-big_memory_expansion_True-offset_initialized_False-offset_0-opcode_MSTORE8].json` | `compute_big_mem_uninit_offset_off_0_MSTORE8.json` |
+| `test_worst_compute.py::test_worst_memory_access[fork_Prague-benchmark-gas-value_1M-blockchain_test_from_state_test-big_memory_expansion_False-offset_initialized_False-offset_31-opcode_MSTORE].json` | `compute_small_mem_uninit_offset_off_31_MSTORE.json` |
+| `test_worst_stateful_opcodes.py::test_worst_selfdestruct_created[fork_Prague-benchmark-gas-value_1M-blockchain_test_from_state_test-value_bearing_False].json` | `stateful_no_value.json` |
+| `test_worst_opcode.py::test_worst_log_opcodes[fork_Prague-benchmark-gas-value_1M-blockchain_test_from_state_test-fixed_offset_False-zeros_topic-1_MiB_non_zero_data-log3].json` | `opcode_dynamic_zero_topic_1_MiB_non_zero_data_log3.json` |
+
+## Usage
+
+### Using the Simplification Script
+
+The `simplify_test_names.py` script can be used to rename files:
+
+```bash
+# Show what would be renamed (dry run)
+python scripts/simplify_test_names.py /path/to/test/files --dry-run
+
+# Actually perform the renames
+python scripts/simplify_test_names.py /path/to/test/files --execute
+
+# Create a shell script for renaming
+python scripts/simplify_test_names.py /path/to/test/files --create-script
+```
+
+### Generated Shell Script
+
+The script can generate a shell script (`rename_tests.sh`) that contains the actual `mv` commands:
+
+```bash
+./rename_tests.sh
+```
+
+## Benefits
+
+1. **Readability**: Much shorter and more readable file names
+2. **Focus**: Only includes the parameters that actually vary between tests
+3. **Consistency**: Standardized naming across all test categories
+4. **Maintainability**: Easier to understand what each test does at a glance
+5. **File System Friendly**: Shorter names work better with file system limitations
+
+## Implementation Notes
+
+- The script handles parameter parsing carefully to avoid splitting parameters that contain hyphens
+- Common parameters that are the same across all tests are automatically filtered out
+- The script preserves the original files and only shows proposed renames in dry-run mode
+- Generated shell scripts can be reviewed before execution
+
+## Integration with Results Generation
+
+The simplified naming scheme is integrated with the results generation scripts:
+
+```bash
+# Use simplified names in markdown tables
+python3 scripts/generate_markdown_tables.py --name-format simplified zkevm-metrics-1M
+
+# Use display names (which incorporate simplified naming)
+python3 scripts/generate_markdown_tables.py --name-format display zkevm-metrics-1M
+```
+
+This makes the generated reports much more readable and easier to understand.

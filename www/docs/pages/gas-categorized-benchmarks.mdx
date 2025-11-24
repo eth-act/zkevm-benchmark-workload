@@ -1,0 +1,362 @@
+# Gas Categorized Benchmarks
+
+This guide explains how to run gas-categorized profiling using the zkGas profiling framework. Gas-categorized profiling executes resource analysis tests across different gas limit categories, providing comprehensive analysis of the resources needed for proving different OPCODEs across various computational workloads.
+
+## Overview
+
+The gas-categorized profiling system runs resource analysis tests on pre-generated fixture files organized by gas categories. It supports multiple zkVM implementations, execution clients, and profiling actions, allowing for comprehensive comparison of opcode resource requirements across different zk environments.
+
+## Script: `run-gas-categorized-benchmarks.sh`
+
+### Basic Usage
+
+```bash
+# Run all gas categories with default settings
+./scripts/run-gas-categorized-benchmarks.sh
+
+# Run with specific zkVM and execution client
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --execution-client reth
+
+# Run on a single gas category
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M
+```
+
+### Command Line Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--help`, `-h` | Show help message and usage examples | - |
+| `--dry-run` | Show what would be executed without actually running | false |
+| `--force-rerun` | Force rerun of profiling | true |
+| `--no-force-rerun` | Disable force rerun | false |
+| `--action <ACTION>` | Profiling action to run (prove, execute) | prove |
+| `--resource <RESOURCE>` | Resource type to use (gpu, cpu) | gpu |
+| `--guest <GUEST>` | Guest program type | stateless-executor |
+| `--zkvm <ZKVM>` | zkVM implementation to use | risc0 |
+| `--execution-client <CLIENT>` | Execution client to use | reth |
+| `--input-dir <DIR>` | Base input directory | ./zkevm-fixtures-input |
+| `--gas-category <CATEGORY>` | Run on specific gas category only | all |
+| `--memory-tracking <ENABLED>` | Enable memory tracking for detailed memory analysis | false |
+
+### Supported zkVM Implementations
+
+| zkVM | Description | Status |
+|------|-------------|--------|
+| `risc0` | RISC0 zkVM implementation | ✅ Default |
+| `sp1` | SP1 zkVM implementation | ✅ Supported |
+| `openvm` | OpenVM zkVM implementation | ✅ Supported |
+| `pico` | Pico zkVM implementation | ✅ Supported |
+| `zisk` | Zisk zkVM implementation | ✅ Supported |
+
+### Supported Execution Clients
+
+| Client | Description | Status |
+|--------|-------------|--------|
+| `reth` | Reth execution client | ✅ Default |
+| `ethrex` | Ethrex execution client | ✅ Supported |
+
+### Supported Gas Categories
+
+| Category | Gas Limit | Description |
+|----------|-----------|-------------|
+| `1M` | 1,000,000 | Light computational workload |
+| `10M` | 10,000,000 | Medium computational workload |
+| `30M` | 30,000,000 | Heavy computational workload |
+| `45M` | 45,000,000 | Very heavy computational workload |
+| `60M` | 60,000,000 | Maximum computational workload |
+| `100M` | 100,000,000 | Extreme computational workload |
+| `500M` | 500,000,000 | Ultra-extreme computational workload |
+
+## Usage Examples
+
+### Basic Benchmark Execution
+
+#### Run All Gas Categories
+```bash
+# Run all gas categories with default settings (RISC0, Reth, GPU)
+./scripts/run-gas-categorized-benchmarks.sh
+```
+
+#### Run with Specific zkVM
+```bash
+# Run with SP1 zkVM
+./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1
+
+# Run with OpenVM zkVM
+./scripts/run-gas-categorized-benchmarks.sh --zkvm openvm
+```
+
+#### Run with Different Execution Client
+```bash
+# Run with Ethrex execution client
+./scripts/run-gas-categorized-benchmarks.sh --execution-client ethrex
+
+# Run with Reth execution client (default)
+./scripts/run-gas-categorized-benchmarks.sh --execution-client reth
+```
+
+### Advanced Configuration
+
+#### Custom Resource and Action
+```bash
+# Run with CPU resource and execute action
+./scripts/run-gas-categorized-benchmarks.sh --action execute --resource cpu
+
+# Run with GPU resource and prove action (default)
+./scripts/run-gas-categorized-benchmarks.sh --action prove --resource gpu
+```
+
+#### Memory Tracking
+```bash
+# Enable memory tracking for detailed memory analysis
+./scripts/run-gas-categorized-benchmarks.sh --memory-tracking true
+
+# Run with memory tracking on specific gas category
+./scripts/run-gas-categorized-benchmarks.sh --memory-tracking true --gas-category 10M
+
+# Run with memory tracking and specific zkVM
+./scripts/run-gas-categorized-benchmarks.sh --memory-tracking true --zkvm sp1
+```
+
+#### Single Gas Category
+```bash
+# Run only on 10M gas category
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 10M
+
+# Run only on 100M gas category with SP1
+./scripts/run-gas-categorized-benchmarks.sh --gas-category 100M --zkvm sp1
+```
+
+#### Custom Input Directory
+```bash
+# Run with custom input directory
+./scripts/run-gas-categorized-benchmarks.sh --input-dir ./my-custom-fixtures
+```
+
+### Preview and Validation
+
+#### Dry Run Mode
+```bash
+# Preview what would be executed
+./scripts/run-gas-categorized-benchmarks.sh --dry-run
+
+# Preview with specific configuration
+./scripts/run-gas-categorized-benchmarks.sh --dry-run --zkvm sp1 --gas-category 10M
+
+# Preview with memory tracking enabled
+./scripts/run-gas-categorized-benchmarks.sh --dry-run --memory-tracking true --zkvm sp1
+```
+
+## Output Structure
+
+The benchmark script generates the following output structure:
+
+```
+zkevm-metrics-risc0-1M/      # RISC0 results for 1M gas
+zkevm-metrics-risc0-10M/     # RISC0 results for 10M gas
+zkevm-metrics-sp1-1M/        # SP1 results for 1M gas
+zkevm-metrics-sp1-10M/       # SP1 results for 10M gas
+...
+```
+
+Each metrics directory contains:
+- JSON files with detailed benchmark results
+- Execution metrics (cycles, duration, region breakdowns)
+- Proving metrics (proof size, proving time, memory usage)
+- Memory tracking data (when enabled): detailed memory allocation patterns, peak memory usage, memory efficiency metrics
+- Metadata about the benchmark run
+
+## Workflow Details
+
+### 1. Pre-flight Checks
+The script performs several validation steps:
+- Verifies `cargo` is available
+- Confirms the script is run from the project root directory
+- Validates the project structure (presence of `Cargo.toml` and `crates/ere-hosts`)
+- Validates gas category if specified
+
+### 2. Input Fixture Validation
+The script checks for required input fixture directories:
+- Scans for directories matching the pattern `{BASE_INPUT_DIR}-{GAS_VALUE}`
+- Warns about missing fixture directories
+- Continues with available directories
+
+### 3. Project Build
+The script automatically builds the `ere-hosts` binary with the specified zkVM feature:
+```bash
+cargo build --release --bin ere-hosts
+```
+
+### 4. Benchmark Execution
+For each gas category, the script:
+- Creates the metrics output directory
+- Runs the benchmark with the specified configuration
+- Collects execution and proving metrics
+- Saves results in JSON format
+
+### 5. Summary Report
+After completion, the script provides:
+- Summary of benchmark results for each gas category
+- File counts for each metrics directory
+- Location of all generated metrics
+
+## Performance Considerations
+
+### Resource Requirements
+
+#### GPU Resources
+- **Recommended**: NVIDIA GPU with CUDA support
+- **Memory**: At least 8GB VRAM for larger gas categories
+- **Performance**: Significantly faster for proving operations
+
+#### CPU Resources
+- **Recommended**: Multi-core CPU with at least 16GB RAM
+- **Performance**: Slower but more accessible for development
+
+### Memory Tracking
+
+When memory tracking is enabled (`--memory-tracking true`), the benchmark system provides detailed memory analysis:
+
+#### Memory Metrics Collected
+- **Peak Memory Usage**: Maximum memory consumption during execution
+- **Memory Allocation Patterns**: Detailed tracking of memory allocations and deallocations
+- **Memory Efficiency**: Analysis of memory utilization vs. waste
+- **Memory Growth Trends**: How memory usage scales with gas categories
+- **Memory Hotspots**: Identification of memory-intensive operations
+
+#### Use Cases for Memory Tracking
+- **Performance Optimization**: Identify memory bottlenecks in zkVM implementations
+- **Resource Planning**: Determine optimal memory requirements for different gas categories
+- **Memory Leak Detection**: Monitor for potential memory leaks during long-running benchmarks
+- **Comparative Analysis**: Compare memory efficiency between different zkVM implementations
+
+#### Performance Impact
+- **Overhead**: Memory tracking adds approximately 5-10% execution time overhead
+- **Storage**: Generates additional JSON files with memory metrics
+- **Recommended**: Enable for detailed analysis, disable for maximum performance
+
+### Execution Time Estimates
+
+| Gas Category | Estimated Time (GPU) | Estimated Time (CPU) |
+|--------------|---------------------|---------------------|
+| 1M | 5-15 minutes | 30-60 minutes |
+| 10M | 15-30 minutes | 1-2 hours |
+| 30M | 30-60 minutes | 2-4 hours |
+| 45M | 45-90 minutes | 3-6 hours |
+| 60M | 60-120 minutes | 4-8 hours |
+| 100M | 90-180 minutes | 6-12 hours |
+| 500M | 300-600 minutes | 20-40 hours |
+
+*Times are estimates and may vary based on hardware and zkVM implementation*
+
+## Troubleshooting
+
+### Common Issues
+
+#### Missing Input Fixtures
+```bash
+# Check if fixture directories exist
+ls -la zkevm-fixtures-input-*
+
+# Generate fixtures if missing
+./scripts/generate-gas-categorized-fixtures.sh
+```
+
+#### Build Failures
+```bash
+# Ensure you're in the project root directory
+pwd  # Should show: .../zkevm-benchmark-workload
+
+# Check if Cargo.toml exists
+ls Cargo.toml
+
+# Verify ere-hosts crate exists
+ls crates/ere-hosts/
+```
+
+#### Permission Issues
+```bash
+# Make the script executable
+chmod +x scripts/run-gas-categorized-benchmarks.sh
+```
+
+#### Resource Issues
+```bash
+# Check available disk space
+df -h
+
+# Check GPU availability (if using GPU)
+nvidia-smi
+
+# Check system memory
+free -h
+```
+
+### Error Messages
+
+| Error | Solution |
+|-------|----------|
+| `cargo is not installed` | Install Rust toolchain via `rustup` |
+| `Cargo.toml not found` | Run script from project root directory |
+| `ere-hosts crate not found` | Ensure project is properly cloned and built |
+| `Invalid gas category` | Use valid gas categories: 1M, 10M, 30M, 45M, 60M, 100M, 500M |
+| `Input directory not found` | Generate fixtures first or check input directory path |
+
+## Integration with Analysis
+
+The generated benchmark results are designed to work with the analysis system:
+
+1. **Markdown Tables**: Generate formatted tables from results
+   ```bash
+   ./scripts/generate_results.sh --compare --statistics
+   ```
+
+2. **Performance Comparison**: Compare results between different runs
+   ```bash
+   python3 scripts/compare_executions.py baseline-folder optimized-folder
+   python3 scripts/compare_provings.py baseline-folder optimized-folder
+   ```
+
+3. **Statistical Analysis**: Include statistical analysis in reports
+   ```bash
+   ./scripts/generate_results.sh --statistics --output detailed-results.md
+   ```
+
+## Best Practices
+
+### Benchmark Execution
+
+1. **Start Small**: Begin with smaller gas categories (1M, 10M) to validate setup
+2. **Use Dry Run**: Always preview commands with `--dry-run` before execution
+3. **Monitor Resources**: Keep an eye on disk space and memory usage
+4. **Document Configuration**: Record the exact command used for reproducibility
+
+### Performance Optimization
+
+1. **Use GPU**: GPU resources provide significant speedup for proving operations
+2. **Parallel Execution**: Run different zkVM implementations in parallel
+3. **Resource Management**: Ensure sufficient disk space for results
+4. **Network Considerations**: Some zkVM implementations may require network access
+
+### Result Management
+
+1. **Organize Results**: Use descriptive directory names for different benchmark runs
+2. **Backup Important Results**: Archive significant benchmark results
+3. **Version Control**: Consider versioning benchmark configurations
+4. **Documentation**: Document the purpose and configuration of each benchmark run
+
+## Next Steps
+
+After running gas-categorized benchmarks, you can:
+
+1. **Generate Analysis Reports**: Create markdown tables and statistical analysis
+   ```bash
+   ./scripts/generate_results.sh --compare --statistics
+   ```
+
+2. **Compare Performance**: Analyze performance differences between zkVM implementations
+   ```bash
+   python3 scripts/compare_executions.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
+   ```
+
+3. **Optimize Configuration**: Use results to optimize benchmark parameters for your use case
