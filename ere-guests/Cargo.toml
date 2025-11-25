@@ -128,7 +128,7 @@ guest-libs = { path = "libs", default-features = false }
 reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
 reth-guest-io = { path = "stateless-validator/reth/io", default-features = false }
 block-encoding-length-io = { path = "block-encoding-length/io", default-features = false }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.14", default-features = false }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "17941c7ddbbba336ba3e22eff7ed05174323a124", default-features = false }
 
 sp1-zkvm = "5.2.2"
 pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }

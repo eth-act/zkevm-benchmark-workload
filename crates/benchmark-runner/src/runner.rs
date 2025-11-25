@@ -1,7 +1,7 @@
 //! Runner for benchmark tests
 
 use anyhow::{anyhow, bail, Context, Result};
-use ere_dockerized::{EreDockerizedCompiler, EreDockerizedzkVM, ErezkVM};
+use ere_dockerized::{zkVMKind, DockerizedCompiler, DockerizedzkVM};
 use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
@@ -40,7 +40,7 @@ pub enum Action {
 
 /// Executes benchmarks for a given guest program type and zkVM
 pub fn run_benchmark<M, OV>(
-    ere_zkvm: &EreDockerizedzkVM,
+    ere_zkvm: &DockerizedzkVM,
     config: &RunConfig,
     inputs: Vec<GuestIO<M, OV>>,
 ) -> Result<()>
@@ -64,7 +64,7 @@ where
 
 /// Processes a single input through the zkVM
 fn process_input<M, OV>(
-    zkvm: &EreDockerizedzkVM,
+    zkvm: &DockerizedzkVM,
     io: &GuestIO<M, OV>,
     config: &RunConfig,
 ) -> Result<()>
@@ -99,7 +99,7 @@ where
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&io.input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                    verify_public_output(&io.name, zkvm.zkvm_kind(), &public_values, &io.output)
                         .context("Failed to verify public output from execution")?;
 
                     ExecutionMetrics::Success {
@@ -123,12 +123,17 @@ where
             }));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm(), &public_values, &io.output)
+                    verify_public_output(&io.name, zkvm.zkvm_kind(), &public_values, &io.output)
                         .context("Failed to verify public output from proof")?;
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
-                    verify_public_output(&io.name, zkvm.zkvm(), &verif_public_values, &io.output)
-                        .context("Failed to verify public output from proof verification")?;
+                    verify_public_output(
+                        &io.name,
+                        zkvm.zkvm_kind(),
+                        &verif_public_values,
+                        &io.output,
+                    )
+                    .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.as_bytes().len(),
@@ -170,20 +175,24 @@ fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
 
 /// Creates the requested zkVMs configured for the guest program and resources.
 pub fn get_zkvm_instances(
-    zkvms: &[ErezkVM],
+    zkvms: &[zkVMKind],
     workspace_dir: &Path,
     guest_relative: &Path,
     resource: ProverResourceType,
     apply_patches: bool,
-) -> Result<Vec<EreDockerizedzkVM>> {
+) -> Result<Vec<DockerizedzkVM>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
         if apply_patches {
             run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
         }
-        let program = EreDockerizedCompiler::new(*zkvm, workspace_dir)?
-            .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
-        instances.push(EreDockerizedzkVM::new(*zkvm, program, resource.clone())?);
+        let program = DockerizedCompiler::new(
+            *zkvm,
+            ere_dockerized::CompilerKind::RustCustomized,
+            workspace_dir,
+        )?
+        .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
+        instances.push(DockerizedzkVM::new(*zkvm, program, resource.clone())?);
     }
     Ok(instances)
 }
@@ -245,7 +254,7 @@ fn dump_input(
 
 fn verify_public_output(
     name: &str,
-    zkvm: ErezkVM,
+    zkvm: zkVMKind,
     public_values: &PublicValues,
     output_verifier: &impl OutputVerifier,
 ) -> Result<()> {

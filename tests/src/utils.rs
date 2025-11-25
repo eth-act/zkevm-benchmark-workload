@@ -13,7 +13,7 @@ use benchmark_runner::{
     runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
     stateless_validator::ExecutionClient,
 };
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
 use flate2::bufread::GzDecoder;
 use tar::Archive;
@@ -22,7 +22,7 @@ use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 
 pub(crate) fn run_guest<T, OV>(
     guest_rel: &str,
-    zkvms: &[ErezkVM],
+    zkvms: &[zkVMKind],
     inputs: Vec<GuestIO<T, OV>>,
     output_folder: &Path,
     sub_folder: Option<String>,
@@ -168,15 +168,15 @@ pub(crate) fn untar(path: &Path, dest_dir: &Path) {
     archive.unpack(dest_dir).unwrap();
 }
 
-pub(crate) fn get_env_zkvm_or_default(default: Vec<ErezkVM>) -> Vec<ErezkVM> {
+pub(crate) fn get_env_zkvm_or_default(default: Vec<zkVMKind>) -> Vec<zkVMKind> {
     std::env::var("ZKVM")
-        .map(|zkvm| vec![ErezkVM::from_str(&zkvm).expect("Invalid ZKVM")])
+        .map(|zkvm| vec![zkVMKind::from_str(&zkvm).expect("Invalid ZKVM")])
         .unwrap_or(default)
 }
 
 pub(crate) fn filter_el_zkvm_pairs_from_env(
-    default: Vec<(ExecutionClient, ErezkVM)>,
-) -> Vec<(ExecutionClient, ErezkVM)> {
+    default: Vec<(ExecutionClient, zkVMKind)>,
+) -> Vec<(ExecutionClient, zkVMKind)> {
     let env_el = std::env::var("EL").ok().map(|el| {
         el.parse::<ExecutionClient>()
             .expect("Invalid execution client")
