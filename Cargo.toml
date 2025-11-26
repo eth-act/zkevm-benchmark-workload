@@ -130,9 +130,10 @@ reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b873
 reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 
 
-ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", package = "guest_program" }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", package = "guest_program" }
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
+ethrex-rpc = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
 
 # alloy
 alloy-eips = { version = "1.0.41" }
