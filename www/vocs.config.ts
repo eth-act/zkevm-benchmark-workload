@@ -48,15 +48,11 @@ export default defineConfig({
           items: [
             {
               text: 'sp1',
-              link: '/benchmark-results/gas-categorized/1m/1m-sp1',
+              link: '/benchmark-results/gas-categorized/1m/docs-zkevm-metrics-sp1-1M-1',
             },
             {
               text: 'risc0',
-              link: '/benchmark-results/gas-categorized/1m/1m-risc0',
-            },
-            {
-              text: 'summary',
-              link: '/benchmark-results/gas-categorized/1m/1m-summary',
+              link: '/benchmark-results/gas-categorized/1m/docs-zkevm-metrics-risc0-1M',
             },
           ],
         },
