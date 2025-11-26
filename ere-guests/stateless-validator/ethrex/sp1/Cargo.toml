@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.14", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 k256 = "0.13"
 bincode = "1.0"

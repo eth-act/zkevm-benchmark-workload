@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", tag = "v0.0.14", default-features = false, features = ["std", "unstable", "getrandom", "sys-getenv"] }
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false, features = ["std", "unstable", "getrandom", "sys-getenv"] }
 c-kzg = { version = "2.1.1", features = ["eip-7594"] }
 guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "c-kzg",
