@@ -8,10 +8,15 @@ use anyhow::{Context, Result};
 use ere_dockerized::ErezkVM;
 use ere_io_serde::IoSerde;
 use ethrex_common::{
-    types::{block_execution_witness, BlobSchedule, Block, ChainConfig, ForkBlobSchedule},
+    types::{
+        block_execution_witness, BlobSchedule, Block, BlockHeader, ChainConfig, ForkBlobSchedule,
+    },
     H160,
 };
 use ethrex_rlp::decode::RLPDecode;
+use ethrex_rpc::debug::execution_witness::{
+    execution_witness_from_rpc_chain_config, RpcExecutionWitness,
+};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -142,8 +147,13 @@ fn from_reth_witness_to_ethrex_witness(
     block_number: u64,
     si: &StatelessInput,
 ) -> Result<block_execution_witness::ExecutionWitness> {
-    let codes = si.witness.codes.iter().map(|b| b.to_vec()).collect();
-    let block_headers_bytes = si.witness.headers.iter().map(|h| h.to_vec()).collect();
+    let codes = si.witness.codes.iter().map(|b| b.to_vec().into()).collect();
+    let block_headers_bytes = si
+        .witness
+        .headers
+        .iter()
+        .map(|h| h.to_vec().into())
+        .collect();
 
     let chain_config = ChainConfig {
         chain_id: si.chain_config.chain_id,
@@ -205,19 +215,36 @@ fn from_reth_witness_to_ethrex_witness(
         .witness
         .state
         .iter()
-        .map(|node_rlp| node_rlp.to_vec())
+        .map(|node_rlp| node_rlp.to_vec().into())
         .collect();
 
-    let keys = si.witness.keys.iter().map(|k| k.to_vec()).collect();
+    let keys = si.witness.keys.iter().map(|k| k.to_vec().into()).collect();
 
-    Ok(block_execution_witness::ExecutionWitness {
-        codes,
-        block_headers_bytes,
-        chain_config,
-        nodes,
-        first_block_number: block_number,
+    let parent_hash = si.block.parent_hash;
+    let initial_state_root = si
+        .witness
+        .headers
+        .iter()
+        .find_map(|header_bytes| {
+            let (header, _) = BlockHeader::decode_unfinished(header_bytes).ok()?;
+            (header.hash().0 == parent_hash.0).then_some(header.state_root)
+        })
+        .context("Parent header not found in witness")?;
+
+    let rpc_witness = RpcExecutionWitness {
+        state: nodes,
         keys,
-    })
+        codes,
+        headers: block_headers_bytes,
+    };
+    let execution_witness = execution_witness_from_rpc_chain_config(
+        rpc_witness,
+        chain_config,
+        block_number,
+        initial_state_root,
+    )?;
+
+    Ok(execution_witness)
 }
 
 fn get_blob_schedule(

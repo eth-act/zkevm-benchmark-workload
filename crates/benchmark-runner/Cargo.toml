@@ -25,6 +25,7 @@ reth-stateless.workspace = true
 ethrex-guest-program.workspace = true
 ethrex-common.workspace = true
 ethrex-rlp.workspace = true
+ethrex-rpc.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true

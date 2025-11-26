@@ -13,5 +13,3 @@ zkevm-dump
 
 # private envrc file
 .envrc
-
-ere-guests/**/Cargo.lock

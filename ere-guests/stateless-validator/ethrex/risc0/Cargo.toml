@@ -14,7 +14,7 @@ risc0-zkvm = { version = "=3.0.3", default-features = false, features = [
 risc0-zkvm-platform = { version = "=2.2.1", default-features = false, features = [
     "sys-getenv",
 ] }
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "c-kzg",
 ] }
 
@@ -23,16 +23,16 @@ bincode = "1.0"
 rkyv = { version = "0.8.10", features = ["unaligned"] }
 
 
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "risc0",
 ] }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false, features = [
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "c-kzg",
     "risc0",
 ] }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
-ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", tag = "v6.0.0", default-features = false }
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
+ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
 
 [patch.crates-io]
 sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.8-risczero.0" }
