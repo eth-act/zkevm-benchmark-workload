@@ -1,7 +1,7 @@
 //! Empty program guest program.
 
 use anyhow::Result;
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 
 use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
 
@@ -23,17 +23,18 @@ pub fn empty_program_input() -> Result<GuestIO<(), ProgramOutputVerifier>> {
 pub struct ProgramOutputVerifier;
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
+    fn check_serialized(&self, zkvm: zkVMKind, bytes: &[u8]) -> Result<OutputVerifierResult> {
         match zkvm {
-            ErezkVM::SP1 | ErezkVM::Risc0 | ErezkVM::Zisk | ErezkVM::Pico => match bytes.is_empty()
-            {
-                true => Ok(OutputVerifierResult::Match),
-                false => Ok(OutputVerifierResult::Mismatch(format!(
-                    "Expected empty output, got {bytes:?}",
-                ))),
-            },
+            zkVMKind::SP1 | zkVMKind::Risc0 | zkVMKind::Zisk | zkVMKind::Pico => {
+                match bytes.is_empty() {
+                    true => Ok(OutputVerifierResult::Match),
+                    false => Ok(OutputVerifierResult::Mismatch(format!(
+                        "Expected empty output, got {bytes:?}",
+                    ))),
+                }
+            }
 
-            ErezkVM::OpenVM => match bytes == [0x00; 32] {
+            zkVMKind::OpenVM => match bytes == [0x00; 32] {
                 true => Ok(OutputVerifierResult::Match),
                 false => Ok(OutputVerifierResult::Mismatch(format!(
                     "Expected [0x00; 32], got {bytes:?}"

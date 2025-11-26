@@ -4,7 +4,7 @@ mod tests {
         runner::Action,
         stateless_validator::{self, BlockMetadata, ExecutionClient},
     };
-    use ere_dockerized::ErezkVM;
+    use ere_dockerized::zkVMKind;
     use std::{env, path::PathBuf};
     use tempfile::{tempdir, TempDir};
     use witness_generator::{eest_generator::EESTFixtureGeneratorBuilder, FixtureGenerator};
@@ -17,15 +17,15 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn prove_empty_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
-            (ExecutionClient::Reth, ErezkVM::SP1),
-            (ExecutionClient::Reth, ErezkVM::Risc0),
-            (ExecutionClient::Reth, ErezkVM::OpenVM),
-            (ExecutionClient::Reth, ErezkVM::Pico),
-            (ExecutionClient::Reth, ErezkVM::Airbender),
-            (ExecutionClient::Ethrex, ErezkVM::SP1),
-            (ExecutionClient::Ethrex, ErezkVM::Risc0),
-            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
-            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
+            (ExecutionClient::Reth, zkVMKind::SP1),
+            (ExecutionClient::Reth, zkVMKind::Risc0),
+            (ExecutionClient::Reth, zkVMKind::OpenVM),
+            (ExecutionClient::Reth, zkVMKind::Pico),
+            (ExecutionClient::Reth, zkVMKind::Airbender),
+            (ExecutionClient::Ethrex, zkVMKind::SP1),
+            (ExecutionClient::Ethrex, zkVMKind::Risc0),
+            // (ExecutionClient::Ethrex, zkVMKind::OpenVM), // See https://github.com/eth-act/ere/issues/168
+            // (ExecutionClient::Ethrex, zkVMKind::Pico), // See https://github.com/eth-act/ere/issues/174
         ]);
         empty_block(Action::Prove, &el_zkvms).await;
     }
@@ -33,17 +33,17 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn execute_empty_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
-            (ExecutionClient::Reth, ErezkVM::SP1),
-            (ExecutionClient::Reth, ErezkVM::Risc0),
-            (ExecutionClient::Reth, ErezkVM::OpenVM),
-            (ExecutionClient::Reth, ErezkVM::Pico),
-            (ExecutionClient::Reth, ErezkVM::Zisk),
-            (ExecutionClient::Reth, ErezkVM::Airbender),
-            (ExecutionClient::Ethrex, ErezkVM::SP1),
-            (ExecutionClient::Ethrex, ErezkVM::Risc0),
-            // (ExecutionClient::Ethrex, ErezkVM::OpenVM), // See https://github.com/eth-act/ere/issues/168
-            // (ExecutionClient::Ethrex, ErezkVM::Pico), // See https://github.com/eth-act/ere/issues/174
-            // (ExecutionClient::Ethrex, ErezkVM::Zisk), // See https://github.com/eth-act/ere/issues/XXX
+            (ExecutionClient::Reth, zkVMKind::SP1),
+            (ExecutionClient::Reth, zkVMKind::Risc0),
+            (ExecutionClient::Reth, zkVMKind::OpenVM),
+            (ExecutionClient::Reth, zkVMKind::Pico),
+            (ExecutionClient::Reth, zkVMKind::Zisk),
+            (ExecutionClient::Reth, zkVMKind::Airbender),
+            (ExecutionClient::Ethrex, zkVMKind::SP1),
+            (ExecutionClient::Ethrex, zkVMKind::Risc0),
+            // (ExecutionClient::Ethrex, zkVMKind::OpenVM), // See https://github.com/eth-act/ere/issues/168
+            // (ExecutionClient::Ethrex, zkVMKind::Pico), // See https://github.com/eth-act/ere/issues/174
+            // (ExecutionClient::Ethrex, zkVMKind::Zisk), // See https://github.com/eth-act/ere/issues/XXX
         ]);
         empty_block(Action::Execute, &el_zkvms).await;
     }
@@ -51,14 +51,14 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn execute_mainnet_blocks() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
-            (ExecutionClient::Reth, ErezkVM::SP1),
-            (ExecutionClient::Reth, ErezkVM::Risc0),
-            (ExecutionClient::Reth, ErezkVM::OpenVM),
-            (ExecutionClient::Reth, ErezkVM::Pico),
-            (ExecutionClient::Reth, ErezkVM::Zisk),
-            (ExecutionClient::Reth, ErezkVM::Airbender),
-            (ExecutionClient::Ethrex, ErezkVM::SP1),
-            (ExecutionClient::Ethrex, ErezkVM::Risc0),
+            (ExecutionClient::Reth, zkVMKind::SP1),
+            (ExecutionClient::Reth, zkVMKind::Risc0),
+            (ExecutionClient::Reth, zkVMKind::OpenVM),
+            (ExecutionClient::Reth, zkVMKind::Pico),
+            (ExecutionClient::Reth, zkVMKind::Zisk),
+            (ExecutionClient::Reth, zkVMKind::Airbender),
+            (ExecutionClient::Ethrex, zkVMKind::SP1),
+            (ExecutionClient::Ethrex, zkVMKind::Risc0),
         ]);
 
         for (el, zkvm) in el_zkvms {
@@ -93,14 +93,14 @@ mod tests {
     #[tokio::test(flavor = "multi_thread")]
     async fn execute_invalid_block() {
         let el_zkvms = filter_el_zkvm_pairs_from_env(vec![
-            (ExecutionClient::Reth, ErezkVM::SP1),
-            (ExecutionClient::Reth, ErezkVM::Risc0),
-            (ExecutionClient::Reth, ErezkVM::OpenVM),
-            (ExecutionClient::Reth, ErezkVM::Pico),
-            (ExecutionClient::Reth, ErezkVM::Zisk),
-            (ExecutionClient::Reth, ErezkVM::Airbender),
-            (ExecutionClient::Ethrex, ErezkVM::SP1),
-            (ExecutionClient::Ethrex, ErezkVM::Risc0),
+            (ExecutionClient::Reth, zkVMKind::SP1),
+            (ExecutionClient::Reth, zkVMKind::Risc0),
+            (ExecutionClient::Reth, zkVMKind::OpenVM),
+            (ExecutionClient::Reth, zkVMKind::Pico),
+            (ExecutionClient::Reth, zkVMKind::Zisk),
+            (ExecutionClient::Reth, zkVMKind::Airbender),
+            (ExecutionClient::Ethrex, zkVMKind::SP1),
+            (ExecutionClient::Ethrex, zkVMKind::Risc0),
         ]);
         for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-invalid-block");
@@ -135,7 +135,7 @@ mod tests {
         }
     }
 
-    async fn empty_block(action: Action, el_zkvms: &[(ExecutionClient, ErezkVM)]) {
+    async fn empty_block(action: Action, el_zkvms: &[(ExecutionClient, zkVMKind)]) {
         for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-empty-block");
             let bench_fixtures_dir = tempdir().unwrap();

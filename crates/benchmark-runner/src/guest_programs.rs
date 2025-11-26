@@ -1,7 +1,7 @@
 //! Guest program input generation and metadata types
 
 use anyhow::Result;
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 use serde::{de::DeserializeOwned, Serialize};
 
 /// Represents a guest program input with associated metadata
@@ -23,7 +23,7 @@ pub trait GuestMetadata: Serialize + DeserializeOwned + Clone + Send + Sync {}
 /// Verifies the output of a guest program
 pub trait OutputVerifier: Clone + Send + Sync {
     /// Given a serialized output bytes from a zkVM, check if it matches the expected output
-    fn check_serialized(&self, zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult>;
+    fn check_serialized(&self, zkvm: zkVMKind, bytes: &[u8]) -> Result<OutputVerifierResult>;
 }
 
 /// Result of output verification
