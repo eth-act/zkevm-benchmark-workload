@@ -1,0 +1,543 @@
+# zkEVM Benchmark Results
+
+Generated on: 2025-11-26 13:07:24
+
+## Folder: zkevm-metrics-sp1-1M-1
+
+**zkVM:** sp1-v5.2.2 (1 GPUs)
+
+**Hardware Configuration:** CPU: AMD EPYC 7B13 64-Core Processor | RAM: 396 GiB | GPU: NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090, NVIDIA GeForce RTX 4090
+
+## Proving Metrics
+
+| Benchmark | Gas Used | Proof Size (bytes) | Proving Time (ms) | Proving Time (s) | Peak Memory (MB) | Avg Memory (MB) | Initial Memory (MB) |
+|---|---|---|---|---|---|---|---|
+| SLOAD, SSTORE, BALANCE, EXTCODESIZE, EXTCODEHASH, CALLDATALOAD, CALLDATACOPY, CALLDATASIZE (fork Prague, 1M gas) | 999,980 | 1,477,226 | 12,931 | 12.93 | 3,162,968 | 3,160,235.2 | 3,157,112 |
+| CALLDATALOAD, CALLDATACOPY, CALLDATASIZE (fork Prague, 1M gas, zero byte: False) | 1,000,000 | 1,477,226 | 16,978 | 16.98 | 4,089,920 | 4,089,041.6 | 4,088,944 |
+| CALLDATALOAD, CALLDATACOPY, CALLDATASIZE (fork Prague, 1M gas, zero byte: True) | 1,000,000 | 1,477,226 | 14,928 | 14.93 | 3,444,996 | 3,444,996 | 3,444,996 |
+| CALL (fork Prague, 1M gas, case id a to a) | 987,000 | 1,477,226 | 22,416 | 22.42 | 3,356,192 | 3,354,337.6 | 3,349,360 |
+| CALL (fork Prague, 1M gas, case id a to b) | 987,000 | 1,477,226 | 23,443 | 23.44 | 3,868,484 | 3,868,484 | 3,868,484 |
+| CALL (fork Prague, 1M gas) | 987,000 | 1,477,226 | 27,280 | 27.28 | 4,070,420 | 4,069,019.7 | 4,065,540 |
+| CALL (fork Prague, 1M gas) | 987,000 | 1,477,226 | 23,454 | 23.45 | 3,398,156 | 3,395,878.7 | 3,391,324 |
+| CALL (fork Prague, 1M gas) | 987,000 | 1,477,226 | 24,473 | 24.47 | 3,672,376 | 3,672,376 | 3,671,400 |
+| CALLCODE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 94,625 | 94.62 | 3,282,028 | 3,281,037.9 | 3,278,124 |
+| CALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 93,943 | 93.94 | 2,277,792 | 2,262,978.5 | 2,225,088 |
+| DELEGATECALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 96,098 | 96.10 | 3,843,120 | 3,843,120 | 3,842,144 |
+| EXTCODECOPY (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 109,079 | 109.08 | 4,105,532 | 4,105,312.9 | 4,103,580 |
+| EXTCODEHASH (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 96,304 | 96.30 | 3,117,112 | 3,116,255.0 | 3,110,280 |
+| EXTCODESIZE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 94,488 | 94.49 | 3,959,224 | 3,958,526.9 | 3,955,320 |
+| STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 95,458 | 95.46 | 4,165,032 | 4,165,032 | 4,165,032 |
+| CREATE2 (fork Prague, 1M gas, 0 bytes) | 1,000,000 | 1,477,226 | 14,350 | 14.35 | 2,330,496 | 2,327,492.9 | 2,322,688 |
+| CREATE (fork Prague, 1M gas, 0 bytes) | 1,000,000 | 1,477,226 | 11,715 | 11.71 | 658,640 | 656,508.2 | 644,976 |
+| CREATE2 (fork Prague, 1M gas, 0 bytes) | 1,000,000 | 1,477,226 | 16,348 | 16.35 | 4,112,360 | 4,112,360 | 4,112,360 |
+| CREATE (fork Prague, 1M gas, 0 bytes) | 1,000,000 | 1,477,226 | 14,221 | 14.22 | 3,786,540 | 3,786,540 | 3,784,588 |
+| CREATE2 (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 12,393 | 12.39 | 862,612 | 849,831.0 | 836,260 |
+| CREATE (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 13,277 | 13.28 | 3,916,292 | 3,916,292 | 3,915,316 |
+| CREATE2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,236 | 13.24 | 4,193,320 | 4,193,320 | 4,193,320 |
+| CREATE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 12,114 | 12.11 | 3,215,668 | 3,215,505.3 | 3,212,740 |
+| CREATE2 (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 13,210 | 13.21 | 3,943,608 | 3,943,608 | 3,943,608 |
+| CREATE (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 15,702 | 15.70 | 4,075,300 | 4,075,300 | 4,075,300 |
+| CREATE2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,702 | 13.70 | 3,400,108 | 3,400,108 | 3,400,108 |
+| CREATE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 12,935 | 12.94 | 2,971,700 | 2,966,332 | 2,959,988 |
+| CREATE2 (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 12,473 | 12.47 | 1,737,104 | 1,735,835.2 | 1,726,368 |
+| CREATE (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 13,397 | 13.40 | 3,781,660 | 3,781,660 | 3,780,684 |
+| CREATE2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,223 | 13.22 | 2,889,728 | 2,887,776 | 2,879,968 |
+| CREATE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 12,082 | 12.08 | 3,184,440 | 3,183,545.3 | 3,174,680 |
+| CREATE2 (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 13,153 | 13.15 | 4,027,488 | 4,027,488 | 4,027,488 |
+| CREATE (fork Prague, 1M gas, zero data) | 1,000,000 | 1,477,226 | 13,646 | 13.65 | 2,904,360 | 2,901,106.7 | 2,897,528 |
+| CREATE2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,392 | 13.39 | 3,916,288 | 3,916,288 | 3,916,288 |
+| CREATE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,067 | 13.07 | 3,860,680 | 3,860,680 | 3,860,680 |
+| CREATE2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 13,097 | 13.10 | 3,907,516 | 3,907,516 | 3,905,564 |
+| CREATE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 12,736 | 12.74 | 3,941,656 | 3,941,656 | 3,941,656 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 00) | 1,000,000 | 1,477,226 | 20,101 | 20.10 | 3,610,892 | 3,610,892 | 3,605,036 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 5b) | 1,000,000 | 1,477,226 | 25,480 | 25.48 | 4,113,336 | 4,113,336 | 4,113,336 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 605b5b) | 1,000,000 | 1,477,226 | 19,951 | 19.95 | 992,420 | 978,337.7 | 944,596 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 605b) | 1,000,000 | 1,477,226 | 17,907 | 17.91 | 3,846,044 | 3,846,044 | 3,844,092 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 615b5b5b) | 1,000,000 | 1,477,226 | 19,376 | 19.38 | 944,596 | 926,085.7 | 896,772 |
+| JUMPDEST, JUMP (fork Prague, 1M gas, 615b5b) | 1,000,000 | 1,477,226 | 17,555 | 17.55 | 4,024,580 | 4,024,580 | 4,023,604 |
+| PRECOMPILE_EC_PAIRING, CALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 100,995 | 101.00 | 3,378,636 | 3,377,086.5 | 3,376,684 |
+| UNKNOWN (fork Prague, 1M gas) | 0 | 1,477,226 | 9,425 | 9.43 | 2,616,456 | 2,614,992 | 2,609,624 |
+| ADD (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 25,835 | 25.84 | 3,899,708 | 3,899,708 | 3,898,732 |
+| AND (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 22,650 | 22.65 | 3,655,788 | 3,655,788 | 3,655,788 |
+| BYTE (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 23,277 | 23.28 | 4,166,008 | 4,166,008 | 4,166,008 |
+| DIV (fork Prague, 1M gas, 0) | 1,000,000 | 1,477,226 | 82,296 | 82.30 | 3,962,136 | 3,961,355.2 | 3,960,184 |
+| DIV (fork Prague, 1M gas, 1) | 1,000,000 | 1,477,226 | 75,279 | 75.28 | 3,785,556 | 3,785,556 | 3,785,556 |
+| EQ (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 43,272 | 43.27 | 2,202,640 | 2,194,644.3 | 2,186,048 |
+| EXP (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 52,383 | 52.38 | 3,223,476 | 3,221,300.3 | 3,215,668 |
+| GT (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 24,591 | 24.59 | 3,855,800 | 3,855,800 | 3,853,848 |
+| LT (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 29,604 | 29.60 | 4,138,708 | 4,138,708 | 4,138,708 |
+| MOD (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 37,757 | 37.76 | 3,859,704 | 3,859,704 | 3,859,704 |
+| MUL (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 34,015 | 34.02 | 3,735,808 | 3,735,057.2 | 3,734,832 |
+| OR (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 23,561 | 23.56 | 4,166,008 | 4,166,008 | 4,164,056 |
+| SAR (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 36,594 | 36.59 | 3,502,576 | 3,500,995.8 | 3,493,792 |
+| SDIV (fork Prague, 1M gas, 0) | 1,000,000 | 1,477,226 | 87,556 | 87.56 | 3,979,700 | 3,974,433.7 | 3,969,940 |
+| SDIV (fork Prague, 1M gas, 1) | 1,000,000 | 1,477,226 | 90,605 | 90.61 | 1,647,316 | 1,620,049 | 1,580,948 |
+| SGT (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 45,205 | 45.20 | 4,184,544 | 4,184,509 | 4,184,544 |
+| SHL (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 37,982 | 37.98 | 4,130,900 | 4,128,990.4 | 4,126,020 |
+| SHR (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 31,601 | 31.60 | 4,035,288 | 4,033,641 | 4,029,432 |
+| SIGNEXTEND (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 31,392 | 31.39 | 3,968,964 | 3,966,855.8 | 3,961,156 |
+| SLT (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 25,375 | 25.38 | 3,761,176 | 3,761,176 | 3,761,176 |
+| SMOD (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 39,084 | 39.08 | 4,173,812 | 4,173,812 | 4,172,836 |
+| SUB (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 28,077 | 28.08 | 4,075,300 | 4,075,300 | 4,075,300 |
+| XOR (fork Prague, 1M gas, ) | 1,000,000 | 1,477,226 | 23,036 | 23.04 | 3,794,324 | 3,794,324 | 3,794,324 |
+| BLOBHASH (fork Prague, 1M gas, no blobs) | 1,000,000 | 1,477,226 | 20,287 | 20.29 | 3,131,748 | 3,131,626 | 3,126,868 |
+| BLOBHASH (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 29,041 | 29.04 | 1,255,940 | 1,241,891.5 | 1,226,660 |
+| BLOBHASH (fork Prague, 1M gas, existent index) | 1,000,000 | 1,477,226 | 26,034 | 26.03 | 4,133,828 | 4,133,828 | 4,130,900 |
+| BLOBHASH (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,935 | 27.93 | 2,306,096 | 2,300,565.3 | 2,279,744 |
+| CALLDATALOAD (fork Prague, 1M gas, empty) | 1,000,000 | 1,477,226 | 36,281 | 36.28 | 3,795,300 | 3,795,300 | 3,794,324 |
+| CALLDATALOAD (fork Prague, 1M gas, one, loop) | 1,000,000 | 1,477,226 | 40,757 | 40.76 | 3,935,808 | 3,935,222.4 | 3,934,832 |
+| CALLDATALOAD (fork Prague, 1M gas, zero, loop) | 1,000,000 | 1,477,226 | 40,766 | 40.77 | 3,286,904 | 3,285,046.5 | 3,281,048 |
+| CALLDATASIZE (fork Prague, 1M gas, 0 calldata length) | 1,000,000 | 1,477,226 | 24,010 | 24.01 | 4,174,788 | 4,174,788 | 4,173,812 |
+| CALLDATASIZE (fork Prague, 1M gas, 10000 calldata length) | 1,000,000 | 1,477,226 | 23,605 | 23.61 | 4,172,836 | 4,172,836 | 4,172,836 |
+| CALLDATASIZE (fork Prague, 1M gas, 1000 calldata length) | 1,000,000 | 1,477,226 | 24,548 | 24.55 | 3,366,928 | 3,366,277.3 | 3,363,024 |
+| CALLVALUE (fork Prague, 1M gas, from origin: False, non zero value: False) | 1,000,000 | 1,477,226 | 26,090 | 26.09 | 3,901,660 | 3,901,660 | 3,901,660 |
+| CALLVALUE (fork Prague, 1M gas, from origin: False, non zero value: True) | 1,000,000 | 1,477,226 | 26,693 | 26.69 | 4,170,884 | 4,170,884 | 4,168,932 |
+| CALLVALUE (fork Prague, 1M gas, from origin: True, non zero value: False) | 1,000,000 | 1,477,226 | 31,950 | 31.95 | 4,106,508 | 4,106,508 | 4,106,508 |
+| CALLVALUE (fork Prague, 1M gas, from origin: True, non zero value: True) | 1,000,000 | 1,477,226 | 30,886 | 30.89 | 4,090,912 | 4,090,912 | 4,089,936 |
+| DUP10 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,896 | 21.90 | 3,859,704 | 3,859,704 | 3,859,704 |
+| DUP11 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,282 | 22.28 | 3,415,716 | 3,413,373.6 | 3,407,908 |
+| DUP12 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,323 | 21.32 | 4,023,600 | 4,023,600 | 4,023,600 |
+| DUP13 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,655 | 21.66 | 3,400,108 | 3,400,108 | 3,398,156 |
+| DUP14 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,303 | 22.30 | 3,916,296 | 3,916,296 | 3,915,320 |
+| DUP15 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,670 | 22.67 | 2,225,088 | 2,219,054.5 | 2,210,448 |
+| DUP16 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 24,209 | 24.21 | 4,064,564 | 4,063,866.9 | 4,063,588 |
+| DUP1 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,241 | 22.24 | 3,860,680 | 3,860,680 | 3,859,704 |
+| DUP2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,023 | 22.02 | 3,936,780 | 3,936,780 | 3,936,780 |
+| DUP3 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 25,903 | 25.90 | 4,112,360 | 4,112,360 | 4,112,360 |
+| DUP4 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,361 | 22.36 | 3,367,900 | 3,367,900 | 3,367,900 |
+| DUP5 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,962 | 22.96 | 3,737,760 | 3,737,760 | 3,736,784 |
+| DUP6 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 20,958 | 20.96 | 2,628,168 | 2,624,325 | 2,616,456 |
+| DUP7 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,174 | 22.17 | 3,126,868 | 3,124,545.8 | 3,117,108 |
+| DUP8 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,853 | 21.85 | 3,859,704 | 3,859,304.7 | 3,856,776 |
+| DUP9 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,996 | 22.00 | 2,354,888 | 2,341,312.7 | 2,329,512 |
+| JUMPDEST (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 25,502 | 25.50 | 3,930,928 | 3,930,928 | 3,928,976 |
+| JUMPI (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,972 | 28.97 | 1,666,836 | 1,658,842.1 | 1,647,316 |
+| JUMPI (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 20,823 | 20.82 | 3,601,132 | 3,599,737.7 | 3,596,252 |
+| JUMP (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 18,524 | 18.52 | 4,166,008 | 4,165,798.9 | 4,165,032 |
+| SHA3, KECCAK256 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 42,232 | 42.23 | 4,138,700 | 4,138,700 | 4,138,700 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 25,142 | 25.14 | 3,075,152 | 3,073,200 | 3,067,344 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 22,482 | 22.48 | 1,759,552 | 1,747,303.2 | 1,738,080 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 29,185 | 29.18 | 1,050,980 | 1,027,531.6 | 995,348 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 25,264 | 25.26 | 3,595,276 | 3,595,276 | 3,595,276 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 27,290 | 27.29 | 4,154,316 | 4,154,316 | 4,154,316 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 27,617 | 27.62 | 3,898,732 | 3,898,732 | 3,898,732 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 25,619 | 25.62 | 3,850,924 | 3,850,924 | 3,850,924 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 23,113 | 23.11 | 1,935,232 | 1,922,195.4 | 1,905,952 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 28,542 | 28.54 | 3,252,752 | 3,248,421 | 3,242,992 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 25,191 | 25.19 | 2,590,104 | 2,582,784 | 2,573,512 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 22,479 | 22.48 | 3,805,056 | 3,804,346.2 | 3,802,128 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 32,500 | 32.50 | 4,102,604 | 4,102,604 | 4,102,604 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 24,862 | 24.86 | 3,992,384 | 3,992,127.2 | 3,991,408 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 23,321 | 23.32 | 3,521,116 | 3,515,785.5 | 3,511,356 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 28,835 | 28.84 | 3,760,204 | 3,759,804.5 | 3,757,276 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 32,326 | 32.33 | 4,143,580 | 4,143,580 | 4,143,580 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 23,026 | 23.03 | 4,165,032 | 4,165,032 | 4,165,032 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: False, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 29,677 | 29.68 | 3,901,660 | 3,901,660 | 3,900,684 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 25,951 | 25.95 | 4,022,628 | 4,022,628 | 4,022,628 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 22,431 | 22.43 | 1,860,080 | 1,850,956.5 | 1,831,776 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 0 offset) | 1,000,000 | 1,477,226 | 28,167 | 28.17 | 3,050,752 | 3,050,659.0 | 3,047,824 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 26,320 | 26.32 | 3,622,604 | 3,620,957 | 3,616,748 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 21,900 | 21.90 | 3,916,292 | 3,916,243.2 | 3,916,292 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 1 offset) | 1,000,000 | 1,477,226 | 27,989 | 27.99 | 3,174,680 | 3,173,743.0 | 3,168,824 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 26,135 | 26.14 | 2,879,968 | 2,876,964.9 | 2,872,160 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 23,213 | 23.21 | 4,178,692 | 4,178,692 | 4,177,716 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: False, 31 offset) | 1,000,000 | 1,477,226 | 28,950 | 28.95 | 3,571,868 | 3,571,601.8 | 3,567,964 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 24,826 | 24.83 | 801,128 | 781,488.5 | 755,256 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 22,677 | 22.68 | 3,859,704 | 3,859,704 | 3,859,704 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 0 offset) | 1,000,000 | 1,477,226 | 28,520 | 28.52 | 4,179,664 | 4,179,664 | 4,178,688 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 25,457 | 25.46 | 3,764,100 | 3,763,758.4 | 3,761,172 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 22,495 | 22.50 | 4,187,468 | 4,187,468 | 4,186,492 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 1 offset) | 1,000,000 | 1,477,226 | 28,186 | 28.19 | 3,883,120 | 3,883,089.5 | 3,883,120 |
+| MLOAD (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 25,085 | 25.09 | 3,471,344 | 3,471,344 | 3,470,368 |
+| MSTORE8 (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 23,223 | 23.22 | 3,541,612 | 3,539,497.3 | 3,533,804 |
+| MSTORE (fork Prague, 1M gas, big memory expansion: True, offset initialized: True, 31 offset) | 1,000,000 | 1,477,226 | 30,752 | 30.75 | 3,045,876 | 3,045,225.2 | 3,039,044 |
+| MOD, SMOD (fork Prague, 1M gas, op MOD, 127 mod bits) | 1,000,000 | 1,477,226 | 76,563 | 76.56 | 4,021,652 | 4,021,652 | 4,021,652 |
+| MOD, SMOD (fork Prague, 1M gas, op MOD, 191 mod bits) | 1,000,000 | 1,477,226 | 115,442 | 115.44 | 4,111,384 | 4,111,384 | 4,111,384 |
+| MOD, SMOD (fork Prague, 1M gas, op MOD, 255 mod bits) | 1,000,000 | 1,477,226 | 75,928 | 75.93 | 3,995,312 | 3,994,824 | 3,993,360 |
+| MOD, SMOD (fork Prague, 1M gas, op MOD, 63 mod bits) | 1,000,000 | 1,477,226 | 53,491 | 53.49 | 3,062,464 | 3,061,139.4 | 3,053,680 |
+| MOD, SMOD (fork Prague, 1M gas, op SMOD, 127 mod bits) | 1,000,000 | 1,477,226 | 79,231 | 79.23 | 3,932,880 | 3,932,880 | 3,932,880 |
+| MOD, SMOD (fork Prague, 1M gas, op SMOD, 191 mod bits) | 1,000,000 | 1,477,226 | 99,155 | 99.16 | 1,323,284 | 1,298,460.5 | 1,256,916 |
+| MOD, SMOD (fork Prague, 1M gas, op SMOD, 255 mod bits) | 1,000,000 | 1,477,226 | 73,666 | 73.67 | 3,082,960 | 3,082,607.8 | 3,076,128 |
+| MOD, SMOD (fork Prague, 1M gas, op SMOD, 63 mod bits) | 1,000,000 | 1,477,226 | 71,105 | 71.11 | 4,144,556 | 4,144,556 | 4,144,556 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op ADDMOD, 127 mod bits) | 1,000,000 | 1,477,226 | 60,318 | 60.32 | 3,751,420 | 3,751,118.3 | 3,750,444 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op ADDMOD, 191 mod bits) | 1,000,000 | 1,477,226 | 74,943 | 74.94 | 3,778,736 | 3,778,715.6 | 3,778,736 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op ADDMOD, 255 mod bits) | 1,000,000 | 1,477,226 | 61,004 | 61.00 | 2,948,280 | 2,948,117.3 | 2,946,328 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op ADDMOD, 63 mod bits) | 1,000,000 | 1,477,226 | 45,773 | 45.77 | 3,778,732 | 3,778,732 | 3,778,732 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op MULMOD, 127 mod bits) | 1,000,000 | 1,477,226 | 100,032 | 100.03 | 2,439,800 | 2,405,835.2 | 2,370,504 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op MULMOD, 191 mod bits) | 1,000,000 | 1,477,226 | 140,107 | 140.11 | 3,786,536 | 3,786,536 | 3,785,560 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op MULMOD, 255 mod bits) | 1,000,000 | 1,477,226 | 133,393 | 133.39 | 1,380,868 | 1,356,581.2 | 1,325,236 |
+| ADDMOD, MULMOD (fork Prague, 1M gas, op MULMOD, 63 mod bits) | 1,000,000 | 1,477,226 | 80,373 | 80.37 | 2,945,352 | 2,943,139.7 | 2,936,568 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1045 mod) | 1,000,000 | 1,477,226 | 1,564,850 | 1,564.85 | 4,061,636 | 4,058,550.9 | 4,053,828 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1360 mod) | 1,000,000 | 1,477,226 | 335,316 | 335.32 | 3,487,936 | 3,487,197.3 | 3,481,104 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 400 mod) | 1,000,000 | 1,477,226 | 404,721 | 404.72 | 3,988,484 | 3,984,055.5 | 3,979,700 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 408 mod) | 1,000,000 | 1,477,226 | 287,940 | 287.94 | 3,856,776 | 3,856,263.2 | 3,855,800 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 408 mod) | 1,000,000 | 1,477,226 | 1,372,517 | 1,372.52 | 4,159,192 | 4,157,822.9 | 4,153,336 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 600 mod) | 1,000,000 | 1,477,226 | 301,512 | 301.51 | 3,445,972 | 3,445,043.7 | 3,440,116 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 600 mod) | 1,000,000 | 1,477,226 | 425,734 | 425.73 | 3,091,740 | 3,090,294.6 | 3,082,956 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 616 mod) | 1,000,000 | 1,477,226 | 1,359,072 | 1,359.07 | 3,887,996 | 3,886,358.3 | 3,885,068 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 677 mod) | 1,000,000 | 1,477,226 | 320,028 | 320.03 | 3,567,964 | 3,560,435.7 | 3,542,588 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 765 mod) | 1,000,000 | 1,477,226 | 459,182 | 459.18 | 4,138,700 | 4,138,700 | 4,137,724 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 767 mod) | 1,000,000 | 1,477,226 | 290,521 | 290.52 | 4,192,348 | 4,190,558.7 | 4,190,396 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 800 mod) | 1,000,000 | 1,477,226 | 1,375,201 | 1,375.20 | 3,899,708 | 3,899,524.8 | 3,897,756 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 800 mod) | 1,000,000 | 1,477,226 | 517,703 | 517.70 | 4,096,748 | 4,093,655.6 | 4,090,892 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 852 mod) | 1,000,000 | 1,477,226 | 576,248 | 576.25 | 4,143,580 | 4,140,922.2 | 4,138,700 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 867 mod) | 1,000,000 | 1,477,226 | 1,396,742 | 1,396.74 | 3,876,292 | 3,874,487.0 | 3,872,388 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 996 mod) | 1,000,000 | 1,477,226 | 289,386 | 289.39 | 3,877,264 | 3,877,264 | 3,877,264 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1024 mod even) | 1,000,000 | 1,477,226 | 13,488 | 13.49 | 4,023,596 | 4,023,596 | 4,023,596 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 128 mod even) | 1,000,000 | 1,477,226 | 300,736 | 300.74 | 3,802,132 | 3,799,160.2 | 3,795,300 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 16 mod even) | 1,000,000 | 1,477,226 | 425,224 | 425.22 | 3,705,560 | 3,704,787.8 | 3,703,608 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 24 mod even) | 1,000,000 | 1,477,226 | 349,559 | 349.56 | 3,900,684 | 3,899,954.4 | 3,899,708 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 256 mod even) | 1,000,000 | 1,477,226 | 214,401 | 214.40 | 4,021,656 | 4,020,817.1 | 4,020,680 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod even) | 1,000,000 | 1,477,226 | 335,921 | 335.92 | 2,573,512 | 2,525,764.9 | 2,441,752 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod even) | 1,000,000 | 1,477,226 | 275,512 | 275.51 | 4,177,716 | 4,177,344.2 | 4,175,764 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod even) | 1,000,000 | 1,477,226 | 318,900 | 318.90 | 4,020,680 | 4,020,680 | 4,020,680 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 512 mod even) | 1,000,000 | 1,477,226 | 12,256 | 12.26 | 2,368,552 | 2,363,794 | 2,354,888 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 64 mod even) | 1,000,000 | 1,477,226 | 320,246 | 320.25 | 2,936,568 | 2,929,754.4 | 2,903,384 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 8 mod even) | 1,000,000 | 1,477,226 | 710,188 | 710.19 | 3,110,280 | 3,107,893.1 | 3,096,616 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 208 mod exp) | 1,000,000 | 1,477,226 | 260,046 | 260.05 | 3,866,536 | 3,866,536 | 3,866,536 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 215 mod exp) | 1,000,000 | 1,477,226 | 641,834 | 641.83 | 3,949,464 | 3,946,071.6 | 3,943,608 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 298 mod exp) | 1,000,000 | 1,477,226 | 698,573 | 698.57 | 3,853,852 | 3,853,125.1 | 3,851,900 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, mod min as balanced) | 1,000,000 | 1,477,226 | 336,087 | 336.09 | 4,124,068 | 4,122,069.8 | 4,120,164 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, mod min as base heavy) | 1,000,000 | 1,477,226 | 1,022,327 | 1,022.33 | 3,688,968 | 3,685,568.6 | 3,679,208 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, mod min as exp heavy) | 1,000,000 | 1,477,226 | 629,208 | 629.21 | 3,888,972 | 3,888,870.6 | 3,887,996 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1024 mod odd) | 1,000,000 | 1,477,226 | 13,106 | 13.11 | 836,264 | 825,840.3 | 803,080 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 128 mod odd) | 1,000,000 | 1,477,226 | 296,101 | 296.10 | 3,261,536 | 3,259,216.1 | 3,252,752 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 256 mod odd) | 1,000,000 | 1,477,226 | 213,251 | 213.25 | 3,780,684 | 3,780,013 | 3,778,732 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod odd) | 1,000,000 | 1,477,226 | 334,196 | 334.20 | 1,512,628 | 1,468,311.6 | 1,394,532 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod odd) | 1,000,000 | 1,477,226 | 312,668 | 312.67 | 3,956,296 | 3,955,498.7 | 3,955,320 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 32 mod odd) | 1,000,000 | 1,477,226 | 250,372 | 250.37 | 3,715,320 | 3,715,320 | 3,714,344 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 512 mod odd) | 1,000,000 | 1,477,226 | 12,431 | 12.43 | 3,795,300 | 3,795,300 | 3,795,300 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 64 mod odd) | 1,000,000 | 1,477,226 | 321,431 | 321.43 | 3,211,764 | 3,207,647.4 | 3,198,100 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod pawel) | 1,000,000 | 1,477,226 | 410,243 | 410.24 | 3,784,588 | 3,783,725.2 | 3,782,636 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod pawel) | 1,000,000 | 1,477,226 | 341,944 | 341.94 | 3,872,388 | 3,872,041.6 | 3,870,436 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 4 mod pawel) | 1,000,000 | 1,477,226 | 311,817 | 311.82 | 3,652,860 | 3,650,316.2 | 3,647,004 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1152 mod vul common) | 1,000,000 | 1,477,226 | 187,262 | 187.26 | 3,724,100 | 3,723,455.7 | 3,714,340 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1349 mod vul common) | 1,000,000 | 1,477,226 | 271,093 | 271.09 | 4,160,168 | 4,160,168 | 4,160,168 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1360 mod vul common) | 1,000,000 | 1,477,226 | 299,672 | 299.67 | 3,843,120 | 3,843,120 | 3,843,120 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1360 mod vul common) | 1,000,000 | 1,477,226 | 273,822 | 273.82 | 3,469,392 | 3,466,203.7 | 3,464,512 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 200 mod vul common) | 1,000,000 | 1,477,226 | 150,815 | 150.81 | 3,503,548 | 3,503,548 | 3,503,548 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 200 mod vul common) | 1,000,000 | 1,477,226 | 189,583 | 189.58 | 3,296,664 | 3,295,121.8 | 3,289,832 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 200 mod vul common) | 1,000,000 | 1,477,226 | 196,549 | 196.55 | 3,886,048 | 3,886,048 | 3,886,048 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul example) | 1,000,000 | 1,477,226 | 330,561 | 330.56 | 2,183,120 | 2,110,033.5 | 1,986,944 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul example) | 1,000,000 | 1,477,226 | 309,783 | 309.78 | 3,008,788 | 3,007,484.0 | 3,000,004 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul guido) | 1,000,000 | 1,477,226 | 270,228 | 270.23 | 4,136,756 | 4,136,232.0 | 4,132,852 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul guido) | 1,000,000 | 1,477,226 | 401,729 | 401.73 | 3,481,104 | 3,480,059.3 | 3,471,344 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod vul guido) | 1,000,000 | 1,477,226 | 752,179 | 752.18 | 3,852,876 | 3,852,876 | 3,850,924 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul marius) | 1,000,000 | 1,477,226 | 358,756 | 358.76 | 3,641,148 | 3,633,214.1 | 3,621,628 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul nagydani) | 1,000,000 | 1,477,226 | 248,655 | 248.66 | 3,666,520 | 3,663,901.1 | 3,657,736 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul nagydani) | 1,000,000 | 1,477,226 | 181,974 | 181.97 | 4,171,860 | 4,171,860 | 4,171,860 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul nagydani) | 1,000,000 | 1,477,226 | 171,334 | 171.33 | 1,212,020 | 1,154,000.2 | 1,050,980 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul nagydani) | 1,000,000 | 1,477,226 | 251,235 | 251.24 | 4,043,092 | 4,042,116 | 4,035,284 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul nagydani) | 1,000,000 | 1,477,226 | 542,014 | 542.01 | 3,306,424 | 3,305,099.8 | 3,303,496 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul nagydani) | 1,000,000 | 1,477,226 | 508,171 | 508.17 | 4,020,684 | 4,013,490.5 | 4,003,116 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod vul nagydani) | 1,000,000 | 1,477,226 | 247,937 | 247.94 | 3,714,344 | 3,714,233.8 | 3,711,416 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,307,073 | 1,307.07 | 3,342,528 | 3,339,609.1 | 3,323,984 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,237,043 | 1,237.04 | 3,868,484 | 3,866,714.5 | 3,865,556 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 4 mod vul nagydani) | 1,000,000 | 1,477,226 | 243,910 | 243.91 | 3,942,632 | 3,942,366.9 | 3,936,776 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 4 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,587,284 | 1,587.28 | 3,843,120 | 3,832,187.8 | 3,806,032 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 4 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,438,350 | 1,438.35 | 3,276,172 | 3,274,567.3 | 3,267,388 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 5 mod vul nagydani) | 1,000,000 | 1,477,226 | 225,950 | 225.95 | 3,917,264 | 3,917,127.2 | 3,916,288 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 5 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,620,765 | 1,620.77 | 3,038,068 | 3,034,282.2 | 3,020,500 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 5 mod vul nagydani) | 1,000,000 | 1,477,226 | 1,484,287 | 1,484.29 | 2,855,576 | 2,805,819.4 | 2,629,144 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 1 mod vul pawel) | 1,000,000 | 1,477,226 | 679,800 | 679.80 | 3,703,608 | 3,700,709.4 | 3,690,920 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 2 mod vul pawel) | 1,000,000 | 1,477,226 | 387,959 | 387.96 | 3,886,048 | 3,886,048 | 3,885,072 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 3 mod vul pawel) | 1,000,000 | 1,477,226 | 320,339 | 320.34 | 3,440,116 | 3,435,610.0 | 3,426,452 |
+| PRECOMPILE_MODEXP, CALL (fork Prague, 1M gas, 4 mod vul pawel) | 1,000,000 | 1,477,226 | 336,684 | 336.68 | 4,046,996 | 4,045,629.6 | 4,043,092 |
+| MSIZE (fork Prague, 1M gas, 0 mem size) | 1,000,000 | 1,477,226 | 27,660 | 27.66 | 3,925,072 | 3,923,530.9 | 3,917,264 |
+| MSIZE (fork Prague, 1M gas, 1000000 mem size) | 1,000,000 | 1,477,226 | 27,167 | 27.17 | 4,166,004 | 4,166,004 | 4,166,004 |
+| MSIZE (fork Prague, 1M gas, 100000 mem size) | 1,000,000 | 1,477,226 | 27,567 | 27.57 | 3,444,996 | 3,444,996 | 3,444,996 |
+| MSIZE (fork Prague, 1M gas, 1000 mem size) | 1,000,000 | 1,477,226 | 28,219 | 28.22 | 3,936,780 | 3,936,780 | 3,936,780 |
+| MSIZE (fork Prague, 1M gas, 1 mem size) | 1,000,000 | 1,477,226 | 27,476 | 27.48 | 2,857,524 | 2,857,182.4 | 2,855,572 |
+| PRECOMPILE_BLAKE2F, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 250,309 | 250.31 | 644,976 | 630,918.3 | 523,952 |
+| PRECOMPILE_BLS12_MAP_FP_TO_G1, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 630,297 | 630.30 | 4,102,604 | 4,100,035.4 | 4,097,724 |
+| PRECOMPILE_BLS12_MAP_FP2_TO_G2, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 469,776 | 469.78 | 4,106,504 | 4,106,504 | 4,106,504 |
+| PRECOMPILE_BLS12_G1ADD, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 290,142 | 290.14 | 3,492,816 | 3,490,633.1 | 3,487,936 |
+| PRECOMPILE_BLS12_G1MSM, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 224,791 | 224.79 | 3,728,004 | 3,727,178.8 | 3,725,076 |
+| PRECOMPILE_BLS12_G2ADD, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 372,750 | 372.75 | 4,053,828 | 4,051,245.1 | 4,046,996 |
+| PRECOMPILE_BLS12_G2MSM, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 161,764 | 161.76 | 3,363,024 | 3,362,441.4 | 3,357,168 |
+| PRECOMPILE_BLS12_PAIRING, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 464,051 | 464.05 | 3,304,472 | 3,302,534.7 | 3,295,688 |
+| PRECOMPILE_EC_ADD, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 47,221 | 47.22 | 3,848,972 | 3,848,437.5 | 3,847,996 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 41,496 | 41.50 | 3,884,096 | 3,883,829.8 | 3,878,240 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,547 | 27.55 | 3,961,176 | 3,961,176 | 3,960,200 |
+| PRECOMPILE_EC_MUL, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 145,163 | 145.16 | 3,583,580 | 3,581,118.1 | 3,578,700 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 15,286 | 15.29 | 3,880,192 | 3,880,149.6 | 3,878,240 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 149,329 | 149.33 | 4,080,180 | 4,079,857.8 | 4,076,276 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 16,399 | 16.40 | 3,240,064 | 3,239,088 | 3,232,256 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 170,109 | 170.11 | 4,149,436 | 4,149,436 | 4,148,460 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 15,405 | 15.40 | 3,901,660 | 3,901,660 | 3,901,660 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 86,625 | 86.62 | 3,757,276 | 3,756,859.8 | 3,755,324 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 103,190 | 103.19 | 3,157,112 | 3,154,849.1 | 3,145,400 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 105,507 | 105.51 | 4,021,652 | 4,021,652 | 4,021,652 |
+| CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 11,604 | 11.60 | 3,937,756 | 3,937,756 | 3,936,780 |
+| PRECOMPILE_ECRECOVER, CALL, STATICCALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 61,215 | 61.22 | 3,667,496 | 3,667,496 | 3,666,520 |
+| PRECOMPILE_POINT_EVALUATION, CALL, STATICCALL (fork Prague, 1M gas, point evaluation) | 1,000,000 | 1,477,226 | 1,281,252 | 1,281.25 | 3,000,980 | 2,991,001.3 | 2,971,700 |
+| PRECOMPILE_IDENTITY, CALL (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,533 | 22.53 | 3,577,724 | 3,574,968.2 | 3,573,820 |
+| PRECOMPILE_RIPEMD-160, CALL (fork Prague, 1M gas, 160) | 1,000,000 | 1,477,226 | 16,773 | 16.77 | 1,987,920 | 1,987,920 | 1,969,376 |
+| PRECOMPILE_SHA2-256, CALL (fork Prague, 1M gas, SHA2, 256) | 1,000,000 | 1,477,226 | 57,895 | 57.90 | 1,904,976 | 1,887,312.8 | 1,862,032 |
+| PUSH0 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 26,177 | 26.18 | 3,773,860 | 3,771,799.6 | 3,766,052 |
+| PUSH10 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 23,730 | 23.73 | 3,952,392 | 3,952,392 | 3,952,392 |
+| PUSH11 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 24,374 | 24.37 | 3,877,264 | 3,877,264 | 3,875,312 |
+| PUSH12 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 24,899 | 24.90 | 4,027,492 | 4,027,492 | 4,027,492 |
+| PUSH13 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 25,547 | 25.55 | 3,140,520 | 3,139,613.7 | 3,132,712 |
+| PUSH14 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 25,932 | 25.93 | 3,750,444 | 3,748,648.2 | 3,741,660 |
+| PUSH15 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,094 | 27.09 | 3,755,324 | 3,755,324 | 3,754,348 |
+| PUSH16 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,997 | 29.00 | 4,061,636 | 4,061,636 | 4,061,636 |
+| PUSH17 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 26,028 | 26.03 | 3,865,560 | 3,864,862.9 | 3,862,632 |
+| PUSH18 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 26,443 | 26.44 | 3,888,972 | 3,888,972 | 3,888,972 |
+| PUSH19 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,346 | 28.35 | 3,888,972 | 3,888,939.5 | 3,888,972 |
+| PUSH1 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 20,148 | 20.15 | 3,403,036 | 3,402,938 | 3,400,108 |
+| PUSH20 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,299 | 28.30 | 4,184,544 | 4,184,544 | 4,184,544 |
+| PUSH21 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,034 | 28.03 | 1,830,800 | 1,811,744.8 | 1,791,760 |
+| PUSH22 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,903 | 28.90 | 2,898,508 | 2,895,092 | 2,889,724 |
+| PUSH23 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 29,343 | 29.34 | 3,741,664 | 3,741,664 | 3,740,688 |
+| PUSH24 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 29,580 | 29.58 | 4,182,592 | 4,182,592 | 4,182,592 |
+| PUSH25 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,789 | 28.79 | 3,900,684 | 3,900,660.2 | 3,899,708 |
+| PUSH26 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 29,991 | 29.99 | 4,166,980 | 4,166,980 | 4,166,004 |
+| PUSH27 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 31,230 | 31.23 | 4,185,516 | 4,185,516 | 4,184,540 |
+| PUSH28 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 32,020 | 32.02 | 4,021,652 | 4,021,652 | 4,021,652 |
+| PUSH29 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 31,606 | 31.61 | 3,019,524 | 3,019,144.4 | 3,011,716 |
+| PUSH2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 20,637 | 20.64 | 3,307,400 | 3,306,470.5 | 3,306,424 |
+| PUSH30 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 31,544 | 31.54 | 4,183,568 | 4,183,568 | 4,182,592 |
+| PUSH31 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 32,241 | 32.24 | 3,943,608 | 3,943,608 | 3,942,632 |
+| PUSH32 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 32,704 | 32.70 | 4,043,092 | 4,043,092 | 4,042,116 |
+| PUSH3 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 21,298 | 21.30 | 3,584,548 | 3,584,548 | 3,583,572 |
+| PUSH4 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,773 | 22.77 | 3,854,824 | 3,854,824 | 3,854,824 |
+| PUSH5 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 24,656 | 24.66 | 4,088,940 | 4,088,940 | 4,088,940 |
+| PUSH6 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 22,509 | 22.51 | 4,035,288 | 4,035,288 | 4,035,288 |
+| PUSH7 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 23,839 | 23.84 | 4,193,324 | 4,193,324 | 4,192,348 |
+| PUSH8 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 23,621 | 23.62 | 4,181,616 | 4,181,616 | 4,179,664 |
+| PUSH9 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,759 | 27.76 | 4,119,188 | 4,119,188 | 4,118,212 |
+| RETURN (fork Prague, 1M gas, 1KiB of non, zero data) | 1,000,000 | 1,477,226 | 28,123 | 28.12 | 1,778,096 | 1,770,985.1 | 1,761,504 |
+| REVERT (fork Prague, 1M gas, 1KiB of non, zero data) | 1,000,000 | 1,477,226 | 27,384 | 27.38 | 4,186,492 | 4,186,492 | 4,186,492 |
+| RETURN (fork Prague, 1M gas, 1KiB of zero data) | 1,000,000 | 1,477,226 | 30,922 | 30.92 | 3,935,808 | 3,935,808 | 3,935,808 |
+| REVERT (fork Prague, 1M gas, 1KiB of zero data) | 1,000,000 | 1,477,226 | 32,761 | 32.76 | 3,952,392 | 3,951,985.3 | 3,951,416 |
+| RETURN (fork Prague, 1M gas, 1MiB of non, zero data) | 1,000,000 | 1,477,226 | 12,952 | 12.95 | 3,711,416 | 3,711,416 | 3,705,560 |
+| REVERT (fork Prague, 1M gas, 1MiB of non, zero data) | 1,000,000 | 1,477,226 | 12,578 | 12.58 | 4,165,032 | 4,165,032 | 4,165,032 |
+| RETURN (fork Prague, 1M gas, 1MiB of zero data) | 1,000,000 | 1,477,226 | 16,258 | 16.26 | 4,081,156 | 4,079,854.7 | 4,078,228 |
+| REVERT (fork Prague, 1M gas, 1MiB of zero data) | 1,000,000 | 1,477,226 | 13,677 | 13.68 | 3,509,404 | 3,509,038 | 3,504,524 |
+| RETURN (fork Prague, 1M gas, empty) | 1,000,000 | 1,477,226 | 37,376 | 37.38 | 3,917,268 | 3,915,400.9 | 3,915,316 |
+| REVERT (fork Prague, 1M gas, empty) | 1,000,000 | 1,477,226 | 41,720 | 41.72 | 3,647,004 | 3,645,865.3 | 3,641,148 |
+| PRECOMPILE_IDENTITY (fork Prague, 1M gas, 0 returned size) | 1,000,000 | 1,477,226 | 23,665 | 23.66 | 3,869,460 | 3,868,993.2 | 3,868,484 |
+| RETURNDATASIZE (fork Prague, 1M gas, 0 returned size) | 1,000,000 | 1,477,226 | 29,719 | 29.72 | 4,117,236 | 4,117,236 | 4,116,260 |
+| RETURNDATASIZE (fork Prague, 1M gas, 0 returned size) | 1,000,000 | 1,477,226 | 29,742 | 29.74 | 4,137,732 | 4,137,732 | 4,137,732 |
+| PRECOMPILE_IDENTITY (fork Prague, 1M gas, 1 returned size) | 1,000,000 | 1,477,226 | 23,843 | 23.84 | 4,004,096 | 4,003,956.6 | 4,003,120 |
+| RETURNDATASIZE (fork Prague, 1M gas, 1 returned size) | 1,000,000 | 1,477,226 | 24,027 | 24.03 | 3,279,100 | 3,279,100 | 3,276,172 |
+| RETURNDATASIZE (fork Prague, 1M gas, 1 returned size) | 1,000,000 | 1,477,226 | 23,752 | 23.75 | 3,309,352 | 3,309,352 | 3,309,352 |
+| RETURNDATASIZE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 24,732 | 24.73 | 4,166,012 | 4,165,524 | 4,164,060 |
+| SHL, SHR, SAR (fork Prague, 1M gas, shift right SAR) | 1,000,000 | 1,477,226 | 34,466 | 34.47 | 3,224,452 | 3,224,452 | 3,224,452 |
+| SHL, SHR, SAR (fork Prague, 1M gas, shift right SHR) | 1,000,000 | 1,477,226 | 32,253 | 32.25 | 4,030,412 | 4,030,412 | 4,028,460 |
+| SWAP10 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,597 | 39.60 | 1,696,116 | 1,683,165.2 | 1,666,836 |
+| SWAP11 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,172 | 39.17 | 3,383,516 | 3,383,125.6 | 3,381,564 |
+| SWAP12 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,673 | 38.67 | 4,027,496 | 4,027,496 | 4,027,496 |
+| SWAP13 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,894 | 38.89 | 3,753,372 | 3,753,236.4 | 3,751,420 |
+| SWAP14 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,166 | 38.17 | 4,166,984 | 4,166,220.2 | 4,165,032 |
+| SWAP15 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 46,617 | 46.62 | 4,109,432 | 4,109,380.6 | 4,106,504 |
+| SWAP16 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,746 | 38.75 | 4,028,460 | 4,028,460 | 4,028,460 |
+| SWAP1 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,565 | 39.56 | 3,785,552 | 3,785,552 | 3,785,552 |
+| SWAP2 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,695 | 39.70 | 3,618,700 | 3,616,748 | 3,611,868 |
+| SWAP3 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,418 | 39.42 | 3,941,656 | 3,941,656 | 3,941,656 |
+| SWAP4 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,285 | 39.28 | 3,423,524 | 3,423,184.5 | 3,418,644 |
+| SWAP5 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,817 | 38.82 | 3,844,096 | 3,844,065.4 | 3,844,096 |
+| SWAP6 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 46,473 | 46.47 | 4,089,936 | 4,088,960 | 4,080,176 |
+| SWAP7 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,906 | 38.91 | 3,096,616 | 3,096,547.5 | 3,090,760 |
+| SWAP8 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,052 | 39.05 | 3,866,536 | 3,866,501 | 3,866,536 |
+| SWAP9 (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 46,169 | 46.17 | 4,112,360 | 4,112,360 | 4,112,360 |
+| TLOAD (fork Prague, 1M gas, val mut: False, key mut: False) | 1,000,000 | 1,477,226 | 15,693 | 15.69 | 4,107,484 | 4,107,484 | 4,106,508 |
+| TLOAD (fork Prague, 1M gas, val mut: False, key mut: True) | 1,000,000 | 1,477,226 | 14,711 | 14.71 | 2,870,212 | 2,870,212 | 2,865,332 |
+| TLOAD (fork Prague, 1M gas, val mut: True, key mut: False) | 1,000,000 | 1,477,226 | 15,028 | 15.03 | 3,886,048 | 3,885,982.7 | 3,886,048 |
+| TLOAD (fork Prague, 1M gas, val mut: True, key mut: True) | 1,000,000 | 1,477,226 | 14,054 | 14.05 | 3,418,644 | 3,418,644 | 3,417,668 |
+| TSTORE (fork Prague, 1M gas, dense val mut: False, key mut: False) | 1,000,000 | 1,477,226 | 21,467 | 21.47 | 4,159,188 | 4,159,188 | 4,159,188 |
+| TSTORE (fork Prague, 1M gas, dense val mut: False, key mut: True) | 1,000,000 | 1,477,226 | 19,505 | 19.50 | 3,936,784 | 3,936,784 | 3,936,784 |
+| TSTORE (fork Prague, 1M gas, dense val mut: True, key mut: False) | 1,000,000 | 1,477,226 | 28,288 | 28.29 | 3,067,344 | 3,066,236.1 | 3,062,464 |
+| TSTORE (fork Prague, 1M gas, dense val mut: True, key mut: True) | 1,000,000 | 1,477,226 | 26,815 | 26.82 | 3,931,904 | 3,931,904 | 3,930,928 |
+| ISZERO (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 42,951 | 42.95 | 3,954,344 | 3,954,344 | 3,953,368 |
+| NOT (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 23,482 | 23.48 | 4,159,184 | 4,159,184 | 4,158,208 |
+| ADDRESS (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 38,624 | 38.62 | 4,023,596 | 4,023,596 | 4,023,596 |
+| BASEFEE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,767 | 27.77 | 3,760,200 | 3,759,965.8 | 3,759,224 |
+| BLOBBASEFEE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 31,926 | 31.93 | 1,569,236 | 1,561,030.4 | 1,550,692 |
+| CALLER (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 37,800 | 37.80 | 4,022,628 | 4,022,628 | 4,021,652 |
+| CHAINID (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,885 | 28.89 | 4,024,576 | 4,024,576 | 4,024,576 |
+| CODESIZE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 32,505 | 32.51 | 4,106,508 | 4,106,312.8 | 4,105,532 |
+| COINBASE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 39,136 | 39.14 | 3,979,700 | 3,979,700 | 3,979,700 |
+| GASLIMIT (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 28,947 | 28.95 | 3,962,136 | 3,962,136 | 3,962,136 |
+| GASPRICE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 33,032 | 33.03 | 3,929,952 | 3,929,952 | 3,928,976 |
+| GAS (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 26,567 | 26.57 | 3,465,492 | 3,465,492 | 3,465,492 |
+| NUMBER (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 32,151 | 32.15 | 3,905,564 | 3,905,513.9 | 3,901,660 |
+| ORIGIN (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 45,969 | 45.97 | 4,089,920 | 4,089,920 | 4,089,920 |
+| PREVRANDAO (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 48,635 | 48.63 | 3,879,216 | 3,879,201.6 | 3,879,216 |
+| TIMESTAMP (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 30,607 | 30.61 | 3,462,564 | 3,461,415.8 | 3,453,780 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 0 bytes, call) | 1,000,000 | 1,477,226 | 39,062 | 39.06 | 4,105,528 | 4,105,528 | 4,105,528 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 0 bytes, transaction) | 1,000,000 | 1,477,226 | 29,186 | 29.19 | 3,594,304 | 3,592,135.1 | 3,588,448 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 100 bytes, call) | 1,000,000 | 1,477,226 | 26,699 | 26.70 | 3,794,324 | 3,794,324 | 3,792,372 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 100 bytes, transaction) | 1,000,000 | 1,477,226 | 25,900 | 25.90 | 3,368,880 | 3,367,938.9 | 3,366,928 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 10KiB, call) | 1,000,000 | 1,477,226 | 18,325 | 18.32 | 3,930,928 | 3,930,928 | 3,929,952 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 10KiB, transaction) | 1,000,000 | 1,477,226 | 15,004 | 15.00 | 3,145,400 | 3,145,170.4 | 3,139,544 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 1MiB, call) | 1,000,000 | 1,477,226 | 12,065 | 12.06 | 3,889,948 | 3,889,948 | 3,887,996 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: False, 1MiB, transaction) | 1,000,000 | 1,477,226 | 11,812 | 11.81 | 3,884,096 | 3,884,096 | 3,883,120 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 0 bytes, call) | 1,000,000 | 1,477,226 | 26,007 | 26.01 | 2,208,496 | 2,206,256.9 | 2,201,664 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 0 bytes, transaction) | 1,000,000 | 1,477,226 | 23,448 | 23.45 | 1,525,316 | 1,520,553.1 | 1,513,604 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 100 bytes, call) | 1,000,000 | 1,477,226 | 20,638 | 20.64 | 3,849,948 | 3,849,948 | 3,848,972 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 100 bytes, transaction) | 1,000,000 | 1,477,226 | 19,436 | 19.44 | 3,988,480 | 3,988,480 | 3,987,504 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 10KiB, call) | 1,000,000 | 1,477,226 | 15,951 | 15.95 | 3,680,184 | 3,680,086.4 | 3,678,232 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 10KiB, transaction) | 1,000,000 | 1,477,226 | 14,720 | 14.72 | 3,928,000 | 3,927,105.3 | 3,926,048 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 1MiB, call) | 1,000,000 | 1,477,226 | 11,654 | 11.65 | 4,184,544 | 4,184,544 | 4,184,544 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: False, fixed src dst: True, 1MiB, transaction) | 1,000,000 | 1,477,226 | 16,427 | 16.43 | 4,137,728 | 4,137,728 | 4,137,728 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: False, 100 bytes, call) | 1,000,000 | 1,477,226 | 25,959 | 25.96 | 3,673,352 | 3,673,352 | 3,672,376 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: False, 100 bytes, transaction) | 1,000,000 | 1,477,226 | 32,425 | 32.42 | 4,110,408 | 4,110,408 | 4,109,432 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: False, 10KiB, call) | 1,000,000 | 1,477,226 | 17,537 | 17.54 | 3,846,044 | 3,846,044 | 3,846,044 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: False, 10KiB, transaction) | 1,000,000 | 1,477,226 | 18,657 | 18.66 | 3,997,264 | 3,996,820.4 | 3,996,288 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: True, 100 bytes, call) | 1,000,000 | 1,477,226 | 21,051 | 21.05 | 3,522,092 | 3,522,026.9 | 3,521,116 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: True, 100 bytes, transaction) | 1,000,000 | 1,477,226 | 20,119 | 20.12 | 727,932 | 719,593.6 | 704,508 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: True, 10KiB, call) | 1,000,000 | 1,477,226 | 16,218 | 16.22 | 3,852,876 | 3,852,876 | 3,851,900 |
+| CALLDATACOPY (fork Prague, 1M gas, non zero data: True, fixed src dst: True, 10KiB, transaction) | 1,000,000 | 1,477,226 | 17,011 | 17.01 | 4,167,956 | 4,167,956 | 4,166,980 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: False, 0 bytes) | 1,000,000 | 1,477,226 | 28,718 | 28.72 | 3,198,104 | 3,196,659.5 | 3,187,368 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: False, 0.25x max code size) | 1,000,000 | 1,477,226 | 27,536 | 27.54 | 4,138,708 | 4,138,708 | 4,137,732 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: False, 0.50x max code size) | 1,000,000 | 1,477,226 | 22,419 | 22.42 | 4,080,176 | 4,080,176 | 4,080,176 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: False, 0.75x max code size) | 1,000,000 | 1,477,226 | 18,257 | 18.26 | 4,163,084 | 4,163,084 | 4,159,180 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: False, max code size) | 1,000,000 | 1,477,226 | 18,410 | 18.41 | 3,761,176 | 3,761,176 | 3,761,176 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: True, 0 bytes) | 1,000,000 | 1,477,226 | 21,699 | 21.70 | 4,189,420 | 4,189,420 | 4,188,444 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: True, 0.25x max code size) | 1,000,000 | 1,477,226 | 16,476 | 16.48 | 1,226,660 | 1,221,877.6 | 1,212,996 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: True, 0.50x max code size) | 1,000,000 | 1,477,226 | 17,817 | 17.82 | 3,850,924 | 3,850,924 | 3,850,924 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: True, 0.75x max code size) | 1,000,000 | 1,477,226 | 21,510 | 21.51 | 4,138,708 | 4,138,708 | 4,137,732 |
+| CODECOPY (fork Prague, 1M gas, fixed src dst: True, max code size) | 1,000,000 | 1,477,226 | 16,770 | 16.77 | 3,242,992 | 3,242,422.7 | 3,240,064 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: False, 0 bytes) | 1,000,000 | 1,477,226 | 34,353 | 34.35 | 4,152,364 | 4,152,364 | 4,150,412 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: False, 100 bytes) | 1,000,000 | 1,477,226 | 27,380 | 27.38 | 3,794,324 | 3,794,324 | 3,794,324 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: False, 10KiB) | 1,000,000 | 1,477,226 | 24,549 | 24.55 | 3,584,552 | 3,584,552 | 3,584,552 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: False, 1MiB) | 1,000,000 | 1,477,226 | 14,526 | 14.53 | 3,886,048 | 3,886,048 | 3,886,048 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: True, 0 bytes) | 1,000,000 | 1,477,226 | 23,568 | 23.57 | 3,884,096 | 3,884,096 | 3,883,120 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: True, 100 bytes) | 1,000,000 | 1,477,226 | 22,706 | 22.71 | 4,027,500 | 4,027,445.6 | 4,027,500 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: True, 10KiB) | 1,000,000 | 1,477,226 | 22,246 | 22.25 | 522,000 | 436,205.0 | 248,720 |
+| MCOPY (fork Prague, 1M gas, fixed src dst: True, 1MiB) | 1,000,000 | 1,477,226 | 12,735 | 12.73 | 1,578,020 | 1,574,360 | 1,569,236 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: False, 0 bytes) | 1,000,000 | 1,477,226 | 30,035 | 30.04 | 1,546,788 | 1,540,932 | 1,524,340 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: False, 100 bytes) | 1,000,000 | 1,477,226 | 25,369 | 25.37 | 3,589,428 | 3,588,394.6 | 3,586,500 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: False, 10KiB) | 1,000,000 | 1,477,226 | 19,871 | 19.87 | 3,995,312 | 3,995,312 | 3,995,312 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: False, 1MiB) | 1,000,000 | 1,477,226 | 14,002 | 14.00 | 3,780,684 | 3,780,684 | 3,780,684 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: True, 0 bytes) | 1,000,000 | 1,477,226 | 26,132 | 26.13 | 3,526,972 | 3,522,254.7 | 3,521,116 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: True, 100 bytes) | 1,000,000 | 1,477,226 | 20,807 | 20.81 | 3,586,500 | 3,586,500 | 3,585,524 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: True, 10KiB) | 1,000,000 | 1,477,226 | 17,408 | 17.41 | 3,789,456 | 3,789,456 | 3,788,480 |
+| RETURNDATACOPY (fork Prague, 1M gas, fixed dst: True, 1MiB) | 1,000,000 | 1,477,226 | 13,129 | 13.13 | 3,617,724 | 3,617,724 | 3,617,724 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 0 bytes data, log0) | 1,000,000 | 1,477,226 | 13,926 | 13.93 | 4,172,836 | 4,172,836 | 4,172,836 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 0 bytes data, log1) | 1,000,000 | 1,477,226 | 13,428 | 13.43 | 3,501,596 | 3,501,596 | 3,501,596 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 0 bytes data, log2) | 1,000,000 | 1,477,226 | 12,306 | 12.31 | 3,885,072 | 3,885,072 | 3,883,120 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 0 bytes data, log3) | 1,000,000 | 1,477,226 | 13,715 | 13.71 | 4,192,348 | 4,192,348 | 4,192,348 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 0 bytes data, log4) | 1,000,000 | 1,477,226 | 13,225 | 13.22 | 3,897,756 | 3,897,128.6 | 3,890,924 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB non zero data, log0) | 1,000,000 | 1,477,226 | 12,813 | 12.81 | 4,021,652 | 4,021,652 | 4,021,652 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB non zero data, log1) | 1,000,000 | 1,477,226 | 12,406 | 12.41 | 3,656,764 | 3,656,764 | 3,655,788 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB non zero data, log2) | 1,000,000 | 1,477,226 | 15,858 | 15.86 | 4,079,204 | 4,079,095.6 | 4,079,204 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB non zero data, log3) | 1,000,000 | 1,477,226 | 12,185 | 12.19 | 2,319,760 | 2,313,318.4 | 2,306,096 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB non zero data, log4) | 1,000,000 | 1,477,226 | 14,038 | 14.04 | 3,400,108 | 3,400,108 | 3,400,108 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB zeros data, log0) | 1,000,000 | 1,477,226 | 12,758 | 12.76 | 3,267,392 | 3,267,001.6 | 3,261,536 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB zeros data, log1) | 1,000,000 | 1,477,226 | 12,853 | 12.85 | 3,472,320 | 3,472,320 | 3,471,344 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB zeros data, log2) | 1,000,000 | 1,477,226 | 12,703 | 12.70 | 3,905,564 | 3,905,564 | 3,905,564 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB zeros data, log3) | 1,000,000 | 1,477,226 | 11,945 | 11.95 | 3,750,444 | 3,750,444 | 3,750,444 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, non zero topic, 1 MiB zeros data, log4) | 1,000,000 | 1,477,226 | 13,331 | 13.33 | 3,667,496 | 3,667,496 | 3,667,496 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 0 bytes data, log0) | 1,000,000 | 1,477,226 | 17,660 | 17.66 | 4,147,484 | 4,147,484 | 4,146,508 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 0 bytes data, log1) | 1,000,000 | 1,477,226 | 12,775 | 12.78 | 3,878,240 | 3,878,240 | 3,878,240 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 0 bytes data, log2) | 1,000,000 | 1,477,226 | 13,718 | 13.72 | 3,740,688 | 3,740,688 | 3,738,736 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 0 bytes data, log3) | 1,000,000 | 1,477,226 | 18,567 | 18.57 | 4,118,212 | 4,118,212 | 4,117,236 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 0 bytes data, log4) | 1,000,000 | 1,477,226 | 13,807 | 13.81 | 3,349,360 | 3,348,291.0 | 3,341,552 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB non zero data, log0) | 1,000,000 | 1,477,226 | 13,469 | 13.47 | 3,786,528 | 3,786,528 | 3,786,528 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB non zero data, log1) | 1,000,000 | 1,477,226 | 12,679 | 12.68 | 3,859,704 | 3,859,704 | 3,859,704 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB non zero data, log2) | 1,000,000 | 1,477,226 | 13,148 | 13.15 | 3,452,804 | 3,452,804 | 3,446,948 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB non zero data, log3) | 1,000,000 | 1,477,226 | 13,309 | 13.31 | 3,861,656 | 3,861,656 | 3,861,656 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB non zero data, log4) | 1,000,000 | 1,477,226 | 13,239 | 13.24 | 3,492,816 | 3,492,816 | 3,492,816 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB zeros data, log0) | 1,000,000 | 1,477,226 | 12,380 | 12.38 | 3,533,804 | 3,533,804 | 3,526,972 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB zeros data, log1) | 1,000,000 | 1,477,226 | 12,636 | 12.64 | 3,585,532 | 3,585,532 | 3,583,580 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB zeros data, log2) | 1,000,000 | 1,477,226 | 12,115 | 12.12 | 4,192,344 | 4,192,344 | 4,192,344 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB zeros data, log3) | 1,000,000 | 1,477,226 | 12,204 | 12.20 | 3,310,324 | 3,310,324 | 3,308,372 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: False, zeros topic, 1 MiB zeros data, log4) | 1,000,000 | 1,477,226 | 12,423 | 12.42 | 3,678,232 | 3,678,232 | 3,674,328 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 0 bytes data, log0) | 1,000,000 | 1,477,226 | 12,595 | 12.60 | 4,164,060 | 4,163,165.3 | 4,163,084 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 0 bytes data, log1) | 1,000,000 | 1,477,226 | 13,902 | 13.90 | 3,901,660 | 3,901,660 | 3,901,660 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 0 bytes data, log2) | 1,000,000 | 1,477,226 | 13,257 | 13.26 | 4,002,144 | 4,001,070.4 | 4,000,192 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 0 bytes data, log3) | 1,000,000 | 1,477,226 | 13,993 | 13.99 | 4,192,344 | 4,192,344 | 4,192,344 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 0 bytes data, log4) | 1,000,000 | 1,477,226 | 12,847 | 12.85 | 3,266,412 | 3,266,412 | 3,266,412 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB non zero data, log0) | 1,000,000 | 1,477,226 | 13,284 | 13.28 | 3,787,504 | 3,787,504 | 3,786,528 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB non zero data, log1) | 1,000,000 | 1,477,226 | 12,015 | 12.02 | 3,999,216 | 3,999,216 | 3,998,240 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB non zero data, log2) | 1,000,000 | 1,477,226 | 14,756 | 14.76 | 4,114,312 | 4,114,312 | 4,113,336 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB non zero data, log3) | 1,000,000 | 1,477,226 | 15,977 | 15.98 | 4,074,324 | 4,073,766.3 | 4,072,372 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB non zero data, log4) | 1,000,000 | 1,477,226 | 12,680 | 12.68 | 1,967,440 | 1,965,813.3 | 1,952,800 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB zeros data, log0) | 1,000,000 | 1,477,226 | 13,706 | 13.71 | 3,464,516 | 3,464,516 | 3,461,588 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB zeros data, log1) | 1,000,000 | 1,477,226 | 12,800 | 12.80 | 4,024,572 | 4,024,572 | 4,023,596 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB zeros data, log2) | 1,000,000 | 1,477,226 | 12,717 | 12.72 | 3,426,452 | 3,426,126.7 | 3,423,524 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB zeros data, log3) | 1,000,000 | 1,477,226 | 13,307 | 13.31 | 1,392,580 | 1,387,293.3 | 1,382,820 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, non zero topic, 1 MiB zeros data, log4) | 1,000,000 | 1,477,226 | 13,213 | 13.21 | 2,956,088 | 2,955,234 | 2,949,256 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 0 bytes data, log0) | 1,000,000 | 1,477,226 | 12,615 | 12.62 | 1,791,760 | 1,785,416 | 1,780,048 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 0 bytes data, log1) | 1,000,000 | 1,477,226 | 13,274 | 13.27 | 3,774,832 | 3,774,832 | 3,773,856 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 0 bytes data, log2) | 1,000,000 | 1,477,226 | 13,825 | 13.82 | 3,842,144 | 3,842,144 | 3,842,144 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 0 bytes data, log3) | 1,000,000 | 1,477,226 | 12,641 | 12.64 | 3,847,020 | 3,847,020 | 3,847,020 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 0 bytes data, log4) | 1,000,000 | 1,477,226 | 12,663 | 12.66 | 3,914,344 | 3,913,172.8 | 3,909,464 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB non zero data, log0) | 1,000,000 | 1,477,226 | 13,084 | 13.08 | 3,391,324 | 3,389,194.5 | 3,384,492 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB non zero data, log1) | 1,000,000 | 1,477,226 | 12,149 | 12.15 | 3,318,128 | 3,316,420 | 3,313,248 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB non zero data, log2) | 1,000,000 | 1,477,226 | 12,480 | 12.48 | 3,766,052 | 3,765,835.1 | 3,765,076 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB non zero data, log3) | 1,000,000 | 1,477,226 | 14,092 | 14.09 | 3,989,456 | 3,989,456 | 3,988,480 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB non zero data, log4) | 1,000,000 | 1,477,226 | 12,582 | 12.58 | 3,862,632 | 3,861,833.5 | 3,861,656 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB zeros data, log0) | 1,000,000 | 1,477,226 | 13,227 | 13.23 | 1,950,848 | 1,945,317.3 | 1,938,160 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB zeros data, log1) | 1,000,000 | 1,477,226 | 12,694 | 12.69 | 3,761,172 | 3,761,172 | 3,761,172 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB zeros data, log2) | 1,000,000 | 1,477,226 | 17,073 | 17.07 | 4,137,728 | 4,137,728 | 4,137,728 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB zeros data, log3) | 1,000,000 | 1,477,226 | 12,775 | 12.78 | 3,790,420 | 3,790,420 | 3,788,468 |
+| LOG0, LOG1, LOG2, LOG3, LOG4 (fork Prague, 1M gas, fixed offset: True, zeros topic, 1 MiB zeros data, log4) | 1,000,000 | 1,477,226 | 12,953 | 12.95 | 3,778,736 | 3,777,597.3 | 3,774,832 |
+| BALANCE (fork Prague, 1M gas, absent accounts: False) | 1,000,000 | 1,477,226 | 15,148 | 15.15 | 4,028,460 | 4,027,158.7 | 4,026,508 |
+| BALANCE (fork Prague, 1M gas, absent accounts: True) | 1,000,000 | 1,477,226 | 13,965 | 13.96 | 4,002,144 | 4,002,144 | 4,002,144 |
+| BALANCE (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 24,390 | 24.39 | 4,138,708 | 4,138,708 | 4,138,708 |
+| CALLCODE (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 37,848 | 37.85 | 4,165,032 | 4,165,032 | 4,165,032 |
+| CALL (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 37,895 | 37.90 | 4,020,680 | 4,020,680 | 4,019,704 |
+| DELEGATECALL (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 33,913 | 33.91 | 3,734,832 | 3,733,019.4 | 3,727,024 |
+| EXTCODEHASH (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 18,931 | 18.93 | 2,958,036 | 2,955,840 | 2,955,108 |
+| EXTCODESIZE (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 17,629 | 17.63 | 3,909,464 | 3,909,138.7 | 3,907,512 |
+| STATICCALL (fork Prague, 1M gas, absent target: False) | 1,000,000 | 1,477,226 | 36,997 | 37.00 | 4,165,032 | 4,165,032 | 4,165,032 |
+| BALANCE (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 20,675 | 20.68 | 3,166,872 | 3,165,291.8 | 3,162,968 |
+| CALLCODE (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 33,485 | 33.48 | 1,727,348 | 1,714,393.8 | 1,700,996 |
+| CALL (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 39,756 | 39.76 | 4,117,240 | 4,117,240 | 4,116,264 |
+| DELEGATECALL (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 32,436 | 32.44 | 3,778,732 | 3,778,732 | 3,778,732 |
+| EXTCODEHASH (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 23,153 | 23.15 | 3,991,408 | 3,991,408 | 3,991,408 |
+| EXTCODESIZE (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 19,599 | 19.60 | 2,608,648 | 2,604,921.5 | 2,590,104 |
+| STATICCALL (fork Prague, 1M gas, absent target: True) | 1,000,000 | 1,477,226 | 33,337 | 33.34 | 3,931,904 | 3,931,904 | 3,931,904 |
+| BLOCKHASH (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 27,355 | 27.36 | 4,126,020 | 4,126,020 | 4,124,068 |
+| EXTCODECOPY (fork Prague, 1M gas, 1KiB) | 1,000,000 | 1,477,226 | 19,063 | 19.06 | 703,532 | 696,600.4 | 675,228 |
+| EXTCODECOPY (fork Prague, 1M gas, 512) | 1,000,000 | 1,477,226 | 17,733 | 17.73 | 3,993,360 | 3,993,360 | 3,992,384 |
+| EXTCODECOPY (fork Prague, 1M gas, 5KiB) | 1,000,000 | 1,477,226 | 17,438 | 17.44 | 3,899,708 | 3,899,708 | 3,899,708 |
+| SELFBALANCE (fork Prague, 1M gas) | 1,000,000 | 1,477,226 | 107,988 | 107.99 | 3,404,980 | 3,404,248 | 3,401,076 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: False) | 965,720 | 1,477,226 | 13,788 | 13.79 | 3,379,612 | 3,379,612 | 3,378,636 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: True) | 965,720 | 1,477,226 | 14,329 | 14.33 | 3,850,924 | 3,850,924 | 3,849,948 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: False) | 998,771 | 1,477,226 | 15,312 | 15.31 | 3,504,524 | 3,504,524 | 3,503,548 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: True) | 998,771 | 1,477,226 | 14,578 | 14.58 | 3,232,260 | 3,231,106.5 | 3,226,404 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: False) | 989,164 | 1,477,226 | 14,812 | 14.81 | 4,154,316 | 4,154,316 | 4,154,316 |
+| SELFDESTRUCT (fork Prague, 1M gas, value bearing: True) | 989,164 | 1,477,226 | 12,301 | 12.30 | 3,934,832 | 3,934,832 | 3,933,856 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False, SSLOAD) | 999,749 | 1,477,226 | 17,319 | 17.32 | 3,376,684 | 3,375,328.4 | 3,367,900 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False) | 1,000,000 | 1,477,226 | 14,555 | 14.55 | 3,872,388 | 3,872,388 | 3,872,388 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False) | 998,963 | 1,477,226 | 15,776 | 15.78 | 3,883,120 | 3,883,120 | 3,883,120 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False, SSTORE new value) | 998,957 | 1,477,226 | 15,383 | 15.38 | 3,323,984 | 3,323,008 | 3,317,152 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False) | 1,000,000 | 1,477,226 | 21,499 | 21.50 | 4,137,728 | 4,137,727.6 | 4,137,728 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False) | 999,015 | 1,477,226 | 17,853 | 17.85 | 4,168,932 | 4,168,932 | 4,167,956 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: False, SSTORE same value) | 999,009 | 1,477,226 | 17,549 | 17.55 | 896,772 | 883,108 | 863,588 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True, SSLOAD) | 999,749 | 1,477,226 | 15,549 | 15.55 | 4,187,468 | 4,187,468 | 4,187,468 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True) | 1,000,000 | 1,477,226 | 13,938 | 13.94 | 3,009,764 | 3,009,764 | 3,008,788 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True) | 995,213 | 1,477,226 | 12,786 | 12.79 | 755,260 | 746,998.9 | 727,932 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True, SSTORE new value) | 995,207 | 1,477,226 | 13,312 | 13.31 | 2,861,428 | 2,860,452 | 2,857,524 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True) | 1,000,000 | 1,477,226 | 12,684 | 12.68 | 4,166,984 | 4,166,008 | 4,165,032 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True) | 995,081 | 1,477,226 | 16,404 | 16.40 | 4,090,892 | 4,090,892 | 4,088,940 |
+| SLOAD, SSTORE (fork Prague, 1M gas, absent slots: True, SSTORE same value) | 995,075 | 1,477,226 | 12,817 | 12.82 | 4,193,320 | 4,193,320 | 4,193,320 |
+| SLOAD, SSTORE (fork Prague, 1M gas, SLOAD) | 1,000,000 | 1,477,226 | 18,357 | 18.36 | 674,252 | 669,334.5 | 661,564 |
+| SLOAD, SSTORE (fork Prague, 1M gas, SSTORE new value) | 1,000,000 | 1,477,226 | 31,071 | 31.07 | 3,868,484 | 3,868,484 | 3,868,484 |
+| SLOAD, SSTORE (fork Prague, 1M gas, SSTORE same value) | 1,000,000 | 1,477,226 | 25,818 | 25.82 | 3,606,012 | 3,603,371.1 | 3,601,132 |
+
+## Summary Statistics
+
+- **Total Tests:** 508
+- **Successful Tests:** 508
+- **Failed Tests:** 0
+
+### Proving Time (ms)
+- **Average:** 107,193.2
+- **Minimum:** 9,425
+- **Maximum:** 1,620,765
+
+### Peak Memory Usage (MB)
+- **Average:** 3,544,570.1
+- **Minimum:** 522,000
+- **Maximum:** 4,193,324
+
+### Proof Size (bytes)
+- **Average:** 1,477,226
+- **Minimum:** 1,477,226
+- **Maximum:** 1,477,226
