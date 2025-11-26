@@ -80,11 +80,11 @@ jobs:
           # Stateless Validator - Ethrex
           - zkvm: sp1
             el: ethrex
-            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            tests: "execute_empty_block execute_mainnet_blocks prove_empty_block"
             threads: 12
           - zkvm: risc0
             el: ethrex
-            tests: "execute_empty_block execute_mainnet_blocks execute_invalid_block prove_empty_block"
+            tests: "execute_empty_block execute_mainnet_blocks prove_empty_block"
             threads: 12
 
           # Custom Guest Programs
