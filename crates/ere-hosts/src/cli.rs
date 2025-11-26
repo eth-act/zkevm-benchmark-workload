@@ -5,7 +5,7 @@ use std::{path::PathBuf, str::FromStr};
 use anyhow::Result;
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
 
 /// Command line interface for the zkVM benchmarker
@@ -24,8 +24,8 @@ pub struct Cli {
     pub action: BenchmarkAction,
 
     /// zkVM instances to benchmark
-    #[arg(long, required(true), value_parser = <ErezkVM as std::str::FromStr>::from_str)]
-    pub zkvms: Vec<ErezkVM>,
+    #[arg(long, required(true), value_parser = <zkVMKind as std::str::FromStr>::from_str)]
+    pub zkvms: Vec<zkVMKind>,
 
     /// Rerun the benchmarks even if the output folder already contains results
     #[arg(long, default_value_t = false)]

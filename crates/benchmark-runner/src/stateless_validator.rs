@@ -5,7 +5,7 @@ use std::{convert::TryInto, path::Path};
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_rlp::Encodable;
 use anyhow::{Context, Result};
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 use ere_io_serde::IoSerde;
 use ethrex_common::{
     types::{
@@ -97,7 +97,7 @@ pub struct ProgramOutputVerifier {
 }
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
+    fn check_serialized(&self, _zkvm: zkVMKind, bytes: &[u8]) -> Result<OutputVerifierResult> {
         let block_hash = self.bw.stateless_input.block.hash_slow().0;
         let parent_hash = self.bw.stateless_input.block.parent_hash.0;
         let success = self.bw.success;

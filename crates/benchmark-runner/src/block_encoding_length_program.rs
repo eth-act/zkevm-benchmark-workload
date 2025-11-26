@@ -4,7 +4,7 @@ use std::path::Path;
 
 use anyhow::*;
 use block_encoding_length_io::{BlockEncodingFormat, Input};
-use ere_dockerized::ErezkVM;
+use ere_dockerized::zkVMKind;
 use ere_io_serde::IoSerde;
 use guest_libs::BincodeBlock;
 use serde::{Deserialize, Serialize};
@@ -60,7 +60,7 @@ pub fn block_encoding_length_inputs(
 pub struct ProgramOutputVerifier;
 
 impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, _zkvm: ErezkVM, bytes: &[u8]) -> Result<OutputVerifierResult> {
+    fn check_serialized(&self, _zkvm: zkVMKind, bytes: &[u8]) -> Result<OutputVerifierResult> {
         if bytes.is_empty() {
             return Ok(OutputVerifierResult::Match);
         }
