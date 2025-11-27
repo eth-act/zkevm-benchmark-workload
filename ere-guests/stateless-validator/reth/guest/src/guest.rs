@@ -9,19 +9,19 @@ use k256::sha2::{Digest, Sha256};
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{Input, io_serde};
-use reth_primitives_traits::Block;
+use reth_guest_io::{io_serde, BlockBodyDA, Input};
+use reth_primitives_traits::{block::body, Block};
 use reth_stateless::{
-    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
+    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{SDK, ScopeMarker};
+use crate::sdk::{ScopeMarker, SDK};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "read_input");
-    let input: Input = io_serde()
+    let mut input: Input = io_serde()
         .deserialize(&S::read_input())
         .expect("Failed to read input");
 
@@ -31,6 +31,14 @@ pub fn ethereum_guest<S: SDK>() {
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
+
+    let block_body = match input.block_body {
+        BlockBodyDA::Raw(body) => body,
+        BlockBodyDA::CompressedSnappy(_data) => {
+            unimplemented!("Decompression of snappy-compressed block bodies is not implemented yet")
+        }
+    };
+    input.stateless_input.block.body = block_body;
     S::cycle_scope(ScopeMarker::End, "read_input");
 
     S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");

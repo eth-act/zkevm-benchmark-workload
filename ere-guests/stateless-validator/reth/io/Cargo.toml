@@ -10,6 +10,10 @@ guest-libs.workspace = true
 ere-io-serde.workspace = true
 
 reth-stateless.workspace = true
+reth-ethereum-primitives.workspace = true
+reth-primitives-traits.workspace = true
+alloy-consensus.workspace = true
 
 serde = { workspace = true, features = ["derive"] }
+serde_with.workspace = true
 anyhow.workspace = true

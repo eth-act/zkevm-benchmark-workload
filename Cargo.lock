@@ -7273,11 +7273,15 @@ dependencies = [
 name = "reth-guest-io"
 version = "0.1.0"
 dependencies = [
+ "alloy-consensus",
  "anyhow",
  "ere-io-serde",
  "guest-libs",
+ "reth-ethereum-primitives",
+ "reth-primitives-traits",
  "reth-stateless",
  "serde",
+ "serde_with",
 ]
 
 [[package]]
