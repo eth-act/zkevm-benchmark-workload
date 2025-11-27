@@ -49,11 +49,12 @@ impl GuestMetadata for BlockMetadata {}
 pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
+    block_body_kzg_commit: reth_guest_io::BlockBodyKzgCommit,
 ) -> Result<Vec<GuestIO<BlockMetadata, ProgramOutputVerifier>>> {
     let mut res = vec![];
     let witnesses = read_benchmark_fixtures_folder(input_folder)?;
     for bw in &witnesses {
-        let input = get_input_full_validation(bw, &el)?;
+        let input = get_input_full_validation(bw, &el, block_body_kzg_commit)?;
         let metadata = BlockMetadata {
             block_used_gas: bw.stateless_input.block.gas_used,
         };
@@ -118,12 +119,14 @@ impl OutputVerifier for ProgramOutputVerifier {
 fn get_input_full_validation(
     bw: &StatelessValidationFixture,
     el: &ExecutionClient,
+    block_body_kzg_commit: reth_guest_io::BlockBodyKzgCommit,
 ) -> Result<Vec<u8>> {
     let si = &bw.stateless_input;
     match el {
         ExecutionClient::Reth => reth_guest_io::io_serde()
             .serialize(
-                &reth_guest_io::Input::new(si.clone()).context("Failed to create Reth input")?,
+                &reth_guest_io::Input::new(si.clone(), block_body_kzg_commit)
+                    .context("Failed to create Reth input")?,
             )
             .map_err(|e| anyhow::anyhow!("Reth serialization error: {e}")),
         ExecutionClient::Ethrex => {

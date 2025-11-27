@@ -11,6 +11,7 @@ default = []
 [dependencies]
 benchmark-runner.workspace = true
 block-encoding-length-io.workspace = true
+reth-guest-io.workspace = true
 
 ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true

@@ -2779,6 +2779,7 @@ dependencies = [
  "clap",
  "ere-dockerized",
  "ere-zkvm-interface",
+ "reth-guest-io",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -4315,6 +4316,7 @@ dependencies = [
  "ere-dockerized",
  "ere-zkvm-interface",
  "flate2",
+ "reth-guest-io",
  "tar",
  "tempfile",
  "tokio",
@@ -7282,6 +7284,7 @@ dependencies = [
  "reth-stateless",
  "serde",
  "serde_with",
+ "snap",
 ]
 
 [[package]]

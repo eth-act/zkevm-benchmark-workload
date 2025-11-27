@@ -38,14 +38,18 @@ fn main() -> Result<()> {
         GuestProgramCommand::StatelessValidator {
             input_folder,
             execution_client,
+            block_body_kzg_commit,
         } => {
             info!(
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
             let el = execution_client.into();
-            let guest_io =
-                stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)?;
+            let guest_io = stateless_validator::stateless_validator_inputs(
+                input_folder.as_path(),
+                el,
+                block_body_kzg_commit.into(),
+            )?;
             let guest_relative = execution_client
                 .guest_rel_path()
                 .context("Failed to get guest relative path")?;

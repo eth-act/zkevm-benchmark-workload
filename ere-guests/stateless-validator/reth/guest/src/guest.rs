@@ -9,14 +9,14 @@ use k256::sha2::{Digest, Sha256};
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{BincodeBlockBody, BlockBodyBytes, Input, io_serde};
+use reth_guest_io::{io_serde, BincodeBlockBody, BlockBodyBytes, Input};
 use reth_primitives_traits::Block;
 use reth_stateless::{
-    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
+    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{SDK, ScopeMarker};
+use crate::sdk::{ScopeMarker, SDK};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
@@ -33,36 +33,38 @@ pub fn ethereum_guest<S: SDK>() {
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     S::cycle_scope(ScopeMarker::End, "read_input");
 
-    S::cycle_scope(ScopeMarker::Start, "kzg_init");
-    let kzg_settings = c_kzg::ethereum_kzg_settings(8);
-    S::cycle_scope(ScopeMarker::End, "kzg_init");
-
-    S::cycle_scope(ScopeMarker::Start, "kzg_commitments");
-    let block_body_raw = match &input.block_body_bytes {
-        BlockBodyBytes::Raw(body) => body.as_slice(),
-        BlockBodyBytes::CompressedSnappy(_) => {
-            unimplemented!("Decompression of snappy-compressed block bodies is not implemented yet")
-        }
+    // Decompress block body if needed (used for both KZG and deserialization)
+    S::cycle_scope(ScopeMarker::Start, "block_body_decompression");
+    let block_body_raw: Vec<u8> = match &input.block_body_bytes {
+        BlockBodyBytes::Raw(body) => body.clone(),
+        BlockBodyBytes::CompressedSnappy(compressed) => snap::raw::Decoder::new()
+            .decompress_vec(compressed)
+            .expect("Failed to decompress snappy-compressed block body"),
     };
-    let blobs = partition_into_blobs(block_body_raw);
-    let _commitments: Vec<_> = blobs
-        .iter()
-        .map(|blob| {
-            kzg_settings
-                .blob_to_kzg_commitment(blob)
-                .expect("Failed to compute KZG commitment")
-        })
-        .collect();
-    S::cycle_scope(ScopeMarker::End, "kzg_commitments");
+    S::cycle_scope(ScopeMarker::End, "block_body_decompression");
+
+    if input.kzg_enabled {
+        S::cycle_scope(ScopeMarker::Start, "kzg_init");
+        let kzg_settings = c_kzg::ethereum_kzg_settings(8);
+        S::cycle_scope(ScopeMarker::End, "kzg_init");
+
+        S::cycle_scope(ScopeMarker::Start, "kzg_commitments");
+        let blobs = partition_into_blobs(&block_body_raw);
+        let _commitments: Vec<_> = blobs
+            .iter()
+            .map(|blob| {
+                kzg_settings
+                    .blob_to_kzg_commitment(blob)
+                    .expect("Failed to compute KZG commitment")
+            })
+            .collect();
+        S::cycle_scope(ScopeMarker::End, "kzg_commitments");
+    }
 
     S::cycle_scope(ScopeMarker::Start, "block_body_deserialization");
-    let block_body: BincodeBlockBody = match input.block_body_bytes {
-        BlockBodyBytes::Raw(body) => io_serde().deserialize(&body),
-        BlockBodyBytes::CompressedSnappy(_data) => {
-            unimplemented!("Decompression of snappy-compressed block bodies is not implemented yet")
-        }
-    }
-    .expect("Failed to deserialize block body");
+    let block_body: BincodeBlockBody = io_serde()
+        .deserialize(&block_body_raw)
+        .expect("Failed to deserialize block body");
     input.stateless_input.block.body = block_body.0;
     S::cycle_scope(ScopeMarker::End, "block_body_deserialization");
 

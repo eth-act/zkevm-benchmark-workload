@@ -55,6 +55,9 @@ pub enum GuestProgramCommand {
         /// Execution client to benchmark
         #[arg(short, long)]
         execution_client: ExecutionClient,
+        /// Block body KZG commit mode (none to disable, raw, or snappy)
+        #[arg(long, value_enum, default_value = "none")]
+        block_body_kzg_commit: BlockBodyKzgCommit,
     },
     /// Empty program
     EmptyProgram,
@@ -82,6 +85,18 @@ pub enum BlockEncodingFormat {
     Rlp,
     /// SSZ encoding
     Ssz,
+}
+
+/// Block body KZG commit options for stateless validator
+#[derive(Debug, Clone, Copy, ValueEnum, Default)]
+pub enum BlockBodyKzgCommit {
+    /// Disable KZG commitment calculation
+    #[default]
+    None,
+    /// Enable KZG with raw body encoding
+    Raw,
+    /// Enable KZG with Snappy-compressed body encoding
+    Snappy,
 }
 
 /// Execution clients for the stateless validator
@@ -154,6 +169,16 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
         match client {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
+        }
+    }
+}
+
+impl From<BlockBodyKzgCommit> for reth_guest_io::BlockBodyKzgCommit {
+    fn from(mode: BlockBodyKzgCommit) -> Self {
+        match mode {
+            BlockBodyKzgCommit::None => Self::None,
+            BlockBodyKzgCommit::Raw => Self::Raw,
+            BlockBodyKzgCommit::Snappy => Self::Snappy,
         }
     }
 }

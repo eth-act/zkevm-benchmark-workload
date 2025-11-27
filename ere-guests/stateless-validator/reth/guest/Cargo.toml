@@ -33,6 +33,7 @@ bincode_v2.workspace = true
 serde.workspace = true
 serde_with.workspace = true
 once_cell.workspace = true
+snap.workspace = true
 
 [features]
 default = ["std", "reth-stateless/default"]

@@ -73,7 +73,12 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input");
 
             let output_folder = OutputDir::new().unwrap();
-            let inputs = stateless_validator::stateless_validator_inputs(input_folder, el).unwrap();
+            let inputs = stateless_validator::stateless_validator_inputs(
+                input_folder,
+                el,
+                reth_guest_io::BlockBodyKzgCommit::None,
+            )
+            .unwrap();
             let len_inputs = inputs.len();
             assert_eq!(len_inputs, 15);
 
@@ -115,9 +120,12 @@ mod tests {
                 .unwrap();
 
             let output_folder = OutputDir::new().unwrap();
-            let inputs =
-                stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path(), el)
-                    .unwrap();
+            let inputs = stateless_validator::stateless_validator_inputs(
+                bench_fixtures_dir.path(),
+                el,
+                reth_guest_io::BlockBodyKzgCommit::None,
+            )
+            .unwrap();
 
             let len_inputs = inputs.len();
             assert_eq!(len_inputs, 1);
@@ -149,9 +157,12 @@ mod tests {
                 .unwrap();
 
             let output_folder = OutputDir::new().unwrap();
-            let inputs =
-                stateless_validator::stateless_validator_inputs(bench_fixtures_dir.path(), *el)
-                    .unwrap();
+            let inputs = stateless_validator::stateless_validator_inputs(
+                bench_fixtures_dir.path(),
+                *el,
+                reth_guest_io::BlockBodyKzgCommit::None,
+            )
+            .unwrap();
 
             let len_inputs = inputs.len();
             assert_eq!(len_inputs, 1);

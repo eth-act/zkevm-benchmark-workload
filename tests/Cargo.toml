@@ -9,6 +9,7 @@ zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
 witness-generator.workspace = true
+reth-guest-io.workspace = true
 
 walkdir.workspace = true
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
