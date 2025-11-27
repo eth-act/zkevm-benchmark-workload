@@ -9,14 +9,14 @@ use k256::sha2::{Digest, Sha256};
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{io_serde, BlockBodyDA, Input};
-use reth_primitives_traits::{block::body, Block};
+use reth_guest_io::{BincodeBlockBody, BlockBodyBytes, Input, io_serde};
+use reth_primitives_traits::Block;
 use reth_stateless::{
-    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
+    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{ScopeMarker, SDK};
+use crate::sdk::{SDK, ScopeMarker};
 
 /// Main entry point for the guest program.
 pub fn ethereum_guest<S: SDK>() {
@@ -31,15 +31,40 @@ pub fn ethereum_guest<S: SDK>() {
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
+    S::cycle_scope(ScopeMarker::End, "read_input");
 
-    let block_body = match input.block_body {
-        BlockBodyDA::Raw(body) => body,
-        BlockBodyDA::CompressedSnappy(_data) => {
+    S::cycle_scope(ScopeMarker::Start, "kzg_init");
+    let kzg_settings = c_kzg::ethereum_kzg_settings(8);
+    S::cycle_scope(ScopeMarker::End, "kzg_init");
+
+    S::cycle_scope(ScopeMarker::Start, "kzg_commitments");
+    let block_body_raw = match &input.block_body_bytes {
+        BlockBodyBytes::Raw(body) => body.as_slice(),
+        BlockBodyBytes::CompressedSnappy(_) => {
             unimplemented!("Decompression of snappy-compressed block bodies is not implemented yet")
         }
     };
-    input.stateless_input.block.body = block_body;
-    S::cycle_scope(ScopeMarker::End, "read_input");
+    let blobs = partition_into_blobs(block_body_raw);
+    let _commitments: Vec<_> = blobs
+        .iter()
+        .map(|blob| {
+            kzg_settings
+                .blob_to_kzg_commitment(blob)
+                .expect("Failed to compute KZG commitment")
+        })
+        .collect();
+    S::cycle_scope(ScopeMarker::End, "kzg_commitments");
+
+    S::cycle_scope(ScopeMarker::Start, "block_body_deserialization");
+    let block_body: BincodeBlockBody = match input.block_body_bytes {
+        BlockBodyBytes::Raw(body) => io_serde().deserialize(&body),
+        BlockBodyBytes::CompressedSnappy(_data) => {
+            unimplemented!("Decompression of snappy-compressed block bodies is not implemented yet")
+        }
+    }
+    .expect("Failed to deserialize block body");
+    input.stateless_input.block.body = block_body.0;
+    S::cycle_scope(ScopeMarker::End, "block_body_deserialization");
 
     S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");
     let header = input.stateless_input.block.header().clone();
@@ -97,4 +122,37 @@ fn validate_block<S: SDK>(
     S::cycle_scope(ScopeMarker::End, "validation");
 
     Ok(block_hash)
+}
+
+fn partition_into_blobs(data: &[u8]) -> Vec<c_kzg::Blob> {
+    const BYTES_PER_BLOB: usize = c_kzg::BYTES_PER_BLOB;
+    const USABLE_BYTES_PER_ELEMENT: usize = c_kzg::BYTES_PER_FIELD_ELEMENT - 1; // Leave high byte as 0 to stay below modulus
+    const USABLE_BYTES_PER_BLOB: usize = c_kzg::FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
+
+    if data.is_empty() {
+        return vec![c_kzg::Blob::new([0u8; BYTES_PER_BLOB])];
+    }
+
+    let num_blobs = data.len().div_ceil(USABLE_BYTES_PER_BLOB);
+    let mut blobs = Vec::with_capacity(num_blobs);
+    let mut offset = 0;
+
+    for _ in 0..num_blobs {
+        let mut blob_data = [0u8; BYTES_PER_BLOB];
+
+        for fe_idx in 0..c_kzg::FIELD_ELEMENTS_PER_BLOB {
+            if offset >= data.len() {
+                break;
+            }
+            let chunk_size = (data.len() - offset).min(USABLE_BYTES_PER_ELEMENT);
+            let blob_offset = fe_idx * c_kzg::BYTES_PER_FIELD_ELEMENT + 1; // +1 leaves high byte as 0
+            blob_data[blob_offset..blob_offset + chunk_size]
+                .copy_from_slice(&data[offset..offset + chunk_size]);
+            offset += chunk_size;
+        }
+
+        blobs.push(c_kzg::Blob::new(blob_data));
+    }
+
+    blobs
 }

@@ -21,31 +21,38 @@ pub struct Input {
     /// The recovered signers for the transactions in the block.
     pub public_keys: Vec<UncompressedPublicKey>,
     /// Experimental: contains block body in some shape/form.
-    pub block_body: BlockBodyDA,
+    pub block_body_bytes: BlockBodyBytes,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub enum BlockBodyBytes {
+    Raw(Vec<u8>),
+    CompressedSnappy(Vec<u8>),
 }
 
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum BlockBodyDA {
-    Raw(
-        #[serde_as(
-            as = "reth_primitives_traits::serde_bincode_compat::BlockBody<reth_ethereum_primitives::TransactionSigned, alloy_consensus::Header>"
-        )]
-        alloy_consensus::BlockBody<reth_ethereum_primitives::TransactionSigned>,
-    ),
-    CompressedSnappy(Vec<u8>),
-}
+pub struct BincodeBlockBody(
+    #[serde_as(
+        as = "reth_primitives_traits::serde_bincode_compat::BlockBody<reth_ethereum_primitives::TransactionSigned, alloy_consensus::Header>"
+    )]
+    pub alloy_consensus::BlockBody<reth_ethereum_primitives::TransactionSigned>,
+);
 
 impl Input {
     /// Create a new `Input` from the given `StatelessInput`.
     pub fn new(mut stateless_input: StatelessInput) -> Result<Self> {
         let signers = recover_signers(stateless_input.block.body.transactions.iter())
             .map_err(|err| anyhow::anyhow!("recovering signers: {err}"))?;
-        let body = core::mem::take(&mut stateless_input.block.body);
+        let body = BincodeBlockBody(core::mem::take(&mut stateless_input.block.body));
         Ok(Self {
             stateless_input,
             public_keys: signers,
-            block_body: BlockBodyDA::Raw(body),
+            block_body_bytes: BlockBodyBytes::Raw(
+                io_serde()
+                    .serialize(&body)
+                    .map_err(|e| anyhow::anyhow!("serializing block body: {e}"))?,
+            ),
         })
     }
 }
