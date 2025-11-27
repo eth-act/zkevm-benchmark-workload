@@ -33,23 +33,17 @@ pub fn ethereum_guest<S: SDK>() {
     let evm_config = EthEvmConfig::new(chain_spec.clone());
     S::cycle_scope(ScopeMarker::End, "read_input");
 
-    // Decompress block body if needed (used for both KZG and deserialization)
-    S::cycle_scope(ScopeMarker::Start, "block_body_decompression");
-    let block_body_raw: Vec<u8> = match &input.block_body_bytes {
-        BlockBodyBytes::Raw(body) => body.clone(),
-        BlockBodyBytes::CompressedSnappy(compressed) => snap::raw::Decoder::new()
-            .decompress_vec(compressed)
-            .expect("Failed to decompress snappy-compressed block body"),
-    };
-    S::cycle_scope(ScopeMarker::End, "block_body_decompression");
-
     if input.kzg_enabled {
         S::cycle_scope(ScopeMarker::Start, "kzg_init");
         let kzg_settings = c_kzg::ethereum_kzg_settings(8);
         S::cycle_scope(ScopeMarker::End, "kzg_init");
 
         S::cycle_scope(ScopeMarker::Start, "kzg_commitments");
-        let blobs = partition_into_blobs(&block_body_raw);
+        let kzg_data: &[u8] = match &input.block_body_bytes {
+            BlockBodyBytes::Raw(body) => body,
+            BlockBodyBytes::CompressedSnappy(compressed) => compressed,
+        };
+        let blobs = partition_into_blobs(kzg_data);
         let _commitments: Vec<_> = blobs
             .iter()
             .map(|blob| {
@@ -60,6 +54,15 @@ pub fn ethereum_guest<S: SDK>() {
             .collect();
         S::cycle_scope(ScopeMarker::End, "kzg_commitments");
     }
+
+    S::cycle_scope(ScopeMarker::Start, "block_body_decompression");
+    let block_body_raw: Vec<u8> = match &input.block_body_bytes {
+        BlockBodyBytes::Raw(body) => body.clone(),
+        BlockBodyBytes::CompressedSnappy(compressed) => snap::raw::Decoder::new()
+            .decompress_vec(compressed)
+            .expect("Failed to decompress snappy-compressed block body"),
+    };
+    S::cycle_scope(ScopeMarker::End, "block_body_decompression");
 
     S::cycle_scope(ScopeMarker::Start, "block_body_deserialization");
     let block_body: BincodeBlockBody = io_serde()
@@ -132,7 +135,7 @@ fn partition_into_blobs(data: &[u8]) -> Vec<c_kzg::Blob> {
     const USABLE_BYTES_PER_BLOB: usize = c_kzg::FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
 
     if data.is_empty() {
-        return vec![c_kzg::Blob::new([0u8; BYTES_PER_BLOB])];
+        return Vec::new();
     }
 
     let num_blobs = data.len().div_ceil(USABLE_BYTES_PER_BLOB);

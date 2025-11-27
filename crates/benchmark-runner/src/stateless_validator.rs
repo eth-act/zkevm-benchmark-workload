@@ -45,6 +45,61 @@ pub struct BlockMetadata {
 }
 impl GuestMetadata for BlockMetadata {}
 
+#[derive(Debug, Clone)]
+pub struct CompressionAnalysis {
+    pub name: String,
+    pub raw_size: usize,
+    pub compressed_size: usize,
+    pub raw_blobs: usize,
+    pub compressed_blobs: usize,
+    pub compression_ratio: f64,
+    pub blob_savings: i32,
+}
+
+const BYTES_PER_FIELD_ELEMENT: usize = 32;
+const FIELD_ELEMENTS_PER_BLOB: usize = 4096;
+const USABLE_BYTES_PER_ELEMENT: usize = BYTES_PER_FIELD_ELEMENT - 1; // High byte = 0 to stay below modulus
+const USABLE_BYTES_PER_BLOB: usize = FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
+
+fn calculate_blob_count(data_size: usize) -> usize {
+    data_size.div_ceil(USABLE_BYTES_PER_BLOB)
+}
+
+pub fn analyze_compression(input_folder: &Path) -> Result<Vec<CompressionAnalysis>> {
+    let fixtures = read_benchmark_fixtures_folder(input_folder)?;
+
+    fixtures
+        .into_iter()
+        .map(|fixture| {
+            let body = reth_guest_io::BincodeBlockBody(fixture.stateless_input.block.body.clone());
+            let raw_bytes = reth_guest_io::io_serde()
+                .serialize(&body)
+                .map_err(|e| anyhow::anyhow!("serializing block body: {e}"))?;
+
+            let raw_size = raw_bytes.len();
+
+            let compressed_bytes = snap::raw::Encoder::new()
+                .compress_vec(&raw_bytes)
+                .map_err(|e| anyhow::anyhow!("compressing block body: {e}"))?;
+
+            let compressed_size = compressed_bytes.len();
+
+            let raw_blobs = calculate_blob_count(raw_size);
+            let compressed_blobs = calculate_blob_count(compressed_size);
+
+            Ok(CompressionAnalysis {
+                name: fixture.name,
+                raw_size,
+                compressed_size,
+                raw_blobs,
+                compressed_blobs,
+                compression_ratio: compressed_size as f64 / raw_size as f64,
+                blob_savings: raw_blobs as i32 - compressed_blobs as i32,
+            })
+        })
+        .collect()
+}
+
 /// Prepares the inputs for the stateless validator guest program based on the mode.
 pub fn stateless_validator_inputs(
     input_folder: &Path,

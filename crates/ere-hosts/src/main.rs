@@ -128,9 +128,87 @@ fn main() -> Result<()> {
                 run_benchmark(&zkvm, &config, guest_io.clone())?;
             }
         }
+        GuestProgramCommand::AnalyzeCompression { input_folder } => {
+            info!(
+                "Analyzing compression for fixtures in: {}",
+                input_folder.display()
+            );
+            let mut results = stateless_validator::analyze_compression(&input_folder)?;
+
+            results.sort_by(|a, b| b.blob_savings.cmp(&a.blob_savings));
+
+            println!(
+                "\n{:<50} {:>12} {:>12} {:>8} {:>10} {:>12} {:>8}",
+                "Fixture", "Raw Size", "Compressed", "Ratio", "Raw Blobs", "Snappy Blobs", "Saved"
+            );
+            println!("{}", "-".repeat(114));
+
+            // Accumulators for totals
+            let mut total_raw_size: usize = 0;
+            let mut total_compressed_size: usize = 0;
+            let mut total_raw_blobs: usize = 0;
+            let mut total_compressed_blobs: usize = 0;
+
+            for result in &results {
+                println!(
+                    "{:<50} {:>12} {:>12} {:>7.1}% {:>10} {:>12} {:>8}",
+                    truncate_name(&result.name, 50),
+                    format_bytes(result.raw_size),
+                    format_bytes(result.compressed_size),
+                    result.compression_ratio * 100.0,
+                    result.raw_blobs,
+                    result.compressed_blobs,
+                    result.blob_savings
+                );
+                total_raw_size += result.raw_size;
+                total_compressed_size += result.compressed_size;
+                total_raw_blobs += result.raw_blobs;
+                total_compressed_blobs += result.compressed_blobs;
+            }
+
+            // Print totals
+            println!("{}", "-".repeat(114));
+            let total_ratio = if total_raw_size > 0 {
+                total_compressed_size as f64 / total_raw_size as f64
+            } else {
+                0.0
+            };
+            let total_savings = total_raw_blobs as i32 - total_compressed_blobs as i32;
+            println!(
+                "{:<50} {:>12} {:>12} {:>7.1}% {:>10} {:>12} {:>8}",
+                format!("TOTAL ({} fixtures)", results.len()),
+                format_bytes(total_raw_size),
+                format_bytes(total_compressed_size),
+                total_ratio * 100.0,
+                total_raw_blobs,
+                total_compressed_blobs,
+                total_savings
+            );
+            println!();
+        }
     }
 
     Ok(())
+}
+
+fn format_bytes(bytes: usize) -> String {
+    let s = bytes.to_string();
+    let mut result = String::new();
+    for (i, c) in s.chars().rev().enumerate() {
+        if i > 0 && i % 3 == 0 {
+            result.push(',');
+        }
+        result.push(c);
+    }
+    result.chars().rev().collect()
+}
+
+fn truncate_name(name: &str, max_len: usize) -> String {
+    if name.len() <= max_len {
+        name.to_string()
+    } else {
+        format!("...{}", &name[name.len() - max_len + 3..])
+    }
 }
 
 /// Repository root (assumes `ere-hosts` lives in `<root>/crates/ere-hosts`).

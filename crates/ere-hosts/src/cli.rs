@@ -23,8 +23,8 @@ pub struct Cli {
     #[arg(short, long, value_enum, default_value = "execute")]
     pub action: BenchmarkAction,
 
-    /// zkVM instances to benchmark
-    #[arg(long, required(true), value_parser = <zkVMKind as std::str::FromStr>::from_str)]
+    /// zkVM instances to benchmark (required for benchmark subcommands)
+    #[arg(long, value_parser = <zkVMKind as std::str::FromStr>::from_str)]
     pub zkvms: Vec<zkVMKind>,
 
     /// Rerun the benchmarks even if the output folder already contains results
@@ -75,6 +75,13 @@ pub enum GuestProgramCommand {
         /// Encoding format
         #[arg(short, long, value_enum)]
         format: BlockEncodingFormat,
+    },
+
+    /// Analyze block body compression effectiveness for KZG blob reduction
+    AnalyzeCompression {
+        /// Input folder for benchmark fixtures
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
     },
 }
 
