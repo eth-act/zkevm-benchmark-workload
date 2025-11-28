@@ -45,14 +45,22 @@ pub struct BlockMetadata {
 }
 impl GuestMetadata for BlockMetadata {}
 
+/// Analysis results for block body compression.
 #[derive(Debug, Clone)]
 pub struct CompressionAnalysis {
+    /// Name of the fixture being analyzed.
     pub name: String,
+    /// Size of the raw (uncompressed) block body in bytes.
     pub raw_size: usize,
+    /// Size of the compressed block body in bytes.
     pub compressed_size: usize,
+    /// Number of blobs required to store the raw block body.
     pub raw_blobs: usize,
+    /// Number of blobs required to store the compressed block body.
     pub compressed_blobs: usize,
+    /// Compression ratio (compressed size / raw size).
     pub compression_ratio: f64,
+    /// Number of blobs saved by compression (`raw_blobs` - `compressed_blobs`).
     pub blob_savings: i32,
 }
 
@@ -61,10 +69,15 @@ const FIELD_ELEMENTS_PER_BLOB: usize = 4096;
 const USABLE_BYTES_PER_ELEMENT: usize = BYTES_PER_FIELD_ELEMENT - 1; // High byte = 0 to stay below modulus
 const USABLE_BYTES_PER_BLOB: usize = FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
 
-fn calculate_blob_count(data_size: usize) -> usize {
+const fn calculate_blob_count(data_size: usize) -> usize {
     data_size.div_ceil(USABLE_BYTES_PER_BLOB)
 }
 
+/// Analyzes compression effectiveness for block bodies in benchmark fixtures.
+///
+/// Reads all fixtures from the input folder, serializes their block bodies,
+/// compresses them using Snappy, and calculates compression metrics including
+/// how many blobs would be needed before and after compression.
 pub fn analyze_compression(input_folder: &Path) -> Result<Vec<CompressionAnalysis>> {
     let fixtures = read_benchmark_fixtures_folder(input_folder)?;
 

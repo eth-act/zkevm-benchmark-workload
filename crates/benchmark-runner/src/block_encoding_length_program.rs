@@ -41,7 +41,7 @@ pub fn block_encoding_length_inputs(
                 name: bw.name,
                 input: block_encoding_length_io::io_serde()
                     .serialize(&input)
-                    .map_err(|e| anyhow!("failed to serialize input: {}", e))?,
+                    .map_err(|e| anyhow!("failed to serialize input: {e}"))?,
                 metadata: BlockEncodingLengthMetadata {
                     format: format!("{format:?}"),
                     block_hash: bw.stateless_input.block.hash_slow().to_string(),

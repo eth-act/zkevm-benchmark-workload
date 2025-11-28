@@ -9,20 +9,18 @@ use ere_platform_trait::Platform;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{io_serde, BincodeBlockBody, BlockBodyBytes, Input};
+use reth_guest_io::{BincodeBlockBody, BlockBodyBytes, Input, io_serde};
 use reth_primitives_traits::Block;
 use reth_stateless::{
-    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
+    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
 };
 use sparsestate::SparseState;
 
-use crate::sdk::{ScopeMarker, SDK};
-
 /// Main entry point for the guest program.
-pub fn ethereum_guest<S: SDK>() {
-    S::cycle_scope(ScopeMarker::Start, "read_input");
+pub fn ethereum_guest<P: Platform>() {
+    P::cycle_scope_start("read_input");
     let mut input: Input = io_serde()
-        .deserialize(&S::read_input())
+        .deserialize(&P::read_whole_input())
         .expect("Failed to read input");
 
     let genesis = Genesis {
@@ -34,11 +32,11 @@ pub fn ethereum_guest<S: SDK>() {
     P::cycle_scope_end("read_input");
 
     if input.kzg_enabled {
-        S::cycle_scope(ScopeMarker::Start, "kzg_init");
+        P::cycle_scope_start("kzg_init");
         let kzg_settings = c_kzg::ethereum_kzg_settings(8);
-        S::cycle_scope(ScopeMarker::End, "kzg_init");
+        P::cycle_scope_end("kzg_init");
 
-        S::cycle_scope(ScopeMarker::Start, "kzg_commitments");
+        P::cycle_scope_start("kzg_commitments");
         let kzg_data: &[u8] = match &input.block_body_bytes {
             BlockBodyBytes::Raw(body) => body,
             BlockBodyBytes::CompressedSnappy(compressed) => compressed,
@@ -52,26 +50,26 @@ pub fn ethereum_guest<S: SDK>() {
                     .expect("Failed to compute KZG commitment")
             })
             .collect();
-        S::cycle_scope(ScopeMarker::End, "kzg_commitments");
+        P::cycle_scope_end("kzg_commitments");
     }
 
-    S::cycle_scope(ScopeMarker::Start, "block_body_decompression");
+    P::cycle_scope_start("block_body_decompression");
     let block_body_raw: Vec<u8> = match &input.block_body_bytes {
         BlockBodyBytes::Raw(body) => body.clone(),
         BlockBodyBytes::CompressedSnappy(compressed) => snap::raw::Decoder::new()
             .decompress_vec(compressed)
             .expect("Failed to decompress snappy-compressed block body"),
     };
-    S::cycle_scope(ScopeMarker::End, "block_body_decompression");
+    P::cycle_scope_end("block_body_decompression");
 
-    S::cycle_scope(ScopeMarker::Start, "block_body_deserialization");
+    P::cycle_scope_start("block_body_deserialization");
     let block_body: BincodeBlockBody = io_serde()
         .deserialize(&block_body_raw)
         .expect("Failed to deserialize block body");
     input.stateless_input.block.body = block_body.0;
-    S::cycle_scope(ScopeMarker::End, "block_body_deserialization");
+    P::cycle_scope_end("block_body_deserialization");
 
-    S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");
+    P::cycle_scope_start("public_inputs_preparation");
     let header = input.stateless_input.block.header().clone();
     let parent_hash = input.stateless_input.block.parent_hash;
     P::cycle_scope_end("public_inputs_preparation");

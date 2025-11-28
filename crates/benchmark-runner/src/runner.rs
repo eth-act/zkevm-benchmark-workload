@@ -240,7 +240,7 @@ fn dump_input(
         input_dir.display()
     ))?;
 
-    let input_path = input_dir.join(format!("{}.bin", name));
+    let input_path = input_dir.join(format!("{name}.bin"));
 
     // Only write if it doesn't exist (avoid duplicate writes across zkVMs)
     if !input_path.exists() {
