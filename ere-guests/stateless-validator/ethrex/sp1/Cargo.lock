@@ -892,6 +892,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "ere-platform-sp1"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "sp1-zkvm",
+]
+
+[[package]]
+name = "ere-platform-trait"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "escape8259"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1075,6 +1092,7 @@ name = "ethrex-sp1-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "bincode",
+ "ere-platform-sp1",
  "ethrex-blockchain",
  "ethrex-common",
  "ethrex-l2-common",
@@ -1084,7 +1102,6 @@ dependencies = [
  "guest_program",
  "k256",
  "rkyv",
- "sp1-zkvm",
 ]
 
 [[package]]
@@ -2735,9 +2752,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-zkvm"
-version = "5.0.8"
+version = "5.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d36441aa04268afe6684b4eca1726599bcb64892cbbe376dafc77c87f5e5fd0"
+checksum = "e767ed85f89b1c8d84188c2cc035833079529bb0ddd8f7bd252de91ce562acc7"
 dependencies = [
  "cfg-if",
  "critical-section",

@@ -1,19 +1,15 @@
+use ere_platform_risc0::{Platform, Risc0Platform, risc0_zkvm::guest::env};
 use k256::sha2::{Digest, Sha256};
-use risc0_zkvm::guest::env;
 
 use guest_program::{execution::execution_program, input::ProgramInput};
 use rkyv::rancor::Error;
 
+type P = Risc0Platform;
+
 fn main() {
     println!("start reading input");
     let start = env::cycle_count();
-    let len = {
-        let mut bytes = [0; 4];
-        env::read_slice(&mut bytes);
-        u32::from_le_bytes(bytes)
-    };
-    let mut input = vec![0u8; len as usize];
-    env::read_slice(&mut input);
+    let input = P::read_whole_input();
     let mut input = rkyv::from_bytes::<ProgramInput, Error>(&input).unwrap();
     let end = env::cycle_count();
     eprintln!("reading input (cycle tracker): {}", end - start);
@@ -60,5 +56,5 @@ fn commit_output(block_hash: [u8; 32], parent_hash: [u8; 32], is_valid: bool) {
     let public_inputs = (block_hash, parent_hash, is_valid);
     let public_inputs_hash: [u8; 32] =
         Sha256::digest(bincode::serialize(&public_inputs).unwrap()).into();
-    env::commit_slice(&public_inputs_hash);
+    P::write_whole_output(&public_inputs_hash);
 }
