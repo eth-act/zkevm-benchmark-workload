@@ -44,19 +44,28 @@ export default defineConfig({
       text: 'Benchmark Results',
       items: [
         {
-          text: '1M',
+          text: '1M, 1GPU',
           items: [
             {
               text: 'sp1',
-              link: '/benchmark-results/gas-categorized/1m/docs-zkevm-metrics-sp1-1M-1',
+              link: '/benchmark-results/gas-categorized/1m/sp1-1M-1',
             },
             {
               text: 'risc0',
-              link: '/benchmark-results/gas-categorized/1m/docs-zkevm-metrics-risc0-1M',
+              link: '/benchmark-results/gas-categorized/1m/risc0-1M-1',
             },
           ],
         },
       ]
+    },
+    {
+      text: '1M, 4GPU',
+      items: [
+        {
+          text: 'risc0',
+          link: '/benchmark-results/gas-categorized/1m/risc0-1M-4',
+        },
+      ],
     },
     {
       text: 'GPU Scaling Efficiency',
