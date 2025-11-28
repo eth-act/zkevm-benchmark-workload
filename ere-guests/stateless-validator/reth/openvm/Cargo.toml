@@ -6,6 +6,7 @@ rust-version = "1.86"
 license = "MIT OR Apache-2.0"
 
 [dependencies]
+ere-platform-openvm = { workspace = true, features = ["std"] }
 openvm = { workspace = true, features = ["std"] }
 openvm-algebra-guest.workspace = true
 openvm-ecc-guest.workspace = true

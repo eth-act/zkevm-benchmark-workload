@@ -128,26 +128,21 @@ guest-libs = { path = "libs", default-features = false }
 reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
 reth-guest-io = { path = "stateless-validator/reth/io", default-features = false }
 block-encoding-length-io = { path = "block-encoding-length/io", default-features = false }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "db064be839787047c0239ce3d9d6b777459a4de2", default-features = false }
+ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6" }
+ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
+ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
 
-sp1-zkvm = "5.2.2"
-pico-sdk = { git = "https://github.com/brevis-network/pico.git", tag = "v1.1.7" }
-ziskos = { git = "https://github.com/0xPolygonHermez/zisk.git", tag = "v0.13.0" }
-risc0-zkvm = { version = "3.0.3", default-features = false, features = [
-    "std",
-    "unstable",
-    "getrandom",
-] }
-
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", features = [
-    "std",
-] }
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
 openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-revm-crypto = { git = "https://github.com/axiom-crypto/openvm-reth-benchmark.git", branch = "openvm-v1.4.1-reth-1.8.3", default-features = false }
-
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

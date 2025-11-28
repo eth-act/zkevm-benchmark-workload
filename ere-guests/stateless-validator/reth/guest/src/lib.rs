@@ -5,5 +5,3 @@
 extern crate alloc;
 
 pub mod guest;
-
-pub mod sdk;

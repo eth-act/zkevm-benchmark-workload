@@ -1,11 +1,11 @@
 //! Abstracted guest program
 
-use alloc::{boxed::Box, sync::Arc, vec::Vec};
+use alloc::{boxed::Box, format, sync::Arc, vec::Vec};
 use core::error::Error;
 
 use alloy_primitives::FixedBytes;
 use ere_io_serde::IoSerde;
-use k256::sha2::{Digest, Sha256};
+use ere_platform_trait::Platform;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
@@ -31,7 +31,7 @@ pub fn ethereum_guest<S: SDK>() {
     };
     let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
     let evm_config = EthEvmConfig::new(chain_spec.clone());
-    S::cycle_scope(ScopeMarker::End, "read_input");
+    P::cycle_scope_end("read_input");
 
     if input.kzg_enabled {
         S::cycle_scope(ScopeMarker::Start, "kzg_init");
@@ -74,49 +74,39 @@ pub fn ethereum_guest<S: SDK>() {
     S::cycle_scope(ScopeMarker::Start, "public_inputs_preparation");
     let header = input.stateless_input.block.header().clone();
     let parent_hash = input.stateless_input.block.parent_hash;
-    S::cycle_scope(ScopeMarker::End, "public_inputs_preparation");
+    P::cycle_scope_end("public_inputs_preparation");
 
-    let res = validate_block::<S>(
+    let res = validate_block::<P>(
         input.stateless_input.block,
         input.stateless_input.witness,
         chain_spec,
         input.public_keys,
         evm_config,
     );
-    S::cycle_scope(ScopeMarker::Start, "commit_public_inputs");
-    match res {
+    P::cycle_scope_start("commit_public_inputs");
+    let public_input_bytes = match res {
         Ok(block_hash) => {
             let public_inputs = (block_hash.0, parent_hash.0, true);
-            let public_inputs_hash: [u8; 32] = Sha256::digest(
-                bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy())
-                    .unwrap(),
-            )
-            .into();
-            S::commit_output(public_inputs_hash);
+            bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy()).unwrap()
         }
         Err(_err) => {
-            #[cfg(feature = "std")]
-            println!("Block validation failed: {_err}");
+            P::print(&format!("Block validation failed: {_err}\n"));
             let public_inputs = (header.hash_slow().0, parent_hash.0, false);
-            let public_inputs_hash: [u8; 32] = Sha256::digest(
-                bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy())
-                    .unwrap(),
-            )
-            .into();
-            S::commit_output(public_inputs_hash);
+            bincode_v2::serde::encode_to_vec(public_inputs, bincode_v2::config::legacy()).unwrap()
         }
-    }
-    S::cycle_scope(ScopeMarker::End, "commit_public_inputs");
+    };
+    P::write_whole_output(&public_input_bytes);
+    P::cycle_scope_end("commit_public_inputs");
 }
 
-fn validate_block<S: SDK>(
+fn validate_block<P: Platform>(
     block: EthBlock,
     witness: ExecutionWitness,
     chain_spec: Arc<ChainSpec>,
     public_keys: Vec<UncompressedPublicKey>,
     evm_config: EthEvmConfig,
 ) -> Result<FixedBytes<32>, Box<dyn Error>> {
-    S::cycle_scope(ScopeMarker::Start, "validation");
+    P::cycle_scope_start("validation");
     let (block_hash, _) = stateless_validation_with_trie::<SparseState, _, _>(
         block,
         public_keys,
@@ -124,7 +114,7 @@ fn validate_block<S: SDK>(
         chain_spec,
         evm_config,
     )?;
-    S::cycle_scope(ScopeMarker::End, "validation");
+    P::cycle_scope_end("validation");
 
     Ok(block_hash)
 }

@@ -2734,7 +2734,7 @@ dependencies = [
 [[package]]
 name = "ere-build-utils"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "cargo_metadata",
 ]
@@ -2742,7 +2742,7 @@ dependencies = [
 [[package]]
 name = "ere-compiler"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2755,7 +2755,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "anyhow",
  "ere-build-utils",
@@ -2788,7 +2788,7 @@ dependencies = [
 [[package]]
 name = "ere-io-serde"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "bincode 2.0.1",
  "serde",
@@ -2797,7 +2797,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2814,7 +2814,7 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "anyhow",
  "auto_impl",

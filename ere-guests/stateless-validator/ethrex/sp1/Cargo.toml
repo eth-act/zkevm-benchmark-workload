@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-sp1-zkvm = { version = "=5.0.8" }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 k256 = "0.13"
 bincode = "1.0"
@@ -37,4 +37,4 @@ substrate-bn = { git = "https://github.com/sp1-patches/bn", tag = "patch-0.6.0-s
 bls12_381 = { git = "https://github.com/lambdaclass/bls12_381-patch/", branch = "expose-fp-struct" }
 
 [features]
-l2 = ["guest_program/l2", "sp1-zkvm/embedded"]
+l2 = ["guest_program/l2", "ere-platform-sp1/embedded"]

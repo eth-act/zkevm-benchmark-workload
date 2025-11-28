@@ -5,8 +5,9 @@ edition = "2021"
 
 [dependencies]
 reth-guest = { workspace = true, default-features = true }
-risc0-zkvm.workspace = true
+ere-platform-risc0 = { workspace = true, features = ["std", "unstable", "getrandom", "sys-getenv"] }
 guest-libs.workspace = true
+sha2.workspace = true
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [

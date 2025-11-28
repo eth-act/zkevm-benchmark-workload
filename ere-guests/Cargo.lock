@@ -1126,7 +1126,7 @@ dependencies = [
  "ff 0.13.1",
  "group 0.13.0",
  "pairing 0.23.0",
- "pico-patch-libs 1.1.6 (git+https://github.com/brevis-network/pico.git)",
+ "pico-patch-libs 1.1.6",
  "rand_core 0.6.4",
  "subtle",
 ]
@@ -2007,10 +2007,73 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io-serde"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=db064be839787047c0239ce3d9d6b777459a4de2#db064be839787047c0239ce3d9d6b777459a4de2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
 dependencies = [
  "bincode 2.0.1",
  "serde",
+]
+
+[[package]]
+name = "ere-platform-airbender"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "riscv_common",
+]
+
+[[package]]
+name = "ere-platform-openvm"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "openvm",
+]
+
+[[package]]
+name = "ere-platform-pico"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "pico-sdk",
+]
+
+[[package]]
+name = "ere-platform-risc0"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "risc0-zkvm",
+ "risc0-zkvm-platform",
+]
+
+[[package]]
+name = "ere-platform-sp1"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "sp1-zkvm",
+]
+
+[[package]]
+name = "ere-platform-trait"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "digest 0.10.7",
+]
+
+[[package]]
+name = "ere-platform-zisk"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "ziskos",
 ]
 
 [[package]]
@@ -4362,8 +4425,8 @@ dependencies = [
 
 [[package]]
 name = "pico-derive"
-version = "0.1.0"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.7#79b10e613c3a0dd2a92d2a65a149d853f4aface2"
+version = "1.1.8"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4374,23 +4437,14 @@ dependencies = [
 name = "pico-empty-program"
 version = "0.1.0"
 dependencies = [
- "pico-sdk",
+ "ere-platform-pico",
 ]
 
 [[package]]
 name = "pico-panic-guest"
 version = "0.1.0"
 dependencies = [
- "pico-sdk",
-]
-
-[[package]]
-name = "pico-patch-libs"
-version = "1.1.6"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.7#79b10e613c3a0dd2a92d2a65a149d853f4aface2"
-dependencies = [
- "bincode 1.3.3",
- "serde",
+ "ere-platform-pico",
 ]
 
 [[package]]
@@ -4403,9 +4457,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "pico-patch-libs"
+version = "1.1.8"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+dependencies = [
+ "bincode 1.3.3",
+ "serde",
+]
+
+[[package]]
 name = "pico-sdk"
-version = "1.1.6"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.7#79b10e613c3a0dd2a92d2a65a149d853f4aface2"
+version = "1.1.8"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
 dependencies = [
  "anyhow",
  "bincode 1.3.3",
@@ -4420,7 +4483,7 @@ dependencies = [
  "p3-field 0.1.0 (git+https://github.com/brevis-network/Plonky3.git?rev=a4d376b)",
  "p3-koala-bear",
  "p3-mersenne-31",
- "pico-patch-libs 1.1.6 (git+https://github.com/brevis-network/pico.git?tag=v1.1.7)",
+ "pico-patch-libs 1.1.8",
  "pico-vm",
  "rand 0.8.5",
  "serde",
@@ -4430,8 +4493,8 @@ dependencies = [
 
 [[package]]
 name = "pico-vm"
-version = "1.1.6"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.7#79b10e613c3a0dd2a92d2a65a149d853f4aface2"
+version = "1.1.8"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
 dependencies = [
  "anyhow",
  "arrayref",
@@ -4873,6 +4936,7 @@ name = "reth-airbender-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-airbender",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "reth-ethereum-primitives 1.8.3",
@@ -4880,7 +4944,6 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "riscv_common",
  "sha2",
 ]
 
@@ -5171,6 +5234,7 @@ dependencies = [
  "bincode 2.0.1",
  "c-kzg",
  "ere-io-serde",
+ "ere-platform-trait",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "once_cell",
@@ -5232,6 +5296,7 @@ name = "reth-openvm-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "bincode 1.3.3",
+ "ere-platform-openvm",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "openvm",
@@ -5250,15 +5315,16 @@ name = "reth-pico-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-pico",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "kzg-rs",
- "pico-sdk",
  "reth-ethereum-primitives 1.8.3",
  "reth-guest",
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
+ "sha2",
 ]
 
 [[package]]
@@ -5359,6 +5425,7 @@ name = "reth-risc0-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-risc0",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "reth-ethereum-primitives 1.8.3",
@@ -5366,7 +5433,7 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "risc0-zkvm",
+ "sha2",
 ]
 
 [[package]]
@@ -5374,6 +5441,7 @@ name = "reth-sp1-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
+ "ere-platform-sp1",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "reth-ethereum-primitives 1.8.3",
@@ -5381,7 +5449,7 @@ dependencies = [
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "revm 31.0.0",
- "sp1-zkvm",
+ "sha2",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -5569,6 +5637,7 @@ version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "bincode 1.3.3",
+ "ere-platform-zisk",
  "guest-libs",
  "k256 0.13.4 (git+https://github.com/risc0/RustCrypto-elliptic-curves?tag=k256%2Fv0.13.4-risczero.1)",
  "reth-ethereum-primitives 1.8.3",
@@ -5577,7 +5646,6 @@ dependencies = [
  "reth-stateless",
  "revm 31.0.0",
  "sha2",
- "ziskos",
 ]
 
 [[package]]
@@ -6111,9 +6179,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-binfmt"
-version = "3.0.2"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1c8f97f81bcdead4101bca06469ecef481a2695cd04e7e877b49dea56a7f6f2a"
+checksum = "9dca096030bb4c52f99b12abcfe3531ea93b17b95a12a5aeb06fbf8ee588a275"
 dependencies = [
  "anyhow",
  "borsh",
@@ -6133,9 +6201,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-circuit-keccak"
-version = "4.0.2"
+version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f195f865ac1afdc21a172d7756fdcc21be18e13eb01d78d3d7f2b128fa881ba"
+checksum = "4e1d23ef3648bb85b0bd37bc9f9f7d13f1a4388e5e779e18f7eea82b969e5dbc"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -6149,9 +6217,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-circuit-recursion"
-version = "4.0.2"
+version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dca8f15c8abc0fd8c097aa7459879110334d191c63dd51d4c28881c4a497279e"
+checksum = "028cd26e1b1f7bdd964d2f1eac8f812d1872b6b8fd24f10804f07d916b90000e"
 dependencies = [
  "anyhow",
  "bytemuck",
@@ -6164,9 +6232,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-circuit-rv32im"
-version = "4.0.2"
+version = "4.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae1b0689f4a270a2f247b04397ebb431b8f64fe5170e98ee4f9d71bd04825205"
+checksum = "e7ecd73a71ddce62eab8a28552ee182dc2ea08cdce2a3474a616a80bf2d6e9be"
 dependencies = [
  "anyhow",
  "bit-vec",
@@ -6194,14 +6262,14 @@ dependencies = [
 name = "risc0-empty-program"
 version = "0.1.0"
 dependencies = [
- "risc0-zkvm",
+ "ere-platform-risc0",
 ]
 
 [[package]]
 name = "risc0-groth16"
-version = "3.0.2"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "724285dc79604abfb2d40feaefe3e335420a6b293511661f77d6af62f1f5fae9"
+checksum = "73ff13f9b427254c5264e01aaa32e33f355525299b6829449295905778f3b1e8"
 dependencies = [
  "anyhow",
  "ark-bn254",
@@ -6222,14 +6290,14 @@ dependencies = [
 name = "risc0-panic-guest"
 version = "0.1.0"
 dependencies = [
- "risc0-zkvm",
+ "ere-platform-risc0",
 ]
 
 [[package]]
 name = "risc0-zkos-v1compat"
-version = "2.2.0"
+version = "2.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "840c2228803557a8b7dc035a8f196516b6fd68c9dc6ac092f0c86241b5b1bafb"
+checksum = "faf1f35f2ef61d8d86fdd06288c11d2f3bbf08f1af66b24ca0a1976ecbf324a1"
 dependencies = [
  "include_bytes_aligned",
  "no_std_strings",
@@ -6238,9 +6306,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkp"
-version = "3.0.2"
+version = "3.0.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ffb6bf356f469bb8744f72a07a37134c5812c1d55d6271bba80e87bdb7a58c8e"
+checksum = "beb493b3f007f04a11106a001c66bca77338d0fc375766189fd7ca3a1e8c3700"
 dependencies = [
  "anyhow",
  "blake2",
@@ -6263,9 +6331,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkvm"
-version = "3.0.3"
+version = "3.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fcce11648a9ff60b8e7af2f0ce7fbf8d25275ab6d414cc91b9da69ee75bc978"
+checksum = "c39d9943fe71decea1e8b6a99480cefa33799ab08b5abfccd7e2a18fb07121c1"
 dependencies = [
  "anyhow",
  "borsh",
@@ -6308,7 +6376,7 @@ dependencies = [
 [[package]]
 name = "riscv_common"
 version = "0.1.0"
-source = "git+https://github.com/matter-labs/zksync-airbender?tag=v0.5.0#a3c74040d2f994608f451550232392333400bbf1"
+source = "git+https://github.com/matter-labs/zksync-airbender?tag=v0.5.1#0a0b78c1f14bd4cf8c3719b7c5c1f074c343690b"
 
 [[package]]
 name = "rlp"
@@ -6788,9 +6856,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-lib"
-version = "5.2.2"
+version = "5.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fce8ad0f153443d09d398eccb650a0b2dcbf829470e394e4bf60ec4379c7af93"
+checksum = "eb1a9935d58cb1dcd757a1b10d727090f5b718f1f03b512d48f0c1952e6ead00"
 dependencies = [
  "bincode 1.3.3",
  "serde",
@@ -6799,9 +6867,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-primitives"
-version = "5.2.2"
+version = "5.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0244dee3a7a0f88cf71c3edf518f4fc97794ae870a107cbe7c810ac3fbf879cb"
+checksum = "a7d2a6187e394c30097ea7a975a4832f172918690dc89a979f0fad67422d3a8b"
 dependencies = [
  "bincode 1.3.3",
  "blake3",
@@ -6819,9 +6887,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-zkvm"
-version = "5.2.2"
+version = "5.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cb9cad934f30e245be5c0c55aac0810cf3bbd86187b384e0e95f3afac7cd41b3"
+checksum = "e767ed85f89b1c8d84188c2cc035833079529bb0ddd8f7bd252de91ce562acc7"
 dependencies = [
  "cfg-if",
  "getrandom 0.2.16",
@@ -6976,13 +7044,13 @@ dependencies = [
  "alloy-consensus",
  "block-encoding-length-io",
  "ere-io-serde",
+ "ere-platform-sp1",
  "ethereum_ssz",
  "guest-libs",
  "reth-ethereum-primitives 1.8.3",
  "reth-primitives-traits 1.8.3",
  "serde",
  "serde_with",
- "sp1-zkvm",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -6991,14 +7059,14 @@ dependencies = [
 name = "succinct-empty-guest"
 version = "0.1.0"
 dependencies = [
- "sp1-zkvm",
+ "ere-platform-sp1",
 ]
 
 [[package]]
 name = "succinct-panic-guest"
 version = "0.1.0"
 dependencies = [
- "sp1-zkvm",
+ "ere-platform-sp1",
 ]
 
 [[package]]
@@ -7922,14 +7990,14 @@ dependencies = [
 name = "zisk-empty-program"
 version = "0.1.0"
 dependencies = [
- "ziskos",
+ "ere-platform-zisk",
 ]
 
 [[package]]
 name = "zisk-panic-guest"
 version = "0.1.0"
 dependencies = [
- "ziskos",
+ "ere-platform-zisk",
 ]
 
 [[package]]

@@ -1103,6 +1103,24 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
+name = "ere-platform-risc0"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "ere-platform-trait",
+ "risc0-zkvm",
+ "risc0-zkvm-platform",
+]
+
+[[package]]
+name = "ere-platform-trait"
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+dependencies = [
+ "digest",
+]
+
+[[package]]
 name = "escape8259"
 version = "0.5.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1271,6 +1289,7 @@ version = "0.1.0"
 dependencies = [
  "bincode",
  "c-kzg",
+ "ere-platform-risc0",
  "ethrex-blockchain",
  "ethrex-common",
  "ethrex-l2-common",
@@ -1278,8 +1297,6 @@ dependencies = [
  "ethrex-vm",
  "guest_program",
  "k256",
- "risc0-zkvm",
- "risc0-zkvm-platform",
  "rkyv",
 ]
 
@@ -2930,9 +2947,9 @@ dependencies = [
 
 [[package]]
 name = "risc0-zkvm"
-version = "3.0.3"
+version = "3.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fcce11648a9ff60b8e7af2f0ce7fbf8d25275ab6d414cc91b9da69ee75bc978"
+checksum = "c39d9943fe71decea1e8b6a99480cefa33799ab08b5abfccd7e2a18fb07121c1"
 dependencies = [
  "anyhow",
  "borsh",
