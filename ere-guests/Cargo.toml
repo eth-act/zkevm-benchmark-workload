@@ -192,6 +192,9 @@ k256 = { version = "0.13", default-features = false, features = [
 ] }
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.3.0" }
 
+# kzg-utils = { git = "https://github.com/jsign/grandine", rev = "21156f25d0082e09f82810202a9d5b1cc4b1b5d4", features = [
+#     "arkworks",
+# ], package = "kzg_utils" }
 c-kzg = { git = "https://github.com/risc0/c-kzg-4844", tag = "v2.1.5-risczero.0" }
 
 [profile.release]

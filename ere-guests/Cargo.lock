@@ -1133,12 +1133,12 @@ dependencies = [
 
 [[package]]
 name = "blst"
-version = "0.3.15"
-source = "git+https://github.com/risc0/blst?tag=v0.3.15-risczero.1#3d1833ff0c2457cf16068758b33d03f6b624a522"
+version = "0.3.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcdb4c7013139a150f9fc55d123186dbfaba0d912817466282c73ac49e71fb45"
 dependencies = [
  "cc",
  "glob",
- "risc0-bigint2",
  "threadpool",
  "zeroize",
 ]
@@ -8070,3 +8070,8 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "blst"
+version = "0.3.15"
+source = "git+https://github.com/risc0/blst?tag=v0.3.15-risczero.1#3d1833ff0c2457cf16068758b33d03f6b624a522"

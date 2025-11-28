@@ -24,6 +24,7 @@ reth-evm-ethereum.workspace = true
 reth-trie-common.workspace = true
 
 c-kzg.workspace = true
+# kzg-utils.workspace = true
 
 # alloy
 alloy-primitives.workspace = true

@@ -9,10 +9,10 @@ use ere_platform_trait::Platform;
 use reth_chainspec::ChainSpec;
 use reth_ethereum_primitives::Block as EthBlock;
 use reth_evm_ethereum::EthEvmConfig;
-use reth_guest_io::{BincodeBlockBody, BlockBodyBytes, Input, io_serde};
+use reth_guest_io::{io_serde, BincodeBlockBody, BlockBodyBytes, Input};
 use reth_primitives_traits::Block;
 use reth_stateless::{
-    ExecutionWitness, Genesis, UncompressedPublicKey, stateless_validation_with_trie,
+    stateless_validation_with_trie, ExecutionWitness, Genesis, UncompressedPublicKey,
 };
 use sparsestate::SparseState;
 
@@ -43,10 +43,17 @@ pub fn ethereum_guest<P: Platform>() {
         };
         let blobs = partition_into_blobs(kzg_data);
         let _commitments: Vec<_> = blobs
-            .iter()
+            .into_iter()
+            // .map(|blob| {
+            //     let blob = kzg_utils::eip_4844::mainnet_blob_from_bytes(blob);
+            //     kzg_utils::eip_4844::blob_to_kzg_commitment::<kzg_utils::eip_4844::Mainnet>(
+            //         &blob,
+            //         kzg_utils::DEFAULT_KZG_BACKEND,
+            //     )
+            // })
             .map(|blob| {
                 kzg_settings
-                    .blob_to_kzg_commitment(blob)
+                    .blob_to_kzg_commitment(&c_kzg::Blob::new(blob))
                     .expect("Failed to compute KZG commitment")
             })
             .collect();
@@ -117,11 +124,13 @@ fn validate_block<P: Platform>(
     Ok(block_hash)
 }
 
-fn partition_into_blobs(data: &[u8]) -> Vec<c_kzg::Blob> {
-    const BYTES_PER_BLOB: usize = c_kzg::BYTES_PER_BLOB;
-    const USABLE_BYTES_PER_ELEMENT: usize = c_kzg::BYTES_PER_FIELD_ELEMENT - 1; // Leave high byte as 0 to stay below modulus
-    const USABLE_BYTES_PER_BLOB: usize = c_kzg::FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
+const BYTES_PER_BLOB: usize = 131072;
+const BYTES_PER_FIELD_ELEMENT: usize = 32;
+const USABLE_BYTES_PER_ELEMENT: usize = BYTES_PER_FIELD_ELEMENT - 1; // Leave high byte as 0 to stay below modulus
+const FIELD_ELEMENTS_PER_BLOB: usize = 4096;
+const USABLE_BYTES_PER_BLOB: usize = FIELD_ELEMENTS_PER_BLOB * USABLE_BYTES_PER_ELEMENT;
 
+fn partition_into_blobs(data: &[u8]) -> Vec<[u8; BYTES_PER_BLOB]> {
     if data.is_empty() {
         return Vec::new();
     }
@@ -133,18 +142,18 @@ fn partition_into_blobs(data: &[u8]) -> Vec<c_kzg::Blob> {
     for _ in 0..num_blobs {
         let mut blob_data = [0u8; BYTES_PER_BLOB];
 
-        for fe_idx in 0..c_kzg::FIELD_ELEMENTS_PER_BLOB {
+        for fe_idx in 0..FIELD_ELEMENTS_PER_BLOB {
             if offset >= data.len() {
                 break;
             }
             let chunk_size = (data.len() - offset).min(USABLE_BYTES_PER_ELEMENT);
-            let blob_offset = fe_idx * c_kzg::BYTES_PER_FIELD_ELEMENT + 1; // +1 leaves high byte as 0
+            let blob_offset = fe_idx * BYTES_PER_FIELD_ELEMENT + 1; // +1 leaves high byte as 0
             blob_data[blob_offset..blob_offset + chunk_size]
                 .copy_from_slice(&data[offset..offset + chunk_size]);
             offset += chunk_size;
         }
 
-        blobs.push(c_kzg::Blob::new(blob_data));
+        blobs.push(blob_data);
     }
 
     blobs
