@@ -7,7 +7,6 @@ use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
-
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
 #[command(name = "zkvm-benchmarker")]
@@ -55,9 +54,9 @@ pub enum GuestProgramCommand {
         /// Execution client to benchmark
         #[arg(short, long)]
         execution_client: ExecutionClient,
-        /// Block body KZG commit mode (none to disable, raw, or snappy)
+        /// Block body DA mode (none to disable, raw, or snappy)
         #[arg(long, value_enum, default_value = "none")]
-        block_body_kzg_commit: BlockBodyKzgCommit,
+        block_body_da: BlockBodyDA,
     },
     /// Empty program
     EmptyProgram,
@@ -94,16 +93,27 @@ pub enum BlockEncodingFormat {
     Ssz,
 }
 
-/// Block body KZG commit options for stateless validator
+/// Block body DA options for stateless validator
 #[derive(Debug, Clone, Copy, ValueEnum, Default)]
-pub enum BlockBodyKzgCommit {
-    /// Disable KZG commitment calculation
+pub enum BlockBodyDA {
+    /// Disable block body DA
     #[default]
     None,
-    /// Enable KZG with raw body encoding
+    /// Enable Block Body DA with raw body encoding
     Raw,
-    /// Enable KZG with Snappy-compressed body encoding
+    /// Enable Block Body DA with Snappy-compressed body encoding
     Snappy,
+}
+
+impl BlockBodyDA {
+    /// Convert to encoding and proof flag tuple.
+    pub fn to_encoding_and_proof(self) -> (guest_libs::blobs::BlockBodyEncoding, bool) {
+        match self {
+            Self::None => (guest_libs::blobs::BlockBodyEncoding::Raw, false),
+            Self::Raw => (guest_libs::blobs::BlockBodyEncoding::Raw, true),
+            Self::Snappy => (guest_libs::blobs::BlockBodyEncoding::Snappy, true),
+        }
+    }
 }
 
 /// Execution clients for the stateless validator
@@ -176,16 +186,6 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
         match client {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
-        }
-    }
-}
-
-impl From<BlockBodyKzgCommit> for reth_guest_io::BlockBodyKzgCommit {
-    fn from(mode: BlockBodyKzgCommit) -> Self {
-        match mode {
-            BlockBodyKzgCommit::None => Self::None,
-            BlockBodyKzgCommit::Raw => Self::Raw,
-            BlockBodyKzgCommit::Snappy => Self::Snappy,
         }
     }
 }

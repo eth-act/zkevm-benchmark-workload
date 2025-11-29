@@ -17,6 +17,7 @@ use ethrex_rlp::decode::RLPDecode;
 use ethrex_rpc::debug::execution_witness::{
     execution_witness_from_rpc_chain_config, RpcExecutionWitness,
 };
+use guest_libs::blobs::BlockBodyEncoding;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use reth_stateless::StatelessInput;
 use rkyv::rancor::Error;
@@ -117,12 +118,13 @@ pub fn analyze_compression(input_folder: &Path) -> Result<Vec<CompressionAnalysi
 pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
-    block_body_kzg_commit: reth_guest_io::BlockBodyKzgCommit,
+    block_body_encoding: BlockBodyEncoding,
+    block_body_with_proof: bool,
 ) -> Result<Vec<GuestIO<BlockMetadata, ProgramOutputVerifier>>> {
     let mut res = vec![];
     let witnesses = read_benchmark_fixtures_folder(input_folder)?;
     for bw in &witnesses {
-        let input = get_input_full_validation(bw, &el, block_body_kzg_commit)?;
+        let input = get_input_full_validation(bw, &el, block_body_encoding, block_body_with_proof)?;
         let metadata = BlockMetadata {
             block_used_gas: bw.stateless_input.block.gas_used,
         };
@@ -187,13 +189,14 @@ impl OutputVerifier for ProgramOutputVerifier {
 fn get_input_full_validation(
     bw: &StatelessValidationFixture,
     el: &ExecutionClient,
-    block_body_kzg_commit: reth_guest_io::BlockBodyKzgCommit,
+    block_body_encoding: BlockBodyEncoding,
+    block_body_with_proof: bool,
 ) -> Result<Vec<u8>> {
     let si = &bw.stateless_input;
     match el {
         ExecutionClient::Reth => reth_guest_io::io_serde()
             .serialize(
-                &reth_guest_io::Input::new(si.clone(), block_body_kzg_commit)
+                &reth_guest_io::Input::new(si.clone(), block_body_encoding, block_body_with_proof)
                     .context("Failed to create Reth input")?,
             )
             .map_err(|e| anyhow::anyhow!("Reth serialization error: {e}")),

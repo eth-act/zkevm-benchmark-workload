@@ -5,24 +5,13 @@
 extern crate alloc;
 
 use alloc::vec::Vec;
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ere_io_serde::{IoSerde, bincode};
+use guest_libs::blobs::{BlockBody, BlockBodyEncoding, get_block_body};
 use guest_libs::senders::recover_signers;
 use reth_stateless::{StatelessInput, UncompressedPublicKey};
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
-
-/// Block body KZG commit options.
-#[derive(Debug, Clone, Copy, Serialize, Deserialize, Default, PartialEq, Eq)]
-pub enum BlockBodyKzgCommit {
-    /// Disable KZG commitment calculation.
-    #[default]
-    None,
-    /// Enable KZG with raw body encoding.
-    Raw,
-    /// Enable KZG with Snappy-compressed body encoding.
-    Snappy,
-}
 
 /// Input for the stateless validator guest program.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -32,16 +21,8 @@ pub struct Input {
     pub stateless_input: StatelessInput,
     /// The recovered signers for the transactions in the block.
     pub public_keys: Vec<UncompressedPublicKey>,
-    /// Experimental: contains block body in some shape/form.
-    pub block_body_bytes: BlockBodyBytes,
-    /// Whether to compute KZG commitments.
-    pub kzg_enabled: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub enum BlockBodyBytes {
-    Raw(Vec<u8>),
-    CompressedSnappy(Vec<u8>),
+    /// Experimental: Block body potentially compressed plus optional proof of equivalence.
+    pub block_body: BlockBody,
 }
 
 #[serde_as]
@@ -57,31 +38,23 @@ impl Input {
     /// Create a new `Input` from the given `StatelessInput` and KZG commit mode.
     pub fn new(
         mut stateless_input: StatelessInput,
-        block_body_kzg_commit: BlockBodyKzgCommit,
+        block_body_encoding: BlockBodyEncoding,
+        block_body_with_proof: bool,
     ) -> Result<Self> {
         let signers = recover_signers(stateless_input.block.body.transactions.iter())
             .map_err(|err| anyhow::anyhow!("recovering signers: {err}"))?;
         let body = BincodeBlockBody(core::mem::take(&mut stateless_input.block.body));
+
         let serialized = io_serde()
             .serialize(&body)
             .map_err(|e| anyhow::anyhow!("serializing block body: {e}"))?;
-
-        let (block_body_bytes, kzg_enabled) = match block_body_kzg_commit {
-            BlockBodyKzgCommit::None => (BlockBodyBytes::Raw(serialized), false),
-            BlockBodyKzgCommit::Raw => (BlockBodyBytes::Raw(serialized), true),
-            BlockBodyKzgCommit::Snappy => {
-                let compressed = snap::raw::Encoder::new()
-                    .compress_vec(&serialized)
-                    .map_err(|e| anyhow::anyhow!("compressing block body with snappy: {e}"))?;
-                (BlockBodyBytes::CompressedSnappy(compressed), true)
-            }
-        };
+        let block_body = get_block_body(serialized, block_body_encoding, block_body_with_proof)
+            .context("getting block body")?;
 
         Ok(Self {
             stateless_input,
             public_keys: signers,
-            block_body_bytes,
-            kzg_enabled,
+            block_body,
         })
     }
 }

@@ -2780,7 +2780,7 @@ dependencies = [
  "clap",
  "ere-dockerized",
  "ere-zkvm-interface",
- "reth-guest-io",
+ "guest-libs",
  "tracing",
  "tracing-subscriber 0.3.20",
 ]
@@ -3649,6 +3649,8 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
+ "anyhow",
+ "c-kzg",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "reth-ethereum-primitives",
@@ -3657,6 +3659,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "snap",
  "thiserror 2.0.17",
 ]
 
@@ -4317,7 +4320,7 @@ dependencies = [
  "ere-dockerized",
  "ere-zkvm-interface",
  "flate2",
- "reth-guest-io",
+ "guest-libs",
  "tar",
  "tempfile",
  "tokio",
@@ -7285,7 +7288,6 @@ dependencies = [
  "reth-stateless",
  "serde",
  "serde_with",
- "snap",
 ]
 
 [[package]]

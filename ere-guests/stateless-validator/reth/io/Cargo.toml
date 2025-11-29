@@ -17,4 +17,3 @@ alloy-consensus.workspace = true
 serde = { workspace = true, features = ["derive"] }
 serde_with.workspace = true
 anyhow.workspace = true
-snap.workspace = true

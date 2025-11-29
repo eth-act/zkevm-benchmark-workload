@@ -38,17 +38,19 @@ fn main() -> Result<()> {
         GuestProgramCommand::StatelessValidator {
             input_folder,
             execution_client,
-            block_body_kzg_commit,
+            block_body_da,
         } => {
             info!(
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
             let el = execution_client.into();
+            let (block_body_encoding, block_body_with_proof) = block_body_da.to_encoding_and_proof();
             let guest_io = stateless_validator::stateless_validator_inputs(
                 input_folder.as_path(),
                 el,
-                block_body_kzg_commit.into(),
+                block_body_encoding,
+                block_body_with_proof,
             )?;
             let guest_relative = execution_client
                 .guest_rel_path()

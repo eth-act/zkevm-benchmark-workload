@@ -5,6 +5,7 @@ mod tests {
         stateless_validator::{self, BlockMetadata, ExecutionClient},
     };
     use ere_dockerized::zkVMKind;
+    use guest_libs::blobs::BlockBodyEncoding;
     use std::{env, path::PathBuf};
     use tempfile::{tempdir, TempDir};
     use witness_generator::{eest_generator::EESTFixtureGeneratorBuilder, FixtureGenerator};
@@ -76,7 +77,8 @@ mod tests {
             let inputs = stateless_validator::stateless_validator_inputs(
                 input_folder,
                 el,
-                reth_guest_io::BlockBodyKzgCommit::None,
+                BlockBodyEncoding::Raw,
+                false,
             )
             .unwrap();
             let len_inputs = inputs.len();
@@ -123,7 +125,8 @@ mod tests {
             let inputs = stateless_validator::stateless_validator_inputs(
                 bench_fixtures_dir.path(),
                 el,
-                reth_guest_io::BlockBodyKzgCommit::None,
+                BlockBodyEncoding::Raw,
+                false,
             )
             .unwrap();
 
@@ -160,7 +163,8 @@ mod tests {
             let inputs = stateless_validator::stateless_validator_inputs(
                 bench_fixtures_dir.path(),
                 *el,
-                reth_guest_io::BlockBodyKzgCommit::None,
+                BlockBodyEncoding::Raw,
+                false,
             )
             .unwrap();
 

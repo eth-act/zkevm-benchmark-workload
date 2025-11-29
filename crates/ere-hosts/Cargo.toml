@@ -9,9 +9,9 @@ license.workspace = true
 default = []
 
 [dependencies]
+guest-libs.workspace = true
 benchmark-runner.workspace = true
 block-encoding-length-io.workspace = true
-reth-guest-io.workspace = true
 
 ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true

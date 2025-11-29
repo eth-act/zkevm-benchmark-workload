@@ -23,7 +23,11 @@ serde_with.workspace = true
 ethereum_ssz_derive = { workspace = true }
 ethereum_ssz = { workspace = true }
 
+c-kzg.workspace = true
+
+anyhow.workspace = true
 thiserror.workspace = true
+snap.workspace = true
 
 [dev-dependencies]
 serde_json.workspace = true

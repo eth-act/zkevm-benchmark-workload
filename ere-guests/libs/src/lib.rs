@@ -11,6 +11,7 @@ use reth_ethereum_primitives::Block;
 use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
+pub mod blobs;
 pub mod block_ssz;
 pub mod senders;
 
