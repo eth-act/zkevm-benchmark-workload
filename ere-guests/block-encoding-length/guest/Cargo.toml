@@ -1,0 +1,25 @@
+[package]
+name = "block-encoding-length-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+guest-libs.workspace = true
+ere-io = { workspace = true, features = ["bincode"] }
+ere-platform-trait.workspace = true
+
+serde = { workspace = true, features = ["derive"] }
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+ethereum_ssz.workspace = true
+
+[features]
+default = ["std"]
+std = ["guest-libs/std"]
+
+[lints]
+workspace = true
