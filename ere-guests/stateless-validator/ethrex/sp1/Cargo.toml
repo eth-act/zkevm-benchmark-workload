@@ -6,22 +6,15 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false }
-rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
+ethrex-guest = { path = "../guest", features = ["std"] }
+
 k256 = "0.13"
-bincode = "1.0"
-
-
 guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b" }
-
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
-ethrex-storage = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b" }
 ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "sp1",
 ] }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
-ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
+
 [patch.crates-io]
 sha2-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha2", tag = "patch-sha2-0.10.8-sp1-4.0.0" }
 sha3-v0-10-8 = { git = "https://github.com/sp1-patches/RustCrypto-hashes", package = "sha3", tag = "patch-sha3-0.10.8-sp1-4.0.0" }

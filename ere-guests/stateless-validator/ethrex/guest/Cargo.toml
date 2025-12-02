@@ -1,0 +1,20 @@
+[package]
+name = "ethrex-guest"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+guest-libs.workspace = true
+ere-io = { workspace = true, features = ["rkyv"] }
+ere-platform-trait.workspace = true
+
+ethrex-guest-program.workspace = true
+ethrex-common.workspace = true
+
+rkyv.workspace = true
+
+[features]
+default = ["std"]
+std = ["guest-libs/std"]
