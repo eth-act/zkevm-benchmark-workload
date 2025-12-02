@@ -8,12 +8,12 @@
 #![feature(generic_const_exprs)]
 
 use ere_platform_airbender::AirbenderPlatform;
-use reth_guest::guest::ethereum_guest;
+use reth_guest::guest::{Guest, RethStatelessValidatorGuest};
 use sha2::Sha256;
 
 mod airbender_rt;
 
 /// Entry point.
 pub fn main() {
-    ethereum_guest::<AirbenderPlatform<Sha256>>();
+    RethStatelessValidatorGuest::run::<AirbenderPlatform<Sha256>>();
 }

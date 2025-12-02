@@ -2,11 +2,9 @@
 
 #![no_main]
 
-extern crate alloc;
-
 use ere_platform_pico::{PicoPlatform, pico_sdk};
 use kzg_rs::{Bytes32, Bytes48};
-use reth_guest::guest::ethereum_guest;
+use reth_guest::guest::{Guest, RethStatelessValidatorGuest};
 use revm::precompile::{Crypto, PrecompileError, interface::install_crypto};
 use sha2::Sha256;
 
@@ -65,5 +63,5 @@ fn as_bytes48(bytes: &[u8]) -> &Bytes48 {
 /// Entry point.
 pub fn main() {
     install_crypto(CryptoProvider);
-    ethereum_guest::<PicoPlatform<Sha256>>();
+    RethStatelessValidatorGuest::run::<PicoPlatform<Sha256>>();
 }

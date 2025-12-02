@@ -8,8 +8,7 @@ license.workspace = true
 [dependencies]
 guest-libs.workspace = true
 sparsestate.workspace = true
-reth-guest-io.workspace = true
-ere-io-serde.workspace = true
+ere-io = { workspace = true, features = ["bincode"] }
 ere-platform-trait.workspace = true
 
 # reth
@@ -28,7 +27,6 @@ alloy-primitives.workspace = true
 
 # external
 k256.workspace = true
-bincode_v2.workspace = true
 serde.workspace = true
 serde_with.workspace = true
 once_cell.workspace = true
