@@ -25,6 +25,9 @@ ethereum_ssz = { workspace = true }
 
 thiserror.workspace = true
 
+ere-io.workspace = true
+ere-platform-trait.workspace = true
+
 [dev-dependencies]
 serde_json.workspace = true
 
