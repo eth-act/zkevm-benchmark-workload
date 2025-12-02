@@ -1083,11 +1083,14 @@ dependencies = [
 ]
 
 [[package]]
-name = "block-encoding-length-io"
+name = "block-encoding-length-guest"
 version = "0.1.0"
 dependencies = [
- "ere-io-serde",
+ "ere-io",
+ "ere-platform-trait",
+ "ethereum_ssz",
  "guest-libs",
+ "reth-ethereum-primitives 1.8.3",
  "serde",
 ]
 
@@ -2005,9 +2008,9 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
-name = "ere-io-serde"
+name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "bincode 2.0.1",
  "serde",
@@ -2016,7 +2019,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-airbender"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2025,7 +2028,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-openvm"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2034,7 +2037,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2043,7 +2046,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2053,7 +2056,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-sp1"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2062,7 +2065,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2070,7 +2073,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-zisk"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=b08dc30be0bfa5480731b7da7f1e8c6279b94be6#b08dc30be0bfa5480731b7da7f1e8c6279b94be6"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -2403,6 +2406,8 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
+ "ere-io",
+ "ere-platform-trait",
  "ethereum_ssz",
  "ethereum_ssz_derive",
  "reth-ethereum-primitives 1.8.3",
@@ -5228,8 +5233,7 @@ name = "reth-guest"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
- "bincode 2.0.1",
- "ere-io-serde",
+ "ere-io",
  "ere-platform-trait",
  "guest-libs",
  "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -5237,24 +5241,12 @@ dependencies = [
  "reth-chainspec 1.8.3",
  "reth-ethereum-primitives 1.8.3",
  "reth-evm-ethereum",
- "reth-guest-io",
  "reth-primitives-traits 1.8.3",
  "reth-stateless",
  "reth-trie-common",
  "serde",
  "serde_with",
  "sparsestate",
-]
-
-[[package]]
-name = "reth-guest-io"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "ere-io-serde",
- "guest-libs",
- "reth-stateless",
- "serde",
 ]
 
 [[package]]
@@ -7014,18 +7006,8 @@ checksum = "13c2bddecc57b384dee18652358fb23172facb8a2c51ccc10d74c157bdea3292"
 name = "succinct-block-encoding-length"
 version = "0.1.0"
 dependencies = [
- "alloy-consensus",
- "block-encoding-length-io",
- "ere-io-serde",
+ "block-encoding-length-guest",
  "ere-platform-sp1",
- "ethereum_ssz",
- "guest-libs",
- "reth-ethereum-primitives 1.8.3",
- "reth-primitives-traits 1.8.3",
- "serde",
- "serde_with",
- "tracing",
- "tracing-subscriber 0.3.20",
 ]
 
 [[package]]
