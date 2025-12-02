@@ -1765,7 +1765,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
 dependencies = [
  "rkyv",
 ]
@@ -1773,7 +1773,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -1783,7 +1783,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6956da12b55afa427936df587f970a4a9f2d6b75#6956da12b55afa427936df587f970a4a9f2d6b75"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2376,6 +2376,7 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
+ "anyhow",
  "ere-io",
  "ere-platform-trait",
  "ethereum_ssz",

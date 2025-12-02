@@ -132,14 +132,14 @@ ethrex-guest = { path = "stateless-validator/ethrex/guest", default-features = f
 block-encoding-length-guest = { path = "block-encoding-length/guest", default-features = false }
 
 # ere
-ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75" }
-ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
-ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "6956da12b55afa427936df587f970a4a9f2d6b75", default-features = false }
+ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c" }
+ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
 
 # openvm
 openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
