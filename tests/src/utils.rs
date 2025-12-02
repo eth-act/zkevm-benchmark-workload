@@ -9,28 +9,26 @@ use std::{
 };
 
 use benchmark_runner::{
-    guest_programs::{GuestIO, GuestMetadata, OutputVerifier},
+    guest_programs::GuestIO,
     runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
     stateless_validator::ExecutionClient,
 };
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
 use flate2::bufread::GzDecoder;
+use serde::{de::DeserializeOwned, Serialize};
 use tar::Archive;
 use walkdir::WalkDir;
 use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 
-pub(crate) fn run_guest<T, OV>(
+pub(crate) fn run_guest(
     guest_rel: &str,
     zkvms: &[zkVMKind],
-    inputs: Vec<GuestIO<T, OV>>,
+    inputs: Vec<impl GuestIO>,
     output_folder: &Path,
     sub_folder: Option<String>,
     action: Action,
-) where
-    T: GuestMetadata,
-    OV: OutputVerifier,
-{
+) {
     let config = RunConfig {
         output_folder: output_folder.to_path_buf(),
         sub_folder,
@@ -47,7 +45,7 @@ pub(crate) fn run_guest<T, OV>(
     )
     .unwrap();
     for zkvm in instances {
-        run_benchmark(&zkvm, &config, inputs.clone()).unwrap();
+        run_benchmark(&zkvm, &config, &inputs).unwrap();
     }
 
     assert!(
@@ -60,7 +58,7 @@ pub(crate) fn assert_executions_crashed<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Crashed { .. })
@@ -71,7 +69,7 @@ pub(crate) fn assert_executions_successful<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     assert_execution_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ExecutionMetrics::Success { .. })
@@ -84,7 +82,7 @@ fn assert_execution_status<F, Metadata>(
     predicate: F,
 ) where
     F: Fn(&ExecutionMetrics) -> bool,
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     let paths = get_result_files(output_path);
     assert_eq!(
@@ -109,7 +107,7 @@ pub(crate) fn assert_proving_successful<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     assert_proving_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ProvingMetrics::Success { .. })
@@ -120,7 +118,7 @@ pub(crate) fn assert_proving_crashed<Metadata>(
     metrics_folder_path: &Path,
     expected_file_count: usize,
 ) where
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     assert_proving_status::<_, Metadata>(metrics_folder_path, expected_file_count, |exec| {
         matches!(exec, ProvingMetrics::Crashed { .. })
@@ -130,7 +128,7 @@ pub(crate) fn assert_proving_crashed<Metadata>(
 fn assert_proving_status<F, Metadata>(output_path: &Path, expected_file_count: usize, predicate: F)
 where
     F: Fn(&ProvingMetrics) -> bool,
-    Metadata: GuestMetadata,
+    Metadata: Serialize + DeserializeOwned,
 {
     let paths = get_result_files(output_path);
     assert_eq!(

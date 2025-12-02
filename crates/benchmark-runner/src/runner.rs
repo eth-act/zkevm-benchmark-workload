@@ -2,17 +2,17 @@
 
 use anyhow::{anyhow, bail, Context, Result};
 use ere_dockerized::{zkVMKind, DockerizedCompiler, DockerizedzkVM};
-use rayon::iter::{IntoParallelRefIterator, ParallelIterator};
+use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{any::Any, panic};
 use tracing::{error, info};
 
-use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType, PublicValues};
+use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
-use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
+use crate::guest_programs::{GuestIO, OutputVerifierResult};
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -39,23 +39,19 @@ pub enum Action {
 }
 
 /// Executes benchmarks for a given guest program type and zkVM
-pub fn run_benchmark<M, OV>(
+pub fn run_benchmark(
     ere_zkvm: &DockerizedzkVM,
     config: &RunConfig,
-    inputs: Vec<GuestIO<M, OV>>,
-) -> Result<()>
-where
-    M: GuestMetadata,
-    OV: OutputVerifier,
-{
+    inputs: impl IntoParallelIterator<Item: GuestIO> + IntoIterator<Item: GuestIO>,
+) -> Result<()> {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
     match config.action {
         Action::Execute => inputs
-            .par_iter()
+            .into_par_iter()
             .try_for_each(|input| process_input(ere_zkvm, input, config))?,
 
         Action::Prove => inputs
-            .iter()
+            .into_iter()
             .try_for_each(|input| process_input(ere_zkvm, input, config))?,
     }
 
@@ -63,43 +59,38 @@ where
 }
 
 /// Processes a single input through the zkVM
-fn process_input<M, OV>(
-    zkvm: &DockerizedzkVM,
-    io: &GuestIO<M, OV>,
-    config: &RunConfig,
-) -> Result<()>
-where
-    M: GuestMetadata,
-    OV: OutputVerifier,
-{
+fn process_input(zkvm: &DockerizedzkVM, io: impl GuestIO, config: &RunConfig) -> Result<()> {
     let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
         .output_folder
         .join(config.sub_folder.as_deref().unwrap_or(""))
-        .join(format!("{zkvm_name}/{}.json", io.name));
+        .join(format!("{zkvm_name}/{}.json", io.name()));
 
     if !config.force_rerun && out_path.exists() {
-        info!("Skipping {} (already exists)", &io.name);
+        info!("Skipping {} (already exists)", &io.name());
         return Ok(());
     }
+
+    let serialized_input = io.serialized_input()?;
 
     // Dump input if requested
     if let Some(ref dump_folder) = config.dump_inputs_folder {
         dump_input(
-            &io.input,
-            &io.name,
+            &serialized_input,
+            &io.name(),
             dump_folder,
             config.sub_folder.as_deref(),
         )?;
     }
 
-    info!("Running {}", io.name);
+    info!("Running {}", io.name());
     let (execution, proving) = match config.action {
         Action::Execute => {
-            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&io.input)));
+            let run =
+                panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&serialized_input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm_kind(), &public_values, &io.output)
+                    verify_public_output(&io, &public_values)
                         .context("Failed to verify public output from execution")?;
 
                     ExecutionMetrics::Success {
@@ -119,21 +110,16 @@ where
         }
         Action::Prove => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                zkvm.prove(&io.input, ProofKind::Compressed)
+                zkvm.prove(&serialized_input, ProofKind::Compressed)
             }));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io.name, zkvm.zkvm_kind(), &public_values, &io.output)
+                    verify_public_output(&io, &public_values)
                         .context("Failed to verify public output from proof")?;
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
-                    verify_public_output(
-                        &io.name,
-                        zkvm.zkvm_kind(),
-                        &verif_public_values,
-                        &io.output,
-                    )
-                    .context("Failed to verify public output from proof verification")?;
+                    verify_public_output(&io, &verif_public_values)
+                        .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.as_bytes().len(),
@@ -152,14 +138,14 @@ where
     };
 
     let report = BenchmarkRun {
-        name: io.name.clone(),
+        name: io.name(),
         timestamp_completed: zkevm_metrics::chrono::Utc::now(),
-        metadata: io.metadata.clone(),
+        metadata: io.metadata(),
         execution,
         proving,
     };
 
-    info!("Saving report {}", io.name);
+    info!("Saving report {}", io.name());
     report.to_path(out_path)?;
 
     Ok(())
@@ -252,14 +238,11 @@ fn dump_input(
     Ok(())
 }
 
-fn verify_public_output(
-    name: &str,
-    zkvm: zkVMKind,
-    public_values: &PublicValues,
-    output_verifier: &impl OutputVerifier,
-) -> Result<()> {
-    match output_verifier.check_serialized(zkvm, public_values)? {
+fn verify_public_output(io: &impl GuestIO, public_values: &[u8]) -> Result<()> {
+    match io.verify_public_values(public_values)? {
         OutputVerifierResult::Match => Ok(()),
-        OutputVerifierResult::Mismatch(msg) => Err(anyhow!("Output mismatch for {name}: {msg}")),
+        OutputVerifierResult::Mismatch(msg) => {
+            Err(anyhow!("Output mismatch for {}: {msg}", io.name()))
+        }
     }
 }

@@ -1,46 +1,43 @@
 //! Empty program guest program.
 
-use anyhow::Result;
-use ere_dockerized::zkVMKind;
+use crate::guest_programs::{GuestIO, OutputVerifierResult};
 
-use crate::guest_programs::{GuestIO, GuestMetadata, OutputVerifier, OutputVerifierResult};
+/// Empty program guest program.
+#[derive(Debug, Clone)]
+pub struct EmptyGuestIO;
 
-// This implementation is required since the empty program does not have any metadata.
-impl GuestMetadata for () {}
+impl GuestIO for EmptyGuestIO {
+    fn name(&self) -> String {
+        "empty_program".to_string()
+    }
 
-/// Generate inputs for the empty program guest program.
-pub fn empty_program_input() -> Result<GuestIO<(), ProgramOutputVerifier>> {
-    Ok(GuestIO {
-        name: "empty_program".to_string(),
-        input: vec![],
-        output: ProgramOutputVerifier,
-        metadata: (),
-    })
+    fn metadata(&self) -> serde_json::Value {
+        serde_json::Value::default()
+    }
+
+    fn serialized_input(&self) -> anyhow::Result<Vec<u8>> {
+        Ok(Vec::new())
+    }
+
+    fn serialized_output(&self) -> anyhow::Result<Vec<u8>> {
+        Ok(Vec::new())
+    }
+
+    fn verify_public_values(&self, public_values: &[u8]) -> anyhow::Result<OutputVerifierResult> {
+        // For OpenVM it has fixed size public values (32 bytes by default,
+        // now allowed to configure to 0 bytes), so here we treat all zero as
+        // valid empty output as well.
+        let all_zero = public_values.iter().all(|v| *v == 0);
+        Ok(match public_values.is_empty() || all_zero {
+            true => OutputVerifierResult::Match,
+            false => OutputVerifierResult::Mismatch(format!(
+                "Expected empty output, got {public_values:?}",
+            )),
+        })
+    }
 }
 
-/// Verifies the output of the program.
-#[derive(Debug, Clone)]
-pub struct ProgramOutputVerifier;
-
-impl OutputVerifier for ProgramOutputVerifier {
-    fn check_serialized(&self, zkvm: zkVMKind, bytes: &[u8]) -> Result<OutputVerifierResult> {
-        match zkvm {
-            zkVMKind::SP1 | zkVMKind::Risc0 | zkVMKind::Zisk | zkVMKind::Pico => {
-                match bytes.is_empty() {
-                    true => Ok(OutputVerifierResult::Match),
-                    false => Ok(OutputVerifierResult::Mismatch(format!(
-                        "Expected empty output, got {bytes:?}",
-                    ))),
-                }
-            }
-
-            zkVMKind::OpenVM => match bytes == [0x00; 32] {
-                true => Ok(OutputVerifierResult::Match),
-                false => Ok(OutputVerifierResult::Mismatch(format!(
-                    "Expected [0x00; 32], got {bytes:?}"
-                ))),
-            },
-            _ => todo!("Output verification not implemented for this zkVM"),
-        }
-    }
+/// Generate inputs for the empty program guest program.
+pub fn empty_program_input() -> anyhow::Result<Box<dyn GuestIO>> {
+    Ok(Box::new(EmptyGuestIO))
 }

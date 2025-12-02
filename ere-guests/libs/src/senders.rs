@@ -1,6 +1,7 @@
 //! This module provies sender recovery helpers for witness generation and block stateless validation.
 
-use alloc::{boxed::Box, format, vec::Vec};
+use alloc::{format, vec::Vec};
+use anyhow::Context;
 use reth_ethereum_primitives::TransactionSigned;
 use reth_stateless::UncompressedPublicKey;
 
@@ -19,9 +20,7 @@ pub enum StatelessValidationError {
 }
 
 /// Recover public keys from transaction signatures.
-pub fn recover_signers<'a, I>(
-    txs: I,
-) -> Result<Vec<UncompressedPublicKey>, Box<dyn core::error::Error>>
+pub fn recover_signers<'a, I>(txs: I) -> anyhow::Result<Vec<UncompressedPublicKey>>
 where
     I: IntoIterator<Item = &'a TransactionSigned>,
 {
@@ -36,7 +35,7 @@ where
                             .unwrap(),
                     )
                 })
-                .map_err(|e| format!("failed to recover signature for tx #{i}: {e}").into())
+                .with_context(|| format!("failed to recover signature for tx #{i}"))
         })
         .collect::<Result<Vec<UncompressedPublicKey>, _>>()
 }

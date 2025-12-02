@@ -23,6 +23,7 @@ serde_with.workspace = true
 ethereum_ssz_derive = { workspace = true }
 ethereum_ssz = { workspace = true }
 
+anyhow.workspace = true
 thiserror.workspace = true
 
 ere-io.workspace = true

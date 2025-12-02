@@ -7,14 +7,14 @@ edition = "2021"
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
+ere-platform-trait.workspace = true
+ere-dockerized.workspace = true
+ere-io.workspace = true
 
 guest-libs = { workspace = true, default-features = true }
-
-reth-guest-io.workspace = true
-block-encoding-length-io.workspace = true
-
-ere-dockerized.workspace = true
-ere-io-serde.workspace = true
+block-encoding-length-guest.workspace = true
+reth-guest.workspace = true
+ethrex-guest.workspace = true
 
 alloy-rlp.workspace = true
 alloy-eips.workspace = true
@@ -33,10 +33,9 @@ walkdir.workspace = true
 sha2.workspace = true
 serde.workspace = true
 serde_json.workspace = true
-rkyv.workspace = true
-bincode.workspace = true
 strum.workspace = true
-anyhow = "*"
+anyhow.workspace = true
+auto_impl.workspace = true
 
 [lints]
 workspace = true

@@ -2406,6 +2406,7 @@ dependencies = [
  "alloy-consensus",
  "alloy-eips",
  "alloy-primitives",
+ "anyhow",
  "ere-io",
  "ere-platform-trait",
  "ethereum_ssz",
