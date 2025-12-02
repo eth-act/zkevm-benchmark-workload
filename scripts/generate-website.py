@@ -15,6 +15,9 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+# Import the human-readable display name function
+from test_name_parser import get_display_name
+
 @dataclass
 class MetricsFile:
     """Represents a single metrics file with its metadata."""
@@ -844,12 +847,8 @@ def generate_el_section(el: str, metrics_data: Dict[str, Dict[str, List[MetricsF
 
 
 def clean_test_name(test_name: str) -> str:
-    """Clean up test name for display."""
-    return (test_name
-            .replace('test_worst_', '')
-            .replace('[fork_Prague-benchmark-gas-value_10M-blockchain_test_from_state_test-', ' (')
-            .replace('[fork_Prague-benchmark-gas-value_10M-blockchain_test-', ' (')
-            .replace(']', ')'))
+    """Clean up test name for display using human-readable format."""
+    return get_display_name(test_name)
 
 
 def generate_html_report(metrics_data: Dict[str, Dict[str, List[MetricsFile]]], output_file: Path) -> None:

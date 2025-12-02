@@ -26,6 +26,15 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 import statistics
 
+# Import the test name parser for human-readable display names
+try:
+    from test_name_parser import get_display_name
+    PARSER_AVAILABLE = True
+except ImportError:
+    PARSER_AVAILABLE = False
+    def get_display_name(name: str) -> str:
+        return name
+
 def load_metrics(folder_path: str) -> Dict[str, Dict]:
     """Load all metric files from a folder, searching all subfolders."""
     metrics = {}
@@ -64,6 +73,28 @@ def load_metrics(folder_path: str) -> Dict[str, Dict]:
                 print(f"Error loading {file_path}: {e}")
     
     return metrics
+
+def format_test_name(filename: str) -> str:
+    """Format test name for display using human-readable format.
+    
+    Args:
+        filename: Can be either 'test_name' or 'subfolder/test_name'
+    
+    Returns:
+        Formatted name, preserving subfolder prefix if present
+    """
+    if '/' in filename:
+        subfolder, test_name = filename.rsplit('/', 1)
+        try:
+            formatted_name = get_display_name(test_name)
+            return f"{subfolder}/{formatted_name}"
+        except Exception:
+            return filename
+    else:
+        try:
+            return get_display_name(filename)
+        except Exception:
+            return filename
 
 def extract_region_cycles(metrics_data: Dict) -> Dict[str, int]:
     """Extract region_cycles from metrics data and add total_num_cycles."""
@@ -157,12 +188,13 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
     # Sort files by name
     sorted_files = sorted(speedups.keys())
     
-    # Calculate the optimal width for the file column
-    max_filename_length = max(len(filename) for filename in sorted_files)
-    file_column_width = max(max_filename_length + 2, 30)  # At least 30, but wider if needed
+    # Format all test names and calculate optimal column width
+    formatted_names = {filename: format_test_name(filename) for filename in sorted_files}
+    max_display_length = max(len(name) for name in formatted_names.values())
+    file_column_width = max(max_display_length + 2, 40)  # At least 40 for human-readable names
     
     # Print header - use dynamic column width for file names and abbreviated region names
-    header = "File".ljust(file_column_width)
+    header = "Test".ljust(file_column_width)
     for region in regions:
         abbreviated = abbreviate_region_name(region)
         header += abbreviated.ljust(14)  # Reduced from 18 to 14 for better fit
@@ -171,7 +203,8 @@ def print_speedup_table(speedups: Dict[str, Dict[str, float]], regions: List[str
     
     # Print data rows
     for filename in sorted_files:
-        row = filename.ljust(file_column_width)
+        display_name = formatted_names[filename]
+        row = display_name[:file_column_width].ljust(file_column_width)
         for region in regions:
             if region in speedups[filename]:
                 speedup = speedups[filename][region]
@@ -235,13 +268,15 @@ def analyze_speedups(speedups: Dict[str, Dict[str, float]], regions: List[str]):
         # Top 3 best
         print("  Top 3 best speedups:")
         for i, (filename, speedup) in enumerate(file_speedups[:3]):
-            print(f"    {i+1}. {filename}: {speedup:.2f}x")
+            display_name = format_test_name(filename)
+            print(f"    {i+1}. {display_name}: {speedup:.2f}x")
         
         # Top 3 worst (if we have at least 3 entries)
         if len(file_speedups) >= 3:
             print("  Top 3 worst speedups:")
             for i, (filename, speedup) in enumerate(file_speedups[-3:]):
-                print(f"    {i+1}. {filename}: {speedup:.2f}x")
+                display_name = format_test_name(filename)
+                print(f"    {i+1}. {display_name}: {speedup:.2f}x")
 
 def main():
     """Main function."""

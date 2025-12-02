@@ -25,6 +25,15 @@ from pathlib import Path
 from typing import Dict, List, Tuple
 import statistics
 
+# Import the test name parser for human-readable display names
+try:
+    from test_name_parser import get_display_name
+    PARSER_AVAILABLE = True
+except ImportError:
+    PARSER_AVAILABLE = False
+    def get_display_name(name: str) -> str:
+        return name
+
 def load_metrics(folder_path: str) -> Dict[str, Dict]:
     """Load all metric files from a folder, searching all subfolders."""
     metrics = {}
@@ -63,6 +72,28 @@ def load_metrics(folder_path: str) -> Dict[str, Dict]:
                 print(f"Error loading {file_path}: {e}")
     
     return metrics
+
+def format_test_name(filename: str) -> str:
+    """Format test name for display using human-readable format.
+    
+    Args:
+        filename: Can be either 'test_name' or 'subfolder/test_name'
+    
+    Returns:
+        Formatted name, preserving subfolder prefix if present
+    """
+    if '/' in filename:
+        subfolder, test_name = filename.rsplit('/', 1)
+        try:
+            formatted_name = get_display_name(test_name)
+            return f"{subfolder}/{formatted_name}"
+        except Exception:
+            return filename
+    else:
+        try:
+            return get_display_name(filename)
+        except Exception:
+            return filename
 
 def extract_proving_time(metrics_data: Dict) -> float:
     """Extract proving_time_ms from metrics data and convert to seconds."""
@@ -119,8 +150,8 @@ def print_detailed_speedup_table(speedups: Dict[str, float], baseline_metrics: D
         print("No data to display")
         return
     
-    # Print header
-    header = "File".ljust(35) + "Speedup".ljust(12) + "Baseline (s)".ljust(15) + "Optimized (s)".ljust(15) + "Time Saved (s)".ljust(15)
+    # Print header - increase column width for human-readable names
+    header = "Test".ljust(60) + "Speedup".ljust(12) + "Baseline (s)".ljust(15) + "Optimized (s)".ljust(15) + "Time Saved (s)".ljust(15)
     print(header)
     print("-" * len(header))
     
@@ -132,12 +163,15 @@ def print_detailed_speedup_table(speedups: Dict[str, float], baseline_metrics: D
             optimized_time = extract_proving_time(optimized_metrics[filename])
             time_saved = baseline_time - optimized_time
             
+            # Format the test name for display
+            display_name = format_test_name(filename)
+            
             speedup_str = f"{speedup:.2f}x"
             baseline_str = f"{baseline_time:,.0f}"
             optimized_str = f"{optimized_time:,.0f}"
             saved_str = f"{time_saved:,.0f}"
             
-            row = (filename.ljust(35) + speedup_str.ljust(12) + 
+            row = (display_name[:60].ljust(60) + speedup_str.ljust(12) + 
                    baseline_str.ljust(15) + optimized_str.ljust(15) + saved_str.ljust(15))
             print(row)
 
@@ -186,7 +220,8 @@ def analyze_speedups(speedups: Dict[str, float], baseline_metrics: Dict[str, Dic
         baseline_time = extract_proving_time(baseline_metrics[filename])
         optimized_time = extract_proving_time(optimized_metrics[filename])
         time_saved = baseline_time - optimized_time
-        print(f"    {i+1}. {filename}: {speedup:.2f}x (saved {time_saved:,.0f} s)")
+        display_name = format_test_name(filename)
+        print(f"    {i+1}. {display_name}: {speedup:.2f}x (saved {time_saved:,.0f} s)")
     
     # Top 3 worst (if we have at least 3 entries)
     if len(file_speedups) >= 3:
@@ -195,11 +230,12 @@ def analyze_speedups(speedups: Dict[str, float], baseline_metrics: Dict[str, Dic
             baseline_time = extract_proving_time(baseline_metrics[filename])
             optimized_time = extract_proving_time(optimized_metrics[filename])
             time_diff = baseline_time - optimized_time
+            display_name = format_test_name(filename)
             if time_diff >= 0:
                 time_str = f"saved {time_diff:,.0f} s"
             else:
                 time_str = f"lost {abs(time_diff):,.0f} s"
-            print(f"    {i+1}. {filename}: {speedup:.2f}x ({time_str})")
+            print(f"    {i+1}. {display_name}: {speedup:.2f}x ({time_str})")
 
 def main():
     """Main function."""

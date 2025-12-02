@@ -15,14 +15,16 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Optional
 
-# Import the test name formatter
+# Import the test name parser for human-readable display names
 try:
-    from test_name_formatter import TestNameFormatter
-    FORMATTER_AVAILABLE = True
+    from test_name_parser import get_display_name
+    PARSER_AVAILABLE = True
 except ImportError:
     # If we can't import it, provide a fallback
-    print("Warning: test_name_formatter module not found. Test names will not be formatted.", file=sys.stderr)
-    FORMATTER_AVAILABLE = False
+    print("Warning: test_name_parser module not found. Test names will not be formatted.", file=sys.stderr)
+    PARSER_AVAILABLE = False
+    def get_display_name(name: str) -> str:
+        return name
 
 
 @dataclass
@@ -161,8 +163,6 @@ def generate_markdown(
     output_file: Path
 ) -> None:
     """Generate markdown report from metrics."""
-    # Initialize the test name formatter if available
-    formatter = TestNameFormatter() if FORMATTER_AVAILABLE else None
     
     # Extract zkVM version from the first metric (they should all be the same)
     zkvm_version = metrics[0].version if metrics and metrics[0].version else "Unknown"
@@ -206,18 +206,15 @@ def generate_markdown(
         
         # Table rows
         for metric in sorted(metrics, key=lambda m: m.name):
-            # Format the test name using the formatter if available
-            if formatter:
+            # Format the test name using the display name parser if available
+            if PARSER_AVAILABLE:
                 try:
-                    formatted_name = formatter.format_test_name(metric.name)
+                    benchmark_name = get_display_name(metric.name)
                 except Exception:
                     # If formatting fails, use the original name
-                    formatted_name = metric.name
+                    benchmark_name = metric.name
             else:
-                formatted_name = metric.name
-            
-            # Use the formatted name without version prefix
-            benchmark_name = formatted_name
+                benchmark_name = metric.name
             
             gas_used_str = format_number(metric.gas_used)
             proof_size_str = format_number(metric.proof_size)
