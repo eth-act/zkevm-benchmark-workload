@@ -62,7 +62,7 @@ impl Guest for RethStatelessValidatorGuest {
                 chain_spec,
                 evm_config,
             )
-            .map(|(blcok_hash, _)| blcok_hash)
+            .map(|(block_hash, _)| block_hash)
         });
 
         match res {
