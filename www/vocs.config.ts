@@ -45,6 +45,7 @@ export default defineConfig({
       items: [
         {
           text: '1M, 1GPU',
+          link: '/benchmark-results/gas-categorized/1m/1M-1',
           items: [
             {
               text: 'sp1',
@@ -60,6 +61,7 @@ export default defineConfig({
     },
     {
       text: '1M, 4GPU',
+      link: '/benchmark-results/gas-categorized/1m/1M-4',
       items: [
         {
           text: 'risc0',
