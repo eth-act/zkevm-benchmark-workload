@@ -240,7 +240,7 @@ def write_comparison_table_to_file(
         return ""
     
     # Add header
-    lines.append(f"# zkVM Proving Time Comparison\n")
+    lines.append(f"# zkVM Proving Time (in secs) Comparison\n")
     lines.append(f"**Gas Category:** {gas_category}\n")
     lines.append(f"**Number of GPUs:** {gpu_count}\n")
     lines.append("")
