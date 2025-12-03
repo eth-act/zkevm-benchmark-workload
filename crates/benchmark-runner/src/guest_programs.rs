@@ -8,19 +8,19 @@ use serde::Serialize;
 use sha2::Digest;
 use std::{fmt::Debug, marker::PhantomData, sync::OnceLock};
 
-/// Trait for a guest program input/output with associated metadata.
+/// Trait for a guest program fixture with associated metadata.
 #[auto_impl::auto_impl(&, Box)]
-pub trait GuestIO: Sync + Send {
-    /// Returns the name of the guest program.
+pub trait GuestFixture: Sync + Send {
+    /// Returns the name of the guest program fixture.
     fn name(&self) -> String;
 
-    /// Returns the metadata associated with this guest program as a JSON value.
+    /// Returns the metadata associated with this guest program fixture as a JSON value.
     fn metadata(&self) -> serde_json::Value;
 
-    /// Returns serialized input of guest program.
+    /// Returns serialized input of the guest program fixture.
     fn serialized_input(&self) -> anyhow::Result<Vec<u8>>;
 
-    /// Returns serialized output of guest program.
+    /// Returns serialized output of the guest program fixture.
     fn serialized_output(&self) -> anyhow::Result<Vec<u8>>;
 
     /// Verifies that the provided `public_values` match the expected output.
@@ -36,29 +36,29 @@ pub trait GuestIO: Sync + Send {
     }
 }
 
-/// A generic implementation of `GuestIO` that wraps a guest program with its
-/// input, output, and metadata.
+/// A generic implementation of `GuestFixture` that wraps a guest program fixture
+/// with its input, output, and metadata.
 #[derive(Debug)]
-pub struct GenericGuestIO<G: Guest, M> {
-    /// The name of the guest program input.
+pub struct GenericGuestFixture<G: Guest, M> {
+    /// The name of the guest program fixture.
     pub name: String,
-    /// The input to be provided to the guest program.
+    /// The input to be provided to the guest program fixture.
     pub input: GuestInput<G>,
-    /// The expected output for the guest program.
+    /// The expected output for the guest program fixture.
     ///
     /// If `None` is given, `G::compute` will be used to compute the output.
     pub output: OnceLock<GuestOutput<G>>,
-    /// Associated metadata for the guest program input.
+    /// Associated metadata for the guest program fixture.
     pub metadata: M,
 }
 
-impl<G, M> GenericGuestIO<G, M>
+impl<G, M> GenericGuestFixture<G, M>
 where
     G: 'static + Guest,
     M: 'static + Send + Sync + Serialize,
 {
-    /// Converts this [`GenericGuestIO`] into a boxed [`GuestIO`] trait object.
-    pub fn into_boxed(self) -> Box<dyn GuestIO> {
+    /// Converts this [`GenericGuestFixture`] into a boxed [`GuestFixture`] trait object.
+    pub fn into_boxed(self) -> Box<dyn GuestFixture> {
         Box::new(self)
     }
 
@@ -93,7 +93,7 @@ where
     }
 }
 
-impl<G, M> GuestIO for GenericGuestIO<G, M>
+impl<G, M> GuestFixture for GenericGuestFixture<G, M>
 where
     G: 'static + Guest,
     M: 'static + Send + Sync + Serialize,
@@ -115,21 +115,21 @@ where
     }
 }
 
-/// A wrapper around a `GuestIO` expects the output is hashed.
+/// A wrapper around a `GuestFixture` expects the output is hashed.
 ///
 /// This is useful when the guest program outputs a hash of the result instead of the full result.
 #[derive(Debug)]
-pub struct OutputHashedGuestIO<G: GuestIO, D> {
+pub struct OutputHashedGuestFixture<G: GuestFixture, D> {
     inner: G,
     _marker: PhantomData<D>,
 }
 
-impl<G, D> OutputHashedGuestIO<G, D>
+impl<G, D> OutputHashedGuestFixture<G, D>
 where
-    G: 'static + GuestIO,
+    G: 'static + GuestFixture,
     D: 'static + Send + Sync + Digest,
 {
-    /// Creates a new [`OutputHashedGuestIO`] wrapping the given [`GuestIO`].
+    /// Creates a new [`OutputHashedGuestFixture`] wrapping the given [`GuestFixture`].
     pub const fn new(inner: G) -> Self {
         Self {
             inner,
@@ -137,16 +137,16 @@ where
         }
     }
 
-    /// Converts this [`OutputHashedGuestIO`] into a boxed [`GuestIO`] trait
+    /// Converts this [`OutputHashedGuestFixture`] into a boxed [`GuestFixture`] trait
     /// object.
-    pub fn into_boxed(self) -> Box<dyn GuestIO> {
+    pub fn into_boxed(self) -> Box<dyn GuestFixture> {
         Box::new(self)
     }
 }
 
-impl<G, D> GuestIO for OutputHashedGuestIO<G, D>
+impl<G, D> GuestFixture for OutputHashedGuestFixture<G, D>
 where
-    G: 'static + GuestIO,
+    G: 'static + GuestFixture,
     D: 'static + Send + Sync + Digest,
 {
     fn name(&self) -> String {

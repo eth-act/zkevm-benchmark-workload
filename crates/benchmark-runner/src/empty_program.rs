@@ -1,12 +1,12 @@
 //! Empty program guest program.
 
-use crate::guest_programs::{GuestIO, OutputVerifierResult};
+use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
 /// Empty program guest program.
 #[derive(Debug, Clone)]
-pub struct EmptyGuestIO;
+pub struct EmptyGuestFixture;
 
-impl GuestIO for EmptyGuestIO {
+impl GuestFixture for EmptyGuestFixture {
     fn name(&self) -> String {
         "empty_program".to_string()
     }
@@ -38,6 +38,6 @@ impl GuestIO for EmptyGuestIO {
 }
 
 /// Generate inputs for the empty program guest program.
-pub fn empty_program_input() -> anyhow::Result<Box<dyn GuestIO>> {
-    Ok(Box::new(EmptyGuestIO))
+pub fn empty_program_input() -> anyhow::Result<Box<dyn GuestFixture>> {
+    Ok(Box::new(EmptyGuestFixture))
 }

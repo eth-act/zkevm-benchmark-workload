@@ -1,6 +1,6 @@
 //! Stateless validator guest program.
 
-use crate::guest_programs::GuestIO;
+use crate::guest_programs::GuestFixture;
 use anyhow::Result;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use serde::{Deserialize, Serialize};
@@ -32,7 +32,7 @@ pub struct BlockMetadata {
 pub fn stateless_validator_inputs(
     input_folder: &Path,
     el: ExecutionClient,
-) -> anyhow::Result<Vec<Box<dyn GuestIO>>> {
+) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
     match el {
         ExecutionClient::Reth => reth::stateless_validator_inputs(input_folder),
         ExecutionClient::Ethrex => ethrex::stateless_validator_inputs(input_folder),

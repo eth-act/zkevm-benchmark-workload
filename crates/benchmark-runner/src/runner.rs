@@ -12,7 +12,7 @@ use tracing::{error, info};
 use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
-use crate::guest_programs::{GuestIO, OutputVerifierResult};
+use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -42,7 +42,7 @@ pub enum Action {
 pub fn run_benchmark(
     ere_zkvm: &DockerizedzkVM,
     config: &RunConfig,
-    inputs: impl IntoParallelIterator<Item: GuestIO> + IntoIterator<Item: GuestIO>,
+    inputs: impl IntoParallelIterator<Item: GuestFixture> + IntoIterator<Item: GuestFixture>,
 ) -> Result<()> {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
     match config.action {
@@ -59,7 +59,7 @@ pub fn run_benchmark(
 }
 
 /// Processes a single input through the zkVM
-fn process_input(zkvm: &DockerizedzkVM, io: impl GuestIO, config: &RunConfig) -> Result<()> {
+fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfig) -> Result<()> {
     let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
         .output_folder
@@ -238,7 +238,7 @@ fn dump_input(
     Ok(())
 }
 
-fn verify_public_output(io: &impl GuestIO, public_values: &[u8]) -> Result<()> {
+fn verify_public_output(io: &impl GuestFixture, public_values: &[u8]) -> Result<()> {
     match io.verify_public_values(public_values)? {
         OutputVerifierResult::Match => Ok(()),
         OutputVerifierResult::Mismatch(msg) => {

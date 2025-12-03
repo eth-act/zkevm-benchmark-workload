@@ -1,7 +1,7 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestIO, GuestIO, OutputHashedGuestIO},
+    guest_programs::{GenericGuestFixture, GuestFixture, OutputHashedGuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
@@ -25,7 +25,9 @@ use std::{convert::TryInto, path::Path, sync::OnceLock};
 use witness_generator::StatelessValidationFixture;
 
 /// Prepares the inputs for the Ethrex stateless validator guest program.
-pub fn stateless_validator_inputs(input_folder: &Path) -> anyhow::Result<Vec<Box<dyn GuestIO>>> {
+pub fn stateless_validator_inputs(
+    input_folder: &Path,
+) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
     read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
@@ -33,20 +35,22 @@ pub fn stateless_validator_inputs(input_folder: &Path) -> anyhow::Result<Vec<Box
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
-            Ok(OutputHashedGuestIO::<_, Sha256>::new(GenericGuestIO::<
-                EthrexStatelessValidatorGuest,
-                _,
-            > {
-                name: bw.name.clone(),
-                input,
-                metadata,
-                output: OnceLock::from((
-                    bw.stateless_input.block.hash_slow().0,
-                    bw.stateless_input.block.parent_hash.0,
-                    bw.success,
-                )),
-            })
-            .into_boxed())
+            Ok(
+                OutputHashedGuestFixture::<_, Sha256>::new(GenericGuestFixture::<
+                    EthrexStatelessValidatorGuest,
+                    _,
+                > {
+                    name: bw.name.clone(),
+                    input,
+                    metadata,
+                    output: OnceLock::from((
+                        bw.stateless_input.block.hash_slow().0,
+                        bw.stateless_input.block.parent_hash.0,
+                        bw.success,
+                    )),
+                })
+                .into_boxed(),
+            )
         })
         .collect()
 }

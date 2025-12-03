@@ -9,7 +9,7 @@ use std::{
 };
 
 use benchmark_runner::{
-    guest_programs::GuestIO,
+    guest_programs::GuestFixture,
     runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
     stateless_validator::ExecutionClient,
 };
@@ -24,7 +24,7 @@ use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 pub(crate) fn run_guest(
     guest_rel: &str,
     zkvms: &[zkVMKind],
-    inputs: Vec<impl GuestIO>,
+    inputs: Vec<impl GuestFixture>,
     output_folder: &Path,
     sub_folder: Option<String>,
     action: Action,

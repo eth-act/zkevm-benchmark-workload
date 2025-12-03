@@ -36,11 +36,14 @@ pub trait Guest: Clone {
     }
 }
 
+/// Associated type `Io` of [`Guest`].
+pub type GuestIo<G> = <G as Guest>::Io;
+
 /// Associated type `Input` of [`Guest::Io`].
-pub type GuestInput<G> = <<G as Guest>::Io as Io>::Input;
+pub type GuestInput<G> = <GuestIo<G> as Io>::Input;
 
 /// Associated type `Output` of [`Guest::Io`].
-pub type GuestOutput<G> = <<G as Guest>::Io as Io>::Output;
+pub type GuestOutput<G> = <GuestIo<G> as Io>::Output;
 
 /// Associated type `Error` of [`Guest::Io`].
-pub type GuestError<G> = <<G as Guest>::Io as Io>::Error;
+pub type GuestError<G> = <GuestIo<G> as Io>::Error;

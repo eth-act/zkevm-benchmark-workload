@@ -1,7 +1,7 @@
 //! Block encoding length calculation guest program.
 
 use crate::{
-    guest_programs::{GenericGuestIO, GuestIO},
+    guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::read_benchmark_fixtures_folder,
 };
 use anyhow::*;
@@ -25,7 +25,7 @@ pub fn block_encoding_length_inputs(
     input_folder: &Path,
     loop_count: u16,
     format: BlockEncodingFormat,
-) -> Result<Vec<Box<dyn GuestIO>>> {
+) -> Result<Vec<Box<dyn GuestFixture>>> {
     read_benchmark_fixtures_folder(input_folder)?
         .into_iter()
         .map(|bw| {
@@ -34,7 +34,7 @@ pub fn block_encoding_length_inputs(
                 loop_count,
                 format,
             };
-            Ok(GenericGuestIO::<BlockEncodingLengthGuest, _> {
+            Ok(GenericGuestFixture::<BlockEncodingLengthGuest, _> {
                 name: bw.name,
                 input,
                 metadata: BlockEncodingLengthMetadata {
