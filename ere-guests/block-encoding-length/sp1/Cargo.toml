@@ -7,21 +7,4 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 ere-platform-sp1.workspace = true
-
-ere-io-serde.workspace = true
-block-encoding-length-io.workspace = true
-guest-libs = { workspace = true, default-features = true }
-
-tracing = "*"
-tracing-subscriber = "*"
-serde = { version = "1.0", default-features = false, features = ["derive"] }
-serde_with = "3"
-
-reth-ethereum-primitives = { workspace = true, features = [
-    "serde",
-    "serde-bincode-compat",
-] }
-alloy-consensus.workspace = true
-reth-primitives-traits.workspace = true
-
-ethereum_ssz.workspace = true
+block-encoding-length-guest = { workspace = true, features = ["std"] }

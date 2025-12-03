@@ -11,6 +11,7 @@ ere-dockerized.workspace = true
 witness-generator.workspace = true
 
 walkdir.workspace = true
+serde.workspace = true
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 tempfile = "3.10"
 flate2 = "1.0"

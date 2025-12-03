@@ -5,8 +5,9 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "ere-guests/block-encoding-length/io",
-    "ere-guests/stateless-validator/reth/io",
+    "ere-guests/block-encoding-length/guest",
+    "ere-guests/stateless-validator/reth/guest",
+    "ere-guests/stateless-validator/ethrex/guest",
     "tests",
     "xtask",
 ]
@@ -109,13 +110,15 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 guest-libs = { path = "ere-guests/libs" }
+block-encoding-length-guest = { path = "ere-guests/block-encoding-length/guest" }
+reth-guest = { path = "ere-guests/stateless-validator/reth/guest" }
+ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
-reth-guest-io = { path = "ere-guests/stateless-validator/reth/io" }
-block-encoding-length-io = { path = "ere-guests/block-encoding-length/io" }
-
-ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", package = "ere-dockerized" }
-ere-io-serde = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", package = "ere-io-serde" }
+# ere
+ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", package = "ere-zkvm-interface" }
+ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", package = "ere-io" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
@@ -129,6 +132,7 @@ reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8
 reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 
+sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.3.0" }
 
 ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", package = "guest_program" }
 ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
@@ -176,3 +180,11 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 rkyv = "0.8.10"
 bytes = "1.10"
 erased-serde = "0.4.8"
+once_cell = { version = "1.21", default-features = false }
+auto_impl = "1.3.0"
+
+[patch."https://github.com/paradigmxyz/reth"]
+reth-revm = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
+reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }

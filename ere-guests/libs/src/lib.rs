@@ -12,6 +12,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::serde_as;
 
 pub mod block_ssz;
+pub mod guest;
 pub mod senders;
 
 /// Block wrapper that supports bincode serialization

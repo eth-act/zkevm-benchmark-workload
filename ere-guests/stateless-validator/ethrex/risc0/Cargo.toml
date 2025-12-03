@@ -6,27 +6,21 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "b08dc30be0bfa5480731b7da7f1e8c6279b94be6", default-features = false, features = ["std", "unstable", "getrandom", "sys-getenv"] }
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false, features = ["std", "unstable", "getrandom", "sys-getenv"] }
+ethrex-guest = { path = "../guest", features = ["std"] }
+
+k256 = "0.13"
 c-kzg = { version = "2.1.1", features = ["eip-7594"] }
 guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "c-kzg",
 ] }
-
-k256 = "0.13"
-bincode = "1.0"
-rkyv = { version = "0.8.10", features = ["unaligned"] }
-
-
 ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "risc0",
 ] }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
 ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
     "c-kzg",
     "risc0",
 ] }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
-ethrex-l2-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false }
 
 [patch.crates-io]
 sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.8-risczero.0" }

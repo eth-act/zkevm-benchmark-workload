@@ -1,7 +1,7 @@
 //! OpenVM guest program
 
 use ere_platform_openvm::OpenVMPlatform;
-use reth_guest::guest::ethereum_guest;
+use reth_guest::guest::{Guest, RethStatelessValidatorGuest};
 use sha2::Sha256;
 
 openvm::init!();
@@ -10,5 +10,5 @@ openvm::init!();
 pub fn main() {
     openvm_revm_crypto::install_openvm_crypto()
         .expect("failed to install OpenVM revm crypto provider");
-    ethereum_guest::<OpenVMPlatform<Sha256>>();
+    RethStatelessValidatorGuest::run::<OpenVMPlatform<Sha256>>();
 }

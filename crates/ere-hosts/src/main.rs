@@ -65,7 +65,7 @@ fn main() -> Result<()> {
                 dump_inputs_folder: cli.dump_inputs.clone(),
             };
             for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, guest_io.clone())?;
+                run_benchmark(&zkvm, &config, &guest_io)?;
             }
         }
         GuestProgramCommand::EmptyProgram => {
@@ -87,7 +87,7 @@ fn main() -> Result<()> {
                 dump_inputs_folder: cli.dump_inputs.clone(),
             };
             for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, vec![guest_io.clone()])?;
+                run_benchmark(&zkvm, &config, [&guest_io])?;
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -121,7 +121,7 @@ fn main() -> Result<()> {
                 dump_inputs_folder: cli.dump_inputs.clone(),
             };
             for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, guest_io.clone())?;
+                run_benchmark(&zkvm, &config, &guest_io)?;
             }
         }
     }
