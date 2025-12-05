@@ -57,35 +57,22 @@ export default defineConfig({
             },
           ],
         },
-      ]
-    },
-    {
-      text: '1M, 4GPU',
-      link: '/benchmark-results/gas-categorized/1m/1M-4',
-      items: [
         {
-          text: 'risc0',
-          link: '/benchmark-results/gas-categorized/1m/risc0-1M-4',
-        },
-      ],
-    },
-    {
-      text: 'GPU Scaling Efficiency',
-      items: [
-        {
-          text: '1M Risc0 GPU Scaling Efficiency',
+          text: '1M, 4GPU',
+          link: '/benchmark-results/gas-categorized/1m/1M-4',
           items: [
             {
-              text: 'Proving Times',
-              link: '/gpu-scaling-efficiency/1m-risc0-proving-times',
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/1m/risc0-1M-4',
             },
             {
-              text: 'Speedup & Efficiency',
-              link: '/gpu-scaling-efficiency/1m-risc0-speedup-efficiency',
+              text: 'airbender',
+              link: '/benchmark-results/gas-categorized/1m/airbender-1M-4',
             },
           ],
         },
       ]
     },
+   
   ],
 })

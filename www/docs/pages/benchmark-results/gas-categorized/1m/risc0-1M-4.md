@@ -1,6 +1,6 @@
 # zkEVM Benchmark Results
 
-Generated on: 2025-12-02 12:02:30
+Generated on: 2025-12-05 13:05:25
 
 ## Folder: zkevm-metrics-risc0-1M-4
 
