@@ -148,28 +148,26 @@ openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag =
 openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
 openvm-revm-crypto = { git = "https://github.com/axiom-crypto/openvm-reth-benchmark.git", branch = "openvm-v1.4.1-reth-1.8.3", default-features = false }
 
-# branch is kw/zkevm-benchmark-workload-repo
-# NOTE: We are using a branch of a branch that has not yet been merged into master.
-reth-ethereum-primitives = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-primitives-traits = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-chainspec = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-evm-ethereum = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de", default-features = false }
+reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 
 # alloy
 alloy-primitives = { version = "1.4.1", default-features = false }
-alloy-consensus = { version = "1.0.41", default-features = false }
-alloy-eips = { version = "1.0.41", default-features = false }
-alloy-hardforks = { version = "0.4.3", default-features = false }
+alloy-consensus = { version = "1.1.2", default-features = false }
+alloy-eips = { version = "1.1.2", default-features = false }
+alloy-hardforks = { version = "0.4.5", default-features = false }
 alloy-chains = { version = "0.2.5", default-features = false }
 alloy-rlp = { version = "0.3.10", default-features = false }
 alloy-trie = { version = "0.9.1", default-features = false }
 
 # revm
-revm = { version = "31.0.0", default-features = false }
-revm-bytecode = { version = "7.1.0", default-features = false }
+revm = { version = "33.1.0", default-features = false }
+revm-bytecode = { version = "7.1.1", default-features = false }
 
 # ethrex
 ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", package = "guest_program" }
@@ -196,7 +194,7 @@ k256 = { version = "0.13", default-features = false, features = [
     "serde",
     "pem",
 ] }
-sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.3.0" }
+sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.4.0" }
 
 [profile.release]
 lto = true
@@ -205,11 +203,5 @@ codegen-units = 1
 
 [profile.release.package.reth-airbender-stateless-validator]
 opt-level = "s"
-
-[patch."https://github.com/paradigmxyz/reth"]
-reth-revm = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
-reth-stateless = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
-reth-errors = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
-reth-trie-common = { git = "https://github.com/kevaundray/reth", rev = "2f94b4b8739b7d7dd83d5ca3567d73d7059120de" }
 
 [patch.crates-io]

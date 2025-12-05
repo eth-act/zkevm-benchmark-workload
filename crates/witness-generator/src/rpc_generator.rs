@@ -10,7 +10,7 @@ use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
     tracing::{error, info},
 };
-use reth_chainspec::{Chain, HOLESKY, HOODI, MAINNET, NamedChain, SEPOLIA};
+use reth_chainspec::{Chain, HOLESKY, HOODI, NamedChain, SEPOLIA, mainnet_chain_config};
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use reth_stateless::StatelessInput;
@@ -91,7 +91,7 @@ impl RpcBlocksAndWitnessesBuilder {
         let chain = Chain::from_id(chain_id.to());
 
         let chain_config = match chain.named() {
-            Some(NamedChain::Mainnet) => MAINNET.genesis.config.clone(),
+            Some(NamedChain::Mainnet) => mainnet_chain_config(),
             Some(NamedChain::Sepolia) => SEPOLIA.genesis.config.clone(),
             Some(NamedChain::Hoodi) => HOODI.genesis.config.clone(),
             Some(NamedChain::Holesky) => HOLESKY.genesis.config.clone(),
