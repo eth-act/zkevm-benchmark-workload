@@ -3,7 +3,7 @@
 use async_trait::async_trait;
 use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
-use reth_chainspec::ChainSpec;
+use reth_chainspec::{Chain, ChainSpec, blob_params_to_schedule, create_chain_config};
 use std::{
     path::{Path, PathBuf},
     process::Command,
@@ -169,7 +169,12 @@ impl FixtureGenerator for EESTFixtureGenerator {
 
 fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
     let spec: ChainSpec = case.network.into();
-    let config = spec.genesis.config;
+    let chain_config = create_chain_config(
+        Some(Chain::mainnet()),
+        &spec.hardforks,
+        spec.deposit_contract.map(|dc| dc.address),
+        blob_params_to_schedule(&spec.blob_params, &spec.hardforks),
+    );
 
     let (block, witness) = BlockchainTestCase::run_single_case(name, case)
         .map_err(|e| WGError::TestCaseExecutionError {
@@ -193,7 +198,7 @@ fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
         stateless_input: StatelessInput {
             block,
             witness,
-            chain_config: config,
+            chain_config,
         },
         success,
     });
