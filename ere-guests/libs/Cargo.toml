@@ -25,6 +25,7 @@ ethereum_ssz = { workspace = true }
 
 anyhow.workspace = true
 thiserror.workspace = true
+sha2.workspace = true
 
 ere-io.workspace = true
 ere-platform-trait.workspace = true
