@@ -9,11 +9,10 @@
 
 use ere_platform_airbender::AirbenderPlatform;
 use reth_guest::guest::{Guest, RethStatelessValidatorGuest};
-use sha2::Sha256;
 
 mod airbender_rt;
 
 /// Entry point.
 pub fn main() {
-    RethStatelessValidatorGuest::run::<AirbenderPlatform<Sha256>>();
+    RethStatelessValidatorGuest::run_output_sha256::<AirbenderPlatform>();
 }

@@ -2,7 +2,8 @@
 //! shared between Rust guest and host.
 
 use ere_io::Io;
-use ere_platform_trait::Platform;
+use ere_platform_trait::{OutputHashedPlatform, Platform};
+use sha2::Sha256;
 
 /// Guest program that can be ran given [`Platform`] implementation.
 pub trait Guest: Clone {
@@ -33,6 +34,12 @@ pub trait Guest: Clone {
             let output_bytes = Self::Io::serialize_output(&output).unwrap();
             P::write_whole_output(&output_bytes);
         });
+    }
+
+    /// Runs the complete guest program workflow but hash the output by sha256 before calling the
+    /// inner `P::write_whole_output`.
+    fn run_output_sha256<P: Platform>() {
+        Self::run::<OutputHashedPlatform<P, Sha256>>()
     }
 }
 
