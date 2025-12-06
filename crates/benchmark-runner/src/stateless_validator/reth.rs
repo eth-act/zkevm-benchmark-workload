@@ -1,12 +1,11 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture, GuestFixture, OutputHashedGuestFixture},
+    guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use guest_libs::senders::recover_signers;
 use reth_guest::guest::{RethStatelessValidatorGuest, RethStatelessValidatorInput};
-use sha2::Sha256;
 use std::{path::Path, sync::OnceLock};
 use witness_generator::StatelessValidationFixture;
 
@@ -22,22 +21,18 @@ pub fn stateless_validator_inputs(
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
 
-            Ok(
-                OutputHashedGuestFixture::<_, Sha256>::new(GenericGuestFixture::<
-                    RethStatelessValidatorGuest,
-                    _,
-                > {
-                    name: bw.name.clone(),
-                    input,
-                    metadata,
-                    output: OnceLock::from((
-                        bw.stateless_input.block.hash_slow().0,
-                        bw.stateless_input.block.parent_hash.0,
-                        bw.success,
-                    )),
-                })
-                .into_boxed(),
-            )
+            Ok(GenericGuestFixture::<RethStatelessValidatorGuest, _> {
+                name: bw.name.clone(),
+                input,
+                metadata,
+                output: OnceLock::from((
+                    bw.stateless_input.block.hash_slow().0,
+                    bw.stateless_input.block.parent_hash.0,
+                    bw.success,
+                )),
+            }
+            .into_output_sha256()
+            .into_boxed())
         })
         .collect()
 }

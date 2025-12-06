@@ -3,10 +3,11 @@
 use anyhow::Context;
 use ere_io::Io;
 use ere_platform_trait::Platform;
+use ere_zkvm_interface::zkvm::Input;
 use guest_libs::guest::{Guest, GuestInput, GuestOutput};
 use serde::Serialize;
-use sha2::Digest;
-use std::{fmt::Debug, marker::PhantomData, sync::OnceLock};
+use sha2::{Digest, Sha256};
+use std::{fmt::Debug, marker::PhantomData, ops::Deref, sync::OnceLock};
 
 /// Trait for a guest program fixture with associated metadata.
 #[auto_impl::auto_impl(&, Box)]
@@ -17,20 +18,20 @@ pub trait GuestFixture: Sync + Send {
     /// Returns the metadata associated with this guest program fixture as a JSON value.
     fn metadata(&self) -> serde_json::Value;
 
-    /// Returns serialized input of the guest program fixture.
-    fn serialized_input(&self) -> anyhow::Result<Vec<u8>>;
+    /// Returns [`Input`] of the guest program fixture.
+    fn input(&self) -> anyhow::Result<Input>;
 
-    /// Returns serialized output of the guest program fixture.
-    fn serialized_output(&self) -> anyhow::Result<Vec<u8>>;
+    /// Returns the expected public values of guest program fixture.
+    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>>;
 
     /// Verifies that the provided `public_values` match the expected output.
     fn verify_public_values(&self, public_values: &[u8]) -> anyhow::Result<OutputVerifierResult> {
-        let serialized_output = self.serialized_output()?;
-        Ok(if serialized_output == public_values {
+        let expected_public_values = self.expected_public_values()?;
+        Ok(if expected_public_values == public_values {
             OutputVerifierResult::Match
         } else {
             OutputVerifierResult::Mismatch(format!(
-                "Public values mismatch: expected {serialized_output:?}, got {public_values:?}"
+                "Public values mismatch: expected {expected_public_values:?}, got {public_values:?}",
             ))
         })
     }
@@ -62,6 +63,12 @@ where
         Box::new(self)
     }
 
+    /// Converts this [`GenericGuestFixture`] into a [`OutputHashedGuestFixture`]
+    /// with [`Sha256`].
+    pub const fn into_output_sha256(self) -> OutputHashedGuestFixture<Self, Sha256> {
+        OutputHashedGuestFixture::new(self)
+    }
+
     /// Returns the guest program input.
     fn input(&self) -> GuestInput<G> {
         self.input.clone()
@@ -74,8 +81,10 @@ where
                 struct HostPlatform;
 
                 impl Platform for HostPlatform {
-                    fn read_whole_input() -> Vec<u8> {
-                        panic!("`Guest::compute` should not invoke `Platform::read_whole_input`")
+                    fn read_whole_input() -> impl Deref<Target = [u8]> {
+                        panic!("`Guest::compute` should not invoke `Platform::read_whole_input`");
+                        #[allow(unreachable_code)]
+                        Vec::new() // For `impl Deref<Target = [u8]>` to know the concrete type.
                     }
 
                     fn write_whole_output(_: &[u8]) {
@@ -106,11 +115,12 @@ where
         serde_json::to_value(&self.metadata).unwrap()
     }
 
-    fn serialized_input(&self) -> anyhow::Result<Vec<u8>> {
-        G::Io::serialize_input(&self.input()).context("Failed to serialize input")
+    fn input(&self) -> anyhow::Result<Input> {
+        let stdin = G::Io::serialize_input(&self.input()).context("Failed to serialize input")?;
+        Ok(Input::new().with_prefixed_stdin(stdin))
     }
 
-    fn serialized_output(&self) -> anyhow::Result<Vec<u8>> {
+    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
         G::Io::serialize_output(&self.output()).context("Failed to serialize output")
     }
 }
@@ -157,23 +167,12 @@ where
         self.inner.metadata()
     }
 
-    fn serialized_input(&self) -> anyhow::Result<Vec<u8>> {
-        self.inner.serialized_input()
+    fn input(&self) -> anyhow::Result<Input> {
+        self.inner.input()
     }
 
-    fn serialized_output(&self) -> anyhow::Result<Vec<u8>> {
-        self.inner.serialized_output()
-    }
-
-    fn verify_public_values(&self, public_values: &[u8]) -> anyhow::Result<OutputVerifierResult> {
-        let hashed_output = D::digest(self.serialized_output()?);
-        Ok(if hashed_output.as_slice() == public_values {
-            OutputVerifierResult::Match
-        } else {
-            OutputVerifierResult::Mismatch(format!(
-                "Public values hash mismatch: expected {hashed_output:?}, got {public_values:?}"
-            ))
-        })
+    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
+        Ok(D::digest(self.inner.expected_public_values()?).to_vec())
     }
 }
 

@@ -1,7 +1,7 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture, GuestFixture, OutputHashedGuestFixture},
+    guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
@@ -20,7 +20,6 @@ use ethrex_rpc::debug::execution_witness::{
     execution_witness_from_rpc_chain_config, RpcExecutionWitness,
 };
 use reth_stateless::StatelessInput;
-use sha2::Sha256;
 use std::{convert::TryInto, path::Path, sync::OnceLock};
 use witness_generator::StatelessValidationFixture;
 
@@ -35,22 +34,18 @@ pub fn stateless_validator_inputs(
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
-            Ok(
-                OutputHashedGuestFixture::<_, Sha256>::new(GenericGuestFixture::<
-                    EthrexStatelessValidatorGuest,
-                    _,
-                > {
-                    name: bw.name.clone(),
-                    input,
-                    metadata,
-                    output: OnceLock::from((
-                        bw.stateless_input.block.hash_slow().0,
-                        bw.stateless_input.block.parent_hash.0,
-                        bw.success,
-                    )),
-                })
-                .into_boxed(),
-            )
+            Ok(GenericGuestFixture::<EthrexStatelessValidatorGuest, _> {
+                name: bw.name.clone(),
+                input,
+                metadata,
+                output: OnceLock::from((
+                    bw.stateless_input.block.hash_slow().0,
+                    bw.stateless_input.block.parent_hash.0,
+                    bw.success,
+                )),
+            }
+            .into_output_sha256()
+            .into_boxed())
         })
         .collect()
 }

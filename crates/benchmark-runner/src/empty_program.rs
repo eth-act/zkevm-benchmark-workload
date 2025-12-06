@@ -1,6 +1,7 @@
 //! Empty program guest program.
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
+use ere_zkvm_interface::Input;
 
 /// Empty program guest program.
 #[derive(Debug, Clone)]
@@ -15,11 +16,11 @@ impl GuestFixture for EmptyGuestFixture {
         serde_json::Value::default()
     }
 
-    fn serialized_input(&self) -> anyhow::Result<Vec<u8>> {
-        Ok(Vec::new())
+    fn input(&self) -> anyhow::Result<Input> {
+        Ok(Input::new())
     }
 
-    fn serialized_output(&self) -> anyhow::Result<Vec<u8>> {
+    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
         Ok(Vec::new())
     }
 

@@ -71,12 +71,12 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
         return Ok(());
     }
 
-    let serialized_input = io.serialized_input()?;
+    let input = io.input()?;
 
     // Dump input if requested
     if let Some(ref dump_folder) = config.dump_inputs_folder {
         dump_input(
-            &serialized_input,
+            input.stdin(),
             &io.name(),
             dump_folder,
             config.sub_folder.as_deref(),
@@ -86,8 +86,7 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
     info!("Running {}", io.name());
     let (execution, proving) = match config.action {
         Action::Execute => {
-            let run =
-                panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&serialized_input)));
+            let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
                     verify_public_output(&io, &public_values)
@@ -110,7 +109,7 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
         }
         Action::Prove => {
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| {
-                zkvm.prove(&serialized_input, ProofKind::Compressed)
+                zkvm.prove(&input, ProofKind::Compressed)
             }));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
