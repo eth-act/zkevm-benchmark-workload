@@ -1,6 +1,6 @@
 # zkEVM Benchmark Results
 
-Generated on: 2025-12-05 13:05:25
+Generated on: 2025-12-07 18:46:47
 
 ## Folder: zkevm-metrics-airbender-1M-4
 
@@ -33,7 +33,7 @@ Generated on: 2025-12-05 13:05:25
 | Create (0Bytes, Create) | 1,000,000 | 1,108,950 | 95,278 | 95.28 | 3,495,480 | 3,493,903.4 | 3,488,648 |
 | Create (0.25X Max Code, Zero Data, Create2) | 1,000,000 | 1,108,950 | 95,797 | 95.80 | 977,560 | 958,236.6 | 925,832 |
 | Create (0.25X Max Code, Zero Data, Create) | 1,000,000 | 1,108,950 | 98,008 | 98.01 | 3,646,696 | 3,646,696 | 3,646,696 |
-| Create (0.25X Max Code, Create2) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Create (0.25X Max Code, Create2) | 1,000,000 | 1,108,950 | 100,662 | 100.66 | 1,264,132 | 1,238,737.4 | 1,214,356 |
 | Create (0.25X Max Code, Create) | 1,000,000 | 1,108,950 | 95,556 | 95.56 | 2,985,132 | 2,984,031.7 | 2,977,324 |
 | Create (0.50X Max Code Size With Non, Zero Data, Create2) | 1,000,000 | 1,108,950 | 93,983 | 93.98 | 3,677,892 | 3,677,892 | 3,677,892 |
 | Create (0.50X Max Code Size With Non, Zero Data, Create) | 1,000,000 | 1,108,950 | 92,812 | 92.81 | 3,751,056 | 3,749,989.6 | 3,747,152 |
@@ -72,7 +72,7 @@ Generated on: 2025-12-05 13:05:25
 | Binop Simple (Sar) | 1,000,000 | 1,108,950 | 102,196 | 102.20 | 3,285,700 | 3,285,670.9 | 3,284,724 |
 | Binop Simple (Sdiv, 0) | 1,000,000 | 1,108,950 | 115,241 | 115.24 | 3,693,504 | 3,693,504 | 3,693,504 |
 | Binop Simple (Sdiv, 1) | 1,000,000 | 1,108,950 | 113,577 | 113.58 | 1,802,272 | 1,779,405.7 | 1,755,424 |
-| Binop Simple (Sgt) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Binop Simple (Sgt) | 1,000,000 | 1,108,950 | 101,411 | 101.41 | 758,576 | 738,728 | 705,872 |
 | Binop Simple (Shl) | 1,000,000 | 1,108,950 | 98,316 | 98.32 | 3,774,452 | 3,774,248.7 | 3,772,500 |
 | Binop Simple (Shr) | 1,000,000 | 1,108,950 | 102,087 | 102.09 | 3,739,352 | 3,737,712.3 | 3,737,400 |
 | Binop Simple (Signextend) | 1,000,000 | 1,108,950 | 104,265 | 104.27 | 3,692,528 | 3,692,528 | 3,692,528 |
@@ -146,7 +146,7 @@ Generated on: 2025-12-05 13:05:25
 | Memory Access (Big Mem, Init Offset, Off 0, Mstore8) | 1,000,000 | 1,108,950 | 98,868 | 98.87 | 3,576,456 | 3,576,456 | 3,576,456 |
 | Memory Access (Big Mem, Init Offset, Off 0, Mstore) | 1,000,000 | 1,108,950 | 101,939 | 101.94 | 3,812,484 | 3,812,407.8 | 3,811,508 |
 | Memory Access (Big Mem, Init Offset, Off 1, Mload) | 1,000,000 | 1,108,950 | 99,652 | 99.65 | 3,474,996 | 3,474,996 | 3,466,212 |
-| Memory Access (Big Mem, Init Offset, Off 1, Mstore8) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Memory Access (Big Mem, Init Offset, Off 1, Mstore8) | 1,000,000 | 1,108,950 | 104,774 | 104.77 | 912,780 | 902,114.1 | 870,812 |
 | Memory Access (Big Mem, Init Offset, Off 1, Mstore) | 1,000,000 | 1,108,950 | 103,884 | 103.88 | 3,612,556 | 3,612,556 | 3,612,556 |
 | Memory Access (Big Mem, Init Offset, Off 31, Mload) | 1,000,000 | 1,108,950 | 99,630 | 99.63 | 3,269,112 | 3,268,972.6 | 3,266,184 |
 | Memory Access (Big Mem, Init Offset, Off 31, Mstore8) | 1,000,000 | 1,108,950 | 98,036 | 98.04 | 3,314,000 | 3,313,717.5 | 3,313,024 |
@@ -177,7 +177,7 @@ Generated on: 2025-12-05 13:05:25
 | Modexp (Mod 616 Gas Base Heavy) | 1,000,000 | 1,108,950 | 208,782 | 208.78 | 655,948 | 634,692.9 | 604,220 |
 | Modexp (Mod 677 Gas Base Heavy) | 1,000,000 | 1,108,950 | 127,993 | 127.99 | 3,324,732 | 3,320,166.3 | 3,313,996 |
 | Modexp (Mod 765 Gas Exp Heavy) | 1,000,000 | 1,108,950 | 135,393 | 135.39 | 3,784,204 | 3,784,204 | 3,782,252 |
-| Modexp (Mod 767 Gas Balanced) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Modexp (Mod 767 Gas Balanced) | 1,000,000 | 1,108,950 | 129,891 | 129.89 | 1,074,792 | 1,050,102.0 | 1,014,280 |
 | Modexp (Mod 800 Gas Base Heavy) | 1,000,000 | 1,108,950 | 218,500 | 218.50 | 3,630,116 | 3,630,116 | 3,629,140 |
 | Modexp (Mod 800 Gas Exp Heavy) | 1,000,000 | 1,108,950 | 145,535 | 145.53 | 3,756,900 | 3,756,900 | 3,756,900 |
 | Modexp (Mod 852 Gas Exp Heavy) | 1,000,000 | 1,108,950 | 143,119 | 143.12 | 3,783,228 | 3,783,228 | 3,783,228 |
@@ -286,29 +286,29 @@ Generated on: 2025-12-05 13:05:25
 | Push (Push18) | 1,000,000 | 1,108,950 | 98,043 | 98.04 | 3,622,308 | 3,621,673.6 | 3,621,332 |
 | Push (Push19) | 1,000,000 | 1,108,950 | 96,503 | 96.50 | 3,622,308 | 3,622,308 | 3,622,308 |
 | Push (Push1) | 1,000,000 | 1,108,950 | 99,900 | 99.90 | 3,201,780 | 3,200,173.4 | 3,191,044 |
-| Push (Push20) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Push (Push20) | 1,000,000 | 1,108,950 | 100,372 | 100.37 | 705,876 | 686,093.4 | 652,196 |
 | Push (Push21) | 1,000,000 | 1,108,950 | 99,949 | 99.95 | 2,191,688 | 2,175,892.7 | 2,146,792 |
 | Push (Push22) | 1,000,000 | 1,108,950 | 100,035 | 100.03 | 2,768,496 | 2,766,134.1 | 2,757,760 |
 | Push (Push23) | 1,000,000 | 1,108,950 | 101,910 | 101.91 | 3,435,964 | 3,435,964 | 3,434,988 |
 | Push (Push24) | 1,000,000 | 1,108,950 | 97,966 | 97.97 | 3,812,484 | 3,812,484 | 3,811,508 |
 | Push (Push25) | 1,000,000 | 1,108,950 | 100,067 | 100.07 | 3,631,092 | 3,630,900.2 | 3,630,116 |
 | Push (Push26) | 1,000,000 | 1,108,950 | 98,539 | 98.54 | 3,799,808 | 3,799,808 | 3,799,808 |
-| Push (Push27) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Push (Push27) | 1,000,000 | 1,108,950 | 102,208 | 102.21 | 815,184 | 797,849.9 | 758,576 |
 | Push (Push28) | 1,000,000 | 1,108,950 | 100,119 | 100.12 | 3,719,832 | 3,719,832 | 3,719,832 |
 | Push (Push29) | 1,000,000 | 1,108,950 | 101,678 | 101.68 | 2,863,148 | 2,862,626.3 | 2,857,292 |
 | Push (Push2) | 1,000,000 | 1,108,950 | 100,830 | 100.83 | 3,095,400 | 3,095,400 | 3,095,400 |
-| Push (Push30) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Push (Push30) | 1,000,000 | 1,108,950 | 100,352 | 100.35 | 610,228 | 569,500.6 | 261,796 |
 | Push (Push31) | 1,000,000 | 1,108,950 | 102,442 | 102.44 | 3,677,892 | 3,676,832.3 | 3,674,964 |
 | Push (Push32) | 1,000,000 | 1,108,950 | 100,152 | 100.15 | 3,739,352 | 3,739,352 | 3,739,352 |
 | Push (Push3) | 1,000,000 | 1,108,950 | 100,225 | 100.22 | 3,334,484 | 3,333,625.1 | 3,330,580 |
 | Push (Push4) | 1,000,000 | 1,108,950 | 98,191 | 98.19 | 3,568,660 | 3,568,660 | 3,567,684 |
 | Push (Push5) | 1,000,000 | 1,108,950 | 98,558 | 98.56 | 3,757,880 | 3,757,880 | 3,757,880 |
 | Push (Push6) | 1,000,000 | 1,108,950 | 96,993 | 96.99 | 3,739,352 | 3,739,352 | 3,739,352 |
-| Push (Push7) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Push (Push7) | 1,000,000 | 1,108,950 | 101,306 | 101.31 | 1,151,892 | 1,133,561.2 | 1,110,900 |
 | Push (Push8) | 1,000,000 | 1,108,950 | 97,680 | 97.68 | 3,812,484 | 3,812,484 | 3,812,484 |
 | Push (Push9) | 1,000,000 | 1,108,950 | 98,936 | 98.94 | 3,770,548 | 3,770,548 | 3,769,572 |
 | Return Revert (1Kib Of Non, Zero Data, Return) | 1,000,000 | 1,108,950 | 101,686 | 101.69 | 2,106,780 | 2,088,168.7 | 2,065,788 |
-| Return Revert (1Kib Of Non, Zero Data, Revert) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Return Revert (1Kib Of Non, Zero Data, Revert) | 1,000,000 | 1,108,950 | 104,389 | 104.39 | 869,840 | 852,633.1 | 818,112 |
 | Return Revert (1Kib Of Zero Data, Return) | 1,000,000 | 1,108,950 | 101,623 | 101.62 | 3,662,284 | 3,662,088.8 | 3,661,308 |
 | Return Revert (1Kib Of Zero Data, Revert) | 1,000,000 | 1,108,950 | 99,795 | 99.80 | 3,678,868 | 3,678,868 | 3,678,868 |
 | Return Revert (1Mib Of Non, Zero Data, Return) | 1,000,000 | 1,108,950 | 94,093 | 94.09 | 3,420,352 | 3,419,701.3 | 3,411,568 |
@@ -380,7 +380,7 @@ Generated on: 2025-12-05 13:05:25
 | Calldatacopy (Zero Data, Fixed Src Dst, 100Bytes, Transaction) | 1,000,000 | 1,108,950 | 96,223 | 96.22 | 3,697,404 | 3,697,404 | 3,697,404 |
 | Calldatacopy (Zero Data, Fixed Src Dst, 10Kib, Call) | 1,000,000 | 1,108,950 | 97,206 | 97.21 | 3,394,988 | 3,394,656.9 | 3,389,132 |
 | Calldatacopy (Zero Data, Fixed Src Dst, 10Kib, Transaction) | 1,000,000 | 1,108,950 | 96,012 | 96.01 | 3,655,468 | 3,655,468 | 3,655,468 |
-| Calldatacopy (Zero Data, Fixed Src Dst, 1Mib, Call) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Calldatacopy (Zero Data, Fixed Src Dst, 1Mib, Call) | 1,000,000 | 1,108,950 | 95,437 | 95.44 | 650,244 | 641,842.9 | 612,180 |
 | Calldatacopy (Zero Data, Fixed Src Dst, 1Mib, Transaction) | 1,000,000 | 1,108,950 | 94,982 | 94.98 | 3,785,184 | 3,785,184 | 3,785,184 |
 | Calldatacopy (Non Zero, Dynamic Src Dst, 100Bytes, Call) | 1,000,000 | 1,108,950 | 101,087 | 101.09 | 3,389,132 | 3,388,175.9 | 3,386,204 |
 | Calldatacopy (Non Zero, Dynamic Src Dst, 100Bytes, Transaction) | 1,000,000 | 1,108,950 | 101,205 | 101.20 | 3,763,724 | 3,763,724 | 3,762,748 |
@@ -395,7 +395,7 @@ Generated on: 2025-12-05 13:05:25
 | Codecopy (Dynamic Src Dst, 0.50X Max Code Size) | 1,000,000 | 1,108,950 | 97,728 | 97.73 | 3,753,004 | 3,753,004 | 3,753,004 |
 | Codecopy (Dynamic Src Dst, 0.75X Max Code Size) | 1,000,000 | 1,108,950 | 95,734 | 95.73 | 3,798,840 | 3,798,840 | 3,798,840 |
 | Codecopy (Dynamic Src Dst, Max Code) | 1,000,000 | 1,108,950 | 98,206 | 98.21 | 3,463,288 | 3,461,194.0 | 3,453,528 |
-| Codecopy (Fixed Src Dst, 0Bytes) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Codecopy (Fixed Src Dst, 0Bytes) | 1,000,000 | 1,108,950 | 103,993 | 103.99 | 1,012,328 | 991,289.1 | 954,744 |
 | Codecopy (Fixed Src Dst, 0.25X Max Code) | 1,000,000 | 1,108,950 | 95,427 | 95.43 | 1,291,824 | 1,263,896.2 | 1,231,312 |
 | Codecopy (Fixed Src Dst, 0.50X Max Code Size) | 1,000,000 | 1,108,950 | 96,105 | 96.11 | 3,559,880 | 3,558,885.6 | 3,554,024 |
 | Codecopy (Fixed Src Dst, 0.75X Max Code Size) | 1,000,000 | 1,108,950 | 96,714 | 96.71 | 3,779,328 | 3,779,328 | 3,779,328 |
@@ -419,7 +419,7 @@ Generated on: 2025-12-05 13:05:25
 | Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log0) | 1,000,000 | 1,108,950 | 97,000 | 97 | 3,809,564 | 3,809,564 | 3,809,564 |
 | Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log1) | 1,000,000 | 1,108,950 | 97,007 | 97.01 | 3,285,700 | 3,285,700 | 3,285,700 |
 | Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log2) | 1,000,000 | 1,108,950 | 95,180 | 95.18 | 3,613,532 | 3,613,532 | 3,612,556 |
-| Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log3) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log3) | 1,000,000 | 1,108,950 | 100,858 | 100.86 | 1,109,924 | 1,097,028.5 | 1,074,788 |
 | Log Opcodes (Dynamic, Non Zero Topic, 0 Bytes Data, Log4) | 1,000,000 | 1,108,950 | 95,151 | 95.15 | 3,628,164 | 3,627,560.7 | 3,626,212 |
 | Log Opcodes (Dynamic, Non Zero Topic, 1 Mib Non Zero Data, Log0) | 1,000,000 | 1,108,950 | 97,624 | 97.62 | 3,717,880 | 3,717,880 | 3,716,904 |
 | Log Opcodes (Dynamic, Non Zero Topic, 1 Mib Non Zero Data, Log1) | 1,000,000 | 1,108,950 | 95,546 | 95.55 | 3,376,444 | 3,374,543.4 | 3,368,636 |
@@ -443,13 +443,13 @@ Generated on: 2025-12-05 13:05:25
 | Log Opcodes (Dynamic, Zero Topic, 1 Mib Non Zero Data, Log4) | 1,000,000 | 1,108,950 | 94,487 | 94.49 | 3,284,724 | 3,284,724 | 3,283,748 |
 | Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log0) | 1,000,000 | 1,108,950 | 96,950 | 96.95 | 3,312,048 | 3,309,895.8 | 3,309,120 |
 | Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log1) | 1,000,000 | 1,108,950 | 96,125 | 96.12 | 3,331,556 | 3,331,556 | 3,331,556 |
-| Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log2) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log2) | 1,000,000 | 1,108,950 | 98,085 | 98.08 | 1,371,488 | 1,349,677.0 | 1,317,808 |
 | Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log3) | 1,000,000 | 1,108,950 | 95,483 | 95.48 | 3,106,136 | 3,105,600.2 | 3,102,232 |
 | Log Opcodes (Dynamic, Zero Topic, 1 Mib Zeros Data, Log4) | 1,000,000 | 1,108,950 | 97,177 | 97.18 | 3,389,132 | 3,389,132 | 3,389,132 |
 | Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log0) | 1,000,000 | 1,108,950 | 97,213 | 97.21 | 3,798,836 | 3,798,836 | 3,797,860 |
 | Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log1) | 1,000,000 | 1,108,950 | 97,347 | 97.35 | 3,637,920 | 3,636,980.1 | 3,634,992 |
 | Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log2) | 1,000,000 | 1,108,950 | 94,986 | 94.99 | 3,706,172 | 3,706,172 | 3,706,172 |
-| Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log3) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log3) | 1,000,000 | 1,108,950 | 96,882 | 96.88 | 1,213,380 | 1,190,521.5 | 1,151,892 |
 | Log Opcodes (Fixed, Non Zero Topic, 0 Bytes Data, Log4) | 1,000,000 | 1,108,950 | 94,866 | 94.87 | 3,050,516 | 3,048,865.7 | 3,037,828 |
 | Log Opcodes (Fixed, Non Zero Topic, 1 Mib Non Zero Data, Log0) | 1,000,000 | 1,108,950 | 94,745 | 94.75 | 3,509,132 | 3,508,037.0 | 3,502,300 |
 | Log Opcodes (Fixed, Non Zero Topic, 1 Mib Non Zero Data, Log1) | 1,000,000 | 1,108,950 | 94,382 | 94.38 | 3,705,196 | 3,705,196 | 3,704,220 |
@@ -510,13 +510,13 @@ Generated on: 2025-12-05 13:05:25
 | Storage Access Cold (Absent Slots False, Sstore Same Value, Out Of Gas) | 1,000,000 | 1,108,950 | 96,923 | 96.92 | 3,783,228 | 3,783,228 | 3,783,228 |
 | Storage Access Cold (Absent Slots False, Sstore Same Value, Revert) | 999,015 | 1,108,950 | 101,628 | 101.63 | 3,807,612 | 3,807,333.1 | 3,801,756 |
 | Storage Access Cold (Absent Slots False, Sstore Same Value) | 999,009 | 1,108,950 | 101,287 | 101.29 | 1,025,384 | 1,011,596.2 | 978,536 |
-| Storage Access Cold (Absent Slots True, Ssload) | 999,749 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Storage Access Cold (Absent Slots True, Ssload) | 999,749 | 1,108,950 | 102,378 | 102.38 | 953,768 | 938,453.2 | 911,800 |
 | Storage Access Cold (Absent Slots True, Sstore New Value, Out Of Gas) | 1,000,000 | 1,108,950 | 96,675 | 96.67 | 2,858,284 | 2,856,810.0 | 2,847,548 |
 | Storage Access Cold (Absent Slots True, Sstore New Value, Revert) | 995,213 | 1,108,950 | 94,891 | 94.89 | 832,144 | 818,659.9 | 789,200 |
 | Storage Access Cold (Absent Slots True, Sstore New Value) | 995,207 | 1,108,950 | 97,605 | 97.61 | 2,740,192 | 2,738,463.7 | 2,732,384 |
 | Storage Access Cold (Absent Slots True, Sstore Same Value, Out Of Gas) | 1,000,000 | 1,108,950 | 96,983 | 96.98 | 3,799,808 | 3,799,808 | 3,799,808 |
 | Storage Access Cold (Absent Slots True, Sstore Same Value, Revert) | 995,081 | 1,108,950 | 96,425 | 96.42 | 3,756,900 | 3,756,900 | 3,756,900 |
-| Storage Access Cold (Absent Slots True, Sstore Same Value) | 995,075 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Storage Access Cold (Absent Slots True, Sstore Same Value) | 995,075 | 1,108,950 | 99,207 | 99.21 | 1,317,812 | 1,297,847.4 | 1,264,132 |
 | Storage Access Warm (Sload) | 1,000,000 | 1,108,950 | 97,872 | 97.87 | 675,012 | 652,721.3 | 619,380 |
 | Storage Access Warm (Sstore New Value) | 1,000,000 | 1,108,950 | 102,885 | 102.89 | 3,596,948 | 3,596,948 | 3,595,972 |
 | Storage Access Warm (Sstore Same Value) | 1,000,000 | 1,108,950 | 98,045 | 98.05 | 3,351,076 | 3,350,588 | 3,350,100 |
@@ -524,16 +524,16 @@ Generated on: 2025-12-05 13:05:25
 ## Summary Statistics
 
 - **Total Tests:** 508
-- **Successful Tests:** 492
-- **Failed Tests:** 16
+- **Successful Tests:** 508
+- **Failed Tests:** 0
 
 ### Proving Time (ms)
-- **Average:** 109,003.8
+- **Average:** 108,803.3
 - **Minimum:** 91,627
 - **Maximum:** 253,065
 
 ### Peak Memory Usage (MB)
-- **Average:** 3,263,568.0
+- **Average:** 3,191,865.5
 - **Minimum:** 420,732
 - **Maximum:** 3,812,484
 
