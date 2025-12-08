@@ -1,15 +1,6 @@
 # Precompile Patches
 
-This directory contains patches for dependencies used within the zkVM guest programs (e.g., `succinct-guest`, `zkm-guest`).
-
-## Purpose
-
-Certain dependencies, particularly cryptographic libraries or those interacting heavily with low-level primitives, may require modifications to be:
-
-1. **Compatible:** Ensure they work correctly within the specific constraints and environment of a zkVM. (Usually this means `no_std`)
-2. **Efficient:** Optimize their performance when executed inside the zkVM, as standard implementations might be unnecessarily costly in a ZK context. (Usually this is done by having a circuit implementation of the algorithm and exposing that as a precompile that the patches will call)
-
-These patches apply the necessary modifications directly to the source code of the dependencies before the guest programs are compiled.
+This directory contains patches for zkVM precompiles used within the zkVM guest programs.
 
 ## Structure
 
@@ -20,6 +11,8 @@ Patch configurations are defined in TOML files, named after the corresponding zk
 - `pico.toml`: Defines patches applied when building for the Pico platform.
 - `zisk.toml`: Defines patches applied when building for the Zisk platform.
 - `openvm.toml`: Defines patches applied when building for the OpenVM platform.
+- `airbender.toml`: Defines patches applied when building for the Airbender platform.
+- `zkm.toml`: Defines patches applied when building for the zkMIPS platform.
 
 These TOML files specify which crates need patching and point to the repositories containing the modified source.
 
@@ -42,4 +35,4 @@ cargo risc0 build --release -p ere-hosts
 cargo openvm build --release -p ere-hosts
 ```
 
-**Note:** With the new EreDockerized system, manual patching is generally not required as Docker containers handle the patched environments automatically.
+**Note:** It is not necessary to call these commands manually, since `ere-host` automatically applies the patches as part of its execution process depending on which zkVM is being targeted.
