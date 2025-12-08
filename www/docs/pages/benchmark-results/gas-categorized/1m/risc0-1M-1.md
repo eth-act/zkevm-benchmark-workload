@@ -1,6 +1,6 @@
 # zkEVM Benchmark Results
 
-Generated on: 2025-12-07 18:46:47
+Generated on: 2025-12-08 10:11:13
 
 ## Folder: zkevm-metrics-risc0-1M-1
 
@@ -174,7 +174,7 @@ Generated on: 2025-12-07 18:46:47
 | Modexp (Mod 408 Gas Base Heavy) | 1,000,000 | 223,239 | 3,765,293 | 3,765.29 | 2,327,080 | 2,324,399.6 | 2,312,440 |
 | Modexp (Mod 600 As Balanced) | 1,000,000 | 223,239 | 913,363 | 913.36 | 2,847,460 | 2,843,817.2 | 2,840,628 |
 | Modexp (Mod 600 Gas Exp Heavy) | 1,000,000 | 223,239 | 1,368,908 | 1,368.91 | 2,526,408 | 2,525,638.8 | 2,522,504 |
-| Modexp (Mod 616 Gas Base Heavy) | 1,000,000 | N/A | N/A | N/A | N/A | N/A | N/A |
+| Modexp (Mod 616 Gas Base Heavy) | 1,000,000 | 223,239 | 4,461,313 | 4,461.31 | 443,180 | 437,273.8 | 58,636 |
 | Modexp (Mod 677 Gas Base Heavy) | 1,000,000 | 223,239 | 985,138 | 985.14 | 2,969,436 | 2,965,906.4 | 2,951,868 |
 | Modexp (Mod 765 Gas Exp Heavy) | 1,000,000 | 223,239 | 1,113,896 | 1,113.90 | 2,216,796 | 2,189,883.6 | 2,107,484 |
 | Modexp (Mod 767 Gas Balanced) | 1,000,000 | 223,239 | 866,972 | 866.97 | 2,712,552 | 2,664,540.5 | 2,583,720 |
@@ -524,16 +524,16 @@ Generated on: 2025-12-07 18:46:47
 ## Summary Statistics
 
 - **Total Tests:** 508
-- **Successful Tests:** 507
-- **Failed Tests:** 1
+- **Successful Tests:** 508
+- **Failed Tests:** 0
 
 ### Proving Time (ms)
-- **Average:** 243,486.7
+- **Average:** 251,789.5
 - **Minimum:** 4,119
-- **Maximum:** 4,247,664
+- **Maximum:** 4,461,313
 
 ### Peak Memory Usage (MB)
-- **Average:** 2,704,201.8
+- **Average:** 2,699,750.9
 - **Minimum:** 437,324
 - **Maximum:** 3,561,652
 
