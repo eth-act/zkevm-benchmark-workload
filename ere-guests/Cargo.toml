@@ -131,21 +131,21 @@ ethrex-guest = { path = "stateless-validator/ethrex/guest", default-features = f
 block-encoding-length-guest = { path = "block-encoding-length/guest", default-features = false }
 
 # ere
-ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c" }
-ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
-ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "6266b242edad2d315b753155a6538ea900be2b9c", default-features = false }
+ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306" }
+ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
 
 # openvm
-openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
-openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
-openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.1", default-features = false }
+openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
+openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
+openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
 openvm-revm-crypto = { git = "https://github.com/axiom-crypto/openvm-reth-benchmark.git", branch = "openvm-v1.4.1-reth-1.8.3", default-features = false }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
@@ -203,5 +203,15 @@ codegen-units = 1
 
 [profile.release.package.reth-airbender-stateless-validator]
 opt-level = "s"
+
+[patch."https://github.com/openvm-org/openvm.git"]
+openvm-ecc-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-sha2 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-pairing = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-k256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "k256" }
+openvm-p256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "p256" }
+openvm = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-algebra-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-keccak256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
 
 [patch.crates-io]

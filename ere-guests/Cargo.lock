@@ -2082,7 +2082,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2092,7 +2092,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-airbender"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2101,7 +2101,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-openvm"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2110,7 +2110,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2119,7 +2119,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2129,7 +2129,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-sp1"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2138,7 +2138,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2146,7 +2146,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-zisk"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=6266b242edad2d315b753155a6538ea900be2b9c#6266b242edad2d315b753155a6538ea900be2b9c"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -2791,6 +2791,7 @@ dependencies = [
  "serde",
  "serde_json",
  "serde_with",
+ "sha2",
  "thiserror 2.0.16",
 ]
 
@@ -2871,9 +2872,8 @@ dependencies = [
 
 [[package]]
 name = "halo2curves-axiom"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dd8309e4638b4f1bcf6613d72265a84074d26034c35edc5d605b5688e580b8b8"
+version = "0.7.2"
+source = "git+https://github.com/axiom-crypto/halo2curves.git?tag=v0.7.2#3a65a710e27fe03711f6fb4fc0c4469ae351974a"
 dependencies = [
  "blake2b_simd",
  "digest 0.10.7",
@@ -3353,7 +3353,7 @@ dependencies = [
 [[package]]
 name = "k256"
 version = "0.13.4"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
@@ -4001,8 +4001,8 @@ dependencies = [
 
 [[package]]
 name = "openvm"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "bytemuck",
  "getrandom 0.2.16",
@@ -4016,8 +4016,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-algebra-complex-macros"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-macros-common",
  "quote",
@@ -4026,8 +4026,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-algebra-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "halo2curves-axiom",
  "num-bigint 0.4.6",
@@ -4042,8 +4042,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-algebra-moduli-macros"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "num-bigint 0.4.6",
  "num-prime",
@@ -4055,7 +4055,7 @@ dependencies = [
 [[package]]
 name = "openvm-custom-insn"
 version = "0.1.0"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4064,8 +4064,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-ecc-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
@@ -4083,8 +4083,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-ecc-sw-macros"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-macros-common",
  "quote",
@@ -4102,8 +4102,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-keccak256"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-keccak256-guest",
  "tiny-keccak",
@@ -4111,8 +4111,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-keccak256-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-platform",
 ]
@@ -4135,16 +4135,16 @@ dependencies = [
 
 [[package]]
 name = "openvm-macros-common"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "syn 2.0.106",
 ]
 
 [[package]]
 name = "openvm-pairing"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "group 0.13.0",
  "hex-literal 0.4.1",
@@ -4167,8 +4167,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-pairing-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "hex-literal 0.4.1",
  "itertools 0.14.0",
@@ -4196,8 +4196,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-platform"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "libm",
  "openvm-custom-insn",
@@ -4211,7 +4211,7 @@ source = "git+https://github.com/axiom-crypto/openvm-reth-benchmark.git?branch=o
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
- "k256 0.13.4 (git+https://github.com/openvm-org/openvm.git?tag=v1.4.1)",
+ "k256 0.13.4 (git+https://github.com/openvm-org//openvm.git?tag=v1.4.2)",
  "openvm",
  "openvm-algebra-guest",
  "openvm-ecc-guest",
@@ -4219,7 +4219,7 @@ dependencies = [
  "openvm-kzg",
  "openvm-pairing",
  "openvm-sha2",
- "p256 0.13.2 (git+https://github.com/openvm-org/openvm.git?tag=v1.4.1)",
+ "p256 0.13.2 (git+https://github.com/openvm-org//openvm.git?tag=v1.4.2)",
  "revm 29.0.1",
  "revm-precompile 27.0.0",
  "revm-primitives 20.2.1",
@@ -4227,8 +4227,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-rv32im-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-custom-insn",
  "p3-field 0.1.0 (git+https://github.com/Plonky3/Plonky3.git?rev=539bbc84085efb609f4f62cb03cf49588388abdb)",
@@ -4237,8 +4237,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-sha2"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-sha256-guest",
  "sha2",
@@ -4246,8 +4246,8 @@ dependencies = [
 
 [[package]]
 name = "openvm-sha256-guest"
-version = "1.4.1"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "openvm-platform",
 ]
@@ -4267,7 +4267,7 @@ dependencies = [
 [[package]]
 name = "p256"
 version = "0.13.2"
-source = "git+https://github.com/openvm-org/openvm.git?tag=v1.4.1#05cb6a11bbd7ac3ac8a00c3fc56391b06f54baa2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
  "ecdsa",
  "elliptic-curve",
@@ -4985,7 +4985,7 @@ dependencies = [
 [[package]]
 name = "pico-derive"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5018,7 +5018,7 @@ dependencies = [
 [[package]]
 name = "pico-patch-libs"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "bincode 1.3.3",
  "serde",
@@ -5027,7 +5027,7 @@ dependencies = [
 [[package]]
 name = "pico-sdk"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "anyhow",
  "bincode 1.3.3",
@@ -5053,7 +5053,7 @@ dependencies = [
 [[package]]
 name = "pico-vm"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "anyhow",
  "arrayref",

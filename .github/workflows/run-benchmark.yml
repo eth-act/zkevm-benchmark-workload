@@ -25,7 +25,7 @@ jobs:
     name: ${{ inputs.zkvm }} / ${{ inputs.el }}
     runs-on: [self-hosted-ghr, size-chungus-x64]
     env:
-      ERE_TAG: 0.0.15-6266b24
+      ERE_TAG: 0.0.15-a75f8f4
       OPENVM_RUST_TOOLCHAIN: nightly-2025-08-07
       RUSTC_WRAPPER: sccache
       SCCACHE_DIR: ${{ github.workspace }}/.sccache/
