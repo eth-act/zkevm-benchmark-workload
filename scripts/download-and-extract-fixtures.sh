@@ -3,7 +3,7 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the latest official release (e.g., v5.0.0).
+# By default, it fetches the benchmark@v0.0.6 release.
 # You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest release.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
@@ -11,9 +11,11 @@
 #   ./scripts/download-and-extract-fixtures.sh [TAG|latest] [DEST_DIR]
 #
 # Examples:
-#   # Download latest release to default directory
+#   # Download default release (benchmark@v0.0.6) to default directory
 #   ./scripts/download-and-extract-fixtures.sh
-#   # Download latest release to a custom directory
+#   # Download latest official release to default directory
+#   ./scripts/download-and-extract-fixtures.sh latest
+#   # Download latest official release to a custom directory
 #   ./scripts/download-and-extract-fixtures.sh latest /tmp/fixtures
 #   # Download a specific release to default directory
 #   ./scripts/download-and-extract-fixtures.sh v5.0.0
@@ -25,6 +27,7 @@ set -euo pipefail
 
 REPO="ethereum/execution-spec-tests"
 ASSET_NAME="fixtures_benchmark.tar.gz"
+DEFAULT_TAG="benchmark%40v0.0.6"
 
 # Helper function to make authenticated GitHub API calls
 github_api_curl() {
@@ -49,11 +52,11 @@ else
 fi
 
 # Determine the tag to use
-if [ -n "${1:-}" ] && [ "${1}" != "latest" ]; then
-  # Use the tag provided as the first argument (unless it's 'latest')
-  TAG="$1"
-  echo "ℹ️  Using specified tag: ${TAG}"
-else
+if [ -z "${1:-}" ]; then
+  # No argument provided, use the default tag
+  TAG="${DEFAULT_TAG}"
+  echo "ℹ️  Using default tag: ${TAG}"
+elif [ "${1}" = "latest" ]; then
   # Find the latest official release (not pre-release, standard version format)
   echo "🔎  Finding the latest official release..."
   LATEST_TAG=$( \
@@ -68,6 +71,10 @@ else
   fi
   TAG="${LATEST_TAG}"
   echo "ℹ️  Using latest official release: ${TAG}"
+else
+  # Use the tag provided as the first argument
+  TAG="$1"
+  echo "ℹ️  Using specified tag: ${TAG}"
 fi
 
 API_URL="https://api.github.com/repos/${REPO}/releases/tags/${TAG}"
