@@ -62,6 +62,10 @@ export default defineConfig({
           link: '/benchmark-results/gas-categorized/1m/1M-4',
           items: [
             {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/1m/sp1-1M-4',
+            },
+            {
               text: 'risc0',
               link: '/benchmark-results/gas-categorized/1m/risc0-1M-4',
             },
