@@ -2092,7 +2092,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2102,7 +2102,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-airbender"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2111,7 +2111,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-openvm"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2120,7 +2120,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2129,7 +2129,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2139,7 +2139,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-sp1"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2148,7 +2148,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2156,7 +2156,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-zisk"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=736517a184a6ca142cb4b01b27641cbed6fc42c2#736517a184a6ca142cb4b01b27641cbed6fc42c2"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -4995,7 +4995,7 @@ dependencies = [
 [[package]]
 name = "pico-derive"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5028,7 +5028,7 @@ dependencies = [
 [[package]]
 name = "pico-patch-libs"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "bincode 1.3.3",
  "serde",
@@ -5037,7 +5037,7 @@ dependencies = [
 [[package]]
 name = "pico-sdk"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "anyhow",
  "bincode 1.3.3",
@@ -5063,7 +5063,7 @@ dependencies = [
 [[package]]
 name = "pico-vm"
 version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.8#f1813ece61058c3f1f09e878d1c8d791c6226629"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.1.10#b06418a16d316c5a17d0cc094c7a3cf0af0efc55"
 dependencies = [
  "anyhow",
  "arrayref",
