@@ -2092,7 +2092,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2102,7 +2102,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-airbender"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2111,7 +2111,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-openvm"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2120,7 +2120,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2129,7 +2129,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2139,7 +2139,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-sp1"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2148,7 +2148,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2156,7 +2156,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-zisk"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
