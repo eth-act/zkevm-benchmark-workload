@@ -969,8 +969,18 @@ version = "2.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "36eaf5d7b090263e8150820482d5d93cd964a81e4019913c972f4edcc6edb740"
 dependencies = [
+ "bincode_derive",
  "serde",
  "unty",
+]
+
+[[package]]
+name = "bincode_derive"
+version = "2.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bf95709a440f45e986983918d0e8a1f30a9b1df04918fc828670606804ac3c09"
+dependencies = [
+ "virtue",
 ]
 
 [[package]]
@@ -2082,7 +2092,7 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2092,7 +2102,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-airbender"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2101,7 +2111,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-openvm"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2110,7 +2120,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2119,7 +2129,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-risc0"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2129,7 +2139,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-sp1"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2138,7 +2148,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2146,7 +2156,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-zisk"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306#a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=ab50b417d98f389d289aac512382ea82fdbf9089#ab50b417d98f389d289aac512382ea82fdbf9089"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -3453,8 +3463,8 @@ dependencies = [
 
 [[package]]
 name = "lib-c"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.13.0#ea1ed4c518992a170fc59ec19f1228eb4829a9e1"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
 
 [[package]]
 name = "libc"
@@ -7917,6 +7927,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
+name = "virtue"
+version = "0.0.18"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "051eb1abcf10076295e815102942cc58f9d5e3b4560e46e53c21e8ff6f3af7b1"
+
+[[package]]
 name = "wait-timeout"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -8469,16 +8485,19 @@ dependencies = [
 
 [[package]]
 name = "ziskos"
-version = "0.13.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.13.0#ea1ed4c518992a170fc59ec19f1228eb4829a9e1"
+version = "0.14.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
 dependencies = [
+ "bincode 2.0.1",
  "cfg-if",
  "getrandom 0.2.16",
  "lazy_static",
  "lib-c",
  "num-bigint 0.4.6",
+ "num-integer",
  "num-traits",
  "rand 0.8.5",
+ "serde",
  "static_assertions",
  "tiny-keccak",
 ]

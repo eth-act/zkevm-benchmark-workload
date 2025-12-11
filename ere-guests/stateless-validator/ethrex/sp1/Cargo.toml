@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "a75f8f4832942b32fc1314bb3b2ce9b5e3e9d306", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "ab50b417d98f389d289aac512382ea82fdbf9089", default-features = false }
 ethrex-guest = { path = "../guest", features = ["std"] }
 
 k256 = "0.13"
