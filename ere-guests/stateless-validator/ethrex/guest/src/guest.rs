@@ -1,5 +1,6 @@
 //! Stateless validator guest program.
 
+use alloc::format;
 use core::fmt::Debug;
 use ere_io::{
     Io,
@@ -90,7 +91,13 @@ impl Guest for EthrexStatelessValidatorGuest {
 
         match res {
             Ok(out) => (out.last_block_hash.0, parent_hash.0, true),
-            Err(_) => (header.compute_block_hash().0, parent_hash.0, false),
+            Err(err) => {
+                P::print(&format!(
+                    "Block {} validation failed: {err}\n",
+                    header.number
+                ));
+                (header.compute_block_hash().0, parent_hash.0, false)
+            }
         }
     }
 }

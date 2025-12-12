@@ -16,19 +16,19 @@ ethrex-guest = { path = "../guest", features = ["std"] }
 
 k256 = "0.13"
 c-kzg = { version = "2.1.1", features = ["eip-7594"] }
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
     "c-kzg",
 ] }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
     "risc0",
 ] }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "c68e76d6b569c60a667a1240a91e637bf2ea0d0b", default-features = false, features = [
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
     "c-kzg",
     "risc0",
 ] }
 
 [patch.crates-io]
-sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.8-risczero.0" }
+sha2 = { git = "https://github.com/risc0/RustCrypto-hashes", tag = "sha2-v0.10.9-risczero.0" }
 k256 = { git = "https://github.com/risc0/RustCrypto-elliptic-curves", tag = "k256/v0.13.4-risczero.1" }
 p256 = { git = "https://github.com/risc0/RustCrypto-elliptic-curves", tag = "p256/v0.13.2-risczero.1" }
 crypto-bigint = { git = "https://github.com/risc0/RustCrypto-crypto-bigint", tag = "v0.5.5-risczero.0" }

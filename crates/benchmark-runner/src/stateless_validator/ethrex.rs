@@ -6,11 +6,8 @@ use crate::{
 };
 use alloy_eips::eip6110::MAINNET_DEPOSIT_CONTRACT_ADDRESS;
 use alloy_rlp::Encodable;
-use anyhow::Context;
 use ethrex_common::{
-    types::{
-        block_execution_witness, BlobSchedule, Block, BlockHeader, ChainConfig, ForkBlobSchedule,
-    },
+    types::{block_execution_witness, BlobSchedule, Block, ChainConfig, ForkBlobSchedule},
     H160,
 };
 use ethrex_guest::guest::{EthrexStatelessValidatorGuest, EthrexStatelessValidatorInput};
@@ -146,29 +143,14 @@ fn from_reth_witness_to_ethrex_witness(
 
     let keys = si.witness.keys.iter().map(|k| k.to_vec().into()).collect();
 
-    let parent_hash = si.block.parent_hash;
-    let initial_state_root = si
-        .witness
-        .headers
-        .iter()
-        .find_map(|header_bytes| {
-            let (header, _) = BlockHeader::decode_unfinished(header_bytes).ok()?;
-            (header.hash().0 == parent_hash.0).then_some(header.state_root)
-        })
-        .context("Parent header not found in witness")?;
-
     let rpc_witness = RpcExecutionWitness {
         state: nodes,
         keys,
         codes,
         headers: block_headers_bytes,
     };
-    let execution_witness = execution_witness_from_rpc_chain_config(
-        rpc_witness,
-        chain_config,
-        block_number,
-        initial_state_root,
-    )?;
+    let execution_witness =
+        execution_witness_from_rpc_chain_config(rpc_witness, chain_config, block_number)?;
 
     Ok(execution_witness)
 }
