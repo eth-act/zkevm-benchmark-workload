@@ -134,10 +134,10 @@ reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", rev = "cfde95
 
 sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.4.0" }
 
-ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", package = "guest_program" }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false }
-ethrex-rpc = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false }
+ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", package = "guest_program" }
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false }
+ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false }
+ethrex-rpc = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false }
 
 # alloy
 alloy-eips = { version = "1.1.2" }

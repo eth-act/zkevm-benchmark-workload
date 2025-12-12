@@ -74,22 +74,9 @@ mod tests {
                 .join("mainnet-zkevm-fixtures-input");
 
             let output_folder = OutputDir::new().unwrap();
-            let mut inputs =
-                stateless_validator::stateless_validator_inputs(input_folder, el).unwrap();
-            let mut len_inputs = inputs.len();
+            let inputs = stateless_validator::stateless_validator_inputs(input_folder, el).unwrap();
+            let len_inputs = inputs.len();
             assert_eq!(len_inputs, 15);
-
-            if el == ExecutionClient::Ethrex && zkvm == zkVMKind::SP1 {
-                // See issue: #238
-                let ignore = [
-                    "block_22974577",
-                    "block_22974583",
-                    "block_22974586",
-                    "block_22974587",
-                ];
-                inputs.retain(|a| !ignore.iter().any(|i| a.name().contains(i)));
-                len_inputs = inputs.len();
-            }
 
             let el_str = el.as_ref().to_lowercase();
             run_guest(
