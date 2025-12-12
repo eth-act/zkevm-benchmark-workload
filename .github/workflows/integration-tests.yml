@@ -86,6 +86,10 @@ jobs:
             el: ethrex
             tests: "execute_empty_block execute_mainnet_blocks prove_empty_block"
             threads: 12
+          - zkvm: zisk
+            el: ethrex 
+            tests: "execute_empty_block execute_mainnet_blocks"
+            threads: 1
 
           # Custom Guest Programs
           - zkvm: sp1

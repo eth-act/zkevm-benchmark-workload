@@ -170,7 +170,7 @@ revm = { version = "33.1.0", default-features = false }
 revm-bytecode = { version = "7.1.1", default-features = false }
 
 # ethrex
-ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", package = "guest_program" }
+ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, package = "guest_program" }
 ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false }
 
 # misc

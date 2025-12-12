@@ -41,9 +41,9 @@ mod tests {
             (ExecutionClient::Reth, zkVMKind::Airbender),
             (ExecutionClient::Ethrex, zkVMKind::SP1),
             (ExecutionClient::Ethrex, zkVMKind::Risc0),
+            (ExecutionClient::Ethrex, zkVMKind::Zisk),
             // (ExecutionClient::Ethrex, zkVMKind::OpenVM), // See https://github.com/eth-act/ere/issues/168
             // (ExecutionClient::Ethrex, zkVMKind::Pico), // See https://github.com/eth-act/ere/issues/174
-            // (ExecutionClient::Ethrex, zkVMKind::Zisk), // See https://github.com/eth-act/ere/issues/XXX
         ]);
         empty_block(Action::Execute, &el_zkvms).await;
     }
@@ -59,6 +59,7 @@ mod tests {
             (ExecutionClient::Reth, zkVMKind::Airbender),
             (ExecutionClient::Ethrex, zkVMKind::SP1),
             (ExecutionClient::Ethrex, zkVMKind::Risc0),
+            (ExecutionClient::Ethrex, zkVMKind::Zisk),
         ]);
 
         for (el, zkvm) in el_zkvms {
@@ -114,6 +115,7 @@ mod tests {
             (ExecutionClient::Reth, zkVMKind::Airbender),
             (ExecutionClient::Ethrex, zkVMKind::SP1),
             (ExecutionClient::Ethrex, zkVMKind::Risc0),
+            (ExecutionClient::Ethrex, zkVMKind::Zisk),
         ]);
         for (el, zkvm) in el_zkvms {
             let eest_fixtures_path = PathBuf::from("assets/eest-invalid-block");
