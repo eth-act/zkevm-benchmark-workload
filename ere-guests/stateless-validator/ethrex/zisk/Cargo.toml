@@ -11,14 +11,14 @@ ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere",
 sha2 = "0.10.9"
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
     "zisk",
 ] }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
     "zisk",
 ] }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "24d4b64041afaff42a5a8478589872d10ddc37de", default-features = false, features = [
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
     "zisk",
 ] }
 
