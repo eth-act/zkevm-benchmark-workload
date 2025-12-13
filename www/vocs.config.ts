@@ -70,6 +70,10 @@ export default defineConfig({
               link: '/benchmark-results/gas-categorized/1m/risc0-1M-4',
             },
             {
+              text: 'zisk',
+              link: '/benchmark-results/gas-categorized/1m/zisk-1M-4',
+            },
+            {
               text: 'airbender',
               link: '/benchmark-results/gas-categorized/1m/airbender-1M-4',
             },
