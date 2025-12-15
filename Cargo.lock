@@ -2809,32 +2809,27 @@ dependencies = [
 [[package]]
 name = "ere-build-utils"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "cargo_metadata",
 ]
 
 [[package]]
-name = "ere-compiler"
+name = "ere-common"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
- "anyhow",
- "bincode 2.0.1",
- "clap",
- "ere-zkvm-interface",
+ "ere-build-utils",
  "serde",
- "tracing-subscriber 0.3.20",
 ]
 
 [[package]]
 name = "ere-dockerized"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "anyhow",
- "ere-build-utils",
- "ere-compiler",
+ "ere-common",
  "ere-server",
  "ere-zkvm-interface",
  "parking_lot",
@@ -2862,7 +2857,7 @@ dependencies = [
 [[package]]
 name = "ere-io"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2872,7 +2867,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2880,7 +2875,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2895,7 +2890,7 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15c6b495d0bc42bf160ecfbb11fa7600047c821#d15c6b495d0bc42bf160ecfbb11fa7600047c821"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
 dependencies = [
  "anyhow",
  "auto_impl",
