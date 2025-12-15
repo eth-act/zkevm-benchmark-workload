@@ -7,7 +7,7 @@ edition = "2024"
 
 [dependencies]
 ethrex-guest = { path = "../guest", features = ["std"] }
-ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15c6b495d0bc42bf160ecfbb11fa7600047c821", default-features = false }
+ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", default-features = false }
 sha2 = "0.10.9"
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 

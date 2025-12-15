@@ -115,10 +115,10 @@ reth-guest = { path = "ere-guests/stateless-validator/reth/guest" }
 ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15c6b495d0bc42bf160ecfbb11fa7600047c821", package = "ere-zkvm-interface" }
-ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15c6b495d0bc42bf160ecfbb11fa7600047c821" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15c6b495d0bc42bf160ecfbb11fa7600047c821", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15c6b495d0bc42bf160ecfbb11fa7600047c821", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", package = "ere-zkvm-interface" }
+ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745" }
+ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", package = "ere-io" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
