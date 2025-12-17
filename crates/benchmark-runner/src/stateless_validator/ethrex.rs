@@ -28,7 +28,7 @@ pub fn stateless_validator_inputs(
     stateless_validator_inputs_from_fixture(&fixtures)
 }
 
-/// Create a vector of `GuestFixture` instances from a `StatelessValidationFixture`.
+/// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
 pub fn stateless_validator_inputs_from_fixture(
     fixture: &[StatelessValidationFixture],
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
