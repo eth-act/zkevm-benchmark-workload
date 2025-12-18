@@ -44,6 +44,7 @@ jobs:
         uses: dtolnay/rust-toolchain@stable
 
       - name: Restore Rust cache
+        continue-on-error: true
         uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: restore
@@ -78,6 +79,7 @@ jobs:
         run: sccache --show-stats || true
 
       - name: Save Rust cache
+        continue-on-error: true
         uses: jsign/action-cache@0aa95a6bc53b4dc5c7a53d773e183d8169ce2c01
         with:
           action: save

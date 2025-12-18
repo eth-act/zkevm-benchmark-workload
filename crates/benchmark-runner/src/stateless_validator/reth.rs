@@ -13,10 +13,18 @@ use witness_generator::StatelessValidationFixture;
 pub fn stateless_validator_inputs(
     input_folder: &Path,
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    read_benchmark_fixtures_folder(input_folder)?
-        .into_iter()
+    let fixtures = read_benchmark_fixtures_folder(input_folder)?;
+    stateless_validator_inputs_from_fixture(&fixtures)
+}
+
+/// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
+pub fn stateless_validator_inputs_from_fixture(
+    fixture: &[StatelessValidationFixture],
+) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
+    fixture
+        .iter()
         .map(|bw| {
-            let input = get_input_full_validation(&bw)?;
+            let input = get_input_full_validation(bw)?;
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
