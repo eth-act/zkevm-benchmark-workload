@@ -238,7 +238,7 @@ impl StatelessValidationFixture {
         })?;
         Self::from_json(&contents)
     }
-    
+
     /// Creates a new fixture from stateless input and a name.
     pub fn from_stateless_input(input: &StatelessInput, name: &str) -> Self {
         Self {
@@ -246,7 +246,7 @@ impl StatelessValidationFixture {
             stateless_input: input.clone(),
             success: true,
         }
-    }  
+    }
 }
 
 impl Fixture for StatelessValidationFixture {
