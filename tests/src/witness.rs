@@ -1,7 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use alloy_consensus::BlockHeader;
+    use alloy_primitives::B256;
     use benchmark_runner::stateless_validator::read_benchmark_fixtures_folder;
+    use openvm_mpt::from_proof::from_execution_witness;
     use std::{env, path::PathBuf};
     use tempfile::tempdir;
 
@@ -22,36 +23,27 @@ mod tests {
 
         let fixtures = read_benchmark_fixtures_folder(input_folder).unwrap();
 
-        for fixture in fixtures {
-            let parent_state_root = fixture
-                .stateless_input
-                .witness
-                .headers
-                .iter()
-                .map(|h| alloy_rlp::decode_exact::<alloy_consensus::Header>(h).unwrap())
-                .find(|h| h.number == fixture.stateless_input.block.number() - 1)
-                .unwrap()
-                .state_root;
-
-            let account_addresses = fixture
-                .stateless_input
-                .witness
-                .keys
-                .iter()
-                .filter(|k| k.len() == 20)
-                .map(|k| alloy_primitives::Address::from_slice(k))
-                .collect::<Vec<_>>();
-
-            let ethereum_state = openvm_mpt::from_proof::from_execution_witness(
-                parent_state_root,
-                &fixture.stateless_input.witness.state,
-                &account_addresses,
-            )
-            .unwrap();
-
-            let ethereum_state_bytes = ethereum_state.encode_to_state_bytes();
-            let bytes = bincode::serialize(&ethereum_state_bytes).unwrap();
-            println!("ethereum state size: {}", bytes.len());
+        for mut fixture in fixtures {
+            let pre_state_root = state_root_from_headers(
+                fixture.stateless_input.block.number - 1,
+                &fixture.stateless_input.witness.headers,
+            );
+            let tries_bytes =
+                from_execution_witness(pre_state_root, &fixture.stateless_input.witness)
+                    .unwrap()
+                    .encode_to_state_bytes();
+            let bytes = bincode::serialize(&tries_bytes).unwrap();
+            fixture.stateless_input.witness.state = vec![bytes.into()];
         }
+    }
+
+    fn state_root_from_headers(block_num: u64, headers: &[impl AsRef<[u8]>]) -> B256 {
+        headers
+            .iter()
+            .find_map(|h| {
+                let header = alloy_rlp::decode_exact::<alloy_consensus::Header>(h).unwrap();
+                (header.number == block_num).then_some(header.state_root)
+            })
+            .unwrap()
     }
 }
