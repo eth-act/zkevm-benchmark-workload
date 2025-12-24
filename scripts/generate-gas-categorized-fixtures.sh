@@ -24,21 +24,23 @@ Usage: $0 [OPTIONS] [EEST_TAG] [BASE_OUTPUT_DIR]
 Generates zkevm-fixtures-input categorized by gas parameters.
 
 Arguments:
-  EEST_TAG        EEST release tag (e.g., v0.1.0). Default: latest
+  EEST_TAG        EEST release tag (e.g., v0.1.0). Default: latest (ignored when using --eest-fixtures-path)
   BASE_OUTPUT_DIR Base output directory (default: ./zkevm-fixtures-input)
 
 Options:
-  -g, --gas LIST  Comma-separated list of gas values in format xM where x is a rational number
-                  (e.g., "0.1M,1M,10M" or "0.1,1,10" - M suffix added if omitted)
-                  Default: $DEFAULT_GAS_VALUES
-  --dry-run       Show what would be executed without running
-  --help, -h      Show this help message
+  -g, --gas LIST            Comma-separated list of gas values in format xM where x is a rational number
+                            (e.g., "0.1M,1M,10M" or "0.1,1,10" - M suffix added if omitted)
+                            Default: $DEFAULT_GAS_VALUES
+  -e, --eest-fixtures-path  Path to local EEST fixtures directory (mutually exclusive with EEST_TAG)
+  --dry-run                 Show what would be executed without running
+  --help, -h                Show this help message
 
 Examples:
-  $0                                    # Use default gas categories
-  $0 -g 1M,10M,30M                      # Use custom gas categories
-  $0 -g 0.1,0.5,1 v0.1.0                # Rational values (M suffix added) with tag
-  $0 --gas 0.1M,1.5M,10M ./output       # Decimal gas values
+  $0                                              # Use default gas categories, download latest EEST
+  $0 -g 1M,10M,30M                                # Custom gas categories, download latest EEST
+  $0 -g 1M,10M v0.1.0                             # Custom gas categories with specific EEST tag
+  $0 -e ./local-eest-fixtures -g 0.1M,1M,10M      # Use local EEST fixtures path
+  $0 --eest-fixtures-path /path/to/eest           # Use local EEST fixtures with defaults
 EOF
     exit 0
 }
@@ -79,6 +81,7 @@ parse_gas_categories() {
 # Parse arguments
 DRY_RUN=false
 GAS_INPUT=""
+EEST_FIXTURES_PATH=""
 POSITIONAL_ARGS=()
 
 while [[ $# -gt 0 ]]; do
@@ -94,6 +97,10 @@ while [[ $# -gt 0 ]]; do
             GAS_INPUT="$2"
             shift 2
             ;;
+        -e|--eest-fixtures-path)
+            EEST_FIXTURES_PATH="$2"
+            shift 2
+            ;;
         *)
             POSITIONAL_ARGS+=("$1")
             shift
@@ -104,6 +111,12 @@ done
 # Set positional arguments
 EEST_TAG="${POSITIONAL_ARGS[0]:-}"
 BASE_OUTPUT_DIR="${POSITIONAL_ARGS[1]:-./zkevm-fixtures-input}"
+
+# Validate mutually exclusive options
+if [[ -n "$EEST_TAG" && -n "$EEST_FIXTURES_PATH" ]]; then
+    print_status "$RED" "❌ Cannot use both EEST_TAG and --eest-fixtures-path. They are mutually exclusive."
+    exit 1
+fi
 
 # Parse gas categories (use default if not provided)
 parse_gas_categories "${GAS_INPUT:-$DEFAULT_GAS_VALUES}" || exit 1
@@ -149,17 +162,32 @@ build_project() {
     }
 }
 
+# Validate EEST fixtures path exists
+check_eest_fixtures_path() {
+    if [[ ! -d "$EEST_FIXTURES_PATH" ]]; then
+        print_status "$RED" "❌ EEST fixtures directory not found: $EEST_FIXTURES_PATH"
+        exit 1
+    fi
+    print_status "$GREEN" "✅ EEST fixtures directory verified: $EEST_FIXTURES_PATH"
+}
+
 # Generate fixtures for a specific gas category
 generate_fixtures() {
     local gas_category="$1" output_dir="$2"
-    local eest_tag_arg=""
-    [[ -n "$EEST_TAG" ]] && eest_tag_arg="--tag $EEST_TAG"
+    local source_arg=""
+    
+    # Use either --eest-fixtures-path or --tag (mutually exclusive)
+    if [[ -n "$EEST_FIXTURES_PATH" ]]; then
+        source_arg="--eest-fixtures-path $EEST_FIXTURES_PATH"
+    elif [[ -n "$EEST_TAG" ]]; then
+        source_arg="--tag $EEST_TAG"
+    fi
     
     print_status "$BLUE" "🚀 Generating: $gas_category → $output_dir"
     mkdir -p "$output_dir"
     
     cargo run --release --bin witness-generator-cli -- \
-        --output-folder "$output_dir" tests $eest_tag_arg \
+        --output-folder "$output_dir" tests $source_arg \
         --include "$gas_category" --include "Prague" && {
         local file_count=$(find "$output_dir" -type f 2>/dev/null | wc -l)
         print_status "$GREEN" "✅ $gas_category: $file_count files"
@@ -188,27 +216,35 @@ show_summary() {
 
 # Main execution
 main() {
+    # Determine source description for display
+    local source_desc="EEST Tag: ${EEST_TAG:-latest}"
+    [[ -n "$EEST_FIXTURES_PATH" ]] && source_desc="EEST Path: $EEST_FIXTURES_PATH"
+    
     if [[ "$DRY_RUN" == true ]]; then
         print_status "$YELLOW" "🔍 DRY RUN MODE"
-        print_status "$BLUE" "EEST Tag: ${EEST_TAG:-latest}"
+        print_status "$BLUE" "$source_desc"
         print_status "$BLUE" "Base Output: $BASE_OUTPUT_DIR"
         print_status "$BLUE" "Gas Categories: ${GAS_CATEGORIES[*]}\n"
+        
         for category in "${GAS_CATEGORIES[@]}"; do
             local gas_value="${category#benchmark-gas-value_}"
             local output_dir="${BASE_OUTPUT_DIR}-${gas_value}"
-            local tag_arg=""; [[ -n "$EEST_TAG" ]] && tag_arg="--tag $EEST_TAG"
-            echo "  cargo run --release --bin witness-generator-cli -- --output-folder \"$output_dir\" tests $tag_arg --include \"$category\" --include \"Prague\""
+            local source_arg=""
+            [[ -n "$EEST_FIXTURES_PATH" ]] && source_arg="--eest-fixtures-path \"$EEST_FIXTURES_PATH\""
+            [[ -n "$EEST_TAG" ]] && source_arg="--tag $EEST_TAG"
+            echo "  cargo run --release --bin witness-generator-cli -- --output-folder \"$output_dir\" tests $source_arg --include \"$category\" --include \"Prague\""
         done
         print_status "$GREEN" "\n✅ Dry run completed"
         exit 0
     fi
     
     print_status "$BLUE" "🚀 Starting zkEVM fixture generation"
-    print_status "$BLUE" "EEST Tag: ${EEST_TAG:-latest} | Base Dir: $BASE_OUTPUT_DIR"
+    print_status "$BLUE" "$source_desc | Base Dir: $BASE_OUTPUT_DIR"
     print_status "$BLUE" "Gas Categories: ${GAS_CATEGORIES[*]}"
     
     check_cargo && check_workspace
     validate_gas_categories || exit 1
+    [[ -n "$EEST_FIXTURES_PATH" ]] && check_eest_fixtures_path
     build_project
     
     local failed_categories=()
