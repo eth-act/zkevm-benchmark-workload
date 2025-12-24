@@ -17,6 +17,11 @@ tempfile = "3.10"
 flate2 = "1.0"
 tar = "0.4"
 
+openvm-mpt.workspace = true
+alloy-rlp.workspace = true
+alloy-consensus.workspace = true
+alloy-primitives.workspace = true
+bincode.workspace = true
 
 [lints]
 workspace = true
