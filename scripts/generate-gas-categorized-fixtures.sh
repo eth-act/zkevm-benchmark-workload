@@ -2,7 +2,7 @@
 # generate-gas-categorized-fixtures.sh
 # Generates zkevm-fixtures-input categorized by gas parameters into different folders.
 #
-# Usage: ./scripts/generate-gas-categorized-fixtures.sh [EEST_TAG] [BASE_OUTPUT_DIR]
+# Usage: ./scripts/generate-gas-categorized-fixtures.sh [OPTIONS] [EEST_TAG] [BASE_OUTPUT_DIR]
 
 set -euo pipefail
 
@@ -10,17 +10,16 @@ set -euo pipefail
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 print_status() { echo -e "${1}${2}${NC}"; }
 
-# Gas parameter categories
-declare -a GAS_CATEGORIES=(
-    "benchmark-gas-value_1M" "benchmark-gas-value_10M" "benchmark-gas-value_30M"
-    "benchmark-gas-value_45M" "benchmark-gas-value_60M" "benchmark-gas-value_100M"
-    "benchmark-gas-value_150M"
-)
+# Default gas values (in millions, without suffix)
+DEFAULT_GAS_VALUES="1M,10M,30M,45M,60M,100M,150M"
+
+# Gas parameter categories (will be populated from user input or defaults)
+declare -a GAS_CATEGORIES=()
 
 # Help message
 show_help() {
     cat << EOF
-Usage: $0 [EEST_TAG] [BASE_OUTPUT_DIR] [OPTIONS]
+Usage: $0 [OPTIONS] [EEST_TAG] [BASE_OUTPUT_DIR]
 
 Generates zkevm-fixtures-input categorized by gas parameters.
 
@@ -29,31 +28,100 @@ Arguments:
   BASE_OUTPUT_DIR Base output directory (default: ./zkevm-fixtures-input)
 
 Options:
+  -g, --gas LIST  Comma-separated list of gas values in format xM where x is a rational number
+                  (e.g., "0.1M,1M,10M" or "0.1,1,10" - M suffix added if omitted)
+                  Default: $DEFAULT_GAS_VALUES
   --dry-run       Show what would be executed without running
   --help, -h      Show this help message
 
-Gas Categories: 1M, 10M, 30M, 45M, 60M, 100M, 150M
+Examples:
+  $0                                    # Use default gas categories
+  $0 -g 1M,10M,30M                      # Use custom gas categories
+  $0 -g 0.1,0.5,1 v0.1.0                # Rational values (M suffix added) with tag
+  $0 --gas 0.1M,1.5M,10M ./output       # Decimal gas values
 EOF
     exit 0
 }
 
+# Normalize gas value to format xM where x is a rational number
+normalize_gas_value() {
+    local value="$1"
+    # Remove any whitespace
+    value="${value// /}"
+    # Check if value is in format xM (rational number with M suffix)
+    if [[ "$value" =~ ^[0-9]+(\.[0-9]+)?M$ ]]; then
+        echo "$value"
+    elif [[ "$value" =~ ^[0-9]+(\.[0-9]+)?$ ]]; then
+        # No suffix, add M
+        echo "${value}M"
+    else
+        echo "ERROR:$value" # Signal error to caller
+        return 1
+    fi
+}
+
+# Parse gas categories from comma-separated list
+parse_gas_categories() {
+    local gas_input="$1"
+    IFS=',' read -ra values <<< "$gas_input"
+    for value in "${values[@]}"; do
+        local normalized
+        normalized=$(normalize_gas_value "$value")
+        if [[ "$normalized" == ERROR:* ]]; then
+            local bad_value="${normalized#ERROR:}"
+            print_status "$RED" "❌ Invalid gas value format: $bad_value (expected xM where x is a rational number, e.g., 0.1M, 1M, 10M)"
+            return 1
+        fi
+        GAS_CATEGORIES+=("benchmark-gas-value_${normalized}")
+    done
+}
+
 # Parse arguments
 DRY_RUN=false
-[[ "${1:-}" =~ ^(-h|--help)$ ]] && show_help
-[[ "${1:-}" == "--dry-run" ]] && { DRY_RUN=true; shift; }
-EEST_TAG="${1:-}"
-BASE_OUTPUT_DIR="${2:-./zkevm-fixtures-input}"
+GAS_INPUT=""
+POSITIONAL_ARGS=()
+
+while [[ $# -gt 0 ]]; do
+    case $1 in
+        -h|--help)
+            show_help
+            ;;
+        --dry-run)
+            DRY_RUN=true
+            shift
+            ;;
+        -g|--gas)
+            GAS_INPUT="$2"
+            shift 2
+            ;;
+        *)
+            POSITIONAL_ARGS+=("$1")
+            shift
+            ;;
+    esac
+done
+
+# Set positional arguments
+EEST_TAG="${POSITIONAL_ARGS[0]:-}"
+BASE_OUTPUT_DIR="${POSITIONAL_ARGS[1]:-./zkevm-fixtures-input}"
+
+# Parse gas categories (use default if not provided)
+parse_gas_categories "${GAS_INPUT:-$DEFAULT_GAS_VALUES}" || exit 1
 
 # Validation functions
 validate_gas_categories() {
     print_status "$BLUE" "🔍 Validating gas categories..."
+    if [[ ${#GAS_CATEGORIES[@]} -eq 0 ]]; then
+        print_status "$RED" "❌ No gas categories specified"
+        return 1
+    fi
     for category in "${GAS_CATEGORIES[@]}"; do
-        [[ "$category" =~ ^benchmark-gas-value_[0-9]+[KMG]$ ]] || {
+        [[ "$category" =~ ^benchmark-gas-value_[0-9]+(\.[0-9]+)?M$ ]] || {
             print_status "$RED" "❌ Invalid format: $category"
             return 1
         }
     done
-    print_status "$GREEN" "✅ All gas categories validated"
+    print_status "$GREEN" "✅ ${#GAS_CATEGORIES[@]} gas categories validated: ${GAS_CATEGORIES[*]}"
 }
 
 check_cargo() {
@@ -123,7 +191,8 @@ main() {
     if [[ "$DRY_RUN" == true ]]; then
         print_status "$YELLOW" "🔍 DRY RUN MODE"
         print_status "$BLUE" "EEST Tag: ${EEST_TAG:-latest}"
-        print_status "$BLUE" "Base Output: $BASE_OUTPUT_DIR\n"
+        print_status "$BLUE" "Base Output: $BASE_OUTPUT_DIR"
+        print_status "$BLUE" "Gas Categories: ${GAS_CATEGORIES[*]}\n"
         for category in "${GAS_CATEGORIES[@]}"; do
             local gas_value="${category#benchmark-gas-value_}"
             local output_dir="${BASE_OUTPUT_DIR}-${gas_value}"
@@ -136,6 +205,7 @@ main() {
     
     print_status "$BLUE" "🚀 Starting zkEVM fixture generation"
     print_status "$BLUE" "EEST Tag: ${EEST_TAG:-latest} | Base Dir: $BASE_OUTPUT_DIR"
+    print_status "$BLUE" "Gas Categories: ${GAS_CATEGORIES[*]}"
     
     check_cargo && check_workspace
     validate_gas_categories || exit 1
