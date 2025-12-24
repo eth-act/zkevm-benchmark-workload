@@ -21,9 +21,15 @@ bincode.workspace = true
 reth-stateless.workspace = true
 reth-chainspec.workspace = true
 reth-evm-ethereum.workspace = true
+reth-trie-common.workspace = true
+reth-errors.workspace = true
+
 alloy-primitives.workspace = true
 alloy-rlp.workspace = true
 alloy-consensus.workspace = true
+
+revm-bytecode.workspace = true
+
 openvm-mpt.workspace = true
 
 [lints]
