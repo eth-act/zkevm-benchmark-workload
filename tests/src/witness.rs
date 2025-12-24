@@ -1,9 +1,16 @@
 #[cfg(test)]
 mod tests {
     use alloy_primitives::B256;
-    use benchmark_runner::stateless_validator::read_benchmark_fixtures_folder;
-    use openvm_mpt::from_proof::from_execution_witness;
-    use std::{env, path::PathBuf};
+    use benchmark_runner::stateless_validator::{
+        read_benchmark_fixtures_folder, reth::get_input_full_validation,
+    };
+    use openvm_mpt::{
+        from_proof::from_execution_witness, statelesstrie::OpenVMStatelessSparseTrie,
+    };
+    use reth_chainspec::ChainSpec;
+    use reth_evm_ethereum::EthEvmConfig;
+    use reth_stateless::Genesis;
+    use std::{env, path::PathBuf, sync::Arc};
     use tempfile::tempdir;
 
     use crate::utils::untar;
@@ -23,17 +30,44 @@ mod tests {
 
         let fixtures = read_benchmark_fixtures_folder(input_folder).unwrap();
 
-        for mut fixture in fixtures {
+        for fixture in fixtures {
+            let input = get_input_full_validation(&fixture).unwrap();
+
+            let genesis = Genesis {
+                config: input.stateless_input.chain_config.clone(),
+                ..Default::default()
+            };
+            let chain_spec: Arc<ChainSpec> = Arc::new(genesis.into());
+            let evm_config = EthEvmConfig::new(chain_spec.clone());
+
+            // Run normal Reth.
+            reth_stateless::stateless_validation(
+                input.stateless_input.block.clone(),
+                input.public_keys.clone(),
+                input.stateless_input.witness.clone(),
+                chain_spec.clone(),
+                evm_config.clone(),
+            )
+            .unwrap();
+
+            let mut stateless_input = fixture.stateless_input;
             let pre_state_root = state_root_from_headers(
-                fixture.stateless_input.block.number - 1,
-                &fixture.stateless_input.witness.headers,
+                stateless_input.block.number - 1,
+                &stateless_input.witness.headers,
             );
-            let tries_bytes =
-                from_execution_witness(pre_state_root, &fixture.stateless_input.witness)
-                    .unwrap()
-                    .encode_to_state_bytes();
+            let tries_bytes = from_execution_witness(pre_state_root, &stateless_input.witness)
+                .unwrap()
+                .encode_to_state_bytes();
             let bytes = bincode::serialize(&tries_bytes).unwrap();
-            fixture.stateless_input.witness.state = vec![bytes.into()];
+            stateless_input.witness.state = vec![bytes.into()];
+            reth_stateless::stateless_validation_with_trie::<OpenVMStatelessSparseTrie, _, _>(
+                input.stateless_input.block,
+                input.public_keys,
+                input.stateless_input.witness,
+                chain_spec,
+                evm_config,
+            )
+            .unwrap();
         }
     }
 

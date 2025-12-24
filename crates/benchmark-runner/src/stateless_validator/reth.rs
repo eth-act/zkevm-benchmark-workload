@@ -45,7 +45,8 @@ pub fn stateless_validator_inputs_from_fixture(
         .collect()
 }
 
-fn get_input_full_validation(
+/// Prepares a single input for the Reth stateless validator guest program with full validation.
+pub fn get_input_full_validation(
     bw: &StatelessValidationFixture,
 ) -> anyhow::Result<RethStatelessValidatorInput> {
     let stateless_input = &bw.stateless_input;

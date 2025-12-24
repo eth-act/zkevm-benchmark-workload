@@ -18,6 +18,9 @@ flate2 = "1.0"
 tar = "0.4"
 bincode.workspace = true
 
+reth-stateless.workspace = true
+reth-chainspec.workspace = true
+reth-evm-ethereum.workspace = true
 alloy-primitives.workspace = true
 alloy-rlp.workspace = true
 alloy-consensus.workspace = true
