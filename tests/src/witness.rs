@@ -10,7 +10,9 @@ mod tests {
     use reth_chainspec::ChainSpec;
     use reth_errors::ProviderError;
     use reth_evm_ethereum::EthEvmConfig;
-    use reth_stateless::{validation::StatelessValidationError, Genesis};
+    use reth_stateless::{
+        trie::StatelessSparseTrie, validation::StatelessValidationError, Genesis,
+    };
     use reth_trie_common::HashedPostState;
     use revm_bytecode::Bytecode;
     use std::{env, path::PathBuf, sync::Arc};
@@ -45,7 +47,7 @@ mod tests {
             let evm_config = EthEvmConfig::new(chain_spec.clone());
 
             // Run normal Reth.
-            reth_stateless::stateless_validation(
+            reth_stateless::stateless_validation_with_trie::<StatelessSparseTrie, _, _>(
                 input.stateless_input.block.clone(),
                 input.public_keys.clone(),
                 input.stateless_input.witness.clone(),
@@ -64,23 +66,20 @@ mod tests {
                     .encode_to_state_bytes();
             let bytes = bincode::serialize(&tries_bytes).unwrap();
             input.stateless_input.witness.state = vec![bytes.into()];
-            let res = reth_stateless::stateless_validation_with_trie::<
-                Wrapper<OpenVMStatelessSparseTrie>,
-                _,
-                _,
-            >(
-                input.stateless_input.block,
-                input.public_keys,
-                input.stateless_input.witness,
-                chain_spec,
-                evm_config,
-            );
+            let res =
+                reth_stateless::stateless_validation_with_trie::<OpenVMStatelessSparseTrie, _, _>(
+                    input.stateless_input.block,
+                    input.public_keys,
+                    input.stateless_input.witness,
+                    chain_spec,
+                    evm_config,
+                );
             match res {
                 Ok(_) => println!(
                     "Stateless validation succeeded for block num {}.",
                     block_num
                 ),
-                Err(e) => println!(
+                Err(e) => panic!(
                     "Stateless validation failed for block num {}: {:?}",
                     block_num, e
                 ),

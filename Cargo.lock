@@ -5803,6 +5803,7 @@ dependencies = [
  "bincode 2.0.1",
  "bumpalo",
  "bytes",
+ "itertools 0.14.0",
  "reth-stateless",
  "reth-storage-errors",
  "reth-trie",
