@@ -2,12 +2,12 @@
 
 use crate::{
     guest_programs::{GenericGuestFixture, GuestFixture},
-    stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
+    stateless_executor::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use guest_libs::senders::recover_signers;
 use reth_stateless_executor::guest::{RethStatelessExecutorGuest, RethStatelessExecutorInput};
 use std::{path::Path, sync::OnceLock};
-use witness_generator::StatelessValidationFixture;
+use witness_generator::StatelessExecutorFixture;
 
 /// Prepares the inputs for the Reth stateless executor guest program.
 pub fn stateless_executor_inputs(
@@ -19,7 +19,7 @@ pub fn stateless_executor_inputs(
 
 /// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
 pub fn stateless_executor_inputs_from_fixture(
-    fixture: &[StatelessValidationFixture],
+    fixture: &[StatelessExecutorFixture],
 ) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
     fixture
         .iter()
@@ -43,7 +43,7 @@ pub fn stateless_executor_inputs_from_fixture(
 }
 
 fn get_input_execution(
-    bw: &StatelessValidationFixture,
+    bw: &StatelessExecutorFixture,
 ) -> anyhow::Result<RethStatelessExecutorInput> {
     let stateless_input = &bw.stateless_input;
     let signers = recover_signers(&stateless_input.block.body.transactions)?;

@@ -210,6 +210,8 @@ pub struct StatelessValidationFixture {
     /// Whether the stateless block validation is successful.
     pub success: bool,
 }
+/// A stateless executor fixture containing block data and witness information.
+pub type StatelessExecutorFixture = StatelessValidationFixture;
 
 impl StatelessValidationFixture {
     /// Serializes fixtures to a pretty-printed JSON string.
