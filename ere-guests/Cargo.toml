@@ -9,6 +9,9 @@ members = [
     "stateless-validator/reth/sp1",
     "stateless-validator/reth/zisk",
 
+    # Reth stateless executor (execution-only, no validation)
+    "stateless-executor",
+
     # Ethrex stateless validator is not part of the workspace
     "stateless-validator/ethrex/guest",
 
@@ -127,6 +130,7 @@ zero_sized_map_values = "warn"
 # local dependencies
 guest-libs = { path = "libs", default-features = false }
 reth-guest = { path = "stateless-validator/reth/guest", default-features = false }
+reth-stateless-executor = { path = "stateless-executor", default-features = false }
 ethrex-guest = { path = "stateless-validator/ethrex/guest", default-features = false }
 block-encoding-length-guest = { path = "block-encoding-length/guest", default-features = false }
 
@@ -152,7 +156,9 @@ reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = 
 reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-evm = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
+reth-revm = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 

@@ -1417,6 +1417,7 @@ dependencies = [
  "rayon",
  "reth-guest",
  "reth-stateless",
+ "reth-stateless-executor",
  "serde",
  "serde_json",
  "sha2",
@@ -8094,6 +8095,30 @@ dependencies = [
  "secp256k1 0.30.0",
  "serde",
  "serde_with",
+ "thiserror 2.0.17",
+]
+
+[[package]]
+name = "reth-stateless-executor"
+version = "0.1.0"
+dependencies = [
+ "alloy-consensus",
+ "alloy-primitives",
+ "alloy-rlp",
+ "ere-io",
+ "ere-platform-trait",
+ "guest-libs",
+ "k256",
+ "reth-chainspec",
+ "reth-errors",
+ "reth-ethereum-primitives",
+ "reth-evm",
+ "reth-evm-ethereum",
+ "reth-primitives-traits",
+ "reth-revm",
+ "reth-stateless",
+ "serde",
+ "sparsestate",
  "thiserror 2.0.17",
 ]
 
