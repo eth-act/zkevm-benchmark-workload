@@ -1,0 +1,44 @@
+[package]
+name = "reth-stateless-executor"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+description = "Pure EVM execution without validation checks for benchmarking"
+
+[dependencies]
+# local dependencies
+guest-libs.workspace = true
+sparsestate.workspace = true
+
+# ere
+ere-io = { workspace = true, features = ["bincode"] }
+ere-platform-trait.workspace = true
+
+# reth
+reth-primitives-traits.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-chainspec.workspace = true
+reth-stateless.workspace = true
+reth-evm.workspace = true
+reth-evm-ethereum.workspace = true
+reth-revm.workspace = true
+reth-errors.workspace = true
+
+# alloy
+alloy-primitives.workspace = true
+alloy-consensus.workspace = true
+alloy-rlp.workspace = true
+
+# external
+k256.workspace = true
+serde.workspace = true
+thiserror.workspace = true
+
+[features]
+default = ["std", "reth-stateless/default"]
+std = ["guest-libs/std"]
+
