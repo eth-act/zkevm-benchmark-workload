@@ -56,7 +56,7 @@ pub enum GuestProgramCommand {
         #[arg(long)]
         input_file: Option<PathBuf>,
         /// Execution client to benchmark
-        #[arg(short, long)]
+        #[arg(short, long, value_enum, default_value = "reth")]
         execution_client: StatelessExecutorClient,
     },
     /// Ethereum Stateless Validator
@@ -110,7 +110,7 @@ impl StatelessExecutorClient {
     /// Get the guest relative path for the execution client
     pub fn guest_rel_path(&self) -> Result<PathBuf> {
         let path = match self {
-            Self::Reth => "stateless-executor/reth",
+            Self::Reth => "stateless-executor",
         };
         Ok(PathBuf::from_str(path).unwrap())
     }
