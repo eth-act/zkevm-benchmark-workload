@@ -4,10 +4,12 @@ version = "0.1.0"
 edition = "2021"
 
 [dev-dependencies]
+sparsestate.workspace = true
 benchmark-runner.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
+ere-platform-trait.workspace = true
 witness-generator.workspace = true
 
 walkdir.workspace = true
@@ -18,9 +20,8 @@ flate2 = "1.0"
 tar = "0.4"
 bincode.workspace = true
 
+reth-guest.workspace = true
 reth-stateless.workspace = true
-reth-chainspec.workspace = true
-reth-evm-ethereum.workspace = true
 reth-trie-common.workspace = true
 reth-errors.workspace = true
 

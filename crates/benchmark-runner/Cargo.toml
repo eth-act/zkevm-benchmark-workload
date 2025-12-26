@@ -4,6 +4,7 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+sparsestate.workspace = true
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true

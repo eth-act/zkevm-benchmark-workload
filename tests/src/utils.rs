@@ -8,14 +8,20 @@ use std::{
     str::FromStr,
 };
 
+use alloy_primitives::{map::B256Map, B256};
 use benchmark_runner::{
     guest_programs::GuestFixture,
     runner::{get_zkvm_instances, run_benchmark, Action, RunConfig},
     stateless_validator::ExecutionClient,
 };
 use ere_dockerized::zkVMKind;
+use ere_platform_trait::Platform;
 use ere_zkvm_interface::ProverResourceType;
 use flate2::bufread::GzDecoder;
+use reth_errors::ProviderError;
+use reth_stateless::validation::StatelessValidationError;
+use reth_trie_common::HashedPostState;
+use revm_bytecode::Bytecode;
 use serde::{de::DeserializeOwned, Serialize};
 use tar::Archive;
 use walkdir::WalkDir;
@@ -191,4 +197,96 @@ pub(crate) fn filter_el_zkvm_pairs_from_env(
         .collect::<Vec<_>>();
     assert!(!pairs.is_empty(), "No valid (EL, ZKVM) pairs found");
     pairs
+}
+
+#[derive(Debug)]
+pub(crate) struct Wrapper<T: reth_stateless::StatelessTrie> {
+    inner: T,
+}
+
+impl<T: reth_stateless::StatelessTrie> reth_stateless::StatelessTrie for Wrapper<T> {
+    fn new(
+        witness: &reth_stateless::ExecutionWitness,
+        pre_state_root: B256,
+    ) -> Result<(Self, B256Map<Bytecode>), StatelessValidationError>
+    where
+        Self: Sized,
+    {
+        println!(
+            "StatelessTrie::new called with pre_state_root: {:?}",
+            pre_state_root
+        );
+        // Note: We can't delegate `new` to `internal` since `internal` is already constructed.
+        // This method would be used to create a new Wrapper from scratch.
+        // For now, we'll use the default StatelessSparseTrie implementation.
+        let (inner, bytecodes) = T::new(witness, pre_state_root)?;
+        let wrapper = Self { inner };
+        println!(
+            "StatelessTrie::new returning with {} bytecodes",
+            bytecodes.len()
+        );
+        Ok((wrapper, bytecodes))
+    }
+
+    fn account(
+        &self,
+        address: alloy_primitives::Address,
+    ) -> Result<Option<reth_trie_common::TrieAccount>, ProviderError> {
+        println!("StatelessTrie::account called with address: {:?}", address);
+        let result = self.inner.account(address);
+        println!("StatelessTrie::account returning: {:?}", result);
+        result
+    }
+
+    fn storage(
+        &self,
+        address: alloy_primitives::Address,
+        slot: alloy_primitives::U256,
+    ) -> Result<alloy_primitives::U256, ProviderError> {
+        println!(
+            "StatelessTrie::storage called with address: {:?}, slot: {:?}",
+            address, slot
+        );
+        let result = self.inner.storage(address, slot);
+        println!("StatelessTrie::storage returning: {:?}", result);
+        result
+    }
+
+    fn calculate_state_root(
+        &mut self,
+        state: HashedPostState,
+    ) -> Result<B256, StatelessValidationError> {
+        println!(
+            "StatelessTrie::calculate_state_root called with {} accounts, {} storages",
+            state.accounts.len(),
+            state.storages.len()
+        );
+        let result = self.inner.calculate_state_root(state);
+        println!(
+            "StatelessTrie::calculate_state_root returning: {:?}",
+            result
+        );
+        result
+    }
+}
+
+pub(crate) struct NoopPlatform;
+
+impl Platform for NoopPlatform {
+    fn read_whole_input() -> impl std::ops::Deref<Target = [u8]> {
+        panic!("NoopPlatform does not implement read_whole_input");
+        #[allow(unreachable_code)]
+        Vec::<u8>::new()
+    }
+
+    fn write_whole_output(output: &[u8]) {
+        println!(
+            "NoopPlatform: received output with length: {}",
+            output.len()
+        );
+    }
+
+    fn print(message: &str) {
+        println!("NoopPlatform: message: {}", message);
+    }
 }
