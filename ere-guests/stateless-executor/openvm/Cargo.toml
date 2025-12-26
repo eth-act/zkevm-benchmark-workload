@@ -1,0 +1,32 @@
+[package]
+name = "reth-openvm-stateless-executor"
+version = "0.1.0"
+edition = "2021"
+rust-version = "1.86"
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+ere-platform-openvm = { workspace = true, features = ["std"] }
+openvm = { workspace = true, features = ["std"] }
+openvm-algebra-guest.workspace = true
+openvm-ecc-guest.workspace = true
+openvm-revm-crypto.workspace = true
+
+guest-libs.workspace = true
+reth-stateless-executor = { workspace = true, default-features = true }
+
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-primitives-traits = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+
+
+sha2.workspace = true
+k256.workspace = true
+bincode.workspace = true
+

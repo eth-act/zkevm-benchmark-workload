@@ -1,0 +1,32 @@
+[package]
+name = "reth-zisk-stateless-executor"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+ere-platform-zisk.workspace = true
+reth-stateless-executor = { workspace = true, default-features = true }
+guest-libs.workspace = true
+
+reth-stateless.workspace = true
+reth-ethereum-primitives = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+reth-primitives-traits = { workspace = true, features = [
+    "serde",
+    "serde-bincode-compat",
+] }
+
+revm = { workspace = true, default-features = false, features = ["bn"] }
+alloy-primitives = { workspace = true, default-features = false, features = [
+    "map-foldhash",
+    "serde",
+    "sha3-keccak",
+] }
+k256.workspace = true
+bincode.workspace = true
+sha2.workspace = true
+
