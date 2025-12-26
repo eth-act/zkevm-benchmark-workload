@@ -6,6 +6,7 @@ pub mod guest_programs;
 
 pub mod block_encoding_length_program;
 pub mod empty_program;
+pub mod stateless_executor;
 pub mod stateless_validator;
 
 pub mod runner;

@@ -14,6 +14,7 @@ ere-io.workspace = true
 guest-libs = { workspace = true, default-features = true }
 block-encoding-length-guest.workspace = true
 reth-guest.workspace = true
+reth-stateless-executor.workspace = true
 ethrex-guest.workspace = true
 
 alloy-rlp.workspace = true

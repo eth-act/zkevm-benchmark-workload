@@ -25,7 +25,8 @@ pub enum ExecutionClient {
 /// Extra information about the block being benchmarked
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockMetadata {
-    block_used_gas: u64,
+    /// Gas used in the block.
+    pub block_used_gas: u64,
 }
 
 /// Prepares the inputs for the stateless validator guest program based on the mode.
