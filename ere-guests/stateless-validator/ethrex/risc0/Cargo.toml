@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", default-features = false, features = [
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "5531abbbdb2429403c6e6e45edc4acdf7d3d22a5", default-features = false, features = [
     "std",
     "unstable",
     "getrandom",
