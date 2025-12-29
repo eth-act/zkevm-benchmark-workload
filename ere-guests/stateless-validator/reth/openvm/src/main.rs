@@ -3,6 +3,8 @@
 use ere_platform_openvm::OpenVMPlatform;
 use reth_guest::guest::{Guest, RethStatelessValidatorGuest};
 
+mod openvm_revm_crypto;
+
 openvm::init!();
 
 /// Entry point.
