@@ -4,7 +4,6 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-sparsestate.workspace = true
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
@@ -20,6 +19,8 @@ ethrex-guest.workspace = true
 alloy-rlp.workspace = true
 alloy-eips.workspace = true
 alloy-genesis.workspace = true
+alloy-consensus.workspace = true
+alloy-primitives.workspace = true
 
 reth-stateless.workspace = true
 
@@ -27,6 +28,8 @@ ethrex-guest-program.workspace = true
 ethrex-common.workspace = true
 ethrex-rlp.workspace = true
 ethrex-rpc.workspace = true
+
+openvm-mpt.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
@@ -37,6 +40,7 @@ serde_json.workspace = true
 strum.workspace = true
 anyhow.workspace = true
 auto_impl.workspace = true
+bincode.workspace = true
 
 [lints]
 workspace = true
