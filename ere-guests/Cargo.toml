@@ -142,11 +142,14 @@ ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere",
 
 # openvm
 openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
-openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
-openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
-openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
-openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", default-features = false }
-openvm-revm-crypto = { git = "https://github.com/axiom-crypto/openvm-reth-benchmark.git", branch = "openvm-v1.4.1-reth-1.8.3", default-features = false }
+openvm-algebra-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-k256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", package = "k256" }
+openvm-keccak256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-p256 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2", package = "p256" }
+openvm-pairing = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-sha2 = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
+openvm-kzg = { git = "https://github.com/axiom-crypto/openvm-kzg.git", rev = "530a6ed413def5296b7e4967650ba4fc8fd92ea1", default-features = false }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
 reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241", default-features = false }
@@ -168,6 +171,7 @@ alloy-trie = { version = "0.9.1", default-features = false }
 # revm
 revm = { version = "33.1.0", default-features = false }
 revm-bytecode = { version = "7.1.1", default-features = false }
+revm-primitives = { version = "21.0.2", default-features = false }
 
 # ethrex
 ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, package = "guest_program" }
@@ -205,13 +209,23 @@ codegen-units = 1
 opt-level = "s"
 
 [patch."https://github.com/openvm-org/openvm.git"]
-openvm-ecc-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
-openvm-sha2 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
-openvm-pairing = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
-openvm-k256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "k256" }
-openvm-p256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "p256" }
 openvm = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-algebra-complex-macros = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
 openvm-algebra-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-algebra-moduli-macros = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-custom-insn = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-ecc-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-ecc-sw-macros = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-k256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "k256" }
 openvm-keccak256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-keccak256-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-macros-common = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-p256 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2", package = "p256" }
+openvm-pairing = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-pairing-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-platform = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-rv32im-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-sha2 = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
+openvm-sha256-guest = { git = "https://github.com/openvm-org//openvm.git", tag = "v1.4.2" }
 
 [patch.crates-io]

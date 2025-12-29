@@ -8,12 +8,23 @@ license = "MIT OR Apache-2.0"
 [dependencies]
 ere-platform-openvm = { workspace = true, features = ["std"] }
 openvm = { workspace = true, features = ["std"] }
-openvm-algebra-guest.workspace = true
-openvm-ecc-guest.workspace = true
-openvm-revm-crypto.workspace = true
+openvm-algebra-guest = { workspace = true }
+openvm-ecc-guest = { workspace = true }
+openvm-k256 = { workspace = true }
+openvm-keccak256 = { workspace = true }
+openvm-kzg = { workspace = true, features = ["use-intrinsics"] }
+openvm-p256 = { workspace = true }
+openvm-pairing = { workspace = true, features = ["bn254", "bls12_381"] }
+openvm-sha2 = { workspace = true }
 
 guest-libs.workspace = true
 reth-guest = { workspace = true, default-features = true }
+
+alloy-consensus = { workspace = true, features = ["crypto-backend"] }
+alloy-primitives = { workspace = true, features = ["native-keccak", "map-foldhash"] }
+
+revm.workspace = true
+revm-primitives = { workspace = true, features = ["hashbrown"] }
 
 reth-stateless.workspace = true
 reth-ethereum-primitives = { workspace = true, features = [
