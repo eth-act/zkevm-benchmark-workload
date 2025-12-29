@@ -6,6 +6,9 @@
 
 set -euo pipefail
 
+# Default Rayon thread count (can be overridden by environment)
+export RAYON_NUM_THREADS="${RAYON_NUM_THREADS:-4}"
+
 # Colors
 RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; BLUE='\033[0;34m'; NC='\033[0m'
 print_status() { echo -e "${1}${2}${NC}"; }
