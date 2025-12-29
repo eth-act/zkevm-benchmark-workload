@@ -343,22 +343,6 @@ python3 scripts/compare_provings.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10
 - Efficiency gain reporting
 - Top performers identification
 
----
-
-#### `generate-website.py`
-
-Generates an HTML report from benchmark metrics.
-
-```bash
-python3 scripts/generate-website.py [OPTIONS]
-
-# Options
--i, --input-dir <DIR>     Input directory with metrics (default: .)
--o, --output-file <FILE>  Output HTML file (default: index.html)
-
-# Example
-python3 scripts/generate-website.py -i ./results -o benchmark-report.html
-```
 
 ---
 
@@ -501,59 +485,13 @@ source .env
 
 ---
 
-### CI/CD Pipeline Example
-
-```yaml
-# .github/workflows/benchmark.yml
-name: Run Benchmarks
-
-on:
-  push:
-    branches: [main]
-  schedule:
-    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
-
-jobs:
-  benchmark:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Rust
-        uses: dtolnay/rust-action@stable
-
-      - name: Download fixtures
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: ./scripts/download-and-extract-fixtures.sh
-
-      - name: Generate fixtures
-        run: ./scripts/generate-gas-categorized-fixtures.sh -g 1M,10M
-
-      - name: Run benchmarks
-        run: ./scripts/run-gas-categorized-benchmarks.sh -c 1M,10M -r cpu
-
-      - name: Generate report
-        run: python3 scripts/generate-website.py -o benchmark-report.html
-
-      - name: Upload results
-        uses: actions/upload-artifact@v4
-        with:
-          name: benchmark-results
-          path: |
-            zkevm-metrics-*
-            benchmark-report.html
-```
-
----
-
 ### Batch Processing Multiple zkVMs
 
 ```bash
 #!/bin/bash
 # run-all-zkvms.sh
 
-ZKVMS=("risc0" "sp1" "openvm")
+ZKVMS=("risc0" "sp1")
 GAS_CATEGORIES="1M,10M"
 
 for zkvm in "${ZKVMS[@]}"; do
@@ -684,15 +622,6 @@ Each metrics file contains:
 ```
 
 ---
-
-## Next Steps
-
-After completing your benchmarks:
-
-1. **Review Results** - Open `index.html` in a browser for visual analysis
-2. **Compare zkVMs** - Use comparison scripts to identify performance differences
-3. **Optimize Configuration** - Adjust gas categories and parameters based on results
-4. **Share Results** - Export to CSV or markdown for team review
 
 For more detailed information on specific topics:
 
