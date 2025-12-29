@@ -143,7 +143,7 @@ pub enum Resource {
     Cpu,
     /// GPU resource
     Gpu,
-    /// Network resource (SP1 only, requires NETWORK_PRIVATE_KEY env var)
+    /// Network resource (SP1 only, NETWORK_PRIVATE_KEY env var is optional)
     Network,
 }
 

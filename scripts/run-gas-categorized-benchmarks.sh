@@ -14,7 +14,7 @@
 #   -f, --force-rerun            Force rerun of benchmarks (default: false)
 #       --no-force-rerun         Disable force rerun
 #   -a, --action <ACTION>        Benchmark action to run (default: prove)
-#   -r, --resource <RESOURCE>    Resource type to use (default: gpu)
+#   -r, --resource <RESOURCE>    Resource type: cpu, gpu, network (default: gpu)
 #   -g, --guest <GUEST>          Guest program type (default: stateless-executor)
 #   -z, --zkvm <ZKVM>            zkVM implementation to use (default: risc0)
 #   -e, --execution-client <CLIENT> Execution client to use (default: reth)
@@ -33,6 +33,9 @@
 #   # Run with specific zkVM and execution client
 #   ./scripts/run-gas-categorized-benchmarks.sh -z sp1 -e ethrex
 #   
+#   # Run with SP1 network proving (NETWORK_PRIVATE_KEY env var is optional)
+#   ./scripts/run-gas-categorized-benchmarks.sh -z sp1 -r network
+#   
 #   # Run with custom input and output directories
 #   ./scripts/run-gas-categorized-benchmarks.sh -i ./my-fixtures -o ./my-metrics
 #   
@@ -49,6 +52,11 @@
 #
 
 set -euo pipefail
+
+# SP1 Network proving environment variables
+# Set default NETWORK_RPC_URL if not already set
+export NETWORK_RPC_URL="${NETWORK_RPC_URL:-http://127.0.0.1:50051/}"
+# NETWORK_PRIVATE_KEY is optional - if set, it will be used for authenticated proving
 
 # Default values
 DRY_RUN=false
@@ -104,7 +112,10 @@ show_help() {
     echo "  -f, --force-rerun                Force rerun of benchmarks"
     echo "      --no-force-rerun             Disable force rerun (default)"
     echo "  -a, --action <ACTION>            Benchmark action (default: prove)"
-    echo "  -r, --resource <RESOURCE>        Resource type (default: gpu)"
+    echo "  -r, --resource <RESOURCE>        Resource type: cpu, gpu, network (default: gpu)"
+    echo "                                   Note: 'network' requires SP1 zkVM"
+    echo "                                   Default NETWORK_RPC_URL: http://127.0.0.1:50051/"
+    echo "                                   NETWORK_PRIVATE_KEY env var is optional"
     echo "  -g, --guest <GUEST>              Guest program (default: stateless-executor)"
     echo "  -z, --zkvm <ZKVM>                zkVM implementation (default: risc0)"
     echo "  -e, --execution-client <CLIENT>  Execution client (default: reth)"
@@ -115,6 +126,10 @@ show_help() {
     echo ""
     echo "Available zkVMs:"
     echo "  risc0 (default), sp1, openvm, pico, zisk, airbender, zkm"
+    echo "  Note: SP1 is required when using 'network' resource for proving on SP1 Network"
+    echo ""
+    echo "Available Resources:"
+    echo "  cpu, gpu (default), network (SP1 only)"
     echo ""
     echo "Available Execution Clients:"
     echo "  reth (default), ethrex"
@@ -123,6 +138,7 @@ show_help() {
     echo "  $0                               # Run all default gas categories"
     echo "  $0 -a execute -r cpu             # Custom action and resource"
     echo "  $0 -z sp1 -e ethrex              # Specific zkVM and client"
+    echo "  $0 -z sp1 -r network             # SP1 with network proving"
     echo "  $0 -i ./fixtures -o ./metrics    # Custom input/output directories"
     echo "  $0 -c 10M                        # Single gas category"
     echo "  $0 -c 0.5M,1M,2.5M,10M           # Multiple custom categories"
@@ -248,6 +264,15 @@ parse_gas_categories() {
 # Function to get categories to run (returns the gas values without prefix)
 get_categories_to_run() {
     echo "${GAS_CATEGORIES[@]}"
+}
+
+# Function to validate resource and zkVM combination
+validate_resource_zkvm() {
+    if [[ "$RESOURCE" == "network" && "$ZKVM" != "sp1" ]]; then
+        print_status "$RED" "❌ Error: Network resource is only supported for SP1 zkVM"
+        print_status "$RED" "   Use: -z sp1 -r network"
+        exit 1
+    fi
 }
 
 # Function to check if we're in the right directory
@@ -410,6 +435,9 @@ show_summary() {
 main() {
     # Parse gas categories early so we can display them
     parse_gas_categories
+    
+    # Validate resource and zkVM combination early
+    validate_resource_zkvm
     
     if [ "$DRY_RUN" = true ]; then
         print_status "$YELLOW" "🔍 DRY RUN MODE - No actual execution will occur"
