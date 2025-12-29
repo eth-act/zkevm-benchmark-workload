@@ -1,6 +1,6 @@
 # Stateless Executor Benchmark Guide
 
-This comprehensive guide explains how to run benchmarks using the **stateless-executor** guest program. The stateless-executor is the primary benchmarking workload that executes Ethereum stateless block validation logic within zkVM environments.
+This comprehensive guide explains how to run benchmarks using the **stateless-executor** guest program. The stateless-executor is the primary benchmarking workload that executes Ethereum stateless block execution logic without the pre and post execution validation overhead within zkVM environments.
 
 ---
 
@@ -10,20 +10,19 @@ For those who want to get started immediately with default settings:
 
 ```bash
 # 1. Clone and navigate to the repository
-git clone https://github.com/eth-applied-research-group/zkevm-benchmark-workload.git
+git clone https://github.com/NethermindEth/zkevm-benchmark-workload.git
 cd zkevm-benchmark-workload
+git checkout master-se-docs-03  # Use this branch until merged to master
 
 # 2. Download EEST test fixtures
-./scripts/download-and-extract-fixtures.sh
+./scripts/download-and-extract-fixtures.sh benchmark@v0.0.4
 
 # 3. Generate gas-categorized witness files
-./scripts/generate-gas-categorized-fixtures.sh
+RAYON_NUM_THREADS=4 ./scripts/generate-gas-categorized-fixtures.sh
 
 # 4. Run benchmarks (defaults: risc0 zkVM, reth execution client, GPU)
 ./scripts/run-gas-categorized-benchmarks.sh
 
-# 5. Generate HTML report
-python3 scripts/generate-website.py
 ```
 
 **Default Configuration:**
@@ -115,6 +114,10 @@ Download the Ethereum Execution Spec Test (EEST) fixtures that serve as the base
 
 Transform the EEST fixtures into `BlockAndWitness` JSON files organized by gas categories.
 
+:::tip[Troubleshooting Parallelization]
+If the process hangs or fails, try limiting parallelization by prefixing commands with `RAYON_NUM_THREADS=4`.
+:::
+
 ```bash
 # Generate with default gas categories (1M, 10M, 30M, 45M, 60M, 100M, 150M)
 ./scripts/generate-gas-categorized-fixtures.sh
@@ -163,6 +166,15 @@ Run the stateless-executor benchmarks across your chosen configuration.
 # Execute only (skip proving)
 ./scripts/run-gas-categorized-benchmarks.sh -a execute
 
+# Custom input directory (default: ./zkevm-fixtures-input)
+./scripts/run-gas-categorized-benchmarks.sh -i ./my-fixtures
+
+# Custom output directory (default: ./zkevm-metrics)
+./scripts/run-gas-categorized-benchmarks.sh -o ./my-metrics
+
+# Custom input and output directories
+./scripts/run-gas-categorized-benchmarks.sh -i ./my-fixtures -o ./my-metrics
+
 # Preview commands without executing
 ./scripts/run-gas-categorized-benchmarks.sh -n
 ```
@@ -174,14 +186,30 @@ Run the stateless-executor benchmarks across your chosen configuration.
 Generate reports and compare benchmark results.
 
 ```bash
-# Generate HTML website with all results
-python3 scripts/generate-website.py
-
 # Compare execution metrics between two runs
 python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
 
-# Compare proving times
-python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+# Compare proving times across all zkVMs (uses human-readable names by default)
+python3 scripts/compare_proving_times.py
+
+# Compare proving times with raw benchmark names (disable formatting)
+python3 scripts/compare_proving_times.py --no-format
+
+# Filter by zkVM or benchmark name
+python3 scripts/compare_proving_times.py --zkvm sp1
+python3 scripts/compare_proving_times.py --benchmark create
+
+# Export proving times comparison to markdown
+python3 scripts/compare_proving_times.py -o results/
+
+# Convert metrics to markdown (uses human-readable names by default)
+python3 scripts/convert-metrics-to-markdown.py zkevm-metrics-sp1-1M
+
+# Convert multiple metrics directories
+python3 scripts/convert-metrics-to-markdown.py zkevm-metrics-*
+
+# Specify output directory for markdown files
+python3 scripts/convert-metrics-to-markdown.py -o markdown-reports zkevm-metrics-sp1-1M
 ```
 
 ---

@@ -8,7 +8,7 @@ For a comprehensive walkthrough of running benchmarks with the stateless-executo
 
 ## Project Overview
 
-zkGas profiling is a comprehensive framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments. The project focuses on analyzing the computational costs, memory usage, and proving time required for various Ethereum opcodes across different gas categories and zkVM implementations.
+zkGas profiling is a comprehensive framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments. The project focuses on analyzing the computational costs, memory usage, and proving time required for various Ethereum opcodes across different gas categories and zkVM implementations. The stateless-executor guest program reduces the re-execution of an ethereum block and witness to the transaction level without the pre and post execution validation overhead. This makes the proving resources as close to the actual execution of the instructions as possible. 
 
 ## Key Features
 
@@ -30,8 +30,9 @@ Ensure you have Docker, Rust (1.70+), Python 3.8+, and Git installed before proc
 1. **Clone and Setup the Repository**
 
 ```bash
-git clone https://github.com/eth-applied-research-group/zkevm-benchmark-workload.git
+git clone https://github.com/NethermindEth/zkevm-benchmark-workload.git
 cd zkevm-benchmark-workload
+git checkout master-se-docs-03  # Use this branch until merged to master
 ```
 
 2. **Download and Extract Fixtures**
@@ -56,12 +57,6 @@ cd zkevm-benchmark-workload
 ./scripts/run-gas-categorized-benchmarks.sh -z sp1 -e reth -c 1M,10M
 ```
 
-5. **Generate Results Report**
-
-```bash
-python3 scripts/generate-website.py
-# Open index.html in your browser
-```
 
 ### Default Configuration
 
