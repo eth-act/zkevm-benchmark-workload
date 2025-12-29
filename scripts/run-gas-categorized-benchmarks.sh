@@ -9,38 +9,39 @@
 #   ./scripts/run-gas-categorized-benchmarks.sh [OPTIONS]
 #
 # Options:
-#   --dry-run       Show what would be executed without actually running
-#   --help, -h      Show this help message
-#   --force-rerun   Force rerun of benchmarks (default: false)
-#   --no-force-rerun Disable force rerun
-#   --action <ACTION> Benchmark action to run (default: prove)
-#   --resource <RESOURCE> Resource type to use (default: gpu)
-#   --guest <GUEST> Guest program type (default: stateless-executor)
-#   --zkvm <ZKVM> zkVM implementation to use (default: risc0)
-#   --execution-client <CLIENT> Execution client to use (default: reth)
-#   --input-dir <DIR> Base input directory (default: ./zkevm-fixtures-input)
-#   --gas-categories <LIST> Comma-separated list of gas categories (e.g., 0.5M,1M,2.5M,10M)
-#   --memory-tracking <ENABLED> Enable memory tracking as a cargo feature (default: false)
+#   -n, --dry-run                Show what would be executed without actually running
+#   -h, --help                   Show this help message
+#   -f, --force-rerun            Force rerun of benchmarks (default: false)
+#       --no-force-rerun         Disable force rerun
+#   -a, --action <ACTION>        Benchmark action to run (default: prove)
+#   -r, --resource <RESOURCE>    Resource type to use (default: gpu)
+#   -g, --guest <GUEST>          Guest program type (default: stateless-executor)
+#   -z, --zkvm <ZKVM>            zkVM implementation to use (default: risc0)
+#   -e, --execution-client <CLIENT> Execution client to use (default: reth)
+#   -i, --input-dir <DIR>        Base input directory (default: ./zkevm-fixtures-input)
+#   -o, --output-dir <DIR>       Base metrics output directory (default: ./zkevm-metrics)
+#   -c, --gas-categories <LIST>  Comma-separated list of gas categories (e.g., 0.5M,1M,2.5M,10M)
+#   -m, --memory-tracking        Enable memory tracking as a cargo feature
 #
 # Examples:
 #   # Run all gas categories with default settings
 #   ./scripts/run-gas-categorized-benchmarks.sh
 #   
-#   # Run with custom action and resource
-#   ./scripts/run-gas-categorized-benchmarks.sh --action execute --resource cpu
+#   # Run with custom action and resource (short form)
+#   ./scripts/run-gas-categorized-benchmarks.sh -a execute -r cpu
 #   
 #   # Run with specific zkVM and execution client
-#   ./scripts/run-gas-categorized-benchmarks.sh --zkvm sp1 --execution-client ethrex
+#   ./scripts/run-gas-categorized-benchmarks.sh -z sp1 -e ethrex
 #   
-#   # Run with custom input directory
-#   ./scripts/run-gas-categorized-benchmarks.sh --input-dir ./my-custom-fixtures
+#   # Run with custom input and output directories
+#   ./scripts/run-gas-categorized-benchmarks.sh -i ./my-fixtures -o ./my-metrics
 #   
 #   # Run on specific gas categories (supports rational numbers like 0.5M, 2.5M)
-#   ./scripts/run-gas-categorized-benchmarks.sh --gas-categories 10M
-#   ./scripts/run-gas-categorized-benchmarks.sh --gas-categories 0.5M,1M,2.5M,10M
+#   ./scripts/run-gas-categorized-benchmarks.sh -c 10M
+#   ./scripts/run-gas-categorized-benchmarks.sh -c 0.5M,1M,2.5M,10M
 #   
 #   # Preview what would be executed
-#   ./scripts/run-gas-categorized-benchmarks.sh --dry-run
+#   ./scripts/run-gas-categorized-benchmarks.sh -n
 #
 # Gas Categories:
 #   Format: xM where x is a rational number (e.g., 0.5M, 1M, 2.5M, 10M, 100M)
@@ -98,61 +99,53 @@ show_help() {
     echo "results to metrics folders with gas parameters appended."
     echo ""
     echo "Options:"
-    echo "  --dry-run              Show what would be executed without actually running"
-    echo "  --help, -h             Show this help message"
-    echo "  --force-rerun          Force rerun of benchmarks (default: false)"
-    echo "  --no-force-rerun       Disable force rerun"
-    echo "  --action <ACTION>      Benchmark action to run (default: prove)"
-    echo "  --resource <RESOURCE>  Resource type to use (default: gpu)"
-    echo "  --guest <GUEST>        Guest program type (default: stateless-executor)"
-    echo "  --zkvm <ZKVM>          zkVM implementation to use (default: risc0)"
-    echo "  --execution-client <CLIENT> Execution client to use (default: reth)"
-    echo "  --input-dir <DIR>      Base input directory (default: ./zkevm-fixtures-input)"
-    echo "  --gas-categories <LIST> Comma-separated list of gas categories (e.g., 0.5M,1M,2.5M,10M)"
-    echo "  --memory-tracking <ENABLED> Enable memory tracking as a cargo feature (default: false)"
+    echo "  -n, --dry-run                    Show what would be executed without running"
+    echo "  -h, --help                       Show this help message"
+    echo "  -f, --force-rerun                Force rerun of benchmarks"
+    echo "      --no-force-rerun             Disable force rerun (default)"
+    echo "  -a, --action <ACTION>            Benchmark action (default: prove)"
+    echo "  -r, --resource <RESOURCE>        Resource type (default: gpu)"
+    echo "  -g, --guest <GUEST>              Guest program (default: stateless-executor)"
+    echo "  -z, --zkvm <ZKVM>                zkVM implementation (default: risc0)"
+    echo "  -e, --execution-client <CLIENT>  Execution client (default: reth)"
+    echo "  -i, --input-dir <DIR>            Base input directory (default: ./zkevm-fixtures-input)"
+    echo "  -o, --output-dir <DIR>           Base metrics output directory (default: ./zkevm-metrics)"
+    echo "  -c, --gas-categories <LIST>      Comma-separated gas categories (e.g., 0.5M,1M,10M)"
+    echo "  -m, --memory-tracking            Enable memory tracking cargo feature"
     echo ""
-    echo "Available zkVM Features:"
-    echo "  - risc0: RISC0 zkVM implementation (default)"
-    echo "  - sp1: SP1 zkVM implementation"
-    echo "  - openvm: OpenVM zkVM implementation"
-    echo "  - pico: Pico zkVM implementation"
-    echo "  - zisk: Zisk zkVM implementation"
-    echo "  - airbender: Airbender zkVM implementation"
-    echo "  - zkm: ZKM zkVM implementation"
+    echo "Available zkVMs:"
+    echo "  risc0 (default), sp1, openvm, pico, zisk, airbender, zkm"
     echo ""
     echo "Available Execution Clients:"
-    echo "  - reth: Reth execution client (default)"
-    echo "  - ethrex: Ethrex execution client"
+    echo "  reth (default), ethrex"
     echo ""
     echo "Examples:"
-    echo "  $0                                           # Run all default gas categories"
-    echo "  $0 --action execute --resource cpu           # Run with custom action and resource"
-    echo "  $0 --zkvm sp1 --execution-client ethrex      # Run with specific zkVM and client"
-    echo "  $0 --input-dir ./my-custom-fixtures          # Run with custom input directory"
-    echo "  $0 --gas-categories 10M                      # Run on a single gas category"
-    echo "  $0 --gas-categories 0.5M,1M,2.5M,10M         # Run on multiple custom categories"
-    echo "  $0 --dry-run                                 # Show what would be executed"
+    echo "  $0                               # Run all default gas categories"
+    echo "  $0 -a execute -r cpu             # Custom action and resource"
+    echo "  $0 -z sp1 -e ethrex              # Specific zkVM and client"
+    echo "  $0 -i ./fixtures -o ./metrics    # Custom input/output directories"
+    echo "  $0 -c 10M                        # Single gas category"
+    echo "  $0 -c 0.5M,1M,2.5M,10M           # Multiple custom categories"
+    echo "  $0 -n                            # Dry run preview"
+    echo "  $0 -f -m -c 30M                  # Force rerun with memory tracking"
     echo ""
     echo "Gas Categories:"
-    echo "  Format: xM where x is a rational number (integer or decimal)"
-    echo "  Examples: 0.5M, 1M, 2.5M, 10M, 30M, 100M, 150M"
-    echo ""
-    echo "  Default categories (when --gas-categories is not specified):"
-    echo "    1M, 10M, 30M, 45M, 60M, 100M, 150M"
+    echo "  Format: xM where x is a rational number (e.g., 0.5M, 1M, 2.5M, 10M)"
+    echo "  Default: 1M, 10M, 30M, 45M, 60M, 100M, 150M"
     exit 0
 }
 
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
-        --help|-h)
+        -h|--help)
             show_help
             ;;
-        --dry-run)
+        -n|--dry-run)
             DRY_RUN=true
             shift
             ;;
-        --force-rerun)
+        -f|--force-rerun)
             FORCE_RERUN=true
             shift
             ;;
@@ -160,44 +153,41 @@ while [[ $# -gt 0 ]]; do
             FORCE_RERUN=false
             shift
             ;;
-        --action)
+        -a|--action)
             ACTION="$2"
             shift 2
             ;;
-        --resource)
+        -r|--resource)
             RESOURCE="$2"
             shift 2
             ;;
-        --guest)
+        -g|--guest)
             GUEST="$2"
             shift 2
             ;;
-        --zkvm)
+        -z|--zkvm)
             ZKVM="$2"
             shift 2
             ;;
-        --execution-client)
+        -e|--execution-client)
             EXECUTION_CLIENT="$2"
             shift 2
             ;;
-        --input-dir)
+        -i|--input-dir)
             BASE_INPUT_DIR="$2"
             shift 2
             ;;
-        --gas-categories)
+        -o|--output-dir)
+            BASE_METRICS_DIR="$2"
+            shift 2
+            ;;
+        -c|--gas-categories)
             CUSTOM_GAS_CATEGORIES="$2"
             shift 2
             ;;
-        --memory-tracking)
-            if [ "$2" = "true" ]; then
-                MEMORY_TRACKING=true
-            elif [ "$2" = "false" ]; then
-                MEMORY_TRACKING=false
-            else
-                echo "Error: --memory-tracking must be 'true' or 'false', got: $2"
-                exit 1
-            fi
-            shift 2
+        -m|--memory-tracking)
+            MEMORY_TRACKING=true
+            shift
             ;;
         *)
             echo "Unknown option: $1"
@@ -429,11 +419,12 @@ main() {
         print_status "$BLUE" "🎯 Guest: $GUEST"
         print_status "$BLUE" "🔧 zkVM: $ZKVM"
         print_status "$BLUE" "⚙️  Execution Client: $EXECUTION_CLIENT"
-        print_status "$BLUE" "📁 Input Directory: $BASE_INPUT_DIR"
+        print_status "$BLUE" "📁 Input: $BASE_INPUT_DIR"
+        print_status "$BLUE" "📂 Output: $BASE_METRICS_DIR"
         if [ -n "$CUSTOM_GAS_CATEGORIES" ]; then
-            print_status "$BLUE" "🎯 Gas Categories: ${GAS_CATEGORIES[*]} (custom)"
+            print_status "$BLUE" "⛽ Gas Categories: ${GAS_CATEGORIES[*]} (custom)"
         else
-            print_status "$BLUE" "🎯 Gas Categories: ${GAS_CATEGORIES[*]} (defaults)"
+            print_status "$BLUE" "⛽ Gas Categories: ${GAS_CATEGORIES[*]} (defaults)"
         fi
         print_status "$BLUE" "🔄 Force Rerun: $FORCE_RERUN"
         print_status "$BLUE" "🧠 Memory Tracking: $MEMORY_TRACKING"
@@ -478,11 +469,12 @@ main() {
     print_status "$BLUE" "🎯 Guest: $GUEST"
     print_status "$BLUE" "🔧 zkVM: $ZKVM"
     print_status "$BLUE" "⚙️  Execution Client: $EXECUTION_CLIENT"
-    print_status "$BLUE" "📁 Input Directory: $BASE_INPUT_DIR"
+    print_status "$BLUE" "📁 Input: $BASE_INPUT_DIR"
+    print_status "$BLUE" "📂 Output: $BASE_METRICS_DIR"
     if [ -n "$CUSTOM_GAS_CATEGORIES" ]; then
-        print_status "$BLUE" "🎯 Gas Categories: ${GAS_CATEGORIES[*]} (custom)"
+        print_status "$BLUE" "⛽ Gas Categories: ${GAS_CATEGORIES[*]} (custom)"
     else
-        print_status "$BLUE" "🎯 Gas Categories: ${GAS_CATEGORIES[*]} (defaults)"
+        print_status "$BLUE" "⛽ Gas Categories: ${GAS_CATEGORIES[*]} (defaults)"
     fi
     print_status "$BLUE" "🔄 Force Rerun: $FORCE_RERUN"
     print_status "$BLUE" "🧠 Memory Tracking: $MEMORY_TRACKING"
