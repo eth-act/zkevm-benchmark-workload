@@ -6,7 +6,7 @@ use anyhow::Result;
 use benchmark_runner::{stateless_executor, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
-use ere_zkvm_interface::ProverResourceType;
+use ere_zkvm_interface::{NetworkProverConfig, ProverResourceType};
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -143,6 +143,8 @@ pub enum Resource {
     Cpu,
     /// GPU resource
     Gpu,
+    /// Network resource (SP1 only, requires NETWORK_PRIVATE_KEY env var)
+    Network,
 }
 
 /// Benchmark actions
@@ -159,6 +161,7 @@ impl From<Resource> for ProverResourceType {
         match resource {
             Resource::Cpu => Self::Cpu,
             Resource::Gpu => Self::Gpu,
+            Resource::Network => Self::Network(NetworkProverConfig::default()),
         }
     }
 }

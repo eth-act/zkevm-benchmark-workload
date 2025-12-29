@@ -2,7 +2,7 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
@@ -15,7 +15,8 @@ use std::path::{Path, PathBuf};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::cli::{Cli, GuestProgramCommand, StatelessExecutorClient, StatelessValidatorClient};
+use crate::cli::{Cli, GuestProgramCommand, Resource, StatelessExecutorClient, StatelessValidatorClient};
+use ere_dockerized::zkVMKind;
 
 pub mod cli;
 
@@ -26,7 +27,14 @@ fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
-    let resource: ProverResourceType = cli.resource.into();
+    // Validate that network proving is only used with SP1
+    if matches!(cli.resource, Resource::Network) {
+        if cli.zkvms.iter().any(|z| *z != zkVMKind::Sp1) {
+            bail!("Network proving is only supported for SP1. Use --zkvms sp1");
+        }
+    }
+
+    let resource: ProverResourceType = cli.resource.clone().into();
     let action: Action = cli.action.into();
     info!(
         "Running benchmarks with resource={:?} and action={:?}",
