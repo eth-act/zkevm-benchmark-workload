@@ -2,6 +2,10 @@
 
 Welcome to the zkGas profiling documentation! This guide will help you understand the project structure and get started with profiling the resources needed for proving different OPCODEs in zk environments.
 
+:::tip[Complete Guide Available]
+For a comprehensive walkthrough of running benchmarks with the stateless-executor, including detailed script documentation, troubleshooting, and automation tips, see the **[Stateless Executor Guide](/stateless-executor-guide)**.
+:::
+
 ## Project Overview
 
 zkGas profiling is a comprehensive framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments. The project focuses on analyzing the computational costs, memory usage, and proving time required for various Ethereum opcodes across different gas categories and zkVM implementations.
@@ -9,43 +13,65 @@ zkGas profiling is a comprehensive framework for measuring and comparing the res
 ## Key Features
 
 - **OPCODE Profiling**: Detailed analysis of resource requirements for different Ethereum opcodes
-- **Gas-Categorized Analysis**: Organize profiling data by gas limits (1M, 10M, 30M, 45M, 60M, 100M, 500M)
-- **Multi-zkVM Support**: Compare opcode costs across RISC0 and SP1 zkVMs
+- **Gas-Categorized Analysis**: Organize profiling data by gas limits (1M, 10M, 30M, 45M, 60M, 100M, 150M)
+- **Multi-zkVM Support**: Compare opcode costs across RISC0, SP1, OpenVM, Pico, Zisk, and Airbender zkVMs
 - **Resource Metrics**: Comprehensive measurement of cycles, memory usage, and proving time
 - **Automated Workflows**: Scripts for fixture download, generation, profiling execution, and results analysis
+- **Docker-Based Compilation**: All zkVMs use EreDockerized for consistent builds
 
 ## Quick Start
 
+### Prerequisites
+
+Ensure you have Docker, Rust (1.70+), Python 3.8+, and Git installed before proceeding.
+
+### 4-Step Workflow
+
 1. **Clone and Setup the Repository**
-   ```bash
-   git clone https://github.com/NethermindEth/zkevm-benchmark-workload/
-   cd zkevm-benchmark-workload/
-   git checkout profiling
-   ```
+
+```bash
+git clone https://github.com/eth-applied-research-group/zkevm-benchmark-workload.git
+cd zkevm-benchmark-workload
+```
 
 2. **Download and Extract Fixtures**
-   ```bash
-   ./scripts/download-and-extract-fixtures.sh zkevm@v0.1.0
-   ```
+
+```bash
+./scripts/download-and-extract-fixtures.sh
+```
 
 3. **Generate Gas-Categorized Fixtures**
-   ```bash
-   ./scripts/generate-gas-categorized-fixtures.sh
-   ```
 
-4. **Run OPCODE Profiling**
-   ```bash
-   # Run on all gas categories
-   ./scripts/run-gas-categorized-benchmarks.sh
-   
-   # Or run on a single fixture file
-   ./scripts/run-single-file-benchmark.sh ./fixtures/block_12345.json
-   ```
+```bash
+./scripts/generate-gas-categorized-fixtures.sh
+```
 
-5. **Analyze Resource Requirements**
-   ```bash
-   ./scripts/generate_results.sh --compare --statistics
-   ```
+4. **Run Benchmarks**
+
+```bash
+# Run with defaults (risc0 zkVM, reth client, GPU)
+./scripts/run-gas-categorized-benchmarks.sh
+
+# Or customize your run
+./scripts/run-gas-categorized-benchmarks.sh -z sp1 -e reth -c 1M,10M
+```
+
+5. **Generate Results Report**
+
+```bash
+python3 scripts/generate-website.py
+# Open index.html in your browser
+```
+
+### Default Configuration
+
+| Setting | Default Value |
+|---------|---------------|
+| zkVM | risc0 |
+| Execution Client | reth |
+| Resource | gpu |
+| Gas Categories | 1M, 10M, 30M, 45M, 60M, 100M, 150M |
+| Action | prove |
 
 ## Project Structure
 
@@ -71,10 +97,25 @@ The `benchmark-results/` directory provides organized access to profiling result
 
 ## Next Steps
 
-- [Scripts](/scripts) - Comprehensive documentation for all automation scripts
-- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Learn how to generate test fixtures for opcode profiling
-- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run opcode profiling across different gas categories
+### Comprehensive Guides
+
+- **[Stateless Executor Guide](/stateless-executor-guide)** - Complete guide with TLDR, scripts reference, troubleshooting, and automation best practices
+
+### Workflow Documentation
+
+- [Download Fixtures](/download-fixtures) - Download EEST test fixtures
+- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Generate test fixtures by gas category
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Run benchmarks across gas categories
 - [Single File Benchmark](/single-file-benchmark) - Run benchmarks on individual fixture files
+
+### Analysis & Reporting
+
+- [Scripts](/scripts) - Comprehensive documentation for all automation scripts
 - [Markdown Tables](/markdown-tables) - Generate and analyze resource requirement results
+- [Compare SP1 vs RISC0](/compare-sp1-risc0) - Compare zkVM implementations
+- [Export Comparison CSV](/export-comparison-csv) - Export data for external analysis
+
+### Reference
+
 - [Simplified Naming](/simplified-naming) - Understand the test file naming scheme
 - [Benchmark Results](/benchmark-results) - View and organize generated profiling results

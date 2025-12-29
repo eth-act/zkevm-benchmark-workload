@@ -1,4 +1,4 @@
-import { defineConfig } from 'vocs'
+import { defineConfig } from 'vocs';
 
 export default defineConfig({
   title: 'zkGas profiling',
@@ -7,6 +7,10 @@ export default defineConfig({
     {
       text: 'Getting Started',
       link: '/getting-started',
+    },
+    {
+      text: 'Stateless Executor Guide',
+      link: '/stateless-executor-guide',
     },
     {
       text: 'Download Fixtures',

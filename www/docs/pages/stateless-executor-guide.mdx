@@ -1,0 +1,675 @@
+# Stateless Executor Benchmark Guide
+
+This comprehensive guide explains how to run benchmarks using the **stateless-executor** guest program. The stateless-executor is the primary benchmarking workload that executes Ethereum stateless block validation logic within zkVM environments.
+
+---
+
+## TLDR: Quick Start
+
+For those who want to get started immediately with default settings:
+
+```bash
+# 1. Clone and navigate to the repository
+git clone https://github.com/eth-applied-research-group/zkevm-benchmark-workload.git
+cd zkevm-benchmark-workload
+
+# 2. Download EEST test fixtures
+./scripts/download-and-extract-fixtures.sh
+
+# 3. Generate gas-categorized witness files
+./scripts/generate-gas-categorized-fixtures.sh
+
+# 4. Run benchmarks (defaults: risc0 zkVM, reth execution client, GPU)
+./scripts/run-gas-categorized-benchmarks.sh
+
+# 5. Generate HTML report
+python3 scripts/generate-website.py
+```
+
+**Default Configuration:**
+- **zkVM**: RISC0
+- **Execution Client**: Reth
+- **Resource**: GPU
+- **Gas Categories**: 1M, 10M, 30M, 45M, 60M, 100M, 150M
+- **Action**: prove
+
+---
+
+## Prerequisites
+
+Before running benchmarks, ensure you have the following installed:
+
+### Required Software
+
+| Software | Minimum Version | Purpose |
+|----------|-----------------|---------|
+| **Docker** | 20.10+ | Required for EreDockerized zkVM compilation |
+| **Rust** | 1.70+ | Building the benchmark runner |
+| **Git** | 2.0+ | Cloning the repository |
+| **Python** | 3.8+ | Running analysis scripts |
+| **jq** | 1.6+ | JSON processing in shell scripts |
+| **curl** | 7.0+ | Downloading fixtures |
+
+### Hardware Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| **CPU** | 8 cores | 16+ cores |
+| **RAM** | 16 GB | 32+ GB |
+| **GPU (optional)** | NVIDIA with CUDA | RTX 3080+ or A100 |
+| **Disk Space** | 50 GB | 100+ GB |
+
+### Verify Prerequisites
+
+```bash
+# Check Docker
+docker --version
+docker info  # Ensure Docker daemon is running
+
+# Check Rust
+rustc --version
+cargo --version
+
+# Check Python
+python3 --version
+
+# Check other tools
+jq --version
+curl --version
+```
+
+---
+
+## Complete Workflow
+
+The benchmarking process consists of four main stages:
+
+```
+┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐    ┌──────────────────┐
+│  1. Download     │───▶│  2. Generate     │───▶│  3. Execute      │───▶│  4. Analyze      │
+│     Fixtures     │    │     Witnesses    │    │     Benchmarks   │    │     Results      │
+└──────────────────┘    └──────────────────┘    └──────────────────┘    └──────────────────┘
+```
+
+### Stage 1: Download EEST Fixtures
+
+Download the Ethereum Execution Spec Test (EEST) fixtures that serve as the base test data.
+
+```bash
+# Download default fixtures (benchmark@v0.0.6)
+./scripts/download-and-extract-fixtures.sh
+
+# Download latest official release
+./scripts/download-and-extract-fixtures.sh latest
+
+# Download specific version
+./scripts/download-and-extract-fixtures.sh v5.0.0
+
+# Download to custom directory
+./scripts/download-and-extract-fixtures.sh latest ./my-fixtures
+```
+
+**Output:** Creates `./zkevm-fixtures/` directory containing blockchain test fixtures.
+
+### Stage 2: Generate Gas-Categorized Fixtures
+
+Transform the EEST fixtures into `BlockAndWitness` JSON files organized by gas categories.
+
+```bash
+# Generate with default gas categories (1M, 10M, 30M, 45M, 60M, 100M, 150M)
+./scripts/generate-gas-categorized-fixtures.sh
+
+# Generate with custom gas categories
+./scripts/generate-gas-categorized-fixtures.sh -g 1M,10M,30M
+
+# Use local EEST fixtures instead of downloading
+./scripts/generate-gas-categorized-fixtures.sh -e ./my-local-eest-fixtures
+
+# Preview commands without executing
+./scripts/generate-gas-categorized-fixtures.sh --dry-run
+```
+
+**Output:** Creates directories like `./zkevm-fixtures-input-1M/`, `./zkevm-fixtures-input-10M/`, etc.
+
+### Stage 3: Execute Benchmarks
+
+Run the stateless-executor benchmarks across your chosen configuration.
+
+```bash
+# Run all gas categories with defaults
+./scripts/run-gas-categorized-benchmarks.sh
+
+# Run with specific zkVM
+./scripts/run-gas-categorized-benchmarks.sh -z sp1
+./scripts/run-gas-categorized-benchmarks.sh -z risc0
+./scripts/run-gas-categorized-benchmarks.sh -z openvm
+
+# Run with specific execution client
+./scripts/run-gas-categorized-benchmarks.sh -e ethrex
+
+# Run on CPU instead of GPU
+./scripts/run-gas-categorized-benchmarks.sh -r cpu
+
+# Run only specific gas categories
+./scripts/run-gas-categorized-benchmarks.sh -c 10M
+./scripts/run-gas-categorized-benchmarks.sh -c 1M,10M,30M
+
+# Enable memory tracking
+./scripts/run-gas-categorized-benchmarks.sh -m
+
+# Force rerun (bypass cached results)
+./scripts/run-gas-categorized-benchmarks.sh -f
+
+# Execute only (skip proving)
+./scripts/run-gas-categorized-benchmarks.sh -a execute
+
+# Preview commands without executing
+./scripts/run-gas-categorized-benchmarks.sh -n
+```
+
+**Output:** Creates directories like `./zkevm-metrics-risc0-1M/`, `./zkevm-metrics-sp1-10M/`, etc.
+
+### Stage 4: Analyze Results
+
+Generate reports and compare benchmark results.
+
+```bash
+# Generate HTML website with all results
+python3 scripts/generate-website.py
+
+# Compare execution metrics between two runs
+python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+
+# Compare proving times
+python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+```
+
+---
+
+## Scripts Reference
+
+### Setup Scripts
+
+#### `download-and-extract-fixtures.sh`
+
+Downloads and extracts Ethereum Execution Spec Test fixtures.
+
+| Option | Description |
+|--------|-------------|
+| `[TAG]` | EEST release tag (e.g., `v5.0.0`, `latest`) |
+| `[DEST_DIR]` | Destination directory (default: `./zkevm-fixtures`) |
+
+**Environment Variables:**
+- `GITHUB_TOKEN`: Optional. Provides authenticated API access to avoid rate limits.
+
+```bash
+# With authentication (recommended for CI/CD)
+export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+./scripts/download-and-extract-fixtures.sh latest
+```
+
+---
+
+#### `generate-gas-categorized-fixtures.sh`
+
+Generates witness files organized by gas categories.
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--gas` | `-g` | Comma-separated gas categories | 1M,10M,30M,45M,60M,100M,150M |
+| `--eest-fixtures-path` | `-e` | Path to local EEST fixtures | - |
+| `--dry-run` | - | Preview commands only | false |
+| `--help` | `-h` | Show help message | - |
+
+**Gas Category Format:** Use rational numbers with `M` suffix (e.g., `0.5M`, `1M`, `2.5M`, `10M`).
+
+```bash
+# Examples
+./scripts/generate-gas-categorized-fixtures.sh -g 0.5M,1M,2.5M
+./scripts/generate-gas-categorized-fixtures.sh -e ./eest-fixtures -g 10M,30M
+```
+
+---
+
+### Benchmark Execution Scripts
+
+#### `run-gas-categorized-benchmarks.sh`
+
+Main script for running stateless-executor benchmarks.
+
+| Option | Short | Description | Default |
+|--------|-------|-------------|---------|
+| `--dry-run` | `-n` | Preview commands only | false |
+| `--force-rerun` | `-f` | Force rerun of benchmarks | false |
+| `--action` | `-a` | Action: `prove` or `execute` | prove |
+| `--resource` | `-r` | Resource: `gpu` or `cpu` | gpu |
+| `--guest` | `-g` | Guest program type | stateless-executor |
+| `--zkvm` | `-z` | zkVM implementation | risc0 |
+| `--execution-client` | `-e` | Execution client | reth |
+| `--input-dir` | `-i` | Base input directory | ./zkevm-fixtures-input |
+| `--output-dir` | `-o` | Base output directory | ./zkevm-metrics |
+| `--gas-categories` | `-c` | Gas categories to run | 1M,10M,30M,45M,60M,100M,150M |
+| `--memory-tracking` | `-m` | Enable memory tracking | false |
+
+**Supported zkVMs:**
+- `risc0` - RISC0 zkVM (default)
+- `sp1` - SP1 zkVM
+- `openvm` - OpenVM zkVM
+- `pico` - Pico zkVM
+- `zisk` - Zisk zkVM
+- `airbender` - Airbender zkVM
+
+**Supported Execution Clients:**
+- `reth` - Reth (default)
+- `ethrex` - Ethrex
+
+```bash
+# Full example with all options
+./scripts/run-gas-categorized-benchmarks.sh \
+  -z sp1 \
+  -e reth \
+  -r gpu \
+  -a prove \
+  -c 1M,10M \
+  -m \
+  -f
+```
+
+---
+
+### Analysis Scripts
+
+#### `compare_executions.py`
+
+Compares execution cycle counts between two benchmark runs.
+
+```bash
+python3 scripts/compare_executions.py <baseline_folder> <optimized_folder>
+
+# Example
+python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+```
+
+**Output includes:**
+- Speedup table by region (verify_witness, post_state_compute, validation, etc.)
+- Total cycle counts comparison
+- Statistical analysis with best/worst performers
+- Key findings summary
+
+---
+
+#### `compare_provings.py`
+
+Compares proving time metrics between two runs.
+
+```bash
+python3 scripts/compare_provings.py <baseline_folder> <optimized_folder>
+
+# Example
+python3 scripts/compare_provings.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
+```
+
+**Output includes:**
+- Proving time speedup analysis
+- Time savings calculations (in seconds)
+- Efficiency gain reporting
+- Top performers identification
+
+---
+
+#### `generate-website.py`
+
+Generates an HTML report from benchmark metrics.
+
+```bash
+python3 scripts/generate-website.py [OPTIONS]
+
+# Options
+-i, --input-dir <DIR>     Input directory with metrics (default: .)
+-o, --output-file <FILE>  Output HTML file (default: index.html)
+
+# Example
+python3 scripts/generate-website.py -i ./results -o benchmark-report.html
+```
+
+---
+
+#### `analyze_opcode_traces.py`
+
+Analyzes bytecode and traces opcode execution.
+
+```bash
+python3 scripts/analyze_opcode_traces.py [OPTIONS]
+
+# Options
+--fixtures-dir <DIR>   Directory with test fixtures
+--output <DIR>         Output directory for reports
+--test-case <NAME>     Specific test case to analyze
+
+# Example
+python3 scripts/analyze_opcode_traces.py --fixtures-dir ./zkevm-fixtures --output ./opcode-analysis
+```
+
+---
+
+## Troubleshooting
+
+### Stage 1: Download Fixtures
+
+| Problem | Symptoms | Solution |
+|---------|----------|----------|
+| **GitHub rate limit** | `API rate limit exceeded` error | Set `GITHUB_TOKEN` environment variable |
+| **Network timeout** | Download stalls or fails | Retry with `curl --retry 3` or use VPN |
+| **Asset not found** | `Asset not found in release` error | Check the release tag exists on GitHub |
+| **Disk space** | Extraction fails | Ensure 10+ GB free space |
+
+```bash
+# Fix rate limit
+export GITHUB_TOKEN=ghp_your_token_here
+./scripts/download-and-extract-fixtures.sh
+
+# Check disk space
+df -h .
+```
+
+---
+
+### Stage 2: Generate Fixtures
+
+| Problem | Symptoms | Solution |
+|---------|----------|----------|
+| **Missing EEST fixtures** | `Fixtures directory not found` | Run download script first |
+| **Invalid gas format** | `Invalid gas value format` error | Use format like `1M`, `0.5M`, `10M` |
+| **Build failure** | Cargo compilation errors | Check Rust version, run `rustup update` |
+| **Memory exhaustion** | Process killed | Reduce parallel jobs or increase RAM |
+
+```bash
+# Verify fixtures exist
+ls -la ./zkevm-fixtures/
+
+# Check Rust installation
+rustup show
+rustup update
+
+# Build with verbose output
+cargo build --release --bin witness-generator-cli -v
+```
+
+---
+
+### Stage 3: Execute Benchmarks
+
+| Problem | Symptoms | Solution |
+|---------|----------|----------|
+| **Docker not running** | `Cannot connect to Docker daemon` | Start Docker: `sudo systemctl start docker` |
+| **GPU not detected** | CUDA errors or fallback to CPU | Check `nvidia-smi`, use `-r cpu` flag |
+| **Input not found** | `Input directory not found` | Run fixture generation first |
+| **Out of memory** | Process killed, OOM errors | Use smaller gas categories or more RAM |
+| **Build failure** | EreDockerized compilation errors | Check Docker disk space, restart Docker |
+
+```bash
+# Check Docker
+docker info
+docker ps
+
+# Check GPU
+nvidia-smi
+
+# Check input directories
+ls -la zkevm-fixtures-input-*
+
+# Run with CPU if GPU issues
+./scripts/run-gas-categorized-benchmarks.sh -r cpu
+
+# Run smaller gas category first
+./scripts/run-gas-categorized-benchmarks.sh -c 1M
+```
+
+---
+
+### Stage 4: Analysis
+
+| Problem | Symptoms | Solution |
+|---------|----------|----------|
+| **No common files** | `No common files found` | Ensure both folders have matching test names |
+| **Import error** | `ModuleNotFoundError` | Run from scripts directory or fix PYTHONPATH |
+| **Empty results** | No data in output | Check JSON files exist in metrics folders |
+
+```bash
+# Check metrics files exist
+ls -la zkevm-metrics-*/
+
+# Run from correct directory
+cd /path/to/zkevm-benchmark-workload
+python3 scripts/compare_executions.py ...
+
+# Verify JSON structure
+cat zkevm-metrics-risc0-1M/some-test.json | jq .
+```
+
+---
+
+## Automation & Best Practices
+
+### Environment Configuration
+
+Create a `.env` file for consistent configuration:
+
+```bash
+# .env
+export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
+export ZKVM=risc0
+export EXECUTION_CLIENT=reth
+export GAS_CATEGORIES=1M,10M,30M
+export RESOURCE=gpu
+```
+
+Load before running:
+
+```bash
+source .env
+./scripts/run-gas-categorized-benchmarks.sh -z $ZKVM -e $EXECUTION_CLIENT -c $GAS_CATEGORIES -r $RESOURCE
+```
+
+---
+
+### CI/CD Pipeline Example
+
+```yaml
+# .github/workflows/benchmark.yml
+name: Run Benchmarks
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * 0'  # Weekly on Sunday at 2 AM
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Rust
+        uses: dtolnay/rust-action@stable
+
+      - name: Download fixtures
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: ./scripts/download-and-extract-fixtures.sh
+
+      - name: Generate fixtures
+        run: ./scripts/generate-gas-categorized-fixtures.sh -g 1M,10M
+
+      - name: Run benchmarks
+        run: ./scripts/run-gas-categorized-benchmarks.sh -c 1M,10M -r cpu
+
+      - name: Generate report
+        run: python3 scripts/generate-website.py -o benchmark-report.html
+
+      - name: Upload results
+        uses: actions/upload-artifact@v4
+        with:
+          name: benchmark-results
+          path: |
+            zkevm-metrics-*
+            benchmark-report.html
+```
+
+---
+
+### Batch Processing Multiple zkVMs
+
+```bash
+#!/bin/bash
+# run-all-zkvms.sh
+
+ZKVMS=("risc0" "sp1" "openvm")
+GAS_CATEGORIES="1M,10M"
+
+for zkvm in "${ZKVMS[@]}"; do
+    echo "Running benchmarks for $zkvm..."
+    ./scripts/run-gas-categorized-benchmarks.sh \
+        -z "$zkvm" \
+        -c "$GAS_CATEGORIES" \
+        -f
+
+    if [ $? -ne 0 ]; then
+        echo "Failed: $zkvm"
+        exit 1
+    fi
+done
+
+echo "All benchmarks completed!"
+
+# Generate comparison reports
+for gas in 1M 10M; do
+    echo "Comparing results for ${gas}..."
+    python3 scripts/compare_executions.py \
+        "zkevm-metrics-risc0-${gas}" \
+        "zkevm-metrics-sp1-${gas}" \
+        > "comparison-risc0-vs-sp1-${gas}.txt"
+done
+```
+
+---
+
+### Memory Tracking Best Practices
+
+When using memory tracking (`-m` flag):
+
+1. **Start with smaller gas categories** to establish baseline memory usage
+2. **Monitor system memory** during execution: `watch -n 1 free -h`
+3. **Allocate 2x expected memory** as headroom for peak usage
+4. **Review memory metrics** in output JSON for optimization opportunities
+
+```bash
+# Run with memory tracking on small category first
+./scripts/run-gas-categorized-benchmarks.sh -c 1M -m
+
+# Check memory metrics
+jq '.proving.success.peak_memory_usage_bytes' zkevm-metrics-risc0-1M/*.json
+```
+
+---
+
+### Performance Optimization Tips
+
+1. **Use GPU when available** - Proving is 5-10x faster with GPU
+2. **Start small** - Test with 1M gas category before running larger ones
+3. **Use dry-run first** - Preview commands with `-n` flag
+4. **Parallelize zkVM runs** - Run different zkVMs on different machines
+5. **Monitor disk space** - Metrics can consume significant space for large runs
+6. **Cache fixtures** - Reuse generated fixtures across multiple benchmark runs
+
+---
+
+### Execution Time Estimates
+
+| Gas Category | GPU (prove) | CPU (prove) | GPU (execute) | CPU (execute) |
+|--------------|-------------|-------------|---------------|---------------|
+| 1M | 5-15 min | 30-60 min | 1-2 min | 5-10 min |
+| 10M | 15-30 min | 1-2 hr | 5-10 min | 20-40 min |
+| 30M | 30-60 min | 2-4 hr | 10-20 min | 40-80 min |
+| 45M | 45-90 min | 3-6 hr | 15-30 min | 1-2 hr |
+| 60M | 60-120 min | 4-8 hr | 20-40 min | 1.5-3 hr |
+| 100M | 90-180 min | 6-12 hr | 30-60 min | 2-4 hr |
+| 150M | 120-240 min | 8-16 hr | 45-90 min | 3-6 hr |
+
+*Times are estimates and vary based on hardware and zkVM implementation.*
+
+---
+
+## Output Structure
+
+After running benchmarks, your directory structure will look like:
+
+```
+zkevm-benchmark-workload/
+├── zkevm-fixtures/                    # Downloaded EEST fixtures
+│   └── fixtures/
+│       └── blockchain_tests/
+│           └── benchmark/
+├── zkevm-fixtures-input-1M/           # Generated witnesses (1M gas)
+│   ├── test-case-1.json
+│   ├── test-case-2.json
+│   └── ...
+├── zkevm-fixtures-input-10M/          # Generated witnesses (10M gas)
+├── zkevm-metrics-risc0-1M/            # RISC0 results (1M gas)
+│   ├── test-case-1.json               # Contains execution & proving metrics
+│   └── ...
+├── zkevm-metrics-sp1-1M/              # SP1 results (1M gas)
+├── index.html                         # Generated HTML report
+└── comparison-*.txt                   # Comparison reports
+```
+
+### Metrics JSON Structure
+
+Each metrics file contains:
+
+```json
+{
+  "name": "test-case-name",
+  "execution": {
+    "success": {
+      "total_num_cycles": 12345678,
+      "region_cycles": {
+        "verify_witness": 1000000,
+        "post_state_compute": 2000000,
+        "validation": 500000
+      },
+      "execution_duration": {
+        "secs": 45,
+        "nanos": 123456789
+      }
+    }
+  },
+  "proving": {
+    "success": {
+      "proving_time_ms": 180000,
+      "proof_size": 1024,
+      "peak_memory_usage_bytes": 8589934592
+    }
+  }
+}
+```
+
+---
+
+## Next Steps
+
+After completing your benchmarks:
+
+1. **Review Results** - Open `index.html` in a browser for visual analysis
+2. **Compare zkVMs** - Use comparison scripts to identify performance differences
+3. **Optimize Configuration** - Adjust gas categories and parameters based on results
+4. **Share Results** - Export to CSV or markdown for team review
+
+For more detailed information on specific topics:
+
+- [Gas Categorized Fixtures](/gas-categorized-fixtures) - Fixture generation details
+- [Gas Categorized Benchmarks](/gas-categorized-benchmarks) - Benchmark execution details
+- [Compare SP1 vs RISC0](/compare-sp1-risc0) - zkVM comparison workflow
+- [Scripts Reference](/scripts) - Complete scripts documentation
+
