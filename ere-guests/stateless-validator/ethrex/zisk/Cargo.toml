@@ -7,29 +7,29 @@ edition = "2024"
 
 [dependencies]
 ethrex-guest = { path = "../guest", features = ["std"] }
-ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", default-features = false }
+ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
 sha2 = "0.10.9"
 rkyv = { version = "0.8.10", features = ["std", "unaligned"] }
 
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "zisk",
 ] }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "zisk",
 ] }
-ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+ethrex-blockchain = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "zisk",
 ] }
 
 [patch.crates-io]
-sha2 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha2-0.10.9-zisk-0.14.0" }
-sha3 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha3-0.10.8-zisk-0.14.0" }
-k256 = { git = "https://github.com/0xPolygonHermez/zisk-patch-elliptic-curves.git", tag = "patch-k256-0.13.4-zisk-0.14.0" }
-substrate-bn = { git = "https://github.com/0xPolygonHermez/zisk-patch-bn.git", tag = "patch-0.6.0-zisk-0.14.0" }
-sp1_bls12_381 = { git = "https://github.com/0xPolygonHermez/zisk-patch-bls12-381", tag = "patch-0.8.0-zisk-0.14.0" }
-tiny-keccak = { git = "https://github.com/0xPolygonHermez/zisk-patch-tiny-keccak/", branch = "zisk" }
-kzg-rs = { git = "https://github.com/0xPolygonHermez/zisk-patch-kzg/", tag = "patch-0.2.7-zisk-0.14.0" }
+sha2 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha2-0.10.9-zisk-0.15.0" }
+sha3 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha3-0.10.8-zisk-0.15.0" }
+k256 = { git = "https://github.com/0xPolygonHermez/zisk-patch-elliptic-curves.git", tag = "patch-k256-0.13.4-zisk-0.15.0" }
+substrate-bn = { git = "https://github.com/0xPolygonHermez/zisk-patch-bn.git", tag = "patch-0.6.0-zisk-0.15.0" }
+sp1_bls12_381 = { git = "https://github.com/0xPolygonHermez/zisk-patch-bls12-381", tag = "patch-0.8.0-zisk-0.15.0" }
+tiny-keccak = { git = "https://github.com/0xPolygonHermez/zisk-patch-tiny-keccak/", tag = "patch-2.0.2-zisk-0.15.0" }
+kzg-rs = { git = "https://github.com/0xPolygonHermez/zisk-patch-kzg/", tag = "patch-0.2.7-zisk-0.15.0" }
 
 [features]
 l2 = ["guest_program/l2"]

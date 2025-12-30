@@ -6,7 +6,7 @@ edition = "2024"
 [workspace]
 
 [dependencies]
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "d15d36aa0a5d552a5159087884e7bea9ea74c745", default-features = false, features = [
+ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false, features = [
     "std",
     "unstable",
     "getrandom",
@@ -16,13 +16,13 @@ ethrex-guest = { path = "../guest", features = ["std"] }
 
 k256 = "0.13"
 c-kzg = { version = "2.1.1", features = ["eip-7594"] }
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "c-kzg",
 ] }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "risc0",
 ] }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "35397ff6bcaa39c92c112e5af9de8deeb33b43cd", default-features = false, features = [
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
     "c-kzg",
     "risc0",
 ] }

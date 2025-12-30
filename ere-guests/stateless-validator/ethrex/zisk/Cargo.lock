@@ -1606,24 +1606,24 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ere-io"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "rkyv",
 ]
 
 [[package]]
 name = "ere-platform-trait"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "digest 0.10.7",
 ]
 
 [[package]]
 name = "ere-platform-zisk"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -1714,8 +1714,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-blockchain"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bytes",
  "ethrex-common",
@@ -1735,8 +1735,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-common"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -1745,6 +1745,7 @@ dependencies = [
  "ethrex-rlp",
  "ethrex-trie",
  "hex",
+ "hex-literal",
  "k256",
  "kzg-rs",
  "lazy_static",
@@ -1765,8 +1766,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-crypto"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "kzg-rs",
  "thiserror",
@@ -1787,8 +1788,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-l2-common"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -1806,12 +1807,13 @@ dependencies = [
  "serde_with",
  "sha3",
  "thiserror",
+ "tracing",
 ]
 
 [[package]]
 name = "ethrex-levm"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -1844,8 +1846,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-metrics"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "ethrex-common",
  "serde",
@@ -1856,8 +1858,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rlp"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -1870,8 +1872,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-storage"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1896,15 +1898,15 @@ dependencies = [
 [[package]]
 name = "ethrex-threadpool"
 version = "0.1.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "crossbeam",
 ]
 
 [[package]]
 name = "ethrex-trie"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "anyhow",
  "bytes",
@@ -1927,8 +1929,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-vm"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -2204,8 +2206,8 @@ dependencies = [
 
 [[package]]
 name = "guest_program"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=1d0a872a4f27abe005d034195b147a28bcbcadc4#1d0a872a4f27abe005d034195b147a28bcbcadc4"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -2280,6 +2282,12 @@ checksum = "fda06d18ac606267c40c04e41b9947729bf8b9efe74bd4e82b61a5f26a510b9f"
 dependencies = [
  "arrayvec",
 ]
+
+[[package]]
+name = "hex-literal"
+version = "0.4.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
 
 [[package]]
 name = "hmac"
@@ -2563,7 +2571,7 @@ dependencies = [
 [[package]]
 name = "k256"
 version = "0.13.4"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-elliptic-curves.git?tag=patch-k256-0.13.4-zisk-0.14.0#8d8e99470becdb05f8ebb649cdf2b5d99c0a3384"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-elliptic-curves.git?tag=patch-k256-0.13.4-zisk-0.15.0#5b84980888f6c840c7d38d575d79ae32df17085d"
 dependencies = [
  "cfg-if",
  "ecdsa",
@@ -2572,7 +2580,6 @@ dependencies = [
  "serdect",
  "sha2",
  "signature",
- "ziskos",
 ]
 
 [[package]]
@@ -2597,7 +2604,7 @@ dependencies = [
 [[package]]
 name = "kzg-rs"
 version = "0.2.7"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-kzg/?tag=patch-0.2.7-zisk-0.14.0#e1554d6708338a8a0296522ffb5355669c37a4ab"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-kzg/?tag=patch-0.2.7-zisk-0.15.0#7b29934400c0af21a63635544e72a4621f88e603"
 dependencies = [
  "cfg-if",
  "ff",
@@ -2606,7 +2613,6 @@ dependencies = [
  "sha2",
  "sp1_bls12_381",
  "spin",
- "ziskos",
 ]
 
 [[package]]
@@ -2649,8 +2655,8 @@ dependencies = [
 
 [[package]]
 name = "lib-c"
-version = "0.14.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
+version = "0.15.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.15.0#b3ca745b80423c8123dc24f19039865a5bc8b074"
 
 [[package]]
 name = "libc"
@@ -4502,18 +4508,17 @@ dependencies = [
 [[package]]
 name = "sha2"
 version = "0.10.9"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-hashes.git?tag=patch-sha2-0.10.9-zisk-0.14.0#2cfb8e0405dfc0beb31cd4f497f6db9a9fa56aae"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-hashes.git?tag=patch-sha2-0.10.9-zisk-0.15.0#ee286eaa676b783823d8a07d01b43787fe12bf4a"
 dependencies = [
  "cfg-if",
  "cpufeatures",
  "digest 0.10.7",
- "ziskos",
 ]
 
 [[package]]
 name = "sha3"
 version = "0.10.8"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-hashes.git?tag=patch-sha3-0.10.8-zisk-0.14.0#c404b04f733ab18bf0d0f5540249e6120519cc3e"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-hashes.git?tag=patch-sha3-0.10.8-zisk-0.15.0#08098df5827b672d604e2dc440446b86064b99f2"
 dependencies = [
  "digest 0.10.7",
  "keccak",
@@ -4621,7 +4626,7 @@ dependencies = [
 [[package]]
 name = "sp1_bls12_381"
 version = "0.8.0-sp1-5.0.0"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-bls12-381?tag=patch-0.8.0-zisk-0.14.0#01266152eae5559b483bd773fbeca0f7fa58037b"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-bls12-381?tag=patch-0.8.0-zisk-0.15.0#83ad5c65caf7af3f8da3ea8cd3754ef2847290ad"
 dependencies = [
  "cfg-if",
  "ff",
@@ -4630,7 +4635,6 @@ dependencies = [
  "rand_core 0.6.4",
  "sp1-lib",
  "subtle",
- "ziskos",
 ]
 
 [[package]]
@@ -4691,14 +4695,13 @@ dependencies = [
 [[package]]
 name = "substrate-bn"
 version = "0.6.0"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-bn.git?tag=patch-0.6.0-zisk-0.14.0#e2cc4d5991eebd337ba6173c512383a7b54d6ba2"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-bn.git?tag=patch-0.6.0-zisk-0.15.0#7d408643bf033c427826124436fc1b3141ef7425"
 dependencies = [
  "byteorder",
  "crunchy",
  "lazy_static",
  "rand 0.8.5",
  "rustc-hex",
- "ziskos",
 ]
 
 [[package]]
@@ -4843,7 +4846,7 @@ dependencies = [
 [[package]]
 name = "tiny-keccak"
 version = "2.0.2"
-source = "git+https://github.com/0xPolygonHermez/zisk-patch-tiny-keccak/?branch=zisk#a5cb98ca4d9d390b39b10c9e81a061fd830aea35"
+source = "git+https://github.com/0xPolygonHermez/zisk-patch-tiny-keccak/?tag=patch-2.0.2-zisk-0.15.0#a5cb98ca4d9d390b39b10c9e81a061fd830aea35"
 dependencies = [
  "cfg-if",
  "crunchy",
@@ -5428,8 +5431,8 @@ dependencies = [
 
 [[package]]
 name = "ziskos"
-version = "0.14.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
+version = "0.15.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.15.0#b3ca745b80423c8123dc24f19039865a5bc8b074"
 dependencies = [
  "bincode 2.0.1",
  "cfg-if",

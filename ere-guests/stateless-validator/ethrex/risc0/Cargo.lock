@@ -1764,16 +1764,16 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ere-io"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "rkyv",
 ]
 
 [[package]]
 name = "ere-platform-risc0"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -1782,8 +1782,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-trait"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "digest 0.10.7",
 ]
