@@ -2,7 +2,7 @@ name: Deploy Docs
 
 on:
   push:
-    branches: [master, exp-gh-01]
+    branches: [master, master-se-docs-03]
   workflow_dispatch:
 
 permissions:
