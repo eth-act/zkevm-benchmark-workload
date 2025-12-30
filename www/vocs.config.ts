@@ -1,6 +1,7 @@
 import { defineConfig } from 'vocs';
 
 export default defineConfig({
+  basePath: '/zkevm-benchmark-workload',
   title: 'zkGas profiling',
   description: 'Comprehensive profiling framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments across various gas categories.',
   sidebar: [
