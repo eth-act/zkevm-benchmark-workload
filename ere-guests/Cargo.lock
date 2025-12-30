@@ -70,9 +70,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-consensus"
-version = "1.1.2"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b6440213a22df93a87ed512d2f668e7dc1d62a05642d107f82d61edc9e12370"
+checksum = "f3dcd2b4e208ce5477de90ccdcbd4bde2c8fb06af49a443974e92bb8f2c5e93f"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -85,7 +85,7 @@ dependencies = [
  "c-kzg",
  "derive_more 2.0.1",
  "either",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "once_cell",
  "rand 0.8.5",
  "secp256k1 0.30.0",
@@ -143,7 +143,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "borsh",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "serde",
  "serde_with",
  "thiserror 2.0.16",
@@ -151,9 +151,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-eips"
-version = "1.1.2"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4bd2c7ae05abcab4483ce821f12f285e01c0b33804e6883dd9ca1569a87ee2be"
+checksum = "6847d641141b92a1557094aa6c236cbe49c06fb24144d4a21fe6acb970c15888"
 dependencies = [
  "alloy-eip2124",
  "alloy-eip2930",
@@ -185,7 +185,7 @@ dependencies = [
  "alloy-sol-types",
  "auto_impl",
  "derive_more 2.0.1",
- "revm",
+ "revm 33.1.0",
  "thiserror 2.0.16",
 ]
 
@@ -245,7 +245,7 @@ dependencies = [
  "hashbrown 0.16.0",
  "indexmap 2.11.1",
  "itoa",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "keccak-asm",
  "paste",
  "proptest",
@@ -328,9 +328,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-serde"
-version = "1.1.2"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a6f180c399ca7c1e2fe17ea58343910cad0090878a696ff5a50241aee12fc529"
+checksum = "067b718d2e6ac1bb889341fcc7a250cfa49bcd3ba4f23923f1c1eb1f2b10cb7c"
 dependencies = [
  "alloy-primitives",
  "serde",
@@ -428,9 +428,9 @@ dependencies = [
 
 [[package]]
 name = "alloy-tx-macros"
-version = "1.1.2"
+version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae109e33814b49fc0a62f2528993aa8a2dd346c26959b151f05441dc0b9da292"
+checksum = "04950a13cc4209d8e9b78f306e87782466bad8538c94324702d061ff03e211c9"
 dependencies = [
  "darling 0.21.3",
  "proc-macro2",
@@ -1111,19 +1111,6 @@ dependencies = [
  "ff 0.12.1",
  "group 0.12.1",
  "pairing 0.22.0",
- "rand_core 0.6.4",
- "subtle",
-]
-
-[[package]]
-name = "bls12_381"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d7bc6d6292be3a19e6379786dac800f551e5865a5bb51ebbe3064ab80433f403"
-dependencies = [
- "ff 0.13.1",
- "group 0.13.0",
- "pairing 0.23.0",
  "rand_core 0.6.4",
  "subtle",
 ]
@@ -2109,15 +2096,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ere-platform-openvm"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
-dependencies = [
- "ere-platform-trait",
- "openvm",
-]
-
-[[package]]
 name = "ere-platform-pico"
 version = "0.0.15"
 source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
@@ -2169,7 +2147,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -2278,7 +2256,7 @@ dependencies = [
  "ethrex-rlp",
  "ethrex-trie",
  "hex",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "kzg-rs 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
  "libc",
@@ -2332,7 +2310,7 @@ dependencies = [
  "ethrex-trie",
  "ethrex-vm",
  "hex",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "lambdaworks-crypto",
  "rkyv",
  "serde",
@@ -2357,11 +2335,11 @@ dependencies = [
  "ethrex-common",
  "ethrex-crypto",
  "ethrex-rlp",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "lambdaworks-math",
  "lazy_static",
  "malachite",
- "p256 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "p256",
  "ripemd",
  "rustc-hash",
  "serde",
@@ -2879,33 +2857,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "halo2curves-axiom"
-version = "0.7.2"
-source = "git+https://github.com/axiom-crypto/halo2curves.git?tag=v0.7.2#3a65a710e27fe03711f6fb4fc0c4469ae351974a"
-dependencies = [
- "blake2b_simd",
- "digest 0.10.7",
- "ff 0.13.1",
- "group 0.13.0",
- "hex",
- "lazy_static",
- "num-bigint 0.4.6",
- "num-traits",
- "pairing 0.23.0",
- "pasta_curves 0.5.1",
- "paste",
- "rand 0.8.5",
- "rand_core 0.6.4",
- "rayon",
- "serde",
- "serde_arrays 0.1.0",
- "sha2",
- "static_assertions",
- "subtle",
- "unroll",
-]
-
-[[package]]
 name = "halo2derive"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2994,12 +2945,6 @@ name = "hex-literal"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6fe2267d4ed49bc07b63801559be28c718ea06c4738b7a03c94df7386d2cde46"
-
-[[package]]
-name = "hex-literal"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e712f64ec3850b98572bffac52e2c6f282b29fe6c5fa6d42334b30be438d95c1"
 
 [[package]]
 name = "hmac"
@@ -3359,24 +3304,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "k256"
-version = "0.13.4"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "ecdsa",
- "elliptic-curve",
- "ff 0.13.1",
- "hex-literal 0.4.1",
- "num-bigint 0.4.6",
- "openvm",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
- "openvm-ecc-guest",
- "openvm-ecc-sw-macros",
- "serde",
-]
-
-[[package]]
 name = "keccak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3406,7 +3333,7 @@ dependencies = [
  "serde_arrays 0.2.0",
  "sha2",
  "sp1_bls12_381",
- "spin 0.9.8",
+ "spin",
 ]
 
 [[package]]
@@ -3418,7 +3345,7 @@ dependencies = [
  "ff 0.13.1",
  "hex",
  "sha2",
- "spin 0.9.8",
+ "spin",
 ]
 
 [[package]]
@@ -3456,7 +3383,7 @@ version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
 dependencies = [
- "spin 0.9.8",
+ "spin",
 ]
 
 [[package]]
@@ -3914,7 +3841,7 @@ version = "0.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "77e878c846a8abae00dd069496dbe8751b16ac1c3d6bd2a7283a938e8228f90d"
 dependencies = [
- "proc-macro-crate 1.3.1",
+ "proc-macro-crate 3.3.0",
  "proc-macro2",
  "quote",
  "syn 2.0.106",
@@ -4037,7 +3964,6 @@ name = "openvm-algebra-guest"
 version = "1.4.2"
 source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
 dependencies = [
- "halo2curves-axiom",
  "num-bigint 0.4.6",
  "once_cell",
  "openvm-algebra-complex-macros",
@@ -4078,7 +4004,6 @@ dependencies = [
  "ecdsa",
  "elliptic-curve",
  "group 0.13.0",
- "halo2curves-axiom",
  "once_cell",
  "openvm",
  "openvm-algebra-guest",
@@ -4109,39 +4034,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openvm-keccak256"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "openvm-keccak256-guest",
- "tiny-keccak",
-]
-
-[[package]]
-name = "openvm-keccak256-guest"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "openvm-platform",
-]
-
-[[package]]
-name = "openvm-kzg"
-version = "0.2.0-alpha"
-source = "git+https://github.com/axiom-crypto/openvm-kzg.git?rev=530a6ed413def5296b7e4967650ba4fc8fd92ea1#530a6ed413def5296b7e4967650ba4fc8fd92ea1"
-dependencies = [
- "bls12_381 0.8.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "hex",
- "hex-literal 1.1.0",
- "openvm-algebra-guest",
- "openvm-ecc-guest",
- "openvm-pairing",
- "serde",
- "serde-big-array",
- "spin 0.10.0",
-]
-
-[[package]]
 name = "openvm-macros-common"
 version = "1.4.2"
 source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
@@ -4150,47 +4042,26 @@ dependencies = [
 ]
 
 [[package]]
-name = "openvm-pairing"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+name = "openvm-mpt"
+version = "0.3.0"
+source = "git+https://github.com/jsign/openvm-reth-benchmark.git?rev=f2cba1e96040fbf216ec72f22e5b4a13ebdcc04e#f2cba1e96040fbf216ec72f22e5b4a13ebdcc04e"
 dependencies = [
- "group 0.13.0",
- "hex-literal 0.4.1",
+ "alloy-consensus",
+ "alloy-primitives",
+ "alloy-rlp",
+ "bincode 2.0.1",
+ "bumpalo",
+ "bytes",
  "itertools 0.14.0",
- "num-bigint 0.4.6",
- "num-traits",
- "openvm",
- "openvm-algebra-complex-macros",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
- "openvm-custom-insn",
- "openvm-ecc-guest",
- "openvm-ecc-sw-macros",
- "openvm-pairing-guest",
- "openvm-platform",
- "openvm-rv32im-guest",
- "rand 0.8.5",
+ "reth-stateless",
+ "reth-storage-errors",
+ "reth-trie",
+ "reth-trie-common",
+ "revm 31.0.2",
+ "revm-primitives",
  "serde",
-]
-
-[[package]]
-name = "openvm-pairing-guest"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "hex-literal 0.4.1",
- "itertools 0.14.0",
- "lazy_static",
- "num-bigint 0.4.6",
- "num-traits",
- "openvm",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
- "openvm-custom-insn",
- "openvm-ecc-guest",
- "rand 0.8.5",
- "serde",
- "strum_macros 0.26.4",
+ "smallvec",
+ "thiserror 2.0.16",
 ]
 
 [[package]]
@@ -4223,23 +4094,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "openvm-sha2"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "openvm-sha256-guest",
- "sha2",
-]
-
-[[package]]
-name = "openvm-sha256-guest"
-version = "1.4.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "openvm-platform",
-]
-
-[[package]]
 name = "p256"
 version = "0.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4249,24 +4103,6 @@ dependencies = [
  "elliptic-curve",
  "primeorder",
  "sha2",
-]
-
-[[package]]
-name = "p256"
-version = "0.13.2"
-source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
-dependencies = [
- "ecdsa",
- "elliptic-curve",
- "ff 0.13.1",
- "hex-literal 0.4.1",
- "num-bigint 0.4.6",
- "openvm",
- "openvm-algebra-guest",
- "openvm-algebra-moduli-macros",
- "openvm-ecc-guest",
- "openvm-ecc-sw-macros",
- "serde",
 ]
 
 [[package]]
@@ -5023,7 +4859,7 @@ dependencies = [
  "hex",
  "hybrid-array",
  "itertools 0.13.0",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "lazy_static",
  "log",
  "num",
@@ -5031,7 +4867,7 @@ dependencies = [
  "num-traits",
  "num_cpus",
  "once_cell",
- "p256 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "p256",
  "p3-air",
  "p3-baby-bear 0.1.0",
  "p3-blake3",
@@ -5500,12 +5336,12 @@ dependencies = [
  "alloy-primitives",
  "ere-platform-airbender",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "reth-ethereum-primitives",
  "reth-guest",
  "reth-primitives-traits",
  "reth-stateless",
- "revm",
+ "revm 33.1.0",
  "sha2",
 ]
 
@@ -5666,7 +5502,7 @@ dependencies = [
  "reth-storage-api",
  "reth-storage-errors",
  "reth-trie-common",
- "revm",
+ "revm 33.1.0",
 ]
 
 [[package]]
@@ -5686,7 +5522,7 @@ dependencies = [
  "reth-execution-types",
  "reth-primitives-traits",
  "reth-storage-errors",
- "revm",
+ "revm 33.1.0",
 ]
 
 [[package]]
@@ -5715,7 +5551,7 @@ dependencies = [
  "reth-ethereum-primitives",
  "reth-primitives-traits",
  "reth-trie-common",
- "revm",
+ "revm 33.1.0",
 ]
 
 [[package]]
@@ -5726,7 +5562,7 @@ dependencies = [
  "ere-io",
  "ere-platform-trait",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "once_cell",
  "reth-chainspec",
  "reth-ethereum-primitives",
@@ -5752,47 +5588,19 @@ dependencies = [
 ]
 
 [[package]]
-name = "reth-openvm-stateless-validator"
-version = "0.1.0"
-dependencies = [
- "alloy-consensus",
- "alloy-primitives",
- "bincode 1.3.3",
- "ere-platform-openvm",
- "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "k256 0.13.4 (git+https://github.com/openvm-org//openvm.git?tag=v1.4.2)",
- "openvm",
- "openvm-algebra-guest",
- "openvm-ecc-guest",
- "openvm-keccak256",
- "openvm-kzg",
- "openvm-pairing",
- "openvm-sha2",
- "p256 0.13.2 (git+https://github.com/openvm-org//openvm.git?tag=v1.4.2)",
- "reth-ethereum-primitives",
- "reth-guest",
- "reth-primitives-traits",
- "reth-stateless",
- "revm",
- "revm-primitives",
- "sha2",
-]
-
-[[package]]
 name = "reth-pico-stateless-validator"
 version = "0.1.0"
 dependencies = [
  "alloy-primitives",
  "ere-platform-pico",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "kzg-rs 0.2.7 (git+https://github.com/brevis-network/kzg-rs?rev=b93499a67494bc6d34e108032fd11d375fb886e0)",
  "reth-ethereum-primitives",
  "reth-guest",
  "reth-primitives-traits",
  "reth-stateless",
- "revm",
+ "revm 33.1.0",
  "sha2",
 ]
 
@@ -5843,7 +5651,7 @@ dependencies = [
  "reth-primitives-traits",
  "reth-storage-api",
  "reth-storage-errors",
- "revm",
+ "revm 33.1.0",
 ]
 
 [[package]]
@@ -5853,12 +5661,12 @@ dependencies = [
  "alloy-primitives",
  "ere-platform-risc0",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "reth-ethereum-primitives",
  "reth-guest",
  "reth-primitives-traits",
  "reth-stateless",
- "revm",
+ "revm 33.1.0",
  "sha2",
 ]
 
@@ -5869,12 +5677,12 @@ dependencies = [
  "alloy-primitives",
  "ere-platform-sp1",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "reth-ethereum-primitives",
  "reth-guest",
  "reth-primitives-traits",
  "reth-stateless",
- "revm",
+ "revm 33.1.0",
  "sha2",
  "tracing",
  "tracing-subscriber 0.3.20",
@@ -5901,7 +5709,7 @@ dependencies = [
  "alloy-rpc-types-debug",
  "alloy-trie 0.9.1",
  "itertools 0.14.0",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
  "reth-chainspec",
  "reth-consensus",
  "reth-errors",
@@ -5967,6 +5775,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "reth-trie"
+version = "1.9.3"
+source = "git+https://github.com/paradigmxyz/reth?rev=cfde951976bfa9100a6d9f806e06fb539ae25241#cfde951976bfa9100a6d9f806e06fb539ae25241"
+dependencies = [
+ "alloy-consensus",
+ "alloy-eips",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-trie 0.9.1",
+ "auto_impl",
+ "itertools 0.14.0",
+ "reth-execution-errors",
+ "reth-primitives-traits",
+ "reth-stages-types",
+ "reth-storage-errors",
+ "reth-trie-common",
+ "reth-trie-sparse",
+ "revm-database",
+ "tracing",
+]
+
+[[package]]
 name = "reth-trie-common"
 version = "1.9.3"
 source = "git+https://github.com/paradigmxyz/reth?rev=cfde951976bfa9100a6d9f806e06fb539ae25241#cfde951976bfa9100a6d9f806e06fb539ae25241"
@@ -5978,6 +5808,7 @@ dependencies = [
  "derive_more 2.0.1",
  "itertools 0.14.0",
  "nybbles 0.4.4",
+ "rayon",
  "reth-primitives-traits",
  "revm-database",
 ]
@@ -6006,12 +5837,13 @@ dependencies = [
  "bincode 1.3.3",
  "ere-platform-zisk",
  "guest-libs",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
+ "openvm-mpt",
  "reth-ethereum-primitives",
  "reth-guest",
  "reth-primitives-traits",
  "reth-stateless",
- "revm",
+ "revm 33.1.0",
  "sha2",
 ]
 
@@ -6025,19 +5857,38 @@ dependencies = [
 
 [[package]]
 name = "revm"
+version = "31.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bb67a5223602113cae59a305acde2d9936bc18f2478dda879a6124b267cebfb6"
+dependencies = [
+ "revm-bytecode",
+ "revm-context 11.0.2",
+ "revm-context-interface 12.0.1",
+ "revm-database",
+ "revm-database-interface",
+ "revm-handler 12.0.2",
+ "revm-inspector 12.0.2",
+ "revm-interpreter 29.0.1",
+ "revm-precompile 29.0.1",
+ "revm-primitives",
+ "revm-state",
+]
+
+[[package]]
+name = "revm"
 version = "33.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0c85ed0028f043f87b3c88d4a4cb6f0a76440085523b6a8afe5ff003cf418054"
 dependencies = [
  "revm-bytecode",
- "revm-context",
- "revm-context-interface",
+ "revm-context 12.1.0",
+ "revm-context-interface 13.1.0",
  "revm-database",
  "revm-database-interface",
- "revm-handler",
- "revm-inspector",
- "revm-interpreter",
- "revm-precompile",
+ "revm-handler 14.1.0",
+ "revm-inspector 14.1.0",
+ "revm-interpreter 31.1.0",
+ "revm-precompile 31.0.0",
  "revm-primitives",
  "revm-state",
 ]
@@ -6056,6 +5907,23 @@ dependencies = [
 
 [[package]]
 name = "revm-context"
+version = "11.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "92850e150f4f99d46c05a20ad0cd09286a7ad4ee21866fffb87101de6e602231"
+dependencies = [
+ "bitvec",
+ "cfg-if",
+ "derive-where",
+ "revm-bytecode",
+ "revm-context-interface 12.0.1",
+ "revm-database-interface",
+ "revm-primitives",
+ "revm-state",
+ "serde",
+]
+
+[[package]]
+name = "revm-context"
 version = "12.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f038f0c9c723393ac897a5df9140b21cfa98f5753a2cb7d0f28fa430c4118abf"
@@ -6064,7 +5932,23 @@ dependencies = [
  "cfg-if",
  "derive-where",
  "revm-bytecode",
- "revm-context-interface",
+ "revm-context-interface 13.1.0",
+ "revm-database-interface",
+ "revm-primitives",
+ "revm-state",
+ "serde",
+]
+
+[[package]]
+name = "revm-context-interface"
+version = "12.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f6d701e2c2347d65216b066489ab22a0a8e1f7b2568256110d73a7d5eff3385c"
+dependencies = [
+ "alloy-eip2930",
+ "alloy-eip7702",
+ "auto_impl",
+ "either",
  "revm-database-interface",
  "revm-primitives",
  "revm-state",
@@ -6116,6 +6000,25 @@ dependencies = [
 
 [[package]]
 name = "revm-handler"
+version = "12.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b45418ed95cfdf0cb19effdbb7633cf2144cab7fb0e6ffd6b0eb9117a50adff6"
+dependencies = [
+ "auto_impl",
+ "derive-where",
+ "revm-bytecode",
+ "revm-context 11.0.2",
+ "revm-context-interface 12.0.1",
+ "revm-database-interface",
+ "revm-interpreter 29.0.1",
+ "revm-precompile 29.0.1",
+ "revm-primitives",
+ "revm-state",
+ "serde",
+]
+
+[[package]]
+name = "revm-handler"
 version = "14.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d44f8f6dbeec3fecf9fe55f78ef0a758bdd92ea46cd4f1ca6e2a946b32c367f3"
@@ -6123,11 +6026,28 @@ dependencies = [
  "auto_impl",
  "derive-where",
  "revm-bytecode",
- "revm-context",
- "revm-context-interface",
+ "revm-context 12.1.0",
+ "revm-context-interface 13.1.0",
  "revm-database-interface",
- "revm-interpreter",
- "revm-precompile",
+ "revm-interpreter 31.1.0",
+ "revm-precompile 31.0.0",
+ "revm-primitives",
+ "revm-state",
+ "serde",
+]
+
+[[package]]
+name = "revm-inspector"
+version = "12.0.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "c99801eac7da06cc112df2244bd5a64024f4ef21240e923b26e73c4b4a0e5da6"
+dependencies = [
+ "auto_impl",
+ "either",
+ "revm-context 11.0.2",
+ "revm-database-interface",
+ "revm-handler 12.0.2",
+ "revm-interpreter 29.0.1",
  "revm-primitives",
  "revm-state",
  "serde",
@@ -6141,14 +6061,27 @@ checksum = "5617e49216ce1ca6c8826bcead0386bc84f49359ef67cde6d189961735659f93"
 dependencies = [
  "auto_impl",
  "either",
- "revm-context",
+ "revm-context 12.1.0",
  "revm-database-interface",
- "revm-handler",
- "revm-interpreter",
+ "revm-handler 14.1.0",
+ "revm-interpreter 31.1.0",
  "revm-primitives",
  "revm-state",
  "serde",
  "serde_json",
+]
+
+[[package]]
+name = "revm-interpreter"
+version = "29.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "22789ce92c5808c70185e3bc49732f987dc6fd907f77828c8d3470b2299c9c65"
+dependencies = [
+ "revm-bytecode",
+ "revm-context-interface 12.0.1",
+ "revm-primitives",
+ "revm-state",
+ "serde",
 ]
 
 [[package]]
@@ -6158,10 +6091,31 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26ec36405f7477b9dccdc6caa3be19adf5662a7a0dffa6270cdb13a090c077e5"
 dependencies = [
  "revm-bytecode",
- "revm-context-interface",
+ "revm-context-interface 13.1.0",
  "revm-primitives",
  "revm-state",
  "serde",
+]
+
+[[package]]
+name = "revm-precompile"
+version = "29.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "968b124028960201abf6d6bf8e223f15fadebb4307df6b7dc9244a0aab5d2d05"
+dependencies = [
+ "ark-bls12-381",
+ "ark-bn254",
+ "ark-ec",
+ "ark-ff 0.5.0",
+ "ark-serialize 0.5.0",
+ "arrayref",
+ "aurora-engine-modexp",
+ "cfg-if",
+ "k256",
+ "p256",
+ "revm-primitives",
+ "ripemd",
+ "sha2",
 ]
 
 [[package]]
@@ -6180,8 +6134,8 @@ dependencies = [
  "blst",
  "c-kzg",
  "cfg-if",
- "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
- "p256 0.13.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "k256",
+ "p256",
  "revm-primitives",
  "ripemd",
  "rug",
@@ -6373,7 +6327,7 @@ dependencies = [
  "cfg-if",
  "digest 0.10.7",
  "hex",
- "hex-literal 0.4.1",
+ "hex-literal",
  "metal",
  "paste",
  "rand_core 0.9.3",
@@ -6597,7 +6551,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -7075,12 +7029,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6980e8d7511241f8acf4aebddbb1ff938df5eebe98691418c4468d0b72a96a67"
 
 [[package]]
-name = "spin"
-version = "0.10.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5fe4ccb98d9c292d56fec89a5e07da7fc4cf0dc11e156b41793132775d3e591"
-
-[[package]]
 name = "spki"
 version = "0.7.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -7284,7 +7232,7 @@ dependencies = [
  "getrandom 0.3.3",
  "once_cell",
  "rustix",
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -7825,7 +7773,7 @@ version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c2a7b1c03c876122aa43f3020e6c3c3ee5c05081c9a00739faf7503aeba10d22"
 dependencies = [
- "windows-sys 0.52.0",
+ "windows-sys 0.60.2",
 ]
 
 [[package]]
@@ -8315,3 +8263,43 @@ dependencies = [
  "cc",
  "pkg-config",
 ]
+
+[[patch.unused]]
+name = "k256"
+version = "0.13.4"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-keccak256"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-keccak256-guest"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "p256"
+version = "0.13.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-pairing"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-pairing-guest"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-sha2"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
+
+[[patch.unused]]
+name = "openvm-sha256-guest"
+version = "1.4.2"
+source = "git+https://github.com/openvm-org//openvm.git?tag=v1.4.2#e30b1148a23a34b6ec5db97ef88eecfaf41fc9d7"
