@@ -14,7 +14,7 @@ use std::{sync::{Arc, Mutex}, thread, time::Duration as StdDuration};
 #[cfg(feature = "memory-tracking")]
 use zkevm_metrics::MemoryTracker;
 
-use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType, PublicValues};
+use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
