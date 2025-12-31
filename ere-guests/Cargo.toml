@@ -11,6 +11,13 @@ members = [
 
     # Reth stateless executor (execution-only, no validation)
     "stateless-executor",
+    "stateless-executor/sp1",
+    "stateless-executor/risc0",
+    "stateless-executor/openvm",
+    "stateless-executor/pico",
+    "stateless-executor/zisk",
+    "stateless-executor/airbender",
+
 
     # Ethrex stateless validator is not part of the workspace
     "stateless-validator/ethrex/guest",

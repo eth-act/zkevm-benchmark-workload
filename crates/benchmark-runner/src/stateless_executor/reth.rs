@@ -23,7 +23,7 @@ pub fn stateless_executor_inputs_from_fixtures(
     fixtures
         .into_iter()
         .map(|bw| {
-            let input = get_input_execution(bw)?;
+            let input = get_input_execution(&bw)?;
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
