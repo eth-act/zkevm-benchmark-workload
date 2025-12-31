@@ -2091,8 +2091,8 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ere-io"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2101,8 +2101,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-airbender"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "riscv_common",
@@ -2110,8 +2110,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-openvm"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "openvm",
@@ -2119,8 +2119,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-pico"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "pico-sdk",
@@ -2128,8 +2128,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-risc0"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "risc0-zkvm",
@@ -2138,8 +2138,8 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-sp1"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "sp1-zkvm",
@@ -2147,16 +2147,16 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-trait"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "digest 0.10.7",
 ]
 
 [[package]]
 name = "ere-platform-zisk"
-version = "0.0.15"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+version = "0.0.16"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
 dependencies = [
  "ere-platform-trait",
  "ziskos",
@@ -2247,8 +2247,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-blockchain"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bytes",
  "ethrex-common",
@@ -2268,8 +2268,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-common"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -2278,6 +2278,7 @@ dependencies = [
  "ethrex-rlp",
  "ethrex-trie",
  "hex",
+ "hex-literal 0.4.1",
  "k256 0.13.4 (registry+https://github.com/rust-lang/crates.io-index)",
  "kzg-rs 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "lazy_static",
@@ -2298,8 +2299,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-crypto"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "kzg-rs 0.2.7 (registry+https://github.com/rust-lang/crates.io-index)",
  "thiserror 2.0.16",
@@ -2320,8 +2321,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-l2-common"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -2339,12 +2340,13 @@ dependencies = [
  "serde_with",
  "sha3",
  "thiserror 2.0.16",
+ "tracing",
 ]
 
 [[package]]
 name = "ethrex-levm"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -2375,8 +2377,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-metrics"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "ethrex-common",
  "serde",
@@ -2387,8 +2389,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rlp"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -2401,8 +2403,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-storage"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -2427,15 +2429,15 @@ dependencies = [
 [[package]]
 name = "ethrex-threadpool"
 version = "0.1.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "crossbeam",
 ]
 
 [[package]]
 name = "ethrex-trie"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "anyhow",
  "bytes",
@@ -2458,8 +2460,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-vm"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -2804,8 +2806,8 @@ dependencies = [
 
 [[package]]
 name = "guest_program"
-version = "7.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
+version = "8.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -3461,8 +3463,8 @@ dependencies = [
 
 [[package]]
 name = "lib-c"
-version = "0.14.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
+version = "0.15.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.15.0#b3ca745b80423c8123dc24f19039865a5bc8b074"
 
 [[package]]
 name = "libc"
@@ -4928,8 +4930,8 @@ dependencies = [
 
 [[package]]
 name = "pico-derive"
-version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.0#76a3214ff447568909cd371a1cdab627cfee1335"
+version = "1.2.2"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.2#57ff6c5c0755f38bfa55a54eda053eae664ebcd2"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4961,8 +4963,8 @@ dependencies = [
 
 [[package]]
 name = "pico-patch-libs"
-version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.0#76a3214ff447568909cd371a1cdab627cfee1335"
+version = "1.2.2"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.2#57ff6c5c0755f38bfa55a54eda053eae664ebcd2"
 dependencies = [
  "bincode 1.3.3",
  "serde",
@@ -4970,8 +4972,8 @@ dependencies = [
 
 [[package]]
 name = "pico-sdk"
-version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.0#76a3214ff447568909cd371a1cdab627cfee1335"
+version = "1.2.2"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.2#57ff6c5c0755f38bfa55a54eda053eae664ebcd2"
 dependencies = [
  "anyhow",
  "bincode 1.3.3",
@@ -4986,7 +4988,7 @@ dependencies = [
  "p3-field 0.1.0 (git+https://github.com/brevis-network/Plonky3.git?rev=411a80d)",
  "p3-koala-bear",
  "p3-mersenne-31",
- "pico-patch-libs 1.1.8",
+ "pico-patch-libs 1.2.2",
  "pico-vm",
  "rand 0.8.5",
  "serde",
@@ -4996,8 +4998,8 @@ dependencies = [
 
 [[package]]
 name = "pico-vm"
-version = "1.1.8"
-source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.0#76a3214ff447568909cd371a1cdab627cfee1335"
+version = "1.2.2"
+source = "git+https://github.com/brevis-network/pico.git?tag=v1.2.2#57ff6c5c0755f38bfa55a54eda053eae664ebcd2"
 dependencies = [
  "anyhow",
  "arrayref",
@@ -6432,7 +6434,7 @@ dependencies = [
 [[package]]
 name = "riscv_common"
 version = "0.1.0"
-source = "git+https://github.com/matter-labs/zksync-airbender?tag=v0.5.1#0a0b78c1f14bd4cf8c3719b7c5c1f074c343690b"
+source = "git+https://github.com/matter-labs/zksync-airbender?tag=v0.5.2#b93c285d292891f3c27a3cf0110be09cde30ac4f"
 
 [[package]]
 name = "rkyv"
@@ -6992,9 +6994,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-lib"
-version = "5.2.3"
+version = "5.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eb1a9935d58cb1dcd757a1b10d727090f5b718f1f03b512d48f0c1952e6ead00"
+checksum = "b73b8ff343f2405d5935440e56b7aba5cee6d87303f0051974cbd6f5de502f57"
 dependencies = [
  "bincode 1.3.3",
  "serde",
@@ -7003,9 +7005,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-primitives"
-version = "5.2.3"
+version = "5.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a7d2a6187e394c30097ea7a975a4832f172918690dc89a979f0fad67422d3a8b"
+checksum = "7e69a03098f827102c54c31a5e57280eb45b2c085de433b3f702e4f9e3ec1641"
 dependencies = [
  "bincode 1.3.3",
  "blake3",
@@ -7023,9 +7025,9 @@ dependencies = [
 
 [[package]]
 name = "sp1-zkvm"
-version = "5.2.3"
+version = "5.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e767ed85f89b1c8d84188c2cc035833079529bb0ddd8f7bd252de91ce562acc7"
+checksum = "d6247de4d980d1f3311fa877cc5d2d3b7e111258878c8196a8bb9728aec98c8c"
 dependencies = [
  "cfg-if",
  "getrandom 0.2.16",
@@ -8244,8 +8246,8 @@ dependencies = [
 
 [[package]]
 name = "ziskos"
-version = "0.14.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.14.0#2f791ffd070d024ba350f054c349c8d6bd98d629"
+version = "0.15.0"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.15.0#b3ca745b80423c8123dc24f19039865a5bc8b074"
 dependencies = [
  "bincode 2.0.1",
  "cfg-if",
