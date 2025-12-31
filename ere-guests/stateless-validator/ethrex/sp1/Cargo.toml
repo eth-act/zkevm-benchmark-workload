@@ -10,8 +10,8 @@ ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", 
 ethrex-guest = { path = "../guest", features = ["std"] }
 
 k256 = "0.13"
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4" }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1" }
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false, features = [
     "sp1",
 ] }
 

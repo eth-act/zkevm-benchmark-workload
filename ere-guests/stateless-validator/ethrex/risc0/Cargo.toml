@@ -16,13 +16,13 @@ ethrex-guest = { path = "../guest", features = ["std"] }
 
 k256 = "0.13"
 c-kzg = { version = "2.1.1", features = ["eip-7594"] }
-guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
+guest_program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false, features = [
     "c-kzg",
 ] }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
+ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false, features = [
     "risc0",
 ] }
-ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "1d0a872a4f27abe005d034195b147a28bcbcadc4", default-features = false, features = [
+ethrex-vm = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false, features = [
     "c-kzg",
     "risc0",
 ] }
