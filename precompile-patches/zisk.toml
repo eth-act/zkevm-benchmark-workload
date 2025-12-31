@@ -1,4 +1,7 @@
 # Copied from https://github.com/0xPolygonHermez/zisk-eth-client/blob/main/bin/client/Cargo.toml
+#
+# Note: sp1_bls12_381 does not apply since revm doesn't use kzg-rs anymore. For BLS12831 Pectra precompiles,
+# revm uses ark-bls12-381.
 [patch.crates-io]
 sha2 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha2-0.10.9-zisk-0.15.0" }
 sha3 = { git = "https://github.com/0xPolygonHermez/zisk-patch-hashes.git", tag = "patch-sha3-0.10.8-zisk-0.15.0" }
