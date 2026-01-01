@@ -1,0 +1,58 @@
+# Marginal Gas Benchmark Results
+
+import { CsvTable } from '../../components/CsvTable';
+
+This section contains the latest zkVM benchmark results from December 2025, comparing **SP1 v5.2.3** and **RISC0 v3.0.4** provers.
+
+## Test Environment
+
+| Parameter | Value |
+|-----------|-------|
+| **CPU** | AMD EPYC 7B13 64-Core Processor |
+| **RAM** | 371 GiB |
+| **GPUs** | 4x NVIDIA GeForce RTX 4090 |
+| **Date** | December 29, 2025 |
+
+## Available Reports
+
+### Individual Prover Reports
+
+- [**SP1 v5.2.3 Report**](/marginal-gas-benchmark/sp1) - Comprehensive benchmark results for SP1 prover
+- [**RISC0 v3.0.4 Report**](/marginal-gas-benchmark/risc0) - Comprehensive benchmark results for RISC0 prover
+
+### Combined Comparison
+
+View the <a href="/marginal-gas-benchmark/combined-sp1-risc0.html" target="_blank" style={{color: 'var(--vocs-color_textAccent)', textDecoration: 'underline'}}>**Combined SP1 vs RISC0 Comparison**</a> (opens in new tab) for a side-by-side analysis.
+
+## Report Contents
+
+Each prover report includes:
+
+1. **Regression Results** - Time/Gas, Cycles/Gas, and Time/Cycle metrics with R² values
+2. **Proving Time Analysis** - Correlation between ZK cycles and proving time
+3. **Gas vs ZK Cycles Charts** - Per-opcode and precompile analysis
+4. **Proving Time Charts** - Performance visualization for each operation
+
+## SP1 Regression Summary
+
+<CsvTable
+  src="/marginal-gas-benchmark/sp1/regression-sp1-both-20251229-210808.csv"
+  columns={['opcode', 'max_gas', 'max_zkcycles', 'gas_zkcycles_slope', 'gas_zkcycles_r2', 'gas_proving_slope', 'gas_proving_r2']}
+  maxRows={20}
+/>
+
+## RISC0 Regression Summary
+
+<CsvTable
+  src="/marginal-gas-benchmark/risc0/regression-risc0-both-20251229-211052.csv"
+  columns={['opcode', 'max_gas', 'max_zkcycles', 'gas_zkcycles_slope', 'gas_zkcycles_r2', 'gas_proving_slope', 'gas_proving_r2']}
+  maxRows={20}
+/>
+
+## Raw Data Downloads
+
+- <a href="/marginal-gas-benchmark/sp1/raw-data-sp1-both-20251229-210808.csv" download style={{color: 'var(--vocs-color_textAccent)', textDecoration: 'underline'}}>SP1 Raw Data</a>
+- <a href="/marginal-gas-benchmark/sp1/regression-sp1-both-20251229-210808.csv" download style={{color: 'var(--vocs-color_textAccent)', textDecoration: 'underline'}}>SP1 Regression Data</a>
+- <a href="/marginal-gas-benchmark/risc0/raw-data-risc0-both-20251229-211052.csv" download style={{color: 'var(--vocs-color_textAccent)', textDecoration: 'underline'}}>RISC0 Raw Data</a>
+- <a href="/marginal-gas-benchmark/risc0/regression-risc0-both-20251229-211052.csv" download style={{color: 'var(--vocs-color_textAccent)', textDecoration: 'underline'}}>RISC0 Regression Data</a>
+

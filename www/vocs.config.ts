@@ -2,6 +2,7 @@ import { defineConfig } from 'vocs';
 
 export default defineConfig({
   basePath: '/zkevm-benchmark-workload',
+  rootDir: './docs',
   title: 'zkGas profiling',
   description: 'Comprehensive profiling framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments across various gas categories.',
   sidebar: [
@@ -44,6 +45,23 @@ export default defineConfig({
     {
       text: 'Compare SP1 vs RISC0',
       link: '/compare-sp1-risc0',
+    },
+    {
+      text: 'Marginal Gas Benchmark',
+      items: [
+        {
+          text: 'Overview',
+          link: '/marginal-gas-benchmark',
+        },
+        {
+          text: 'SP1 v5.2.3',
+          link: '/marginal-gas-benchmark/sp1',
+        },
+        {
+          text: 'RISC0 v3.0.4',
+          link: '/marginal-gas-benchmark/risc0',
+        },
+      ],
     },
     {
       text: 'Benchmark Results',
