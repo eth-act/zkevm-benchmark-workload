@@ -15,13 +15,13 @@
 
 *Only opcodes/precompiles with R² ≥ 0.7 are shown.*
 
-![Time/Gas Bar Chart](/benchmark-dec-2025/risc0/plots/bar_time_per_gas.png)
+![Time/Gas Bar Chart](/marginal-gas-benchmark/risc0/plots/bar_time_per_gas.png)
 
 ### Cycles/Gas Bar Chart (R² ≥ 0.9)
 
 *Only opcodes/precompiles with R² ≥ 0.9 (green) are shown.*
 
-![Cycles/Gas Bar Chart](/benchmark-dec-2025/risc0/plots/bar_cycles_per_gas.png)
+![Cycles/Gas Bar Chart](/marginal-gas-benchmark/risc0/plots/bar_cycles_per_gas.png)
 
 ### Regression Results
 
@@ -141,27 +141,27 @@ This section examines whether ZK cycles are a good proxy for proving time.
 
 *Only opcodes/precompiles with R² ≥ 0.7 are shown.*
 
-![Time/Cycles Bar Chart](/benchmark-dec-2025/risc0/plots/bar_time_per_cycle.png)
+![Time/Cycles Bar Chart](/marginal-gas-benchmark/risc0/plots/bar_time_per_cycle.png)
 
 ### Combined ZK Cycles ↔ Proving Time (All Opcodes)
 
-![Combined ZK Cycles vs Proving Time](/benchmark-dec-2025/risc0/plots/combined_zkcycles_proving.png)
+![Combined ZK Cycles vs Proving Time](/marginal-gas-benchmark/risc0/plots/combined_zkcycles_proving.png)
 
 ### Excluding: log0, log1, log2, log3, log4
 
-![Regular Opcodes](/benchmark-dec-2025/risc0/plots/combined_zkcycles_regular.png)
+![Regular Opcodes](/marginal-gas-benchmark/risc0/plots/combined_zkcycles_regular.png)
 
 ### Excluding: blake2f, log0, log1, log2, log3, log4, modexp
 
-![Regular Opcodes No Outliers](/benchmark-dec-2025/risc0/plots/combined_zkcycles_regular_no_outliers.png)
+![Regular Opcodes No Outliers](/marginal-gas-benchmark/risc0/plots/combined_zkcycles_regular_no_outliers.png)
 
 ### Excluding: blake2f, keccak256, log0, log0, log1, log1, log2, log2, log3, log3, log4, log4, modexp
 
-![Regular Opcodes Minimal](/benchmark-dec-2025/risc0/plots/combined_zkcycles_regular_minimal.png)
+![Regular Opcodes Minimal](/marginal-gas-benchmark/risc0/plots/combined_zkcycles_regular_minimal.png)
 
 ### Only: log0, log1, log2, log3, log4
 
-![BLS12 Precompiles](/benchmark-dec-2025/risc0/plots/combined_zkcycles_bls12.png)
+![BLS12 Precompiles](/marginal-gas-benchmark/risc0/plots/combined_zkcycles_bls12.png)
 
 
 ## Regression Charts
@@ -170,1267 +170,1267 @@ This section examines whether ZK cycles are a good proxy for proving time.
 
 **modexp**: Slope = 1.36ms/gas, R² = 0.9998
 
-![modexp](/benchmark-dec-2025/risc0/plots/gas_proving_modexp.png)
+![modexp](/marginal-gas-benchmark/risc0/plots/gas_proving_modexp.png)
 
 **blake2f**: Slope = 242.84µs/gas, R² = 1.0000
 
-![blake2f](/benchmark-dec-2025/risc0/plots/gas_proving_blake2f.png)
+![blake2f](/marginal-gas-benchmark/risc0/plots/gas_proving_blake2f.png)
 
 **mulmod**: Slope = 151.85µs/gas, R² = 1.0000
 
-![mulmod](/benchmark-dec-2025/risc0/plots/gas_proving_mulmod.png)
+![mulmod](/marginal-gas-benchmark/risc0/plots/gas_proving_mulmod.png)
 
 **div**: Slope = 110.29µs/gas, R² = 0.9999
 
-![div](/benchmark-dec-2025/risc0/plots/gas_proving_div.png)
+![div](/marginal-gas-benchmark/risc0/plots/gas_proving_div.png)
 
 **mod**: Slope = 94.55µs/gas, R² = 1.0000
 
-![mod](/benchmark-dec-2025/risc0/plots/gas_proving_mod.png)
+![mod](/marginal-gas-benchmark/risc0/plots/gas_proving_mod.png)
 
 **sdiv**: Slope = 92.84µs/gas, R² = 1.0000
 
-![sdiv](/benchmark-dec-2025/risc0/plots/gas_proving_sdiv.png)
+![sdiv](/marginal-gas-benchmark/risc0/plots/gas_proving_sdiv.png)
 
 **bn128_mul**: Slope = 86.68µs/gas, R² = 0.9997
 
-![bn128_mul](/benchmark-dec-2025/risc0/plots/gas_proving_bn128_mul.png)
+![bn128_mul](/marginal-gas-benchmark/risc0/plots/gas_proving_bn128_mul.png)
 
 **point_evaluation**: Slope = 85.54µs/gas, R² = 0.9945
 
-![point_evaluation](/benchmark-dec-2025/risc0/plots/gas_proving_point_evaluation.png)
+![point_evaluation](/marginal-gas-benchmark/risc0/plots/gas_proving_point_evaluation.png)
 
 **selfbalance**: Slope = 84.67µs/gas, R² = 0.9999
 
-![selfbalance](/benchmark-dec-2025/risc0/plots/gas_proving_selfbalance.png)
+![selfbalance](/marginal-gas-benchmark/risc0/plots/gas_proving_selfbalance.png)
 
 **keccak256**: Slope = 84.62µs/gas, R² = 0.9980
 
-![keccak256](/benchmark-dec-2025/risc0/plots/gas_proving_keccak256.png)
+![keccak256](/marginal-gas-benchmark/risc0/plots/gas_proving_keccak256.png)
 
 **bn128_pairing**: Slope = 81.72µs/gas, R² = 0.9968
 
-![bn128_pairing](/benchmark-dec-2025/risc0/plots/gas_proving_bn128_pairing.png)
+![bn128_pairing](/marginal-gas-benchmark/risc0/plots/gas_proving_bn128_pairing.png)
 
 **ecrecover**: Slope = 81.32µs/gas, R² = 0.9921
 
-![ecrecover](/benchmark-dec-2025/risc0/plots/gas_proving_ecrecover.png)
+![ecrecover](/marginal-gas-benchmark/risc0/plots/gas_proving_ecrecover.png)
 
 **addmod**: Slope = 71.00µs/gas, R² = 0.9999
 
-![addmod](/benchmark-dec-2025/risc0/plots/gas_proving_addmod.png)
+![addmod](/marginal-gas-benchmark/risc0/plots/gas_proving_addmod.png)
 
 **bls12_g1msm**: Slope = 37.74µs/gas, R² = 0.9893
 
-![bls12_g1msm](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_g1msm.png)
+![bls12_g1msm](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_g1msm.png)
 
 **bls12_pairing**: Slope = 36.15µs/gas, R² = 0.9979
 
-![bls12_pairing](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_pairing.png)
+![bls12_pairing](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_pairing.png)
 
 **eq**: Slope = 34.89µs/gas, R² = 0.9993
 
-![eq](/benchmark-dec-2025/risc0/plots/gas_proving_eq.png)
+![eq](/marginal-gas-benchmark/risc0/plots/gas_proving_eq.png)
 
 **exp**: Slope = 32.61µs/gas, R² = 0.9997
 
-![exp](/benchmark-dec-2025/risc0/plots/gas_proving_exp.png)
+![exp](/marginal-gas-benchmark/risc0/plots/gas_proving_exp.png)
 
 **bls12_map_fp_to_g1**: Slope = 31.51µs/gas, R² = 0.9772
 
-![bls12_map_fp_to_g1](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_map_fp_to_g1.png)
 
 **smod**: Slope = 28.99µs/gas, R² = 0.9996
 
-![smod](/benchmark-dec-2025/risc0/plots/gas_proving_smod.png)
+![smod](/marginal-gas-benchmark/risc0/plots/gas_proving_smod.png)
 
 **bls12_g2msm**: Slope = 28.85µs/gas, R² = 0.9960
 
-![bls12_g2msm](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_g2msm.png)
+![bls12_g2msm](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_g2msm.png)
 
 **sar**: Slope = 28.77µs/gas, R² = 0.9998
 
-![sar](/benchmark-dec-2025/risc0/plots/gas_proving_sar.png)
+![sar](/marginal-gas-benchmark/risc0/plots/gas_proving_sar.png)
 
 **bn128_add**: Slope = 28.52µs/gas, R² = 0.7509
 
-![bn128_add](/benchmark-dec-2025/risc0/plots/gas_proving_bn128_add.png)
+![bn128_add](/marginal-gas-benchmark/risc0/plots/gas_proving_bn128_add.png)
 
 **prevrandao**: Slope = 27.62µs/gas, R² = 0.9998
 
-![prevrandao](/benchmark-dec-2025/risc0/plots/gas_proving_prevrandao.png)
+![prevrandao](/marginal-gas-benchmark/risc0/plots/gas_proving_prevrandao.png)
 
 **bls12_g1add**: Slope = 25.16µs/gas, R² = 0.9518
 
-![bls12_g1add](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_g1add.png)
+![bls12_g1add](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_g1add.png)
 
 **call**: Slope = 24.72µs/gas, R² = 1.0000
 
-![call](/benchmark-dec-2025/risc0/plots/gas_proving_call.png)
+![call](/marginal-gas-benchmark/risc0/plots/gas_proving_call.png)
 
 **callcode**: Slope = 24.46µs/gas, R² = 0.9999
 
-![callcode](/benchmark-dec-2025/risc0/plots/gas_proving_callcode.png)
+![callcode](/marginal-gas-benchmark/risc0/plots/gas_proving_callcode.png)
 
 **staticcall**: Slope = 23.98µs/gas, R² = 0.9999
 
-![staticcall](/benchmark-dec-2025/risc0/plots/gas_proving_staticcall.png)
+![staticcall](/marginal-gas-benchmark/risc0/plots/gas_proving_staticcall.png)
 
 **mstore**: Slope = 22.14µs/gas, R² = 0.9961
 
-![mstore](/benchmark-dec-2025/risc0/plots/gas_proving_mstore.png)
+![mstore](/marginal-gas-benchmark/risc0/plots/gas_proving_mstore.png)
 
 **address**: Slope = 21.50µs/gas, R² = 0.9969
 
-![address](/benchmark-dec-2025/risc0/plots/gas_proving_address.png)
+![address](/marginal-gas-benchmark/risc0/plots/gas_proving_address.png)
 
 **origin**: Slope = 21.41µs/gas, R² = 0.9995
 
-![origin](/benchmark-dec-2025/risc0/plots/gas_proving_origin.png)
+![origin](/marginal-gas-benchmark/risc0/plots/gas_proving_origin.png)
 
 **caller**: Slope = 21.35µs/gas, R² = 0.9998
 
-![caller](/benchmark-dec-2025/risc0/plots/gas_proving_caller.png)
+![caller](/marginal-gas-benchmark/risc0/plots/gas_proving_caller.png)
 
 **mul**: Slope = 21.21µs/gas, R² = 0.9970
 
-![mul](/benchmark-dec-2025/risc0/plots/gas_proving_mul.png)
+![mul](/marginal-gas-benchmark/risc0/plots/gas_proving_mul.png)
 
 **delegatecall**: Slope = 20.95µs/gas, R² = 0.9998
 
-![delegatecall](/benchmark-dec-2025/risc0/plots/gas_proving_delegatecall.png)
+![delegatecall](/marginal-gas-benchmark/risc0/plots/gas_proving_delegatecall.png)
 
 **coinbase**: Slope = 20.80µs/gas, R² = 0.9983
 
-![coinbase](/benchmark-dec-2025/risc0/plots/gas_proving_coinbase.png)
+![coinbase](/marginal-gas-benchmark/risc0/plots/gas_proving_coinbase.png)
 
 **signextend**: Slope = 20.53µs/gas, R² = 0.9997
 
-![signextend](/benchmark-dec-2025/risc0/plots/gas_proving_signextend.png)
+![signextend](/marginal-gas-benchmark/risc0/plots/gas_proving_signextend.png)
 
 **bls12_g2add**: Slope = 20.28µs/gas, R² = 0.9636
 
-![bls12_g2add](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_g2add.png)
+![bls12_g2add](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_g2add.png)
 
 **shl**: Slope = 20.17µs/gas, R² = 0.9991
 
-![shl](/benchmark-dec-2025/risc0/plots/gas_proving_shl.png)
+![shl](/marginal-gas-benchmark/risc0/plots/gas_proving_shl.png)
 
 **calldataload**: Slope = 20.03µs/gas, R² = 0.9970
 
-![calldataload](/benchmark-dec-2025/risc0/plots/gas_proving_calldataload.png)
+![calldataload](/marginal-gas-benchmark/risc0/plots/gas_proving_calldataload.png)
 
 **mload**: Slope = 19.82µs/gas, R² = 0.9983
 
-![mload](/benchmark-dec-2025/risc0/plots/gas_proving_mload.png)
+![mload](/marginal-gas-benchmark/risc0/plots/gas_proving_mload.png)
 
 **bls12_map_fp2_to_g2**: Slope = 19.25µs/gas, R² = 0.9404
 
-![bls12_map_fp2_to_g2](/benchmark-dec-2025/risc0/plots/gas_proving_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/marginal-gas-benchmark/risc0/plots/gas_proving_bls12_map_fp2_to_g2.png)
 
 **shr**: Slope = 18.85µs/gas, R² = 0.9984
 
-![shr](/benchmark-dec-2025/risc0/plots/gas_proving_shr.png)
+![shr](/marginal-gas-benchmark/risc0/plots/gas_proving_shr.png)
 
 **swap16**: Slope = 17.95µs/gas, R² = 0.9957
 
-![swap16](/benchmark-dec-2025/risc0/plots/gas_proving_swap16.png)
+![swap16](/marginal-gas-benchmark/risc0/plots/gas_proving_swap16.png)
 
 **push32**: Slope = 16.51µs/gas, R² = 0.9954
 
-![push32](/benchmark-dec-2025/risc0/plots/gas_proving_push32.png)
+![push32](/marginal-gas-benchmark/risc0/plots/gas_proving_push32.png)
 
 **swap1**: Slope = 16.31µs/gas, R² = 0.9913
 
-![swap1](/benchmark-dec-2025/risc0/plots/gas_proving_swap1.png)
+![swap1](/marginal-gas-benchmark/risc0/plots/gas_proving_swap1.png)
 
 **swap8**: Slope = 15.32µs/gas, R² = 0.9917
 
-![swap8](/benchmark-dec-2025/risc0/plots/gas_proving_swap8.png)
+![swap8](/marginal-gas-benchmark/risc0/plots/gas_proving_swap8.png)
 
 **blobbasefee**: Slope = 14.61µs/gas, R² = 0.9997
 
-![blobbasefee](/benchmark-dec-2025/risc0/plots/gas_proving_blobbasefee.png)
+![blobbasefee](/marginal-gas-benchmark/risc0/plots/gas_proving_blobbasefee.png)
 
 **gasprice**: Slope = 14.14µs/gas, R² = 0.9986
 
-![gasprice](/benchmark-dec-2025/risc0/plots/gas_proving_gasprice.png)
+![gasprice](/marginal-gas-benchmark/risc0/plots/gas_proving_gasprice.png)
 
 **slt**: Slope = 13.84µs/gas, R² = 0.9963
 
-![slt](/benchmark-dec-2025/risc0/plots/gas_proving_slt.png)
+![slt](/marginal-gas-benchmark/risc0/plots/gas_proving_slt.png)
 
 **sgt**: Slope = 13.68µs/gas, R² = 0.9896
 
-![sgt](/benchmark-dec-2025/risc0/plots/gas_proving_sgt.png)
+![sgt](/marginal-gas-benchmark/risc0/plots/gas_proving_sgt.png)
 
 **sub**: Slope = 13.48µs/gas, R² = 0.9927
 
-![sub](/benchmark-dec-2025/risc0/plots/gas_proving_sub.png)
+![sub](/marginal-gas-benchmark/risc0/plots/gas_proving_sub.png)
 
 **callvalue**: Slope = 13.39µs/gas, R² = 0.9978
 
-![callvalue](/benchmark-dec-2025/risc0/plots/gas_proving_callvalue.png)
+![callvalue](/marginal-gas-benchmark/risc0/plots/gas_proving_callvalue.png)
 
 **codecopy**: Slope = 12.70µs/gas, R² = 0.9998
 
-![codecopy](/benchmark-dec-2025/risc0/plots/gas_proving_codecopy.png)
+![codecopy](/marginal-gas-benchmark/risc0/plots/gas_proving_codecopy.png)
 
 **sstore**: Slope = 12.64µs/gas, R² = 0.9994
 
-![sstore](/benchmark-dec-2025/risc0/plots/gas_proving_sstore.png)
+![sstore](/marginal-gas-benchmark/risc0/plots/gas_proving_sstore.png)
 
 **calldatacopy**: Slope = 12.43µs/gas, R² = 0.9999
 
-![calldatacopy](/benchmark-dec-2025/risc0/plots/gas_proving_calldatacopy.png)
+![calldatacopy](/marginal-gas-benchmark/risc0/plots/gas_proving_calldatacopy.png)
 
 **pc**: Slope = 11.71µs/gas, R² = 1.0000
 
-![pc](/benchmark-dec-2025/risc0/plots/gas_proving_pc.png)
+![pc](/marginal-gas-benchmark/risc0/plots/gas_proving_pc.png)
 
 **add**: Slope = 11.65µs/gas, R² = 0.9991
 
-![add](/benchmark-dec-2025/risc0/plots/gas_proving_add.png)
+![add](/marginal-gas-benchmark/risc0/plots/gas_proving_add.png)
 
 **gas**: Slope = 11.37µs/gas, R² = 0.9961
 
-![gas](/benchmark-dec-2025/risc0/plots/gas_proving_gas.png)
+![gas](/marginal-gas-benchmark/risc0/plots/gas_proving_gas.png)
 
 **timestamp**: Slope = 11.32µs/gas, R² = 0.9987
 
-![timestamp](/benchmark-dec-2025/risc0/plots/gas_proving_timestamp.png)
+![timestamp](/marginal-gas-benchmark/risc0/plots/gas_proving_timestamp.png)
 
 **basefee**: Slope = 11.25µs/gas, R² = 0.9987
 
-![basefee](/benchmark-dec-2025/risc0/plots/gas_proving_basefee.png)
+![basefee](/marginal-gas-benchmark/risc0/plots/gas_proving_basefee.png)
 
 **number**: Slope = 11.22µs/gas, R² = 0.9999
 
-![number](/benchmark-dec-2025/risc0/plots/gas_proving_number.png)
+![number](/marginal-gas-benchmark/risc0/plots/gas_proving_number.png)
 
 **calldatasize**: Slope = 11.12µs/gas, R² = 0.9972
 
-![calldatasize](/benchmark-dec-2025/risc0/plots/gas_proving_calldatasize.png)
+![calldatasize](/marginal-gas-benchmark/risc0/plots/gas_proving_calldatasize.png)
 
 **push16**: Slope = 11.11µs/gas, R² = 0.9999
 
-![push16](/benchmark-dec-2025/risc0/plots/gas_proving_push16.png)
+![push16](/marginal-gas-benchmark/risc0/plots/gas_proving_push16.png)
 
 **codesize**: Slope = 10.76µs/gas, R² = 0.9992
 
-![codesize](/benchmark-dec-2025/risc0/plots/gas_proving_codesize.png)
+![codesize](/marginal-gas-benchmark/risc0/plots/gas_proving_codesize.png)
 
 **chainid**: Slope = 10.65µs/gas, R² = 0.9979
 
-![chainid](/benchmark-dec-2025/risc0/plots/gas_proving_chainid.png)
+![chainid](/marginal-gas-benchmark/risc0/plots/gas_proving_chainid.png)
 
 **lt**: Slope = 10.60µs/gas, R² = 0.9483
 
-![lt](/benchmark-dec-2025/risc0/plots/gas_proving_lt.png)
+![lt](/marginal-gas-benchmark/risc0/plots/gas_proving_lt.png)
 
 **gaslimit**: Slope = 10.58µs/gas, R² = 0.9953
 
-![gaslimit](/benchmark-dec-2025/risc0/plots/gas_proving_gaslimit.png)
+![gaslimit](/marginal-gas-benchmark/risc0/plots/gas_proving_gaslimit.png)
 
 **msize**: Slope = 10.57µs/gas, R² = 0.9998
 
-![msize](/benchmark-dec-2025/risc0/plots/gas_proving_msize.png)
+![msize](/marginal-gas-benchmark/risc0/plots/gas_proving_msize.png)
 
 **returndatasize**: Slope = 10.45µs/gas, R² = 0.9996
 
-![returndatasize](/benchmark-dec-2025/risc0/plots/gas_proving_returndatasize.png)
+![returndatasize](/marginal-gas-benchmark/risc0/plots/gas_proving_returndatasize.png)
 
 **push0**: Slope = 10.31µs/gas, R² = 0.9990
 
-![push0](/benchmark-dec-2025/risc0/plots/gas_proving_push0.png)
+![push0](/marginal-gas-benchmark/risc0/plots/gas_proving_push0.png)
 
 **gt**: Slope = 9.70µs/gas, R² = 0.9983
 
-![gt](/benchmark-dec-2025/risc0/plots/gas_proving_gt.png)
+![gt](/marginal-gas-benchmark/risc0/plots/gas_proving_gt.png)
 
 **blobhash**: Slope = 9.55µs/gas, R² = 0.9981
 
-![blobhash](/benchmark-dec-2025/risc0/plots/gas_proving_blobhash.png)
+![blobhash](/marginal-gas-benchmark/risc0/plots/gas_proving_blobhash.png)
 
 **or**: Slope = 9.07µs/gas, R² = 0.9728
 
-![or](/benchmark-dec-2025/risc0/plots/gas_proving_or.png)
+![or](/marginal-gas-benchmark/risc0/plots/gas_proving_or.png)
 
 **mstore8**: Slope = 9.02µs/gas, R² = 0.9980
 
-![mstore8](/benchmark-dec-2025/risc0/plots/gas_proving_mstore8.png)
+![mstore8](/marginal-gas-benchmark/risc0/plots/gas_proving_mstore8.png)
 
 **byte**: Slope = 8.86µs/gas, R² = 0.9964
 
-![byte](/benchmark-dec-2025/risc0/plots/gas_proving_byte.png)
+![byte](/marginal-gas-benchmark/risc0/plots/gas_proving_byte.png)
 
 **xor**: Slope = 8.63µs/gas, R² = 0.9994
 
-![xor](/benchmark-dec-2025/risc0/plots/gas_proving_xor.png)
+![xor](/marginal-gas-benchmark/risc0/plots/gas_proving_xor.png)
 
 **jumpdest**: Slope = 8.55µs/gas, R² = 0.9944
 
-![jumpdest](/benchmark-dec-2025/risc0/plots/gas_proving_jumpdest.png)
+![jumpdest](/marginal-gas-benchmark/risc0/plots/gas_proving_jumpdest.png)
 
 **returndatacopy**: Slope = 8.51µs/gas, R² = 0.9920
 
-![returndatacopy](/benchmark-dec-2025/risc0/plots/gas_proving_returndatacopy.png)
+![returndatacopy](/marginal-gas-benchmark/risc0/plots/gas_proving_returndatacopy.png)
 
 **and**: Slope = 8.11µs/gas, R² = 0.9966
 
-![and](/benchmark-dec-2025/risc0/plots/gas_proving_and.png)
+![and](/marginal-gas-benchmark/risc0/plots/gas_proving_and.png)
 
 **iszero**: Slope = 7.74µs/gas, R² = 0.9938
 
-![iszero](/benchmark-dec-2025/risc0/plots/gas_proving_iszero.png)
+![iszero](/marginal-gas-benchmark/risc0/plots/gas_proving_iszero.png)
 
 **extcodehash**: Slope = 7.64µs/gas, R² = 0.9998
 
-![extcodehash](/benchmark-dec-2025/risc0/plots/gas_proving_extcodehash.png)
+![extcodehash](/marginal-gas-benchmark/risc0/plots/gas_proving_extcodehash.png)
 
 **not**: Slope = 6.40µs/gas, R² = 0.9948
 
-![not](/benchmark-dec-2025/risc0/plots/gas_proving_not.png)
+![not](/marginal-gas-benchmark/risc0/plots/gas_proving_not.png)
 
 **dup16**: Slope = 6.27µs/gas, R² = 0.9768
 
-![dup16](/benchmark-dec-2025/risc0/plots/gas_proving_dup16.png)
+![dup16](/marginal-gas-benchmark/risc0/plots/gas_proving_dup16.png)
 
 **dup8**: Slope = 5.95µs/gas, R² = 0.9816
 
-![dup8](/benchmark-dec-2025/risc0/plots/gas_proving_dup8.png)
+![dup8](/marginal-gas-benchmark/risc0/plots/gas_proving_dup8.png)
 
 **extcodesize**: Slope = 5.95µs/gas, R² = 0.9996
 
-![extcodesize](/benchmark-dec-2025/risc0/plots/gas_proving_extcodesize.png)
+![extcodesize](/marginal-gas-benchmark/risc0/plots/gas_proving_extcodesize.png)
 
 **balance**: Slope = 5.91µs/gas, R² = 0.9999
 
-![balance](/benchmark-dec-2025/risc0/plots/gas_proving_balance.png)
+![balance](/marginal-gas-benchmark/risc0/plots/gas_proving_balance.png)
 
 **dup1**: Slope = 5.89µs/gas, R² = 0.9909
 
-![dup1](/benchmark-dec-2025/risc0/plots/gas_proving_dup1.png)
+![dup1](/marginal-gas-benchmark/risc0/plots/gas_proving_dup1.png)
 
 **tstore**: Slope = 5.82µs/gas, R² = 1.0000
 
-![tstore](/benchmark-dec-2025/risc0/plots/gas_proving_tstore.png)
+![tstore](/marginal-gas-benchmark/risc0/plots/gas_proving_tstore.png)
 
 **extcodecopy**: Slope = 5.54µs/gas, R² = 0.9999
 
-![extcodecopy](/benchmark-dec-2025/risc0/plots/gas_proving_extcodecopy.png)
+![extcodecopy](/marginal-gas-benchmark/risc0/plots/gas_proving_extcodecopy.png)
 
 **pop**: Slope = 5.47µs/gas, R² = 0.9867
 
-![pop](/benchmark-dec-2025/risc0/plots/gas_proving_pop.png)
+![pop](/marginal-gas-benchmark/risc0/plots/gas_proving_pop.png)
 
 **sload**: Slope = 5.39µs/gas, R² = 0.9999
 
-![sload](/benchmark-dec-2025/risc0/plots/gas_proving_sload.png)
+![sload](/marginal-gas-benchmark/risc0/plots/gas_proving_sload.png)
 
 **mcopy**: Slope = 5.20µs/gas, R² = 0.9974
 
-![mcopy](/benchmark-dec-2025/risc0/plots/gas_proving_mcopy.png)
+![mcopy](/marginal-gas-benchmark/risc0/plots/gas_proving_mcopy.png)
 
 **push1**: Slope = 5.19µs/gas, R² = 0.9935
 
-![push1](/benchmark-dec-2025/risc0/plots/gas_proving_push1.png)
+![push1](/marginal-gas-benchmark/risc0/plots/gas_proving_push1.png)
 
 **jumpi**: Slope = 4.52µs/gas, R² = 0.9978
 
-![jumpi](/benchmark-dec-2025/risc0/plots/gas_proving_jumpi.png)
+![jumpi](/marginal-gas-benchmark/risc0/plots/gas_proving_jumpi.png)
 
 **ripemd160**: Slope = 3.15µs/gas, R² = 0.9982
 
-![ripemd160](/benchmark-dec-2025/risc0/plots/gas_proving_ripemd160.png)
+![ripemd160](/marginal-gas-benchmark/risc0/plots/gas_proving_ripemd160.png)
 
 **jump**: Slope = 2.74µs/gas, R² = 0.9976
 
-![jump](/benchmark-dec-2025/risc0/plots/gas_proving_jump.png)
+![jump](/marginal-gas-benchmark/risc0/plots/gas_proving_jump.png)
 
 **identity**: Slope = 1.87µs/gas, R² = 0.9274
 
-![identity](/benchmark-dec-2025/risc0/plots/gas_proving_identity.png)
+![identity](/marginal-gas-benchmark/risc0/plots/gas_proving_identity.png)
 
 **sha256**: Slope = 0.94µs/gas, R² = 0.8017
 
-![sha256](/benchmark-dec-2025/risc0/plots/gas_proving_sha256.png)
+![sha256](/marginal-gas-benchmark/risc0/plots/gas_proving_sha256.png)
 
 **tload**: Slope = 0.86µs/gas, R² = 0.9999
 
-![tload](/benchmark-dec-2025/risc0/plots/gas_proving_tload.png)
+![tload](/marginal-gas-benchmark/risc0/plots/gas_proving_tload.png)
 
 **create2**: Slope = 0.56µs/gas, R² = 0.9999
 
-![create2](/benchmark-dec-2025/risc0/plots/gas_proving_create2.png)
+![create2](/marginal-gas-benchmark/risc0/plots/gas_proving_create2.png)
 
 **create**: Slope = 0.49µs/gas, R² = 0.9998
 
-![create](/benchmark-dec-2025/risc0/plots/gas_proving_create.png)
+![create](/marginal-gas-benchmark/risc0/plots/gas_proving_create.png)
 
 **log0**: Slope = 0.30µs/gas, R² = 0.9807
 
-![log0](/benchmark-dec-2025/risc0/plots/gas_proving_log0.png)
+![log0](/marginal-gas-benchmark/risc0/plots/gas_proving_log0.png)
 
 **log1**: Slope = 0.27µs/gas, R² = 0.9959
 
-![log1](/benchmark-dec-2025/risc0/plots/gas_proving_log1.png)
+![log1](/marginal-gas-benchmark/risc0/plots/gas_proving_log1.png)
 
 **log3**: Slope = 0.16µs/gas, R² = 0.9874
 
-![log3](/benchmark-dec-2025/risc0/plots/gas_proving_log3.png)
+![log3](/marginal-gas-benchmark/risc0/plots/gas_proving_log3.png)
 
 **log2**: Slope = 0.15µs/gas, R² = 0.9985
 
-![log2](/benchmark-dec-2025/risc0/plots/gas_proving_log2.png)
+![log2](/marginal-gas-benchmark/risc0/plots/gas_proving_log2.png)
 
 **log4**: Slope = 0.15µs/gas, R² = 0.9983
 
-![log4](/benchmark-dec-2025/risc0/plots/gas_proving_log4.png)
+![log4](/marginal-gas-benchmark/risc0/plots/gas_proving_log4.png)
 
 ### risc0 Gas vs ZK Cycles
 
 **modexp**: Slope = 3.91K cycles/gas, R² = 1.0000
 
-![modexp](/benchmark-dec-2025/risc0/plots/gas_zkcycles_modexp.png)
+![modexp](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_modexp.png)
 
 **blake2f**: Slope = 702.03 cycles/gas, R² = 1.0000
 
-![blake2f](/benchmark-dec-2025/risc0/plots/gas_zkcycles_blake2f.png)
+![blake2f](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_blake2f.png)
 
 **mulmod**: Slope = 420.63 cycles/gas, R² = 1.0000
 
-![mulmod](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mulmod.png)
+![mulmod](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mulmod.png)
 
 **div**: Slope = 306.78 cycles/gas, R² = 1.0000
 
-![div](/benchmark-dec-2025/risc0/plots/gas_zkcycles_div.png)
+![div](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_div.png)
 
 **mod**: Slope = 257.97 cycles/gas, R² = 1.0000
 
-![mod](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mod.png)
+![mod](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mod.png)
 
 **sdiv**: Slope = 257.18 cycles/gas, R² = 1.0000
 
-![sdiv](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sdiv.png)
+![sdiv](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sdiv.png)
 
 **selfbalance**: Slope = 241.80 cycles/gas, R² = 1.0000
 
-![selfbalance](/benchmark-dec-2025/risc0/plots/gas_zkcycles_selfbalance.png)
+![selfbalance](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_selfbalance.png)
 
 **bn128_mul**: Slope = 229.21 cycles/gas, R² = 1.0000
 
-![bn128_mul](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bn128_mul.png)
+![bn128_mul](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bn128_mul.png)
 
 **bn128_pairing**: Slope = 225.96 cycles/gas, R² = 1.0000
 
-![bn128_pairing](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bn128_pairing.png)
+![bn128_pairing](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bn128_pairing.png)
 
 **point_evaluation**: Slope = 223.09 cycles/gas, R² = 1.0000
 
-![point_evaluation](/benchmark-dec-2025/risc0/plots/gas_zkcycles_point_evaluation.png)
+![point_evaluation](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_point_evaluation.png)
 
 **addmod**: Slope = 196.25 cycles/gas, R² = 1.0000
 
-![addmod](/benchmark-dec-2025/risc0/plots/gas_zkcycles_addmod.png)
+![addmod](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_addmod.png)
 
 **ecrecover**: Slope = 193.83 cycles/gas, R² = 1.0000
 
-![ecrecover](/benchmark-dec-2025/risc0/plots/gas_zkcycles_ecrecover.png)
+![ecrecover](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_ecrecover.png)
 
 **eq**: Slope = 101.29 cycles/gas, R² = 1.0000
 
-![eq](/benchmark-dec-2025/risc0/plots/gas_zkcycles_eq.png)
+![eq](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_eq.png)
 
 **exp**: Slope = 92.99 cycles/gas, R² = 1.0000
 
-![exp](/benchmark-dec-2025/risc0/plots/gas_zkcycles_exp.png)
+![exp](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_exp.png)
 
 **bls12_g1msm**: Slope = 89.91 cycles/gas, R² = 1.0000
 
-![bls12_g1msm](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_g1msm.png)
+![bls12_g1msm](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_g1msm.png)
 
 **bls12_pairing**: Slope = 88.19 cycles/gas, R² = 1.0000
 
-![bls12_pairing](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_pairing.png)
+![bls12_pairing](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_pairing.png)
 
 **smod**: Slope = 80.97 cycles/gas, R² = 1.0000
 
-![smod](/benchmark-dec-2025/risc0/plots/gas_zkcycles_smod.png)
+![smod](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_smod.png)
 
 **keccak256**: Slope = 80.73 cycles/gas, R² = 1.0000
 
-![keccak256](/benchmark-dec-2025/risc0/plots/gas_zkcycles_keccak256.png)
+![keccak256](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_keccak256.png)
 
 **prevrandao**: Slope = 78.49 cycles/gas, R² = 1.0000
 
-![prevrandao](/benchmark-dec-2025/risc0/plots/gas_zkcycles_prevrandao.png)
+![prevrandao](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_prevrandao.png)
 
 **sar**: Slope = 78.36 cycles/gas, R² = 1.0000
 
-![sar](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sar.png)
+![sar](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sar.png)
 
 **bls12_g2msm**: Slope = 73.03 cycles/gas, R² = 1.0000
 
-![bls12_g2msm](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_g2msm.png)
+![bls12_g2msm](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_g2msm.png)
 
 **call**: Slope = 70.64 cycles/gas, R² = 1.0000
 
-![call](/benchmark-dec-2025/risc0/plots/gas_zkcycles_call.png)
+![call](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_call.png)
 
 **callcode**: Slope = 70.06 cycles/gas, R² = 1.0000
 
-![callcode](/benchmark-dec-2025/risc0/plots/gas_zkcycles_callcode.png)
+![callcode](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_callcode.png)
 
 **staticcall**: Slope = 69.81 cycles/gas, R² = 1.0000
 
-![staticcall](/benchmark-dec-2025/risc0/plots/gas_zkcycles_staticcall.png)
+![staticcall](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_staticcall.png)
 
 **bn128_add**: Slope = 67.29 cycles/gas, R² = 1.0000
 
-![bn128_add](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bn128_add.png)
+![bn128_add](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bn128_add.png)
 
 **mstore**: Slope = 62.67 cycles/gas, R² = 1.0000
 
-![mstore](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mstore.png)
+![mstore](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mstore.png)
 
 **mul**: Slope = 60.57 cycles/gas, R² = 1.0000
 
-![mul](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mul.png)
+![mul](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mul.png)
 
 **delegatecall**: Slope = 59.11 cycles/gas, R² = 1.0000
 
-![delegatecall](/benchmark-dec-2025/risc0/plots/gas_zkcycles_delegatecall.png)
+![delegatecall](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_delegatecall.png)
 
 **address**: Slope = 57.99 cycles/gas, R² = 1.0000
 
-![address](/benchmark-dec-2025/risc0/plots/gas_zkcycles_address.png)
+![address](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_address.png)
 
 **origin**: Slope = 57.98 cycles/gas, R² = 1.0000
 
-![origin](/benchmark-dec-2025/risc0/plots/gas_zkcycles_origin.png)
+![origin](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_origin.png)
 
 **coinbase**: Slope = 57.98 cycles/gas, R² = 1.0000
 
-![coinbase](/benchmark-dec-2025/risc0/plots/gas_zkcycles_coinbase.png)
+![coinbase](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_coinbase.png)
 
 **caller**: Slope = 57.98 cycles/gas, R² = 1.0000
 
-![caller](/benchmark-dec-2025/risc0/plots/gas_zkcycles_caller.png)
+![caller](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_caller.png)
 
 **mload**: Slope = 56.68 cycles/gas, R² = 1.0000
 
-![mload](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mload.png)
+![mload](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mload.png)
 
 **calldataload**: Slope = 56.34 cycles/gas, R² = 1.0000
 
-![calldataload](/benchmark-dec-2025/risc0/plots/gas_zkcycles_calldataload.png)
+![calldataload](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_calldataload.png)
 
 **bls12_map_fp_to_g1**: Slope = 55.78 cycles/gas, R² = 1.0000
 
-![bls12_map_fp_to_g1](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_map_fp_to_g1.png)
 
 **signextend**: Slope = 55.40 cycles/gas, R² = 1.0000
 
-![signextend](/benchmark-dec-2025/risc0/plots/gas_zkcycles_signextend.png)
+![signextend](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_signextend.png)
 
 **swap16**: Slope = 53.37 cycles/gas, R² = 1.0000
 
-![swap16](/benchmark-dec-2025/risc0/plots/gas_zkcycles_swap16.png)
+![swap16](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_swap16.png)
 
 **swap1**: Slope = 53.35 cycles/gas, R² = 1.0000
 
-![swap1](/benchmark-dec-2025/risc0/plots/gas_zkcycles_swap1.png)
+![swap1](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_swap1.png)
 
 **swap8**: Slope = 53.34 cycles/gas, R² = 1.0000
 
-![swap8](/benchmark-dec-2025/risc0/plots/gas_zkcycles_swap8.png)
+![swap8](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_swap8.png)
 
 **bls12_g2add**: Slope = 52.96 cycles/gas, R² = 1.0000
 
-![bls12_g2add](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_g2add.png)
+![bls12_g2add](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_g2add.png)
 
 **shr**: Slope = 51.35 cycles/gas, R² = 1.0000
 
-![shr](/benchmark-dec-2025/risc0/plots/gas_zkcycles_shr.png)
+![shr](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_shr.png)
 
 **shl**: Slope = 51.02 cycles/gas, R² = 1.0000
 
-![shl](/benchmark-dec-2025/risc0/plots/gas_zkcycles_shl.png)
+![shl](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_shl.png)
 
 **push32**: Slope = 47.79 cycles/gas, R² = 1.0000
 
-![push32](/benchmark-dec-2025/risc0/plots/gas_zkcycles_push32.png)
+![push32](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_push32.png)
 
 **blobbasefee**: Slope = 42.48 cycles/gas, R² = 1.0000
 
-![blobbasefee](/benchmark-dec-2025/risc0/plots/gas_zkcycles_blobbasefee.png)
+![blobbasefee](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_blobbasefee.png)
 
 **gasprice**: Slope = 40.48 cycles/gas, R² = 1.0000
 
-![gasprice](/benchmark-dec-2025/risc0/plots/gas_zkcycles_gasprice.png)
+![gasprice](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_gasprice.png)
 
 **bls12_g1add**: Slope = 40.44 cycles/gas, R² = 1.0000
 
-![bls12_g1add](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_g1add.png)
+![bls12_g1add](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_g1add.png)
 
 **bls12_map_fp2_to_g2**: Slope = 40.15 cycles/gas, R² = 1.0000
 
-![bls12_map_fp2_to_g2](/benchmark-dec-2025/risc0/plots/gas_zkcycles_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_bls12_map_fp2_to_g2.png)
 
 **callvalue**: Slope = 38.99 cycles/gas, R² = 1.0000
 
-![callvalue](/benchmark-dec-2025/risc0/plots/gas_zkcycles_callvalue.png)
+![callvalue](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_callvalue.png)
 
 **sgt**: Slope = 37.97 cycles/gas, R² = 1.0000
 
-![sgt](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sgt.png)
+![sgt](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sgt.png)
 
 **slt**: Slope = 37.96 cycles/gas, R² = 1.0000
 
-![slt](/benchmark-dec-2025/risc0/plots/gas_zkcycles_slt.png)
+![slt](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_slt.png)
 
 **sub**: Slope = 37.30 cycles/gas, R² = 1.0000
 
-![sub](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sub.png)
+![sub](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sub.png)
 
 **sstore**: Slope = 36.08 cycles/gas, R² = 1.0000
 
-![sstore](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sstore.png)
+![sstore](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sstore.png)
 
 **calldatacopy**: Slope = 35.67 cycles/gas, R² = 1.0000
 
-![calldatacopy](/benchmark-dec-2025/risc0/plots/gas_zkcycles_calldatacopy.png)
+![calldatacopy](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_calldatacopy.png)
 
 **codecopy**: Slope = 35.67 cycles/gas, R² = 1.0000
 
-![codecopy](/benchmark-dec-2025/risc0/plots/gas_zkcycles_codecopy.png)
+![codecopy](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_codecopy.png)
 
 **add**: Slope = 33.62 cycles/gas, R² = 1.0000
 
-![add](/benchmark-dec-2025/risc0/plots/gas_zkcycles_add.png)
+![add](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_add.png)
 
 **timestamp**: Slope = 32.48 cycles/gas, R² = 1.0000
 
-![timestamp](/benchmark-dec-2025/risc0/plots/gas_zkcycles_timestamp.png)
+![timestamp](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_timestamp.png)
 
 **number**: Slope = 32.48 cycles/gas, R² = 1.0000
 
-![number](/benchmark-dec-2025/risc0/plots/gas_zkcycles_number.png)
+![number](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_number.png)
 
 **calldatasize**: Slope = 31.99 cycles/gas, R² = 1.0000
 
-![calldatasize](/benchmark-dec-2025/risc0/plots/gas_zkcycles_calldatasize.png)
+![calldatasize](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_calldatasize.png)
 
 **pc**: Slope = 31.98 cycles/gas, R² = 1.0000
 
-![pc](/benchmark-dec-2025/risc0/plots/gas_zkcycles_pc.png)
+![pc](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_pc.png)
 
 **basefee**: Slope = 31.48 cycles/gas, R² = 1.0000
 
-![basefee](/benchmark-dec-2025/risc0/plots/gas_zkcycles_basefee.png)
+![basefee](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_basefee.png)
 
 **chainid**: Slope = 31.48 cycles/gas, R² = 1.0000
 
-![chainid](/benchmark-dec-2025/risc0/plots/gas_zkcycles_chainid.png)
+![chainid](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_chainid.png)
 
 **codesize**: Slope = 30.48 cycles/gas, R² = 1.0000
 
-![codesize](/benchmark-dec-2025/risc0/plots/gas_zkcycles_codesize.png)
+![codesize](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_codesize.png)
 
 **msize**: Slope = 30.01 cycles/gas, R² = 1.0000
 
-![msize](/benchmark-dec-2025/risc0/plots/gas_zkcycles_msize.png)
+![msize](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_msize.png)
 
 **gas**: Slope = 29.98 cycles/gas, R² = 1.0000
 
-![gas](/benchmark-dec-2025/risc0/plots/gas_zkcycles_gas.png)
+![gas](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_gas.png)
 
 **gaslimit**: Slope = 29.98 cycles/gas, R² = 1.0000
 
-![gaslimit](/benchmark-dec-2025/risc0/plots/gas_zkcycles_gaslimit.png)
+![gaslimit](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_gaslimit.png)
 
 **returndatasize**: Slope = 29.98 cycles/gas, R² = 1.0000
 
-![returndatasize](/benchmark-dec-2025/risc0/plots/gas_zkcycles_returndatasize.png)
+![returndatasize](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_returndatasize.png)
 
 **push0**: Slope = 28.48 cycles/gas, R² = 1.0000
 
-![push0](/benchmark-dec-2025/risc0/plots/gas_zkcycles_push0.png)
+![push0](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_push0.png)
 
 **push16**: Slope = 28.37 cycles/gas, R² = 1.0000
 
-![push16](/benchmark-dec-2025/risc0/plots/gas_zkcycles_push16.png)
+![push16](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_push16.png)
 
 **byte**: Slope = 27.36 cycles/gas, R² = 1.0000
 
-![byte](/benchmark-dec-2025/risc0/plots/gas_zkcycles_byte.png)
+![byte](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_byte.png)
 
 **gt**: Slope = 27.30 cycles/gas, R² = 1.0000
 
-![gt](/benchmark-dec-2025/risc0/plots/gas_zkcycles_gt.png)
+![gt](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_gt.png)
 
 **lt**: Slope = 27.28 cycles/gas, R² = 1.0000
 
-![lt](/benchmark-dec-2025/risc0/plots/gas_zkcycles_lt.png)
+![lt](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_lt.png)
 
 **blobhash**: Slope = 27.00 cycles/gas, R² = 1.0000
 
-![blobhash](/benchmark-dec-2025/risc0/plots/gas_zkcycles_blobhash.png)
+![blobhash](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_blobhash.png)
 
 **returndatacopy**: Slope = 26.45 cycles/gas, R² = 1.0000
 
-![returndatacopy](/benchmark-dec-2025/risc0/plots/gas_zkcycles_returndatacopy.png)
+![returndatacopy](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_returndatacopy.png)
 
 **mstore8**: Slope = 26.00 cycles/gas, R² = 1.0000
 
-![mstore8](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mstore8.png)
+![mstore8](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mstore8.png)
 
 **jumpdest**: Slope = 25.84 cycles/gas, R² = 1.0000
 
-![jumpdest](/benchmark-dec-2025/risc0/plots/gas_zkcycles_jumpdest.png)
+![jumpdest](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_jumpdest.png)
 
 **or**: Slope = 23.96 cycles/gas, R² = 1.0000
 
-![or](/benchmark-dec-2025/risc0/plots/gas_zkcycles_or.png)
+![or](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_or.png)
 
 **and**: Slope = 23.96 cycles/gas, R² = 1.0000
 
-![and](/benchmark-dec-2025/risc0/plots/gas_zkcycles_and.png)
+![and](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_and.png)
 
 **xor**: Slope = 23.95 cycles/gas, R² = 1.0000
 
-![xor](/benchmark-dec-2025/risc0/plots/gas_zkcycles_xor.png)
+![xor](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_xor.png)
 
 **extcodehash**: Slope = 22.70 cycles/gas, R² = 1.0000
 
-![extcodehash](/benchmark-dec-2025/risc0/plots/gas_zkcycles_extcodehash.png)
+![extcodehash](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_extcodehash.png)
 
 **iszero**: Slope = 21.65 cycles/gas, R² = 1.0000
 
-![iszero](/benchmark-dec-2025/risc0/plots/gas_zkcycles_iszero.png)
+![iszero](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_iszero.png)
 
 **not**: Slope = 18.32 cycles/gas, R² = 1.0000
 
-![not](/benchmark-dec-2025/risc0/plots/gas_zkcycles_not.png)
+![not](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_not.png)
 
 **extcodesize**: Slope = 17.07 cycles/gas, R² = 1.0000
 
-![extcodesize](/benchmark-dec-2025/risc0/plots/gas_zkcycles_extcodesize.png)
+![extcodesize](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_extcodesize.png)
 
 **balance**: Slope = 17.01 cycles/gas, R² = 1.0000
 
-![balance](/benchmark-dec-2025/risc0/plots/gas_zkcycles_balance.png)
+![balance](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_balance.png)
 
 **dup16**: Slope = 17.00 cycles/gas, R² = 1.0000
 
-![dup16](/benchmark-dec-2025/risc0/plots/gas_zkcycles_dup16.png)
+![dup16](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_dup16.png)
 
 **dup1**: Slope = 16.98 cycles/gas, R² = 1.0000
 
-![dup1](/benchmark-dec-2025/risc0/plots/gas_zkcycles_dup1.png)
+![dup1](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_dup1.png)
 
 **dup8**: Slope = 16.98 cycles/gas, R² = 1.0000
 
-![dup8](/benchmark-dec-2025/risc0/plots/gas_zkcycles_dup8.png)
+![dup8](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_dup8.png)
 
 **tstore**: Slope = 16.93 cycles/gas, R² = 1.0000
 
-![tstore](/benchmark-dec-2025/risc0/plots/gas_zkcycles_tstore.png)
+![tstore](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_tstore.png)
 
 **extcodecopy**: Slope = 16.06 cycles/gas, R² = 1.0000
 
-![extcodecopy](/benchmark-dec-2025/risc0/plots/gas_zkcycles_extcodecopy.png)
+![extcodecopy](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_extcodecopy.png)
 
 **sload**: Slope = 15.53 cycles/gas, R² = 1.0000
 
-![sload](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sload.png)
+![sload](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sload.png)
 
 **push1**: Slope = 15.34 cycles/gas, R² = 1.0000
 
-![push1](/benchmark-dec-2025/risc0/plots/gas_zkcycles_push1.png)
+![push1](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_push1.png)
 
 **pop**: Slope = 15.02 cycles/gas, R² = 1.0000
 
-![pop](/benchmark-dec-2025/risc0/plots/gas_zkcycles_pop.png)
+![pop](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_pop.png)
 
 **mcopy**: Slope = 14.92 cycles/gas, R² = 1.0000
 
-![mcopy](/benchmark-dec-2025/risc0/plots/gas_zkcycles_mcopy.png)
+![mcopy](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_mcopy.png)
 
 **jumpi**: Slope = 12.30 cycles/gas, R² = 1.0000
 
-![jumpi](/benchmark-dec-2025/risc0/plots/gas_zkcycles_jumpi.png)
+![jumpi](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_jumpi.png)
 
 **ripemd160**: Slope = 9.38 cycles/gas, R² = 1.0000
 
-![ripemd160](/benchmark-dec-2025/risc0/plots/gas_zkcycles_ripemd160.png)
+![ripemd160](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_ripemd160.png)
 
 **jump**: Slope = 7.88 cycles/gas, R² = 1.0000
 
-![jump](/benchmark-dec-2025/risc0/plots/gas_zkcycles_jump.png)
+![jump](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_jump.png)
 
 **log0**: Slope = 7.77 cycles/gas, R² = 1.0000
 
-![log0](/benchmark-dec-2025/risc0/plots/gas_zkcycles_log0.png)
+![log0](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_log0.png)
 
 **log1**: Slope = 6.76 cycles/gas, R² = 1.0000
 
-![log1](/benchmark-dec-2025/risc0/plots/gas_zkcycles_log1.png)
+![log1](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_log1.png)
 
 **log4**: Slope = 5.25 cycles/gas, R² = 1.0000
 
-![log4](/benchmark-dec-2025/risc0/plots/gas_zkcycles_log4.png)
+![log4](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_log4.png)
 
 **log3**: Slope = 4.98 cycles/gas, R² = 1.0000
 
-![log3](/benchmark-dec-2025/risc0/plots/gas_zkcycles_log3.png)
+![log3](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_log3.png)
 
 **log2**: Slope = 4.67 cycles/gas, R² = 0.9999
 
-![log2](/benchmark-dec-2025/risc0/plots/gas_zkcycles_log2.png)
+![log2](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_log2.png)
 
 **sha256**: Slope = 3.41 cycles/gas, R² = 1.0000
 
-![sha256](/benchmark-dec-2025/risc0/plots/gas_zkcycles_sha256.png)
+![sha256](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_sha256.png)
 
 **tload**: Slope = 2.43 cycles/gas, R² = 1.0000
 
-![tload](/benchmark-dec-2025/risc0/plots/gas_zkcycles_tload.png)
+![tload](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_tload.png)
 
 **identity**: Slope = 1.70 cycles/gas, R² = 0.9998
 
-![identity](/benchmark-dec-2025/risc0/plots/gas_zkcycles_identity.png)
+![identity](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_identity.png)
 
 **create2**: Slope = 1.37 cycles/gas, R² = 0.9997
 
-![create2](/benchmark-dec-2025/risc0/plots/gas_zkcycles_create2.png)
+![create2](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_create2.png)
 
 **create**: Slope = 1.29 cycles/gas, R² = 0.9997
 
-![create](/benchmark-dec-2025/risc0/plots/gas_zkcycles_create.png)
+![create](/marginal-gas-benchmark/risc0/plots/gas_zkcycles_create.png)
 
 ### risc0 ZK Cycles vs Proving Time
 
 **identity**: Slope = 1.10µs/cycle, R² = 0.9206
 
-![identity](/benchmark-dec-2025/risc0/plots/zkcycles_proving_identity.png)
+![identity](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_identity.png)
 
 **keccak256**: Slope = 1.05µs/cycle, R² = 0.9980
 
-![keccak256](/benchmark-dec-2025/risc0/plots/zkcycles_proving_keccak256.png)
+![keccak256](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_keccak256.png)
 
 **bls12_g1add**: Slope = 0.62µs/cycle, R² = 0.9522
 
-![bls12_g1add](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_g1add.png)
+![bls12_g1add](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_g1add.png)
 
 **bls12_map_fp_to_g1**: Slope = 0.56µs/cycle, R² = 0.9773
 
-![bls12_map_fp_to_g1](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_map_fp_to_g1.png)
 
 **bls12_map_fp2_to_g2**: Slope = 0.48µs/cycle, R² = 0.9404
 
-![bls12_map_fp2_to_g2](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_map_fp2_to_g2.png)
 
 **bn128_add**: Slope = 0.42µs/cycle, R² = 0.7509
 
-![bn128_add](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bn128_add.png)
+![bn128_add](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bn128_add.png)
 
 **bls12_g1msm**: Slope = 0.42µs/cycle, R² = 0.9893
 
-![bls12_g1msm](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_g1msm.png)
+![bls12_g1msm](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_g1msm.png)
 
 **ecrecover**: Slope = 0.42µs/cycle, R² = 0.9921
 
-![ecrecover](/benchmark-dec-2025/risc0/plots/zkcycles_proving_ecrecover.png)
+![ecrecover](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_ecrecover.png)
 
 **create2**: Slope = 0.41µs/cycle, R² = 0.9995
 
-![create2](/benchmark-dec-2025/risc0/plots/zkcycles_proving_create2.png)
+![create2](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_create2.png)
 
 **bls12_pairing**: Slope = 0.41µs/cycle, R² = 0.9979
 
-![bls12_pairing](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_pairing.png)
+![bls12_pairing](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_pairing.png)
 
 **shl**: Slope = 0.40µs/cycle, R² = 0.9992
 
-![shl](/benchmark-dec-2025/risc0/plots/zkcycles_proving_shl.png)
+![shl](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_shl.png)
 
 **bls12_g2msm**: Slope = 0.40µs/cycle, R² = 0.9960
 
-![bls12_g2msm](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_g2msm.png)
+![bls12_g2msm](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_g2msm.png)
 
 **push16**: Slope = 0.39µs/cycle, R² = 0.9999
 
-![push16](/benchmark-dec-2025/risc0/plots/zkcycles_proving_push16.png)
+![push16](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_push16.png)
 
 **lt**: Slope = 0.39µs/cycle, R² = 0.9484
 
-![lt](/benchmark-dec-2025/risc0/plots/zkcycles_proving_lt.png)
+![lt](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_lt.png)
 
 **point_evaluation**: Slope = 0.38µs/cycle, R² = 0.9945
 
-![point_evaluation](/benchmark-dec-2025/risc0/plots/zkcycles_proving_point_evaluation.png)
+![point_evaluation](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_point_evaluation.png)
 
 **bls12_g2add**: Slope = 0.38µs/cycle, R² = 0.9636
 
-![bls12_g2add](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bls12_g2add.png)
+![bls12_g2add](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bls12_g2add.png)
 
 **create**: Slope = 0.38µs/cycle, R² = 0.9994
 
-![create](/benchmark-dec-2025/risc0/plots/zkcycles_proving_create.png)
+![create](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_create.png)
 
 **gas**: Slope = 0.38µs/cycle, R² = 0.9961
 
-![gas](/benchmark-dec-2025/risc0/plots/zkcycles_proving_gas.png)
+![gas](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_gas.png)
 
 **or**: Slope = 0.38µs/cycle, R² = 0.9726
 
-![or](/benchmark-dec-2025/risc0/plots/zkcycles_proving_or.png)
+![or](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_or.png)
 
 **bn128_mul**: Slope = 0.38µs/cycle, R² = 0.9997
 
-![bn128_mul](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bn128_mul.png)
+![bn128_mul](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bn128_mul.png)
 
 **address**: Slope = 0.37µs/cycle, R² = 0.9969
 
-![address](/benchmark-dec-2025/risc0/plots/zkcycles_proving_address.png)
+![address](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_address.png)
 
 **signextend**: Slope = 0.37µs/cycle, R² = 0.9997
 
-![signextend](/benchmark-dec-2025/risc0/plots/zkcycles_proving_signextend.png)
+![signextend](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_signextend.png)
 
 **origin**: Slope = 0.37µs/cycle, R² = 0.9996
 
-![origin](/benchmark-dec-2025/risc0/plots/zkcycles_proving_origin.png)
+![origin](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_origin.png)
 
 **dup16**: Slope = 0.37µs/cycle, R² = 0.9768
 
-![dup16](/benchmark-dec-2025/risc0/plots/zkcycles_proving_dup16.png)
+![dup16](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_dup16.png)
 
 **caller**: Slope = 0.37µs/cycle, R² = 0.9997
 
-![caller](/benchmark-dec-2025/risc0/plots/zkcycles_proving_caller.png)
+![caller](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_caller.png)
 
 **jumpi**: Slope = 0.37µs/cycle, R² = 0.9978
 
-![jumpi](/benchmark-dec-2025/risc0/plots/zkcycles_proving_jumpi.png)
+![jumpi](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_jumpi.png)
 
 **sar**: Slope = 0.37µs/cycle, R² = 0.9998
 
-![sar](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sar.png)
+![sar](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sar.png)
 
 **shr**: Slope = 0.37µs/cycle, R² = 0.9983
 
-![shr](/benchmark-dec-2025/risc0/plots/zkcycles_proving_shr.png)
+![shr](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_shr.png)
 
 **mod**: Slope = 0.37µs/cycle, R² = 1.0000
 
-![mod](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mod.png)
+![mod](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mod.png)
 
 **pc**: Slope = 0.37µs/cycle, R² = 1.0000
 
-![pc](/benchmark-dec-2025/risc0/plots/zkcycles_proving_pc.png)
+![pc](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_pc.png)
 
 **slt**: Slope = 0.36µs/cycle, R² = 0.9963
 
-![slt](/benchmark-dec-2025/risc0/plots/zkcycles_proving_slt.png)
+![slt](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_slt.png)
 
 **pop**: Slope = 0.36µs/cycle, R² = 0.9865
 
-![pop](/benchmark-dec-2025/risc0/plots/zkcycles_proving_pop.png)
+![pop](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_pop.png)
 
 **push0**: Slope = 0.36µs/cycle, R² = 0.9990
 
-![push0](/benchmark-dec-2025/risc0/plots/zkcycles_proving_push0.png)
+![push0](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_push0.png)
 
 **addmod**: Slope = 0.36µs/cycle, R² = 0.9999
 
-![addmod](/benchmark-dec-2025/risc0/plots/zkcycles_proving_addmod.png)
+![addmod](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_addmod.png)
 
 **bn128_pairing**: Slope = 0.36µs/cycle, R² = 0.9968
 
-![bn128_pairing](/benchmark-dec-2025/risc0/plots/zkcycles_proving_bn128_pairing.png)
+![bn128_pairing](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_bn128_pairing.png)
 
 **sub**: Slope = 0.36µs/cycle, R² = 0.9926
 
-![sub](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sub.png)
+![sub](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sub.png)
 
 **sdiv**: Slope = 0.36µs/cycle, R² = 1.0000
 
-![sdiv](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sdiv.png)
+![sdiv](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sdiv.png)
 
 **mulmod**: Slope = 0.36µs/cycle, R² = 1.0000
 
-![mulmod](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mulmod.png)
+![mulmod](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mulmod.png)
 
 **xor**: Slope = 0.36µs/cycle, R² = 0.9995
 
-![xor](/benchmark-dec-2025/risc0/plots/zkcycles_proving_xor.png)
+![xor](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_xor.png)
 
 **sgt**: Slope = 0.36µs/cycle, R² = 0.9896
 
-![sgt](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sgt.png)
+![sgt](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sgt.png)
 
 **div**: Slope = 0.36µs/cycle, R² = 0.9999
 
-![div](/benchmark-dec-2025/risc0/plots/zkcycles_proving_div.png)
+![div](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_div.png)
 
 **coinbase**: Slope = 0.36µs/cycle, R² = 0.9984
 
-![coinbase](/benchmark-dec-2025/risc0/plots/zkcycles_proving_coinbase.png)
+![coinbase](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_coinbase.png)
 
 **smod**: Slope = 0.36µs/cycle, R² = 0.9995
 
-![smod](/benchmark-dec-2025/risc0/plots/zkcycles_proving_smod.png)
+![smod](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_smod.png)
 
 **iszero**: Slope = 0.36µs/cycle, R² = 0.9940
 
-![iszero](/benchmark-dec-2025/risc0/plots/zkcycles_proving_iszero.png)
+![iszero](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_iszero.png)
 
 **basefee**: Slope = 0.36µs/cycle, R² = 0.9988
 
-![basefee](/benchmark-dec-2025/risc0/plots/zkcycles_proving_basefee.png)
+![basefee](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_basefee.png)
 
 **codecopy**: Slope = 0.36µs/cycle, R² = 0.9998
 
-![codecopy](/benchmark-dec-2025/risc0/plots/zkcycles_proving_codecopy.png)
+![codecopy](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_codecopy.png)
 
 **tload**: Slope = 0.36µs/cycle, R² = 0.9999
 
-![tload](/benchmark-dec-2025/risc0/plots/zkcycles_proving_tload.png)
+![tload](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_tload.png)
 
 **calldataload**: Slope = 0.36µs/cycle, R² = 0.9970
 
-![calldataload](/benchmark-dec-2025/risc0/plots/zkcycles_proving_calldataload.png)
+![calldataload](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_calldataload.png)
 
 **gt**: Slope = 0.36µs/cycle, R² = 0.9984
 
-![gt](/benchmark-dec-2025/risc0/plots/zkcycles_proving_gt.png)
+![gt](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_gt.png)
 
 **delegatecall**: Slope = 0.35µs/cycle, R² = 0.9998
 
-![delegatecall](/benchmark-dec-2025/risc0/plots/zkcycles_proving_delegatecall.png)
+![delegatecall](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_delegatecall.png)
 
 **blobhash**: Slope = 0.35µs/cycle, R² = 0.9980
 
-![blobhash](/benchmark-dec-2025/risc0/plots/zkcycles_proving_blobhash.png)
+![blobhash](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_blobhash.png)
 
 **mstore**: Slope = 0.35µs/cycle, R² = 0.9961
 
-![mstore](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mstore.png)
+![mstore](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mstore.png)
 
 **codesize**: Slope = 0.35µs/cycle, R² = 0.9992
 
-![codesize](/benchmark-dec-2025/risc0/plots/zkcycles_proving_codesize.png)
+![codesize](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_codesize.png)
 
 **gaslimit**: Slope = 0.35µs/cycle, R² = 0.9954
 
-![gaslimit](/benchmark-dec-2025/risc0/plots/zkcycles_proving_gaslimit.png)
+![gaslimit](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_gaslimit.png)
 
 **msize**: Slope = 0.35µs/cycle, R² = 0.9998
 
-![msize](/benchmark-dec-2025/risc0/plots/zkcycles_proving_msize.png)
+![msize](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_msize.png)
 
 **prevrandao**: Slope = 0.35µs/cycle, R² = 0.9998
 
-![prevrandao](/benchmark-dec-2025/risc0/plots/zkcycles_proving_prevrandao.png)
+![prevrandao](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_prevrandao.png)
 
 **exp**: Slope = 0.35µs/cycle, R² = 0.9997
 
-![exp](/benchmark-dec-2025/risc0/plots/zkcycles_proving_exp.png)
+![exp](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_exp.png)
 
 **dup8**: Slope = 0.35µs/cycle, R² = 0.9814
 
-![dup8](/benchmark-dec-2025/risc0/plots/zkcycles_proving_dup8.png)
+![dup8](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_dup8.png)
 
 **sstore**: Slope = 0.35µs/cycle, R² = 0.9995
 
-![sstore](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sstore.png)
+![sstore](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sstore.png)
 
 **selfbalance**: Slope = 0.35µs/cycle, R² = 0.9999
 
-![selfbalance](/benchmark-dec-2025/risc0/plots/zkcycles_proving_selfbalance.png)
+![selfbalance](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_selfbalance.png)
 
 **mul**: Slope = 0.35µs/cycle, R² = 0.9970
 
-![mul](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mul.png)
+![mul](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mul.png)
 
 **call**: Slope = 0.35µs/cycle, R² = 1.0000
 
-![call](/benchmark-dec-2025/risc0/plots/zkcycles_proving_call.png)
+![call](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_call.png)
 
 **mload**: Slope = 0.35µs/cycle, R² = 0.9983
 
-![mload](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mload.png)
+![mload](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mload.png)
 
 **not**: Slope = 0.35µs/cycle, R² = 0.9945
 
-![not](/benchmark-dec-2025/risc0/plots/zkcycles_proving_not.png)
+![not](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_not.png)
 
 **gasprice**: Slope = 0.35µs/cycle, R² = 0.9986
 
-![gasprice](/benchmark-dec-2025/risc0/plots/zkcycles_proving_gasprice.png)
+![gasprice](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_gasprice.png)
 
 **callcode**: Slope = 0.35µs/cycle, R² = 0.9998
 
-![callcode](/benchmark-dec-2025/risc0/plots/zkcycles_proving_callcode.png)
+![callcode](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_callcode.png)
 
 **returndatasize**: Slope = 0.35µs/cycle, R² = 0.9997
 
-![returndatasize](/benchmark-dec-2025/risc0/plots/zkcycles_proving_returndatasize.png)
+![returndatasize](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_returndatasize.png)
 
 **extcodesize**: Slope = 0.35µs/cycle, R² = 0.9996
 
-![extcodesize](/benchmark-dec-2025/risc0/plots/zkcycles_proving_extcodesize.png)
+![extcodesize](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_extcodesize.png)
 
 **timestamp**: Slope = 0.35µs/cycle, R² = 0.9988
 
-![timestamp](/benchmark-dec-2025/risc0/plots/zkcycles_proving_timestamp.png)
+![timestamp](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_timestamp.png)
 
 **modexp**: Slope = 0.35µs/cycle, R² = 0.9998
 
-![modexp](/benchmark-dec-2025/risc0/plots/zkcycles_proving_modexp.png)
+![modexp](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_modexp.png)
 
 **calldatacopy**: Slope = 0.35µs/cycle, R² = 0.9999
 
-![calldatacopy](/benchmark-dec-2025/risc0/plots/zkcycles_proving_calldatacopy.png)
+![calldatacopy](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_calldatacopy.png)
 
 **mcopy**: Slope = 0.35µs/cycle, R² = 0.9973
 
-![mcopy](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mcopy.png)
+![mcopy](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mcopy.png)
 
 **jump**: Slope = 0.35µs/cycle, R² = 0.9973
 
-![jump](/benchmark-dec-2025/risc0/plots/zkcycles_proving_jump.png)
+![jump](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_jump.png)
 
 **calldatasize**: Slope = 0.35µs/cycle, R² = 0.9972
 
-![calldatasize](/benchmark-dec-2025/risc0/plots/zkcycles_proving_calldatasize.png)
+![calldatasize](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_calldatasize.png)
 
 **balance**: Slope = 0.35µs/cycle, R² = 0.9999
 
-![balance](/benchmark-dec-2025/risc0/plots/zkcycles_proving_balance.png)
+![balance](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_balance.png)
 
 **sload**: Slope = 0.35µs/cycle, R² = 0.9999
 
-![sload](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sload.png)
+![sload](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sload.png)
 
 **mstore8**: Slope = 0.35µs/cycle, R² = 0.9980
 
-![mstore8](/benchmark-dec-2025/risc0/plots/zkcycles_proving_mstore8.png)
+![mstore8](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_mstore8.png)
 
 **dup1**: Slope = 0.35µs/cycle, R² = 0.9904
 
-![dup1](/benchmark-dec-2025/risc0/plots/zkcycles_proving_dup1.png)
+![dup1](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_dup1.png)
 
 **add**: Slope = 0.35µs/cycle, R² = 0.9990
 
-![add](/benchmark-dec-2025/risc0/plots/zkcycles_proving_add.png)
+![add](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_add.png)
 
 **blake2f**: Slope = 0.35µs/cycle, R² = 1.0000
 
-![blake2f](/benchmark-dec-2025/risc0/plots/zkcycles_proving_blake2f.png)
+![blake2f](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_blake2f.png)
 
 **push32**: Slope = 0.35µs/cycle, R² = 0.9954
 
-![push32](/benchmark-dec-2025/risc0/plots/zkcycles_proving_push32.png)
+![push32](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_push32.png)
 
 **number**: Slope = 0.35µs/cycle, R² = 0.9999
 
-![number](/benchmark-dec-2025/risc0/plots/zkcycles_proving_number.png)
+![number](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_number.png)
 
 **extcodecopy**: Slope = 0.34µs/cycle, R² = 0.9999
 
-![extcodecopy](/benchmark-dec-2025/risc0/plots/zkcycles_proving_extcodecopy.png)
+![extcodecopy](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_extcodecopy.png)
 
 **eq**: Slope = 0.34µs/cycle, R² = 0.9993
 
-![eq](/benchmark-dec-2025/risc0/plots/zkcycles_proving_eq.png)
+![eq](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_eq.png)
 
 **blobbasefee**: Slope = 0.34µs/cycle, R² = 0.9997
 
-![blobbasefee](/benchmark-dec-2025/risc0/plots/zkcycles_proving_blobbasefee.png)
+![blobbasefee](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_blobbasefee.png)
 
 **tstore**: Slope = 0.34µs/cycle, R² = 1.0000
 
-![tstore](/benchmark-dec-2025/risc0/plots/zkcycles_proving_tstore.png)
+![tstore](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_tstore.png)
 
 **staticcall**: Slope = 0.34µs/cycle, R² = 0.9999
 
-![staticcall](/benchmark-dec-2025/risc0/plots/zkcycles_proving_staticcall.png)
+![staticcall](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_staticcall.png)
 
 **callvalue**: Slope = 0.34µs/cycle, R² = 0.9978
 
-![callvalue](/benchmark-dec-2025/risc0/plots/zkcycles_proving_callvalue.png)
+![callvalue](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_callvalue.png)
 
 **push1**: Slope = 0.34µs/cycle, R² = 0.9935
 
-![push1](/benchmark-dec-2025/risc0/plots/zkcycles_proving_push1.png)
+![push1](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_push1.png)
 
 **and**: Slope = 0.34µs/cycle, R² = 0.9964
 
-![and](/benchmark-dec-2025/risc0/plots/zkcycles_proving_and.png)
+![and](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_and.png)
 
 **chainid**: Slope = 0.34µs/cycle, R² = 0.9980
 
-![chainid](/benchmark-dec-2025/risc0/plots/zkcycles_proving_chainid.png)
+![chainid](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_chainid.png)
 
 **extcodehash**: Slope = 0.34µs/cycle, R² = 0.9998
 
-![extcodehash](/benchmark-dec-2025/risc0/plots/zkcycles_proving_extcodehash.png)
+![extcodehash](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_extcodehash.png)
 
 **swap16**: Slope = 0.34µs/cycle, R² = 0.9956
 
-![swap16](/benchmark-dec-2025/risc0/plots/zkcycles_proving_swap16.png)
+![swap16](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_swap16.png)
 
 **ripemd160**: Slope = 0.34µs/cycle, R² = 0.9982
 
-![ripemd160](/benchmark-dec-2025/risc0/plots/zkcycles_proving_ripemd160.png)
+![ripemd160](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_ripemd160.png)
 
 **jumpdest**: Slope = 0.33µs/cycle, R² = 0.9951
 
-![jumpdest](/benchmark-dec-2025/risc0/plots/zkcycles_proving_jumpdest.png)
+![jumpdest](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_jumpdest.png)
 
 **byte**: Slope = 0.32µs/cycle, R² = 0.9964
 
-![byte](/benchmark-dec-2025/risc0/plots/zkcycles_proving_byte.png)
+![byte](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_byte.png)
 
 **returndatacopy**: Slope = 0.32µs/cycle, R² = 0.9920
 
-![returndatacopy](/benchmark-dec-2025/risc0/plots/zkcycles_proving_returndatacopy.png)
+![returndatacopy](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_returndatacopy.png)
 
 **swap1**: Slope = 0.31µs/cycle, R² = 0.9913
 
-![swap1](/benchmark-dec-2025/risc0/plots/zkcycles_proving_swap1.png)
+![swap1](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_swap1.png)
 
 **swap8**: Slope = 0.29µs/cycle, R² = 0.9917
 
-![swap8](/benchmark-dec-2025/risc0/plots/zkcycles_proving_swap8.png)
+![swap8](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_swap8.png)
 
 **sha256**: Slope = 0.28µs/cycle, R² = 0.8015
 
-![sha256](/benchmark-dec-2025/risc0/plots/zkcycles_proving_sha256.png)
+![sha256](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_sha256.png)
 
 **log1**: Slope = 0.04µs/cycle, R² = 0.9956
 
-![log1](/benchmark-dec-2025/risc0/plots/zkcycles_proving_log1.png)
+![log1](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_log1.png)
 
 **log0**: Slope = 0.04µs/cycle, R² = 0.9815
 
-![log0](/benchmark-dec-2025/risc0/plots/zkcycles_proving_log0.png)
+![log0](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_log0.png)
 
 **log2**: Slope = 0.03µs/cycle, R² = 0.9988
 
-![log2](/benchmark-dec-2025/risc0/plots/zkcycles_proving_log2.png)
+![log2](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_log2.png)
 
 **log3**: Slope = 0.03µs/cycle, R² = 0.9882
 
-![log3](/benchmark-dec-2025/risc0/plots/zkcycles_proving_log3.png)
+![log3](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_log3.png)
 
 **log4**: Slope = 0.03µs/cycle, R² = 0.9982
 
-![log4](/benchmark-dec-2025/risc0/plots/zkcycles_proving_log4.png)
+![log4](/marginal-gas-benchmark/risc0/plots/zkcycles_proving_log4.png)
 
 ## Appendix: Per-Op-Count Regression
 
@@ -2210,4 +2210,4 @@ This section examines whether ZK cycles are a good proxy for proving time.
 
 Bar length = Max ZK Cycles, color = Time/Gas R² (green=high, red=low)
 
-<div style="overflow-x: auto;"><svg width="980" height="2560" xmlns="http://www.w3.org/2000/svg"><style>.bar-label { font-family: monospace; font-size: 12px; fill: #333; } .bar-value { font-family: monospace; font-size: 11px; fill: #666; } .chart-title { font-family: sans-serif; font-size: 14px; font-weight: bold; fill: #333; }</style><text x="490.0" y="20" text-anchor="middle" class="chart-title">risc0 Max ZK Cycles by Opcode (colored by Time/Gas R²)</text><text x="175" y="50" text-anchor="end" class="bar-label">identity</text><rect x="180" y="35" width="600.0" height="20" fill="#eab308" rx="2"/><text x="785" y="50" class="bar-value">10,556,833,087 (R²=0.9274)</text><text x="175" y="74" text-anchor="end" class="bar-label">keccak256</text><rect x="180" y="59" width="174.45206169527077" height="20" fill="#22c55e" rx="2"/><text x="785" y="74" class="bar-value">3,069,435,495 (R²=0.9980)</text><text x="175" y="98" text-anchor="end" class="bar-label">slt</text><rect x="180" y="83" width="61.365454683351096" height="20" fill="#22c55e" rx="2"/><text x="785" y="98" class="bar-value">1,079,708,104 (R²=0.9963)</text><text x="175" y="122" text-anchor="end" class="bar-label">mulmod</text><rect x="180" y="107" width="46.86069128147806" height="20" fill="#22c55e" rx="2"/><text x="785" y="122" class="bar-value">824,500,827 (R²=1.0000)</text><text x="175" y="146" text-anchor="end" class="bar-label">selfbalance</text><rect x="180" y="131" width="44.71586833946501" height="20" fill="#22c55e" rx="2"/><text x="785" y="146" class="bar-value">786,763,264 (R²=0.9999)</text><text x="175" y="170" text-anchor="end" class="bar-label">sub</text><rect x="180" y="155" width="43.68727662919428" height="20" fill="#22c55e" rx="2"/><text x="785" y="170" class="bar-value">768,665,479 (R²=0.9927)</text><text x="175" y="194" text-anchor="end" class="bar-label">signextend</text><rect x="180" y="179" width="41.96519921732471" height="20" fill="#22c55e" rx="2"/><text x="785" y="194" class="bar-value">738,366,006 (R²=0.9997)</text><text x="175" y="218" text-anchor="end" class="bar-label">xor</text><rect x="180" y="203" width="40.27719276187131" height="20" fill="#22c55e" rx="2"/><text x="785" y="218" class="bar-value">708,666,002 (R²=0.9994)</text><text x="175" y="242" text-anchor="end" class="bar-label">log3</text><rect x="180" y="227" width="36.6107132522479" height="20" fill="#84cc16" rx="2"/><text x="785" y="242" class="bar-value">644,155,315 (R²=0.9874)</text><text x="175" y="266" text-anchor="end" class="bar-label">log2</text><rect x="180" y="251" width="36.115142018253266" height="20" fill="#22c55e" rx="2"/><text x="785" y="266" class="bar-value">635,435,877 (R²=0.9985)</text><text x="175" y="290" text-anchor="end" class="bar-label">tload</text><rect x="180" y="275" width="35.32214363218339" height="20" fill="#22c55e" rx="2"/><text x="785" y="290" class="bar-value">621,483,291 (R²=0.9999)</text><text x="175" y="314" text-anchor="end" class="bar-label">log4</text><rect x="180" y="299" width="32.775176224589295" height="20" fill="#22c55e" rx="2"/><text x="785" y="314" class="bar-value">576,670,108 (R²=0.9983)</text><text x="175" y="338" text-anchor="end" class="bar-label">log1</text><rect x="180" y="323" width="32.49032557144189" height="20" fill="#22c55e" rx="2"/><text x="785" y="338" class="bar-value">571,658,240 (R²=0.9959)</text><text x="175" y="362" text-anchor="end" class="bar-label">balance</text><rect x="180" y="347" width="31.943860381317403" height="20" fill="#22c55e" rx="2"/><text x="785" y="362" class="bar-value">562,043,337 (R²=0.9999)</text><text x="175" y="386" text-anchor="end" class="bar-label">extcodehash</text><rect x="180" y="371" width="28.585686172457716" height="20" fill="#22c55e" rx="2"/><text x="785" y="386" class="bar-value">502,957,196 (R²=0.9998)</text><text x="175" y="410" text-anchor="end" class="bar-label">smod</text><rect x="180" y="395" width="27.519745079398543" height="20" fill="#22c55e" rx="2"/><text x="785" y="410" class="bar-value">484,202,259 (R²=0.9996)</text><text x="175" y="434" text-anchor="end" class="bar-label">sgt</text><rect x="180" y="419" width="26.350168588205886" height="20" fill="#84cc16" rx="2"/><text x="785" y="434" class="bar-value">463,623,886 (R²=0.9896)</text><text x="175" y="458" text-anchor="end" class="bar-label">blake2f</text><rect x="180" y="443" width="26.222003901992736" height="20" fill="#22c55e" rx="2"/><text x="785" y="458" class="bar-value">461,368,864 (R²=1.0000)</text><text x="175" y="482" text-anchor="end" class="bar-label">add</text><rect x="180" y="467" width="25.685176318067136" height="20" fill="#22c55e" rx="2"/><text x="785" y="482" class="bar-value">451,923,532 (R²=0.9991)</text><text x="175" y="506" text-anchor="end" class="bar-label">addmod</text><rect x="180" y="491" width="24.368632683677856" height="20" fill="#22c55e" rx="2"/><text x="785" y="506" class="bar-value">428,759,313 (R²=0.9999)</text><text x="175" y="530" text-anchor="end" class="bar-label">or</text><rect x="180" y="515" width="24.201806743977365" height="20" fill="#84cc16" rx="2"/><text x="785" y="530" class="bar-value">425,824,057 (R²=0.9728)</text><text x="175" y="554" text-anchor="end" class="bar-label">iszero</text><rect x="180" y="539" width="24.06972088181506" height="20" fill="#22c55e" rx="2"/><text x="785" y="554" class="bar-value">423,500,043 (R²=0.9938)</text><text x="175" y="578" text-anchor="end" class="bar-label">mul</text><rect x="180" y="563" width="24.041469341079107" height="20" fill="#22c55e" rx="2"/><text x="785" y="578" class="bar-value">423,002,965 (R²=0.9970)</text><text x="175" y="602" text-anchor="end" class="bar-label">div</text><rect x="180" y="587" width="23.164655591755118" height="20" fill="#22c55e" rx="2"/><text x="785" y="602" class="bar-value">407,575,671 (R²=0.9999)</text><text x="175" y="626" text-anchor="end" class="bar-label">tstore</text><rect x="180" y="611" width="22.28844429583241" height="20" fill="#22c55e" rx="2"/><text x="785" y="626" class="bar-value">392,158,977 (R²=1.0000)</text><text x="175" y="650" text-anchor="end" class="bar-label">extcodesize</text><rect x="180" y="635" width="21.912549804814393" height="20" fill="#22c55e" rx="2"/><text x="785" y="650" class="bar-value">385,545,218 (R²=0.9996)</text><text x="175" y="674" text-anchor="end" class="bar-label">call</text><rect x="180" y="659" width="21.34266168112998" height="20" fill="#22c55e" rx="2"/><text x="785" y="674" class="bar-value">375,518,195 (R²=1.0000)</text><text x="175" y="698" text-anchor="end" class="bar-label">callcode</text><rect x="180" y="683" width="21.17686372017184" height="20" fill="#22c55e" rx="2"/><text x="785" y="698" class="bar-value">372,601,026 (R²=0.9999)</text><text x="175" y="722" text-anchor="end" class="bar-label">log0</text><rect x="180" y="707" width="21.121418228595317" height="20" fill="#84cc16" rx="2"/><text x="785" y="722" class="bar-value">371,625,478 (R²=0.9807)</text><text x="175" y="746" text-anchor="end" class="bar-label">staticcall</text><rect x="180" y="731" width="20.998384058281548" height="20" fill="#22c55e" rx="2"/><text x="785" y="746" class="bar-value">369,460,726 (R²=0.9999)</text><text x="175" y="770" text-anchor="end" class="bar-label">blobhash</text><rect x="180" y="755" width="20.64159779776577" height="20" fill="#22c55e" rx="2"/><text x="785" y="770" class="bar-value">363,183,171 (R²=0.9981)</text><text x="175" y="794" text-anchor="end" class="bar-label">codecopy</text><rect x="180" y="779" width="20.626289854685847" height="20" fill="#22c55e" rx="2"/><text x="785" y="794" class="bar-value">362,913,832 (R²=0.9998)</text><text x="175" y="818" text-anchor="end" class="bar-label">mod</text><rect x="180" y="803" width="20.252407614863337" height="20" fill="#22c55e" rx="2"/><text x="785" y="818" class="bar-value">356,335,478 (R²=1.0000)</text><text x="175" y="842" text-anchor="end" class="bar-label">sdiv</text><rect x="180" y="827" width="20.204649144511002" height="20" fill="#22c55e" rx="2"/><text x="785" y="842" class="bar-value">355,495,181 (R²=1.0000)</text><text x="175" y="866" text-anchor="end" class="bar-label">sload</text><rect x="180" y="851" width="20.131392629642704" height="20" fill="#22c55e" rx="2"/><text x="785" y="866" class="bar-value">354,206,253 (R²=0.9999)</text><text x="175" y="890" text-anchor="end" class="bar-label">exp</text><rect x="180" y="875" width="19.27875698353362" height="20" fill="#22c55e" rx="2"/><text x="785" y="890" class="bar-value">339,204,366 (R²=0.9997)</text><text x="175" y="914" text-anchor="end" class="bar-label">mload</text><rect x="180" y="899" width="18.914215670027485" height="20" fill="#22c55e" rx="2"/><text x="785" y="914" class="bar-value">332,790,363 (R²=0.9983)</text><text x="175" y="938" text-anchor="end" class="bar-label">eq</text><rect x="180" y="923" width="18.07880155224055" height="20" fill="#22c55e" rx="2"/><text x="785" y="938" class="bar-value">318,091,484 (R²=0.9993)</text><text x="175" y="962" text-anchor="end" class="bar-label">delegatecall</text><rect x="180" y="947" width="17.955334070159672" height="20" fill="#22c55e" rx="2"/><text x="785" y="962" class="bar-value">315,919,108 (R²=0.9998)</text><text x="175" y="986" text-anchor="end" class="bar-label">jumpi</text><rect x="180" y="971" width="16.54377813504214" height="20" fill="#22c55e" rx="2"/><text x="785" y="986" class="bar-value">291,083,174 (R²=0.9978)</text><text x="175" y="1010" text-anchor="end" class="bar-label">gt</text><rect x="180" y="995" width="16.50507067451563" height="20" fill="#22c55e" rx="2"/><text x="785" y="1010" class="bar-value">290,402,127 (R²=0.9983)</text><text x="175" y="1034" text-anchor="end" class="bar-label">lt</text><rect x="180" y="1019" width="16.504229797339033" height="20" fill="#eab308" rx="2"/><text x="785" y="1034" class="bar-value">290,387,332 (R²=0.9483)</text><text x="175" y="1058" text-anchor="end" class="bar-label">and</text><rect x="180" y="1043" width="16.16410091868681" height="20" fill="#22c55e" rx="2"/><text x="785" y="1058" class="bar-value">284,402,859 (R²=0.9966)</text><text x="175" y="1082" text-anchor="end" class="bar-label">shr</text><rect x="180" y="1067" width="15.643205840145532" height="20" fill="#22c55e" rx="2"/><text x="785" y="1082" class="bar-value">275,237,855 (R²=0.9984)</text><text x="175" y="1106" text-anchor="end" class="bar-label">not</text><rect x="180" y="1091" width="15.563109887786368" height="20" fill="#22c55e" rx="2"/><text x="785" y="1106" class="bar-value">273,828,589 (R²=0.9948)</text><text x="175" y="1130" text-anchor="end" class="bar-label">coinbase</text><rect x="180" y="1115" width="14.816065510461545" height="20" fill="#22c55e" rx="2"/><text x="785" y="1130" class="bar-value">260,684,551 (R²=0.9983)</text><text x="175" y="1154" text-anchor="end" class="bar-label">origin</text><rect x="180" y="1139" width="14.816033114382423" height="20" fill="#22c55e" rx="2"/><text x="785" y="1154" class="bar-value">260,683,981 (R²=0.9995)</text><text x="175" y="1178" text-anchor="end" class="bar-label">caller</text><rect x="180" y="1163" width="14.816019587598506" height="20" fill="#22c55e" rx="2"/><text x="785" y="1178" class="bar-value">260,683,743 (R²=0.9998)</text><text x="175" y="1202" text-anchor="end" class="bar-label">extcodecopy</text><rect x="180" y="1187" width="14.034879928380551" height="20" fill="#22c55e" rx="2"/><text x="785" y="1202" class="bar-value">246,939,808 (R²=0.9999)</text><text x="175" y="1226" text-anchor="end" class="bar-label">sstore</text><rect x="180" y="1211" width="13.976611033255413" height="20" fill="#22c55e" rx="2"/><text x="785" y="1226" class="bar-value">245,914,583 (R²=0.9994)</text><text x="175" y="1250" text-anchor="end" class="bar-label">sar</text><rect x="180" y="1235" width="13.824364352195426" height="20" fill="#22c55e" rx="2"/><text x="785" y="1250" class="bar-value">243,235,845 (R²=0.9998)</text><text x="175" y="1274" text-anchor="end" class="bar-label">calldatacopy</text><rect x="180" y="1259" width="13.774167309613352" height="20" fill="#22c55e" rx="2"/><text x="785" y="1274" class="bar-value">242,352,642 (R²=0.9999)</text><text x="175" y="1298" text-anchor="end" class="bar-label">prevrandao</text><rect x="180" y="1283" width="13.226927910032986" height="20" fill="#22c55e" rx="2"/><text x="785" y="1298" class="bar-value">232,724,117 (R²=0.9998)</text><text x="175" y="1322" text-anchor="end" class="bar-label">byte</text><rect x="180" y="1307" width="13.188411018021053" height="20" fill="#22c55e" rx="2"/><text x="785" y="1322" class="bar-value">232,046,423 (R²=0.9964)</text><text x="175" y="1346" text-anchor="end" class="bar-label">blobbasefee</text><rect x="180" y="1331" width="12.70177178088787" height="20" fill="#22c55e" rx="2"/><text x="785" y="1346" class="bar-value">223,484,141 (R²=0.9997)</text><text x="175" y="1370" text-anchor="end" class="bar-label">gasprice</text><rect x="180" y="1355" width="12.428991111129424" height="20" fill="#22c55e" rx="2"/><text x="785" y="1370" class="bar-value">218,684,641 (R²=0.9986)</text><text x="175" y="1394" text-anchor="end" class="bar-label">callvalue</text><rect x="180" y="1379" width="12.224358719748697" height="20" fill="#22c55e" rx="2"/><text x="785" y="1394" class="bar-value">215,084,191 (R²=0.9978)</text><text x="175" y="1418" text-anchor="end" class="bar-label">shl</text><rect x="180" y="1403" width="11.726640478236444" height="20" fill="#22c55e" rx="2"/><text x="785" y="1418" class="bar-value">206,326,977 (R²=0.9991)</text><text x="175" y="1442" text-anchor="end" class="bar-label">bn128_pairing</text><rect x="180" y="1427" width="11.68126215350098" height="20" fill="#22c55e" rx="2"/><text x="785" y="1442" class="bar-value">205,528,558 (R²=0.9968)</text><text x="175" y="1466" text-anchor="end" class="bar-label">mstore</text><rect x="180" y="1451" width="11.60886277068406" height="20" fill="#22c55e" rx="2"/><text x="785" y="1466" class="bar-value">204,254,711 (R²=0.9961)</text><text x="175" y="1490" text-anchor="end" class="bar-label">timestamp</text><rect x="180" y="1475" width="11.337755102653922" height="20" fill="#22c55e" rx="2"/><text x="785" y="1490" class="bar-value">199,484,647 (R²=0.9987)</text><text x="175" y="1514" text-anchor="end" class="bar-label">number</text><rect x="180" y="1499" width="11.33774742989834" height="20" fill="#22c55e" rx="2"/><text x="785" y="1514" class="bar-value">199,484,512 (R²=0.9999)</text><text x="175" y="1538" text-anchor="end" class="bar-label">mstore8</text><rect x="180" y="1523" width="11.32871688075407" height="20" fill="#22c55e" rx="2"/><text x="785" y="1538" class="bar-value">199,325,622 (R²=0.9980)</text><text x="175" y="1562" text-anchor="end" class="bar-label">calldatasize</text><rect x="180" y="1547" width="11.269555558901867" height="20" fill="#22c55e" rx="2"/><text x="785" y="1562" class="bar-value">198,284,695 (R²=0.9972)</text><text x="175" y="1586" text-anchor="end" class="bar-label">pc</text><rect x="180" y="1571" width="11.26952566357271" height="20" fill="#22c55e" rx="2"/><text x="785" y="1586" class="bar-value">198,284,169 (R²=1.0000)</text><text x="175" y="1610" text-anchor="end" class="bar-label">basefee</text><rect x="180" y="1595" width="11.201348683405588" height="20" fill="#22c55e" rx="2"/><text x="785" y="1610" class="bar-value">197,084,614 (R²=0.9987)</text><text x="175" y="1634" text-anchor="end" class="bar-label">chainid</text><rect x="180" y="1619" width="11.20130827355952" height="20" fill="#22c55e" rx="2"/><text x="785" y="1634" class="bar-value">197,083,903 (R²=0.9979)</text><text x="175" y="1658" text-anchor="end" class="bar-label">address</text><rect x="180" y="1643" width="11.129701060130062" height="20" fill="#22c55e" rx="2"/><text x="785" y="1658" class="bar-value">195,823,994 (R²=0.9969)</text><text x="175" y="1682" text-anchor="end" class="bar-label">codesize</text><rect x="180" y="1667" width="11.064862979016238" height="20" fill="#22c55e" rx="2"/><text x="785" y="1682" class="bar-value">194,683,186 (R²=0.9992)</text><text x="175" y="1706" text-anchor="end" class="bar-label">msize</text><rect x="180" y="1691" width="11.046552487753662" height="20" fill="#22c55e" rx="2"/><text x="785" y="1706" class="bar-value">194,361,018 (R²=0.9998)</text><text x="175" y="1730" text-anchor="end" class="bar-label">modexp</text><rect x="180" y="1715" width="11.007730504245682" height="20" fill="#22c55e" rx="2"/><text x="785" y="1730" class="bar-value">193,677,956 (R²=0.9998)</text><text x="175" y="1754" text-anchor="end" class="bar-label">gaslimit</text><rect x="180" y="1739" width="10.996753632768694" height="20" fill="#22c55e" rx="2"/><text x="785" y="1754" class="bar-value">193,484,821 (R²=0.9953)</text><text x="175" y="1778" text-anchor="end" class="bar-label">gas</text><rect x="180" y="1763" width="10.996735274990524" height="20" fill="#22c55e" rx="2"/><text x="785" y="1778" class="bar-value">193,484,498 (R²=0.9961)</text><text x="175" y="1802" text-anchor="end" class="bar-label">returndatasize</text><rect x="180" y="1787" width="10.996663321593728" height="20" fill="#22c55e" rx="2"/><text x="785" y="1802" class="bar-value">193,483,232 (R²=0.9996)</text><text x="175" y="1826" text-anchor="end" class="bar-label">push0</text><rect x="180" y="1811" width="10.792049685837757" height="20" fill="#22c55e" rx="2"/><text x="785" y="1826" class="bar-value">189,883,112 (R²=0.9990)</text><text x="175" y="1850" text-anchor="end" class="bar-label">push16</text><rect x="180" y="1835" width="10.77371935908112" height="20" fill="#22c55e" rx="2"/><text x="785" y="1850" class="bar-value">189,560,595 (R²=0.9999)</text><text x="175" y="1874" text-anchor="end" class="bar-label">create2</text><rect x="180" y="1859" width="10.754100691409368" height="20" fill="#22c55e" rx="2"/><text x="785" y="1874" class="bar-value">189,215,410 (R²=0.9999)</text><text x="175" y="1898" text-anchor="end" class="bar-label">pop</text><rect x="180" y="1883" width="10.32587959870621" height="20" fill="#84cc16" rx="2"/><text x="785" y="1898" class="bar-value">181,680,979 (R²=0.9867)</text><text x="175" y="1922" text-anchor="end" class="bar-label">create</text><rect x="180" y="1907" width="10.088936494710348" height="20" fill="#22c55e" rx="2"/><text x="785" y="1922" class="bar-value">177,512,031 (R²=0.9998)</text><text x="175" y="1946" text-anchor="end" class="bar-label">push1</text><rect x="180" y="1931" width="10.042443972193874" height="20" fill="#22c55e" rx="2"/><text x="785" y="1946" class="bar-value">176,694,008 (R²=0.9935)</text><text x="175" y="1970" text-anchor="end" class="bar-label">calldataload</text><rect x="180" y="1955" width="9.433545285719832" height="20" fill="#22c55e" rx="2"/><text x="785" y="1970" class="bar-value">165,980,605 (R²=0.9970)</text><text x="175" y="1994" text-anchor="end" class="bar-label">dup8</text><rect x="180" y="1979" width="8.582549051720173" height="20" fill="#84cc16" rx="2"/><text x="785" y="1994" class="bar-value">151,007,563 (R²=0.9816)</text><text x="175" y="2018" text-anchor="end" class="bar-label">dup1</text><rect x="180" y="2003" width="8.49178126254484" height="20" fill="#22c55e" rx="2"/><text x="785" y="2018" class="bar-value">149,410,529 (R²=0.9909)</text><text x="175" y="2042" text-anchor="end" class="bar-label">push32</text><rect x="180" y="2027" width="7.618557623975438" height="20" fill="#22c55e" rx="2"/><text x="785" y="2042" class="bar-value">134,046,402 (R²=0.9954)</text><text x="175" y="2066" text-anchor="end" class="bar-label">ecrecover</text><rect x="180" y="2051" width="6.786896620372795" height="20" fill="#22c55e" rx="2"/><text x="785" y="2066" class="bar-value">119,413,558 (R²=0.9921)</text><text x="175" y="2090" text-anchor="end" class="bar-label">jump</text><rect x="180" y="2075" width="6.301804438105918" height="20" fill="#22c55e" rx="2"/><text x="785" y="2090" class="bar-value">110,878,496 (R²=0.9976)</text><text x="175" y="2114" text-anchor="end" class="bar-label">dup16</text><rect x="180" y="2099" width="5.813952223568011" height="20" fill="#84cc16" rx="2"/><text x="785" y="2114" class="bar-value">102,294,872 (R²=0.9768)</text><text x="175" y="2138" text-anchor="end" class="bar-label">point_evaluation</text><rect x="180" y="2123" width="5.777342778593843" height="20" fill="#22c55e" rx="2"/><text x="785" y="2138" class="bar-value">101,650,739 (R²=0.9945)</text><text x="175" y="2162" text-anchor="end" class="bar-label">mcopy</text><rect x="180" y="2147" width="5.772509397258788" height="20" fill="#22c55e" rx="2"/><text x="785" y="2162" class="bar-value">101,565,697 (R²=0.9974)</text><text x="175" y="2186" text-anchor="end" class="bar-label">bn128_mul</text><rect x="180" y="2171" width="5.722266090802313" height="20" fill="#22c55e" rx="2"/><text x="785" y="2186" class="bar-value">100,681,680 (R²=0.9997)</text><text x="175" y="2210" text-anchor="end" class="bar-label">jumpdest</text><rect x="180" y="2195" width="5.416457277364169" height="20" fill="#22c55e" rx="2"/><text x="785" y="2210" class="bar-value">95,301,059 (R²=0.9944)</text><text x="175" y="2234" text-anchor="end" class="bar-label">bls12_pairing</text><rect x="180" y="2219" width="4.715297399302341" height="20" fill="#22c55e" rx="2"/><text x="785" y="2234" class="bar-value">82,964,346 (R²=0.9979)</text><text x="175" y="2258" text-anchor="end" class="bar-label">bls12_g1msm</text><rect x="180" y="2243" width="4.622236536077195" height="20" fill="#84cc16" rx="2"/><text x="785" y="2258" class="bar-value">81,326,966 (R²=0.9893)</text><text x="175" y="2282" text-anchor="end" class="bar-label">returndatacopy</text><rect x="180" y="2267" width="4.566062814743071" height="20" fill="#22c55e" rx="2"/><text x="785" y="2282" class="bar-value">80,338,605 (R²=0.9920)</text><text x="175" y="2306" text-anchor="end" class="bar-label">bls12_g2msm</text><rect x="180" y="2291" width="4.560940539951534" height="20" fill="#22c55e" rx="2"/><text x="785" y="2306" class="bar-value">80,248,480 (R²=0.9960)</text><text x="175" y="2330" text-anchor="end" class="bar-label">ripemd160</text><rect x="180" y="2315" width="4.19448279944184" height="20" fill="#22c55e" rx="2"/><text x="785" y="2330" class="bar-value">73,800,758 (R²=0.9982)</text><text x="175" y="2354" text-anchor="end" class="bar-label">swap16</text><rect x="180" y="2339" width="3.322033313493081" height="20" fill="#22c55e" rx="2"/><text x="785" y="2354" class="bar-value">58,450,252 (R²=0.9957)</text><text x="175" y="2378" text-anchor="end" class="bar-label">swap8</text><rect x="180" y="2363" width="3.2858100638832233" height="20" fill="#22c55e" rx="2"/><text x="785" y="2378" class="bar-value">57,812,914 (R²=0.9917)</text><text x="175" y="2402" text-anchor="end" class="bar-label">swap1</text><rect x="180" y="2387" width="3.2554122544876036" height="20" fill="#22c55e" rx="2"/><text x="785" y="2402" class="bar-value">57,278,073 (R²=0.9913)</text><text x="175" y="2426" text-anchor="end" class="bar-label">bls12_map_fp2_to_g2</text><rect x="180" y="2411" width="1.5441117109328413" height="20" fill="#eab308" rx="2"/><text x="785" y="2426" class="bar-value">27,168,216 (R²=0.9404)</text><text x="175" y="2450" text-anchor="end" class="bar-label">bls12_map_fp_to_g1</text><rect x="180" y="2435" width="1.4034310553081117" height="20" fill="#84cc16" rx="2"/><text x="785" y="2450" class="bar-value">24,692,979 (R²=0.9772)</text><text x="175" y="2474" text-anchor="end" class="bar-label">sha256</text><rect x="180" y="2459" width="1.1178644488120435" height="20" fill="#f97316" rx="2"/><text x="785" y="2474" class="bar-value">19,668,514 (R²=0.8017)</text><text x="175" y="2498" text-anchor="end" class="bar-label">bls12_g2add</text><rect x="180" y="2483" width="1.0580162164119284" height="20" fill="#84cc16" rx="2"/><text x="785" y="2498" class="bar-value">18,615,501 (R²=0.9636)</text><text x="175" y="2522" text-anchor="end" class="bar-label">bls12_g1add</text><rect x="180" y="2507" width="1.0261277326947282" height="20" fill="#84cc16" rx="2"/><text x="785" y="2522" class="bar-value">18,054,432 (R²=0.9518)</text><text x="175" y="2546" text-anchor="end" class="bar-label">bn128_add</text><rect x="180" y="2531" width="1" height="20" fill="#ef4444" rx="2"/><text x="785" y="2546" class="bar-value">14,612,379 (R²=0.7509)</text></svg></div>
+<div style="overflow-x: auto;"><svg width="980" height="2560" xmlns="http://www.w3.org/2000/svg"><text x="490.0" y="20" text-anchor="middle" style="font-family: sans-serif; font-size: 14px; font-weight: bold; fill: #333;">risc0 Max ZK Cycles by Opcode (colored by Time/Gas R²)</text><text x="175" y="50" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">identity</text><rect x="180" y="35" width="600.0" height="20" fill="#eab308" rx="2"/><text x="785" y="50" style="font-family: monospace; font-size: 11px; fill: #666;">10,556,833,087 (R²=0.9274)</text><text x="175" y="74" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">keccak256</text><rect x="180" y="59" width="174.45206169527077" height="20" fill="#22c55e" rx="2"/><text x="785" y="74" style="font-family: monospace; font-size: 11px; fill: #666;">3,069,435,495 (R²=0.9980)</text><text x="175" y="98" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">slt</text><rect x="180" y="83" width="61.365454683351096" height="20" fill="#22c55e" rx="2"/><text x="785" y="98" style="font-family: monospace; font-size: 11px; fill: #666;">1,079,708,104 (R²=0.9963)</text><text x="175" y="122" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mulmod</text><rect x="180" y="107" width="46.86069128147806" height="20" fill="#22c55e" rx="2"/><text x="785" y="122" style="font-family: monospace; font-size: 11px; fill: #666;">824,500,827 (R²=1.0000)</text><text x="175" y="146" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">selfbalance</text><rect x="180" y="131" width="44.71586833946501" height="20" fill="#22c55e" rx="2"/><text x="785" y="146" style="font-family: monospace; font-size: 11px; fill: #666;">786,763,264 (R²=0.9999)</text><text x="175" y="170" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sub</text><rect x="180" y="155" width="43.68727662919428" height="20" fill="#22c55e" rx="2"/><text x="785" y="170" style="font-family: monospace; font-size: 11px; fill: #666;">768,665,479 (R²=0.9927)</text><text x="175" y="194" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">signextend</text><rect x="180" y="179" width="41.96519921732471" height="20" fill="#22c55e" rx="2"/><text x="785" y="194" style="font-family: monospace; font-size: 11px; fill: #666;">738,366,006 (R²=0.9997)</text><text x="175" y="218" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">xor</text><rect x="180" y="203" width="40.27719276187131" height="20" fill="#22c55e" rx="2"/><text x="785" y="218" style="font-family: monospace; font-size: 11px; fill: #666;">708,666,002 (R²=0.9994)</text><text x="175" y="242" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">log3</text><rect x="180" y="227" width="36.6107132522479" height="20" fill="#84cc16" rx="2"/><text x="785" y="242" style="font-family: monospace; font-size: 11px; fill: #666;">644,155,315 (R²=0.9874)</text><text x="175" y="266" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">log2</text><rect x="180" y="251" width="36.115142018253266" height="20" fill="#22c55e" rx="2"/><text x="785" y="266" style="font-family: monospace; font-size: 11px; fill: #666;">635,435,877 (R²=0.9985)</text><text x="175" y="290" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">tload</text><rect x="180" y="275" width="35.32214363218339" height="20" fill="#22c55e" rx="2"/><text x="785" y="290" style="font-family: monospace; font-size: 11px; fill: #666;">621,483,291 (R²=0.9999)</text><text x="175" y="314" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">log4</text><rect x="180" y="299" width="32.775176224589295" height="20" fill="#22c55e" rx="2"/><text x="785" y="314" style="font-family: monospace; font-size: 11px; fill: #666;">576,670,108 (R²=0.9983)</text><text x="175" y="338" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">log1</text><rect x="180" y="323" width="32.49032557144189" height="20" fill="#22c55e" rx="2"/><text x="785" y="338" style="font-family: monospace; font-size: 11px; fill: #666;">571,658,240 (R²=0.9959)</text><text x="175" y="362" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">balance</text><rect x="180" y="347" width="31.943860381317403" height="20" fill="#22c55e" rx="2"/><text x="785" y="362" style="font-family: monospace; font-size: 11px; fill: #666;">562,043,337 (R²=0.9999)</text><text x="175" y="386" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">extcodehash</text><rect x="180" y="371" width="28.585686172457716" height="20" fill="#22c55e" rx="2"/><text x="785" y="386" style="font-family: monospace; font-size: 11px; fill: #666;">502,957,196 (R²=0.9998)</text><text x="175" y="410" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">smod</text><rect x="180" y="395" width="27.519745079398543" height="20" fill="#22c55e" rx="2"/><text x="785" y="410" style="font-family: monospace; font-size: 11px; fill: #666;">484,202,259 (R²=0.9996)</text><text x="175" y="434" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sgt</text><rect x="180" y="419" width="26.350168588205886" height="20" fill="#84cc16" rx="2"/><text x="785" y="434" style="font-family: monospace; font-size: 11px; fill: #666;">463,623,886 (R²=0.9896)</text><text x="175" y="458" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">blake2f</text><rect x="180" y="443" width="26.222003901992736" height="20" fill="#22c55e" rx="2"/><text x="785" y="458" style="font-family: monospace; font-size: 11px; fill: #666;">461,368,864 (R²=1.0000)</text><text x="175" y="482" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">add</text><rect x="180" y="467" width="25.685176318067136" height="20" fill="#22c55e" rx="2"/><text x="785" y="482" style="font-family: monospace; font-size: 11px; fill: #666;">451,923,532 (R²=0.9991)</text><text x="175" y="506" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">addmod</text><rect x="180" y="491" width="24.368632683677856" height="20" fill="#22c55e" rx="2"/><text x="785" y="506" style="font-family: monospace; font-size: 11px; fill: #666;">428,759,313 (R²=0.9999)</text><text x="175" y="530" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">or</text><rect x="180" y="515" width="24.201806743977365" height="20" fill="#84cc16" rx="2"/><text x="785" y="530" style="font-family: monospace; font-size: 11px; fill: #666;">425,824,057 (R²=0.9728)</text><text x="175" y="554" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">iszero</text><rect x="180" y="539" width="24.06972088181506" height="20" fill="#22c55e" rx="2"/><text x="785" y="554" style="font-family: monospace; font-size: 11px; fill: #666;">423,500,043 (R²=0.9938)</text><text x="175" y="578" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mul</text><rect x="180" y="563" width="24.041469341079107" height="20" fill="#22c55e" rx="2"/><text x="785" y="578" style="font-family: monospace; font-size: 11px; fill: #666;">423,002,965 (R²=0.9970)</text><text x="175" y="602" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">div</text><rect x="180" y="587" width="23.164655591755118" height="20" fill="#22c55e" rx="2"/><text x="785" y="602" style="font-family: monospace; font-size: 11px; fill: #666;">407,575,671 (R²=0.9999)</text><text x="175" y="626" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">tstore</text><rect x="180" y="611" width="22.28844429583241" height="20" fill="#22c55e" rx="2"/><text x="785" y="626" style="font-family: monospace; font-size: 11px; fill: #666;">392,158,977 (R²=1.0000)</text><text x="175" y="650" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">extcodesize</text><rect x="180" y="635" width="21.912549804814393" height="20" fill="#22c55e" rx="2"/><text x="785" y="650" style="font-family: monospace; font-size: 11px; fill: #666;">385,545,218 (R²=0.9996)</text><text x="175" y="674" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">call</text><rect x="180" y="659" width="21.34266168112998" height="20" fill="#22c55e" rx="2"/><text x="785" y="674" style="font-family: monospace; font-size: 11px; fill: #666;">375,518,195 (R²=1.0000)</text><text x="175" y="698" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">callcode</text><rect x="180" y="683" width="21.17686372017184" height="20" fill="#22c55e" rx="2"/><text x="785" y="698" style="font-family: monospace; font-size: 11px; fill: #666;">372,601,026 (R²=0.9999)</text><text x="175" y="722" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">log0</text><rect x="180" y="707" width="21.121418228595317" height="20" fill="#84cc16" rx="2"/><text x="785" y="722" style="font-family: monospace; font-size: 11px; fill: #666;">371,625,478 (R²=0.9807)</text><text x="175" y="746" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">staticcall</text><rect x="180" y="731" width="20.998384058281548" height="20" fill="#22c55e" rx="2"/><text x="785" y="746" style="font-family: monospace; font-size: 11px; fill: #666;">369,460,726 (R²=0.9999)</text><text x="175" y="770" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">blobhash</text><rect x="180" y="755" width="20.64159779776577" height="20" fill="#22c55e" rx="2"/><text x="785" y="770" style="font-family: monospace; font-size: 11px; fill: #666;">363,183,171 (R²=0.9981)</text><text x="175" y="794" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">codecopy</text><rect x="180" y="779" width="20.626289854685847" height="20" fill="#22c55e" rx="2"/><text x="785" y="794" style="font-family: monospace; font-size: 11px; fill: #666;">362,913,832 (R²=0.9998)</text><text x="175" y="818" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mod</text><rect x="180" y="803" width="20.252407614863337" height="20" fill="#22c55e" rx="2"/><text x="785" y="818" style="font-family: monospace; font-size: 11px; fill: #666;">356,335,478 (R²=1.0000)</text><text x="175" y="842" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sdiv</text><rect x="180" y="827" width="20.204649144511002" height="20" fill="#22c55e" rx="2"/><text x="785" y="842" style="font-family: monospace; font-size: 11px; fill: #666;">355,495,181 (R²=1.0000)</text><text x="175" y="866" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sload</text><rect x="180" y="851" width="20.131392629642704" height="20" fill="#22c55e" rx="2"/><text x="785" y="866" style="font-family: monospace; font-size: 11px; fill: #666;">354,206,253 (R²=0.9999)</text><text x="175" y="890" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">exp</text><rect x="180" y="875" width="19.27875698353362" height="20" fill="#22c55e" rx="2"/><text x="785" y="890" style="font-family: monospace; font-size: 11px; fill: #666;">339,204,366 (R²=0.9997)</text><text x="175" y="914" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mload</text><rect x="180" y="899" width="18.914215670027485" height="20" fill="#22c55e" rx="2"/><text x="785" y="914" style="font-family: monospace; font-size: 11px; fill: #666;">332,790,363 (R²=0.9983)</text><text x="175" y="938" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">eq</text><rect x="180" y="923" width="18.07880155224055" height="20" fill="#22c55e" rx="2"/><text x="785" y="938" style="font-family: monospace; font-size: 11px; fill: #666;">318,091,484 (R²=0.9993)</text><text x="175" y="962" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">delegatecall</text><rect x="180" y="947" width="17.955334070159672" height="20" fill="#22c55e" rx="2"/><text x="785" y="962" style="font-family: monospace; font-size: 11px; fill: #666;">315,919,108 (R²=0.9998)</text><text x="175" y="986" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">jumpi</text><rect x="180" y="971" width="16.54377813504214" height="20" fill="#22c55e" rx="2"/><text x="785" y="986" style="font-family: monospace; font-size: 11px; fill: #666;">291,083,174 (R²=0.9978)</text><text x="175" y="1010" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">gt</text><rect x="180" y="995" width="16.50507067451563" height="20" fill="#22c55e" rx="2"/><text x="785" y="1010" style="font-family: monospace; font-size: 11px; fill: #666;">290,402,127 (R²=0.9983)</text><text x="175" y="1034" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">lt</text><rect x="180" y="1019" width="16.504229797339033" height="20" fill="#eab308" rx="2"/><text x="785" y="1034" style="font-family: monospace; font-size: 11px; fill: #666;">290,387,332 (R²=0.9483)</text><text x="175" y="1058" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">and</text><rect x="180" y="1043" width="16.16410091868681" height="20" fill="#22c55e" rx="2"/><text x="785" y="1058" style="font-family: monospace; font-size: 11px; fill: #666;">284,402,859 (R²=0.9966)</text><text x="175" y="1082" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">shr</text><rect x="180" y="1067" width="15.643205840145532" height="20" fill="#22c55e" rx="2"/><text x="785" y="1082" style="font-family: monospace; font-size: 11px; fill: #666;">275,237,855 (R²=0.9984)</text><text x="175" y="1106" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">not</text><rect x="180" y="1091" width="15.563109887786368" height="20" fill="#22c55e" rx="2"/><text x="785" y="1106" style="font-family: monospace; font-size: 11px; fill: #666;">273,828,589 (R²=0.9948)</text><text x="175" y="1130" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">coinbase</text><rect x="180" y="1115" width="14.816065510461545" height="20" fill="#22c55e" rx="2"/><text x="785" y="1130" style="font-family: monospace; font-size: 11px; fill: #666;">260,684,551 (R²=0.9983)</text><text x="175" y="1154" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">origin</text><rect x="180" y="1139" width="14.816033114382423" height="20" fill="#22c55e" rx="2"/><text x="785" y="1154" style="font-family: monospace; font-size: 11px; fill: #666;">260,683,981 (R²=0.9995)</text><text x="175" y="1178" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">caller</text><rect x="180" y="1163" width="14.816019587598506" height="20" fill="#22c55e" rx="2"/><text x="785" y="1178" style="font-family: monospace; font-size: 11px; fill: #666;">260,683,743 (R²=0.9998)</text><text x="175" y="1202" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">extcodecopy</text><rect x="180" y="1187" width="14.034879928380551" height="20" fill="#22c55e" rx="2"/><text x="785" y="1202" style="font-family: monospace; font-size: 11px; fill: #666;">246,939,808 (R²=0.9999)</text><text x="175" y="1226" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sstore</text><rect x="180" y="1211" width="13.976611033255413" height="20" fill="#22c55e" rx="2"/><text x="785" y="1226" style="font-family: monospace; font-size: 11px; fill: #666;">245,914,583 (R²=0.9994)</text><text x="175" y="1250" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sar</text><rect x="180" y="1235" width="13.824364352195426" height="20" fill="#22c55e" rx="2"/><text x="785" y="1250" style="font-family: monospace; font-size: 11px; fill: #666;">243,235,845 (R²=0.9998)</text><text x="175" y="1274" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">calldatacopy</text><rect x="180" y="1259" width="13.774167309613352" height="20" fill="#22c55e" rx="2"/><text x="785" y="1274" style="font-family: monospace; font-size: 11px; fill: #666;">242,352,642 (R²=0.9999)</text><text x="175" y="1298" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">prevrandao</text><rect x="180" y="1283" width="13.226927910032986" height="20" fill="#22c55e" rx="2"/><text x="785" y="1298" style="font-family: monospace; font-size: 11px; fill: #666;">232,724,117 (R²=0.9998)</text><text x="175" y="1322" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">byte</text><rect x="180" y="1307" width="13.188411018021053" height="20" fill="#22c55e" rx="2"/><text x="785" y="1322" style="font-family: monospace; font-size: 11px; fill: #666;">232,046,423 (R²=0.9964)</text><text x="175" y="1346" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">blobbasefee</text><rect x="180" y="1331" width="12.70177178088787" height="20" fill="#22c55e" rx="2"/><text x="785" y="1346" style="font-family: monospace; font-size: 11px; fill: #666;">223,484,141 (R²=0.9997)</text><text x="175" y="1370" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">gasprice</text><rect x="180" y="1355" width="12.428991111129424" height="20" fill="#22c55e" rx="2"/><text x="785" y="1370" style="font-family: monospace; font-size: 11px; fill: #666;">218,684,641 (R²=0.9986)</text><text x="175" y="1394" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">callvalue</text><rect x="180" y="1379" width="12.224358719748697" height="20" fill="#22c55e" rx="2"/><text x="785" y="1394" style="font-family: monospace; font-size: 11px; fill: #666;">215,084,191 (R²=0.9978)</text><text x="175" y="1418" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">shl</text><rect x="180" y="1403" width="11.726640478236444" height="20" fill="#22c55e" rx="2"/><text x="785" y="1418" style="font-family: monospace; font-size: 11px; fill: #666;">206,326,977 (R²=0.9991)</text><text x="175" y="1442" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bn128_pairing</text><rect x="180" y="1427" width="11.68126215350098" height="20" fill="#22c55e" rx="2"/><text x="785" y="1442" style="font-family: monospace; font-size: 11px; fill: #666;">205,528,558 (R²=0.9968)</text><text x="175" y="1466" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mstore</text><rect x="180" y="1451" width="11.60886277068406" height="20" fill="#22c55e" rx="2"/><text x="785" y="1466" style="font-family: monospace; font-size: 11px; fill: #666;">204,254,711 (R²=0.9961)</text><text x="175" y="1490" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">timestamp</text><rect x="180" y="1475" width="11.337755102653922" height="20" fill="#22c55e" rx="2"/><text x="785" y="1490" style="font-family: monospace; font-size: 11px; fill: #666;">199,484,647 (R²=0.9987)</text><text x="175" y="1514" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">number</text><rect x="180" y="1499" width="11.33774742989834" height="20" fill="#22c55e" rx="2"/><text x="785" y="1514" style="font-family: monospace; font-size: 11px; fill: #666;">199,484,512 (R²=0.9999)</text><text x="175" y="1538" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mstore8</text><rect x="180" y="1523" width="11.32871688075407" height="20" fill="#22c55e" rx="2"/><text x="785" y="1538" style="font-family: monospace; font-size: 11px; fill: #666;">199,325,622 (R²=0.9980)</text><text x="175" y="1562" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">calldatasize</text><rect x="180" y="1547" width="11.269555558901867" height="20" fill="#22c55e" rx="2"/><text x="785" y="1562" style="font-family: monospace; font-size: 11px; fill: #666;">198,284,695 (R²=0.9972)</text><text x="175" y="1586" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">pc</text><rect x="180" y="1571" width="11.26952566357271" height="20" fill="#22c55e" rx="2"/><text x="785" y="1586" style="font-family: monospace; font-size: 11px; fill: #666;">198,284,169 (R²=1.0000)</text><text x="175" y="1610" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">basefee</text><rect x="180" y="1595" width="11.201348683405588" height="20" fill="#22c55e" rx="2"/><text x="785" y="1610" style="font-family: monospace; font-size: 11px; fill: #666;">197,084,614 (R²=0.9987)</text><text x="175" y="1634" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">chainid</text><rect x="180" y="1619" width="11.20130827355952" height="20" fill="#22c55e" rx="2"/><text x="785" y="1634" style="font-family: monospace; font-size: 11px; fill: #666;">197,083,903 (R²=0.9979)</text><text x="175" y="1658" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">address</text><rect x="180" y="1643" width="11.129701060130062" height="20" fill="#22c55e" rx="2"/><text x="785" y="1658" style="font-family: monospace; font-size: 11px; fill: #666;">195,823,994 (R²=0.9969)</text><text x="175" y="1682" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">codesize</text><rect x="180" y="1667" width="11.064862979016238" height="20" fill="#22c55e" rx="2"/><text x="785" y="1682" style="font-family: monospace; font-size: 11px; fill: #666;">194,683,186 (R²=0.9992)</text><text x="175" y="1706" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">msize</text><rect x="180" y="1691" width="11.046552487753662" height="20" fill="#22c55e" rx="2"/><text x="785" y="1706" style="font-family: monospace; font-size: 11px; fill: #666;">194,361,018 (R²=0.9998)</text><text x="175" y="1730" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">modexp</text><rect x="180" y="1715" width="11.007730504245682" height="20" fill="#22c55e" rx="2"/><text x="785" y="1730" style="font-family: monospace; font-size: 11px; fill: #666;">193,677,956 (R²=0.9998)</text><text x="175" y="1754" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">gaslimit</text><rect x="180" y="1739" width="10.996753632768694" height="20" fill="#22c55e" rx="2"/><text x="785" y="1754" style="font-family: monospace; font-size: 11px; fill: #666;">193,484,821 (R²=0.9953)</text><text x="175" y="1778" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">gas</text><rect x="180" y="1763" width="10.996735274990524" height="20" fill="#22c55e" rx="2"/><text x="785" y="1778" style="font-family: monospace; font-size: 11px; fill: #666;">193,484,498 (R²=0.9961)</text><text x="175" y="1802" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">returndatasize</text><rect x="180" y="1787" width="10.996663321593728" height="20" fill="#22c55e" rx="2"/><text x="785" y="1802" style="font-family: monospace; font-size: 11px; fill: #666;">193,483,232 (R²=0.9996)</text><text x="175" y="1826" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">push0</text><rect x="180" y="1811" width="10.792049685837757" height="20" fill="#22c55e" rx="2"/><text x="785" y="1826" style="font-family: monospace; font-size: 11px; fill: #666;">189,883,112 (R²=0.9990)</text><text x="175" y="1850" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">push16</text><rect x="180" y="1835" width="10.77371935908112" height="20" fill="#22c55e" rx="2"/><text x="785" y="1850" style="font-family: monospace; font-size: 11px; fill: #666;">189,560,595 (R²=0.9999)</text><text x="175" y="1874" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">create2</text><rect x="180" y="1859" width="10.754100691409368" height="20" fill="#22c55e" rx="2"/><text x="785" y="1874" style="font-family: monospace; font-size: 11px; fill: #666;">189,215,410 (R²=0.9999)</text><text x="175" y="1898" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">pop</text><rect x="180" y="1883" width="10.32587959870621" height="20" fill="#84cc16" rx="2"/><text x="785" y="1898" style="font-family: monospace; font-size: 11px; fill: #666;">181,680,979 (R²=0.9867)</text><text x="175" y="1922" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">create</text><rect x="180" y="1907" width="10.088936494710348" height="20" fill="#22c55e" rx="2"/><text x="785" y="1922" style="font-family: monospace; font-size: 11px; fill: #666;">177,512,031 (R²=0.9998)</text><text x="175" y="1946" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">push1</text><rect x="180" y="1931" width="10.042443972193874" height="20" fill="#22c55e" rx="2"/><text x="785" y="1946" style="font-family: monospace; font-size: 11px; fill: #666;">176,694,008 (R²=0.9935)</text><text x="175" y="1970" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">calldataload</text><rect x="180" y="1955" width="9.433545285719832" height="20" fill="#22c55e" rx="2"/><text x="785" y="1970" style="font-family: monospace; font-size: 11px; fill: #666;">165,980,605 (R²=0.9970)</text><text x="175" y="1994" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">dup8</text><rect x="180" y="1979" width="8.582549051720173" height="20" fill="#84cc16" rx="2"/><text x="785" y="1994" style="font-family: monospace; font-size: 11px; fill: #666;">151,007,563 (R²=0.9816)</text><text x="175" y="2018" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">dup1</text><rect x="180" y="2003" width="8.49178126254484" height="20" fill="#22c55e" rx="2"/><text x="785" y="2018" style="font-family: monospace; font-size: 11px; fill: #666;">149,410,529 (R²=0.9909)</text><text x="175" y="2042" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">push32</text><rect x="180" y="2027" width="7.618557623975438" height="20" fill="#22c55e" rx="2"/><text x="785" y="2042" style="font-family: monospace; font-size: 11px; fill: #666;">134,046,402 (R²=0.9954)</text><text x="175" y="2066" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">ecrecover</text><rect x="180" y="2051" width="6.786896620372795" height="20" fill="#22c55e" rx="2"/><text x="785" y="2066" style="font-family: monospace; font-size: 11px; fill: #666;">119,413,558 (R²=0.9921)</text><text x="175" y="2090" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">jump</text><rect x="180" y="2075" width="6.301804438105918" height="20" fill="#22c55e" rx="2"/><text x="785" y="2090" style="font-family: monospace; font-size: 11px; fill: #666;">110,878,496 (R²=0.9976)</text><text x="175" y="2114" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">dup16</text><rect x="180" y="2099" width="5.813952223568011" height="20" fill="#84cc16" rx="2"/><text x="785" y="2114" style="font-family: monospace; font-size: 11px; fill: #666;">102,294,872 (R²=0.9768)</text><text x="175" y="2138" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">point_evaluation</text><rect x="180" y="2123" width="5.777342778593843" height="20" fill="#22c55e" rx="2"/><text x="785" y="2138" style="font-family: monospace; font-size: 11px; fill: #666;">101,650,739 (R²=0.9945)</text><text x="175" y="2162" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">mcopy</text><rect x="180" y="2147" width="5.772509397258788" height="20" fill="#22c55e" rx="2"/><text x="785" y="2162" style="font-family: monospace; font-size: 11px; fill: #666;">101,565,697 (R²=0.9974)</text><text x="175" y="2186" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bn128_mul</text><rect x="180" y="2171" width="5.722266090802313" height="20" fill="#22c55e" rx="2"/><text x="785" y="2186" style="font-family: monospace; font-size: 11px; fill: #666;">100,681,680 (R²=0.9997)</text><text x="175" y="2210" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">jumpdest</text><rect x="180" y="2195" width="5.416457277364169" height="20" fill="#22c55e" rx="2"/><text x="785" y="2210" style="font-family: monospace; font-size: 11px; fill: #666;">95,301,059 (R²=0.9944)</text><text x="175" y="2234" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_pairing</text><rect x="180" y="2219" width="4.715297399302341" height="20" fill="#22c55e" rx="2"/><text x="785" y="2234" style="font-family: monospace; font-size: 11px; fill: #666;">82,964,346 (R²=0.9979)</text><text x="175" y="2258" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_g1msm</text><rect x="180" y="2243" width="4.622236536077195" height="20" fill="#84cc16" rx="2"/><text x="785" y="2258" style="font-family: monospace; font-size: 11px; fill: #666;">81,326,966 (R²=0.9893)</text><text x="175" y="2282" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">returndatacopy</text><rect x="180" y="2267" width="4.566062814743071" height="20" fill="#22c55e" rx="2"/><text x="785" y="2282" style="font-family: monospace; font-size: 11px; fill: #666;">80,338,605 (R²=0.9920)</text><text x="175" y="2306" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_g2msm</text><rect x="180" y="2291" width="4.560940539951534" height="20" fill="#22c55e" rx="2"/><text x="785" y="2306" style="font-family: monospace; font-size: 11px; fill: #666;">80,248,480 (R²=0.9960)</text><text x="175" y="2330" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">ripemd160</text><rect x="180" y="2315" width="4.19448279944184" height="20" fill="#22c55e" rx="2"/><text x="785" y="2330" style="font-family: monospace; font-size: 11px; fill: #666;">73,800,758 (R²=0.9982)</text><text x="175" y="2354" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">swap16</text><rect x="180" y="2339" width="3.322033313493081" height="20" fill="#22c55e" rx="2"/><text x="785" y="2354" style="font-family: monospace; font-size: 11px; fill: #666;">58,450,252 (R²=0.9957)</text><text x="175" y="2378" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">swap8</text><rect x="180" y="2363" width="3.2858100638832233" height="20" fill="#22c55e" rx="2"/><text x="785" y="2378" style="font-family: monospace; font-size: 11px; fill: #666;">57,812,914 (R²=0.9917)</text><text x="175" y="2402" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">swap1</text><rect x="180" y="2387" width="3.2554122544876036" height="20" fill="#22c55e" rx="2"/><text x="785" y="2402" style="font-family: monospace; font-size: 11px; fill: #666;">57,278,073 (R²=0.9913)</text><text x="175" y="2426" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_map_fp2_to_g2</text><rect x="180" y="2411" width="1.5441117109328413" height="20" fill="#eab308" rx="2"/><text x="785" y="2426" style="font-family: monospace; font-size: 11px; fill: #666;">27,168,216 (R²=0.9404)</text><text x="175" y="2450" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_map_fp_to_g1</text><rect x="180" y="2435" width="1.4034310553081117" height="20" fill="#84cc16" rx="2"/><text x="785" y="2450" style="font-family: monospace; font-size: 11px; fill: #666;">24,692,979 (R²=0.9772)</text><text x="175" y="2474" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">sha256</text><rect x="180" y="2459" width="1.1178644488120435" height="20" fill="#f97316" rx="2"/><text x="785" y="2474" style="font-family: monospace; font-size: 11px; fill: #666;">19,668,514 (R²=0.8017)</text><text x="175" y="2498" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_g2add</text><rect x="180" y="2483" width="1.0580162164119284" height="20" fill="#84cc16" rx="2"/><text x="785" y="2498" style="font-family: monospace; font-size: 11px; fill: #666;">18,615,501 (R²=0.9636)</text><text x="175" y="2522" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bls12_g1add</text><rect x="180" y="2507" width="1.0261277326947282" height="20" fill="#84cc16" rx="2"/><text x="785" y="2522" style="font-family: monospace; font-size: 11px; fill: #666;">18,054,432 (R²=0.9518)</text><text x="175" y="2546" text-anchor="end" style="font-family: monospace; font-size: 12px; fill: #333;">bn128_add</text><rect x="180" y="2531" width="1" height="20" fill="#ef4444" rx="2"/><text x="785" y="2546" style="font-family: monospace; font-size: 11px; fill: #666;">14,612,379 (R²=0.7509)</text></svg></div>
