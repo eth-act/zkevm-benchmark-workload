@@ -1,18 +1,27 @@
+import type { Plugin } from 'vite';
 import { defineConfig } from 'vocs';
+
+// Plugin to serve public assets at basePath in dev mode
+function servePublicAtBasePath(): Plugin {
+  return {
+    name: 'serve-public-at-basepath',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        // Rewrite requests from basePath to root for public assets
+        if (req.url?.startsWith('/zkevm-benchmark-workload/marginal-gas-benchmark/')) {
+          req.url = req.url.replace('/zkevm-benchmark-workload', '');
+        }
+        next();
+      });
+    },
+  };
+}
 
 export default defineConfig({
   basePath: '/zkevm-benchmark-workload',
   rootDir: './docs',
   vite: {
-    server: {
-      // Serve public assets at basePath in dev mode
-      proxy: {
-        '/zkevm-benchmark-workload/marginal-gas-benchmark': {
-          target: 'http://localhost:5173',
-          rewrite: (path) => path.replace(/^\/zkevm-benchmark-workload/, ''),
-        },
-      },
-    },
+    plugins: [servePublicAtBasePath()],
   },
   title: 'zkGas profiling',
   description: 'Comprehensive profiling framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments across various gas categories.',
