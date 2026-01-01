@@ -84,7 +84,77 @@ export default defineConfig({
             },
           ],
         },
-      ]
+        {
+          text: '0.8M, 4GPU',
+          link: '/benchmark-results/gas-categorized/0.8m/0.8M-4',
+          items: [
+            {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/0.8m/sp1-0.8M-4',
+            },
+            {
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/0.8m/risc0-0.8M-4',
+            },
+          ],
+        },
+        {
+          text: '0.6M, 4GPU',
+          link: '/benchmark-results/gas-categorized/0.6m/0.6M-4',
+          items: [
+            {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/0.6m/sp1-0.6M-4',
+            },
+            {
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/0.6m/risc0-0.6M-4',
+            },
+          ],
+        },
+        {
+          text: '0.4M, 4GPU',
+          link: '/benchmark-results/gas-categorized/0.4m/0.4M-4',
+          items: [
+            {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/0.4m/sp1-0.4M-4',
+            },
+            {
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/0.4m/risc0-0.4M-4',
+            },
+          ],
+        },
+        {
+          text: '0.2M, 4GPU',
+          link: '/benchmark-results/gas-categorized/0.2m/0.2M-4',
+          items: [
+            {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/0.2m/sp1-0.2M-4',
+            },
+            {
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/0.2m/risc0-0.2M-4',
+            },
+          ],
+        },
+        {
+          text: '0.1M, 4GPU',
+          link: '/benchmark-results/gas-categorized/0.1m/0.1M-4',
+          items: [
+            {
+              text: 'sp1',
+              link: '/benchmark-results/gas-categorized/0.1m/sp1-0.1M-4',
+            },
+            {
+              text: 'risc0',
+              link: '/benchmark-results/gas-categorized/0.1m/risc0-0.1M-4',
+            },
+          ],
+        },
+      ],
     },
    
   ],
