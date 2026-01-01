@@ -3,6 +3,17 @@ import { defineConfig } from 'vocs';
 export default defineConfig({
   basePath: '/zkevm-benchmark-workload',
   rootDir: './docs',
+  vite: {
+    server: {
+      // Serve public assets at basePath in dev mode
+      proxy: {
+        '/zkevm-benchmark-workload/marginal-gas-benchmark': {
+          target: 'http://localhost:5173',
+          rewrite: (path) => path.replace(/^\/zkevm-benchmark-workload/, ''),
+        },
+      },
+    },
+  },
   title: 'zkGas profiling',
   description: 'Comprehensive profiling framework for measuring and comparing the resources needed for proving different OPCODEs in zk environments across various gas categories.',
   sidebar: [

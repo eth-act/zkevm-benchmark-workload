@@ -15,13 +15,13 @@
 
 *Only opcodes/precompiles with R² ≥ 0.7 are shown.*
 
-![Time/Gas Bar Chart](/marginal-gas-benchmark/sp1/plots/bar_time_per_gas.png)
+![Time/Gas Bar Chart](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/bar_time_per_gas.png)
 
 ### Cycles/Gas Bar Chart (R² ≥ 0.9)
 
 *Only opcodes/precompiles with R² ≥ 0.9 (green) are shown.*
 
-![Cycles/Gas Bar Chart](/marginal-gas-benchmark/sp1/plots/bar_cycles_per_gas.png)
+![Cycles/Gas Bar Chart](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/bar_cycles_per_gas.png)
 
 ### Regression Results
 
@@ -141,23 +141,23 @@ This section examines whether ZK cycles are a good proxy for proving time.
 
 *Only opcodes/precompiles with R² ≥ 0.7 are shown.*
 
-![Time/Cycles Bar Chart](/marginal-gas-benchmark/sp1/plots/bar_time_per_cycle.png)
+![Time/Cycles Bar Chart](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/bar_time_per_cycle.png)
 
 ### Combined ZK Cycles ↔ Proving Time (All Opcodes)
 
-![Combined ZK Cycles vs Proving Time](/marginal-gas-benchmark/sp1/plots/combined_zkcycles_proving.png)
+![Combined ZK Cycles vs Proving Time](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/combined_zkcycles_proving.png)
 
 ### Excluding: none
 
-![Regular Opcodes](/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular.png)
+![Regular Opcodes](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular.png)
 
 ### Excluding: blake2f, modexp
 
-![Regular Opcodes No Outliers](/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular_no_outliers.png)
+![Regular Opcodes No Outliers](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular_no_outliers.png)
 
 ### Excluding: blake2f, keccak256, log0, log1, log2, log3, log4, modexp
 
-![Regular Opcodes Minimal](/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular_minimal.png)
+![Regular Opcodes Minimal](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/combined_zkcycles_regular_minimal.png)
 
 
 ## Regression Charts
@@ -166,1267 +166,1267 @@ This section examines whether ZK cycles are a good proxy for proving time.
 
 **modexp**: Slope = 554.91µs/gas, R² = 0.9945
 
-![modexp](/marginal-gas-benchmark/sp1/plots/gas_proving_modexp.png)
+![modexp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_modexp.png)
 
 **point_evaluation**: Slope = 398.23µs/gas, R² = 1.0000
 
-![point_evaluation](/marginal-gas-benchmark/sp1/plots/gas_proving_point_evaluation.png)
+![point_evaluation](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_point_evaluation.png)
 
 **bls12_map_fp_to_g1**: Slope = 159.35µs/gas, R² = 0.9993
 
-![bls12_map_fp_to_g1](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_map_fp_to_g1.png)
 
 **bls12_pairing**: Slope = 133.93µs/gas, R² = 1.0000
 
-![bls12_pairing](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_pairing.png)
+![bls12_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_pairing.png)
 
 **bls12_g1add**: Slope = 112.19µs/gas, R² = 0.9995
 
-![bls12_g1add](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g1add.png)
+![bls12_g1add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g1add.png)
 
 **bls12_map_fp2_to_g2**: Slope = 112.10µs/gas, R² = 0.9999
 
-![bls12_map_fp2_to_g2](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_map_fp2_to_g2.png)
 
 **bls12_g2add**: Slope = 110.98µs/gas, R² = 0.9986
 
-![bls12_g2add](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g2add.png)
+![bls12_g2add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g2add.png)
 
 **blake2f**: Slope = 81.60µs/gas, R² = 0.9995
 
-![blake2f](/marginal-gas-benchmark/sp1/plots/gas_proving_blake2f.png)
+![blake2f](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_blake2f.png)
 
 **mulmod**: Slope = 52.68µs/gas, R² = 0.9999
 
-![mulmod](/marginal-gas-benchmark/sp1/plots/gas_proving_mulmod.png)
+![mulmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mulmod.png)
 
 **bls12_g1msm**: Slope = 51.92µs/gas, R² = 0.9974
 
-![bls12_g1msm](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g1msm.png)
+![bls12_g1msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g1msm.png)
 
 **bn128_mul**: Slope = 40.27µs/gas, R² = 0.9977
 
-![bn128_mul](/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_mul.png)
+![bn128_mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_mul.png)
 
 **bls12_g2msm**: Slope = 39.40µs/gas, R² = 0.9966
 
-![bls12_g2msm](/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g2msm.png)
+![bls12_g2msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bls12_g2msm.png)
 
 **div**: Slope = 38.98µs/gas, R² = 0.9973
 
-![div](/marginal-gas-benchmark/sp1/plots/gas_proving_div.png)
+![div](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_div.png)
 
 **bn128_add**: Slope = 37.83µs/gas, R² = 0.9196
 
-![bn128_add](/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_add.png)
+![bn128_add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_add.png)
 
 **sdiv**: Slope = 32.61µs/gas, R² = 0.9951
 
-![sdiv](/marginal-gas-benchmark/sp1/plots/gas_proving_sdiv.png)
+![sdiv](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sdiv.png)
 
 **mod**: Slope = 31.87µs/gas, R² = 0.9997
 
-![mod](/marginal-gas-benchmark/sp1/plots/gas_proving_mod.png)
+![mod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mod.png)
 
 **selfbalance**: Slope = 31.23µs/gas, R² = 0.9980
 
-![selfbalance](/marginal-gas-benchmark/sp1/plots/gas_proving_selfbalance.png)
+![selfbalance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_selfbalance.png)
 
 **addmod**: Slope = 24.18µs/gas, R² = 0.9999
 
-![addmod](/marginal-gas-benchmark/sp1/plots/gas_proving_addmod.png)
+![addmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_addmod.png)
 
 **bn128_pairing**: Slope = 22.11µs/gas, R² = 0.9909
 
-![bn128_pairing](/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_pairing.png)
+![bn128_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_bn128_pairing.png)
 
 **eq**: Slope = 14.68µs/gas, R² = 0.9872
 
-![eq](/marginal-gas-benchmark/sp1/plots/gas_proving_eq.png)
+![eq](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_eq.png)
 
 **exp**: Slope = 12.03µs/gas, R² = 0.9968
 
-![exp](/marginal-gas-benchmark/sp1/plots/gas_proving_exp.png)
+![exp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_exp.png)
 
 **swap16**: Slope = 10.79µs/gas, R² = 0.9845
 
-![swap16](/marginal-gas-benchmark/sp1/plots/gas_proving_swap16.png)
+![swap16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_swap16.png)
 
 **prevrandao**: Slope = 10.61µs/gas, R² = 0.9904
 
-![prevrandao](/marginal-gas-benchmark/sp1/plots/gas_proving_prevrandao.png)
+![prevrandao](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_prevrandao.png)
 
 **swap8**: Slope = 9.93µs/gas, R² = 0.9847
 
-![swap8](/marginal-gas-benchmark/sp1/plots/gas_proving_swap8.png)
+![swap8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_swap8.png)
 
 **sar**: Slope = 9.80µs/gas, R² = 0.9839
 
-![sar](/marginal-gas-benchmark/sp1/plots/gas_proving_sar.png)
+![sar](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sar.png)
 
 **mstore**: Slope = 9.77µs/gas, R² = 0.9946
 
-![mstore](/marginal-gas-benchmark/sp1/plots/gas_proving_mstore.png)
+![mstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mstore.png)
 
 **smod**: Slope = 9.71µs/gas, R² = 0.9969
 
-![smod](/marginal-gas-benchmark/sp1/plots/gas_proving_smod.png)
+![smod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_smod.png)
 
 **sha256**: Slope = 9.61µs/gas, R² = 0.9985
 
-![sha256](/marginal-gas-benchmark/sp1/plots/gas_proving_sha256.png)
+![sha256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sha256.png)
 
 **ecrecover**: Slope = 9.55µs/gas, R² = 0.9380
 
-![ecrecover](/marginal-gas-benchmark/sp1/plots/gas_proving_ecrecover.png)
+![ecrecover](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_ecrecover.png)
 
 **swap1**: Slope = 9.49µs/gas, R² = 0.9781
 
-![swap1](/marginal-gas-benchmark/sp1/plots/gas_proving_swap1.png)
+![swap1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_swap1.png)
 
 **call**: Slope = 9.27µs/gas, R² = 0.9932
 
-![call](/marginal-gas-benchmark/sp1/plots/gas_proving_call.png)
+![call](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_call.png)
 
 **callcode**: Slope = 9.26µs/gas, R² = 0.9991
 
-![callcode](/marginal-gas-benchmark/sp1/plots/gas_proving_callcode.png)
+![callcode](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_callcode.png)
 
 **staticcall**: Slope = 8.97µs/gas, R² = 0.9999
 
-![staticcall](/marginal-gas-benchmark/sp1/plots/gas_proving_staticcall.png)
+![staticcall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_staticcall.png)
 
 **coinbase**: Slope = 8.25µs/gas, R² = 0.9857
 
-![coinbase](/marginal-gas-benchmark/sp1/plots/gas_proving_coinbase.png)
+![coinbase](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_coinbase.png)
 
 **caller**: Slope = 8.17µs/gas, R² = 0.9845
 
-![caller](/marginal-gas-benchmark/sp1/plots/gas_proving_caller.png)
+![caller](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_caller.png)
 
 **origin**: Slope = 8.10µs/gas, R² = 0.9678
 
-![origin](/marginal-gas-benchmark/sp1/plots/gas_proving_origin.png)
+![origin](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_origin.png)
 
 **delegatecall**: Slope = 7.55µs/gas, R² = 0.9999
 
-![delegatecall](/marginal-gas-benchmark/sp1/plots/gas_proving_delegatecall.png)
+![delegatecall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_delegatecall.png)
 
 **push32**: Slope = 7.52µs/gas, R² = 0.9244
 
-![push32](/marginal-gas-benchmark/sp1/plots/gas_proving_push32.png)
+![push32](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_push32.png)
 
 **address**: Slope = 7.42µs/gas, R² = 0.9953
 
-![address](/marginal-gas-benchmark/sp1/plots/gas_proving_address.png)
+![address](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_address.png)
 
 **mul**: Slope = 7.33µs/gas, R² = 0.9892
 
-![mul](/marginal-gas-benchmark/sp1/plots/gas_proving_mul.png)
+![mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mul.png)
 
 **codecopy**: Slope = 7.13µs/gas, R² = 0.9950
 
-![codecopy](/marginal-gas-benchmark/sp1/plots/gas_proving_codecopy.png)
+![codecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_codecopy.png)
 
 **shr**: Slope = 7.09µs/gas, R² = 0.9971
 
-![shr](/marginal-gas-benchmark/sp1/plots/gas_proving_shr.png)
+![shr](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_shr.png)
 
 **keccak256**: Slope = 6.68µs/gas, R² = 0.9992
 
-![keccak256](/marginal-gas-benchmark/sp1/plots/gas_proving_keccak256.png)
+![keccak256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_keccak256.png)
 
 **blobbasefee**: Slope = 6.62µs/gas, R² = 0.9940
 
-![blobbasefee](/marginal-gas-benchmark/sp1/plots/gas_proving_blobbasefee.png)
+![blobbasefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_blobbasefee.png)
 
 **mload**: Slope = 6.55µs/gas, R² = 0.9755
 
-![mload](/marginal-gas-benchmark/sp1/plots/gas_proving_mload.png)
+![mload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mload.png)
 
 **gasprice**: Slope = 6.50µs/gas, R² = 0.9995
 
-![gasprice](/marginal-gas-benchmark/sp1/plots/gas_proving_gasprice.png)
+![gasprice](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_gasprice.png)
 
 **calldataload**: Slope = 6.35µs/gas, R² = 0.9983
 
-![calldataload](/marginal-gas-benchmark/sp1/plots/gas_proving_calldataload.png)
+![calldataload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_calldataload.png)
 
 **callvalue**: Slope = 6.31µs/gas, R² = 0.9789
 
-![callvalue](/marginal-gas-benchmark/sp1/plots/gas_proving_callvalue.png)
+![callvalue](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_callvalue.png)
 
 **shl**: Slope = 6.26µs/gas, R² = 0.9913
 
-![shl](/marginal-gas-benchmark/sp1/plots/gas_proving_shl.png)
+![shl](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_shl.png)
 
 **signextend**: Slope = 5.91µs/gas, R² = 0.9918
 
-![signextend](/marginal-gas-benchmark/sp1/plots/gas_proving_signextend.png)
+![signextend](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_signextend.png)
 
 **codesize**: Slope = 5.63µs/gas, R² = 0.9864
 
-![codesize](/marginal-gas-benchmark/sp1/plots/gas_proving_codesize.png)
+![codesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_codesize.png)
 
 **gas**: Slope = 5.51µs/gas, R² = 0.9836
 
-![gas](/marginal-gas-benchmark/sp1/plots/gas_proving_gas.png)
+![gas](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_gas.png)
 
 **calldatasize**: Slope = 5.48µs/gas, R² = 0.9780
 
-![calldatasize](/marginal-gas-benchmark/sp1/plots/gas_proving_calldatasize.png)
+![calldatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_calldatasize.png)
 
 **pc**: Slope = 5.43µs/gas, R² = 0.9565
 
-![pc](/marginal-gas-benchmark/sp1/plots/gas_proving_pc.png)
+![pc](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_pc.png)
 
 **and**: Slope = 5.24µs/gas, R² = 0.9897
 
-![and](/marginal-gas-benchmark/sp1/plots/gas_proving_and.png)
+![and](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_and.png)
 
 **chainid**: Slope = 5.04µs/gas, R² = 1.0000
 
-![chainid](/marginal-gas-benchmark/sp1/plots/gas_proving_chainid.png)
+![chainid](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_chainid.png)
 
 **push0**: Slope = 4.92µs/gas, R² = 0.9425
 
-![push0](/marginal-gas-benchmark/sp1/plots/gas_proving_push0.png)
+![push0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_push0.png)
 
 **xor**: Slope = 4.91µs/gas, R² = 0.9720
 
-![xor](/marginal-gas-benchmark/sp1/plots/gas_proving_xor.png)
+![xor](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_xor.png)
 
 **gaslimit**: Slope = 4.79µs/gas, R² = 0.9959
 
-![gaslimit](/marginal-gas-benchmark/sp1/plots/gas_proving_gaslimit.png)
+![gaslimit](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_gaslimit.png)
 
 **returndatasize**: Slope = 4.70µs/gas, R² = 0.9944
 
-![returndatasize](/marginal-gas-benchmark/sp1/plots/gas_proving_returndatasize.png)
+![returndatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_returndatasize.png)
 
 **basefee**: Slope = 4.68µs/gas, R² = 0.9866
 
-![basefee](/marginal-gas-benchmark/sp1/plots/gas_proving_basefee.png)
+![basefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_basefee.png)
 
 **number**: Slope = 4.66µs/gas, R² = 0.9843
 
-![number](/marginal-gas-benchmark/sp1/plots/gas_proving_number.png)
+![number](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_number.png)
 
 **sstore**: Slope = 4.61µs/gas, R² = 0.9998
 
-![sstore](/marginal-gas-benchmark/sp1/plots/gas_proving_sstore.png)
+![sstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sstore.png)
 
 **byte**: Slope = 4.54µs/gas, R² = 0.9691
 
-![byte](/marginal-gas-benchmark/sp1/plots/gas_proving_byte.png)
+![byte](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_byte.png)
 
 **timestamp**: Slope = 4.33µs/gas, R² = 0.9887
 
-![timestamp](/marginal-gas-benchmark/sp1/plots/gas_proving_timestamp.png)
+![timestamp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_timestamp.png)
 
 **returndatacopy**: Slope = 4.20µs/gas, R² = 0.9857
 
-![returndatacopy](/marginal-gas-benchmark/sp1/plots/gas_proving_returndatacopy.png)
+![returndatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_returndatacopy.png)
 
 **calldatacopy**: Slope = 4.14µs/gas, R² = 0.9724
 
-![calldatacopy](/marginal-gas-benchmark/sp1/plots/gas_proving_calldatacopy.png)
+![calldatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_calldatacopy.png)
 
 **jumpdest**: Slope = 4.10µs/gas, R² = 0.9930
 
-![jumpdest](/marginal-gas-benchmark/sp1/plots/gas_proving_jumpdest.png)
+![jumpdest](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_jumpdest.png)
 
 **msize**: Slope = 3.96µs/gas, R² = 0.9917
 
-![msize](/marginal-gas-benchmark/sp1/plots/gas_proving_msize.png)
+![msize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_msize.png)
 
 **lt**: Slope = 3.95µs/gas, R² = 0.9971
 
-![lt](/marginal-gas-benchmark/sp1/plots/gas_proving_lt.png)
+![lt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_lt.png)
 
 **gt**: Slope = 3.84µs/gas, R² = 0.9896
 
-![gt](/marginal-gas-benchmark/sp1/plots/gas_proving_gt.png)
+![gt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_gt.png)
 
 **slt**: Slope = 3.79µs/gas, R² = 0.8388
 
-![slt](/marginal-gas-benchmark/sp1/plots/gas_proving_slt.png)
+![slt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_slt.png)
 
 **add**: Slope = 3.78µs/gas, R² = 0.9987
 
-![add](/marginal-gas-benchmark/sp1/plots/gas_proving_add.png)
+![add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_add.png)
 
 **push16**: Slope = 3.73µs/gas, R² = 0.9960
 
-![push16](/marginal-gas-benchmark/sp1/plots/gas_proving_push16.png)
+![push16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_push16.png)
 
 **sgt**: Slope = 3.55µs/gas, R² = 0.8265
 
-![sgt](/marginal-gas-benchmark/sp1/plots/gas_proving_sgt.png)
+![sgt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sgt.png)
 
 **dup16**: Slope = 3.54µs/gas, R² = 0.9449
 
-![dup16](/marginal-gas-benchmark/sp1/plots/gas_proving_dup16.png)
+![dup16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_dup16.png)
 
 **mstore8**: Slope = 3.36µs/gas, R² = 0.9735
 
-![mstore8](/marginal-gas-benchmark/sp1/plots/gas_proving_mstore8.png)
+![mstore8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mstore8.png)
 
 **extcodehash**: Slope = 3.24µs/gas, R² = 0.9982
 
-![extcodehash](/marginal-gas-benchmark/sp1/plots/gas_proving_extcodehash.png)
+![extcodehash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_extcodehash.png)
 
 **dup8**: Slope = 3.21µs/gas, R² = 0.9217
 
-![dup8](/marginal-gas-benchmark/sp1/plots/gas_proving_dup8.png)
+![dup8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_dup8.png)
 
 **dup1**: Slope = 3.05µs/gas, R² = 0.8879
 
-![dup1](/marginal-gas-benchmark/sp1/plots/gas_proving_dup1.png)
+![dup1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_dup1.png)
 
 **or**: Slope = 3.02µs/gas, R² = 0.8897
 
-![or](/marginal-gas-benchmark/sp1/plots/gas_proving_or.png)
+![or](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_or.png)
 
 **push1**: Slope = 2.75µs/gas, R² = 0.9551
 
-![push1](/marginal-gas-benchmark/sp1/plots/gas_proving_push1.png)
+![push1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_push1.png)
 
 **sub**: Slope = 2.59µs/gas, R² = 0.7971
 
-![sub](/marginal-gas-benchmark/sp1/plots/gas_proving_sub.png)
+![sub](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sub.png)
 
 **balance**: Slope = 2.43µs/gas, R² = 0.9993
 
-![balance](/marginal-gas-benchmark/sp1/plots/gas_proving_balance.png)
+![balance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_balance.png)
 
 **extcodecopy**: Slope = 2.30µs/gas, R² = 0.9967
 
-![extcodecopy](/marginal-gas-benchmark/sp1/plots/gas_proving_extcodecopy.png)
+![extcodecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_extcodecopy.png)
 
 **iszero**: Slope = 2.30µs/gas, R² = 0.8634
 
-![iszero](/marginal-gas-benchmark/sp1/plots/gas_proving_iszero.png)
+![iszero](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_iszero.png)
 
 **extcodesize**: Slope = 2.25µs/gas, R² = 0.9978
 
-![extcodesize](/marginal-gas-benchmark/sp1/plots/gas_proving_extcodesize.png)
+![extcodesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_extcodesize.png)
 
 **sload**: Slope = 2.10µs/gas, R² = 0.9979
 
-![sload](/marginal-gas-benchmark/sp1/plots/gas_proving_sload.png)
+![sload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_sload.png)
 
 **jumpi**: Slope = 2.09µs/gas, R² = 0.9972
 
-![jumpi](/marginal-gas-benchmark/sp1/plots/gas_proving_jumpi.png)
+![jumpi](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_jumpi.png)
 
 **mcopy**: Slope = 2.09µs/gas, R² = 0.9951
 
-![mcopy](/marginal-gas-benchmark/sp1/plots/gas_proving_mcopy.png)
+![mcopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_mcopy.png)
 
 **tstore**: Slope = 2.08µs/gas, R² = 0.9995
 
-![tstore](/marginal-gas-benchmark/sp1/plots/gas_proving_tstore.png)
+![tstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_tstore.png)
 
 **identity**: Slope = 2.06µs/gas, R² = 0.7010
 
-![identity](/marginal-gas-benchmark/sp1/plots/gas_proving_identity.png)
+![identity](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_identity.png)
 
 **blobhash**: Slope = 1.92µs/gas, R² = 0.9644
 
-![blobhash](/marginal-gas-benchmark/sp1/plots/gas_proving_blobhash.png)
+![blobhash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_blobhash.png)
 
 **not**: Slope = 1.89µs/gas, R² = 0.9312
 
-![not](/marginal-gas-benchmark/sp1/plots/gas_proving_not.png)
+![not](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_not.png)
 
 **ripemd160**: Slope = 1.55µs/gas, R² = 0.9559
 
-![ripemd160](/marginal-gas-benchmark/sp1/plots/gas_proving_ripemd160.png)
+![ripemd160](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_ripemd160.png)
 
 **pop**: Slope = 0.96µs/gas, R² = 0.7252
 
-![pop](/marginal-gas-benchmark/sp1/plots/gas_proving_pop.png)
+![pop](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_pop.png)
 
 **jump**: Slope = 0.88µs/gas, R² = 0.8975
 
-![jump](/marginal-gas-benchmark/sp1/plots/gas_proving_jump.png)
+![jump](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_jump.png)
 
 **tload**: Slope = 0.35µs/gas, R² = 0.9982
 
-![tload](/marginal-gas-benchmark/sp1/plots/gas_proving_tload.png)
+![tload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_tload.png)
 
 **create**: Slope = 0.15µs/gas, R² = 0.9997
 
-![create](/marginal-gas-benchmark/sp1/plots/gas_proving_create.png)
+![create](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_create.png)
 
 **create2**: Slope = 0.15µs/gas, R² = 0.9997
 
-![create2](/marginal-gas-benchmark/sp1/plots/gas_proving_create2.png)
+![create2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_create2.png)
 
 **log0**: Slope = 0.15µs/gas, R² = 0.9268
 
-![log0](/marginal-gas-benchmark/sp1/plots/gas_proving_log0.png)
+![log0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_log0.png)
 
 **log1**: Slope = 0.14µs/gas, R² = 0.9995
 
-![log1](/marginal-gas-benchmark/sp1/plots/gas_proving_log1.png)
+![log1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_log1.png)
 
 **log2**: Slope = 0.08µs/gas, R² = 0.9756
 
-![log2](/marginal-gas-benchmark/sp1/plots/gas_proving_log2.png)
+![log2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_log2.png)
 
 **log4**: Slope = 0.08µs/gas, R² = 0.9897
 
-![log4](/marginal-gas-benchmark/sp1/plots/gas_proving_log4.png)
+![log4](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_log4.png)
 
 **log3**: Slope = 0.07µs/gas, R² = 0.9979
 
-![log3](/marginal-gas-benchmark/sp1/plots/gas_proving_log3.png)
+![log3](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_proving_log3.png)
 
 ### sp1 Gas vs ZK Cycles
 
 **modexp**: Slope = 3.79K cycles/gas, R² = 1.0000
 
-![modexp](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_modexp.png)
+![modexp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_modexp.png)
 
 **point_evaluation**: Slope = 2.96K cycles/gas, R² = 1.0000
 
-![point_evaluation](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_point_evaluation.png)
+![point_evaluation](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_point_evaluation.png)
 
 **bls12_map_fp_to_g1**: Slope = 1.16K cycles/gas, R² = 1.0000
 
-![bls12_map_fp_to_g1](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_map_fp_to_g1.png)
 
 **bls12_pairing**: Slope = 995.58 cycles/gas, R² = 1.0000
 
-![bls12_pairing](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_pairing.png)
+![bls12_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_pairing.png)
 
 **bls12_map_fp2_to_g2**: Slope = 830.06 cycles/gas, R² = 1.0000
 
-![bls12_map_fp2_to_g2](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_map_fp2_to_g2.png)
 
 **bls12_g1add**: Slope = 816.57 cycles/gas, R² = 1.0000
 
-![bls12_g1add](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g1add.png)
+![bls12_g1add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g1add.png)
 
 **bls12_g2add**: Slope = 810.27 cycles/gas, R² = 1.0000
 
-![bls12_g2add](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g2add.png)
+![bls12_g2add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g2add.png)
 
 **blake2f**: Slope = 597.02 cycles/gas, R² = 1.0000
 
-![blake2f](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blake2f.png)
+![blake2f](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blake2f.png)
 
 **mulmod**: Slope = 422.25 cycles/gas, R² = 1.0000
 
-![mulmod](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mulmod.png)
+![mulmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mulmod.png)
 
 **bls12_g1msm**: Slope = 371.60 cycles/gas, R² = 1.0000
 
-![bls12_g1msm](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g1msm.png)
+![bls12_g1msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g1msm.png)
 
 **div**: Slope = 306.02 cycles/gas, R² = 1.0000
 
-![div](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_div.png)
+![div](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_div.png)
 
 **bls12_g2msm**: Slope = 280.55 cycles/gas, R² = 1.0000
 
-![bls12_g2msm](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g2msm.png)
+![bls12_g2msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bls12_g2msm.png)
 
 **sdiv**: Slope = 260.42 cycles/gas, R² = 1.0000
 
-![sdiv](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sdiv.png)
+![sdiv](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sdiv.png)
 
 **mod**: Slope = 255.42 cycles/gas, R² = 1.0000
 
-![mod](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mod.png)
+![mod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mod.png)
 
 **selfbalance**: Slope = 234.00 cycles/gas, R² = 1.0000
 
-![selfbalance](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_selfbalance.png)
+![selfbalance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_selfbalance.png)
 
 **addmod**: Slope = 193.00 cycles/gas, R² = 1.0000
 
-![addmod](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_addmod.png)
+![addmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_addmod.png)
 
 **eq**: Slope = 99.03 cycles/gas, R² = 1.0000
 
-![eq](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_eq.png)
+![eq](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_eq.png)
 
 **exp**: Slope = 87.58 cycles/gas, R² = 1.0000
 
-![exp](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_exp.png)
+![exp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_exp.png)
 
 **smod**: Slope = 79.62 cycles/gas, R² = 1.0000
 
-![smod](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_smod.png)
+![smod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_smod.png)
 
 **prevrandao**: Slope = 78.50 cycles/gas, R² = 1.0000
 
-![prevrandao](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_prevrandao.png)
+![prevrandao](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_prevrandao.png)
 
 **sar**: Slope = 78.34 cycles/gas, R² = 1.0000
 
-![sar](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sar.png)
+![sar](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sar.png)
 
 **bn128_mul**: Slope = 77.49 cycles/gas, R² = 1.0000
 
-![bn128_mul](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_mul.png)
+![bn128_mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_mul.png)
 
 **call**: Slope = 68.84 cycles/gas, R² = 1.0000
 
-![call](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_call.png)
+![call](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_call.png)
 
 **callcode**: Slope = 66.91 cycles/gas, R² = 1.0000
 
-![callcode](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_callcode.png)
+![callcode](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_callcode.png)
 
 **staticcall**: Slope = 66.80 cycles/gas, R² = 1.0000
 
-![staticcall](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_staticcall.png)
+![staticcall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_staticcall.png)
 
 **mstore**: Slope = 62.70 cycles/gas, R² = 1.0000
 
-![mstore](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mstore.png)
+![mstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mstore.png)
 
 **mul**: Slope = 60.62 cycles/gas, R² = 1.0000
 
-![mul](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mul.png)
+![mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mul.png)
 
 **address**: Slope = 58.00 cycles/gas, R² = 1.0000
 
-![address](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_address.png)
+![address](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_address.png)
 
 **caller**: Slope = 58.00 cycles/gas, R² = 1.0000
 
-![caller](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_caller.png)
+![caller](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_caller.png)
 
 **coinbase**: Slope = 58.00 cycles/gas, R² = 1.0000
 
-![coinbase](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_coinbase.png)
+![coinbase](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_coinbase.png)
 
 **origin**: Slope = 58.00 cycles/gas, R² = 1.0000
 
-![origin](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_origin.png)
+![origin](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_origin.png)
 
 **delegatecall**: Slope = 56.48 cycles/gas, R² = 1.0000
 
-![delegatecall](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_delegatecall.png)
+![delegatecall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_delegatecall.png)
 
 **calldataload**: Slope = 54.34 cycles/gas, R² = 1.0000
 
-![calldataload](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldataload.png)
+![calldataload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldataload.png)
 
 **bn128_pairing**: Slope = 54.18 cycles/gas, R² = 1.0000
 
-![bn128_pairing](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_pairing.png)
+![bn128_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_pairing.png)
 
 **mload**: Slope = 54.01 cycles/gas, R² = 1.0000
 
-![mload](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mload.png)
+![mload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mload.png)
 
 **signextend**: Slope = 53.42 cycles/gas, R² = 1.0000
 
-![signextend](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_signextend.png)
+![signextend](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_signextend.png)
 
 **swap8**: Slope = 53.37 cycles/gas, R² = 1.0000
 
-![swap8](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap8.png)
+![swap8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap8.png)
 
 **swap1**: Slope = 53.37 cycles/gas, R² = 1.0000
 
-![swap1](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap1.png)
+![swap1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap1.png)
 
 **swap16**: Slope = 53.34 cycles/gas, R² = 1.0000
 
-![swap16](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap16.png)
+![swap16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_swap16.png)
 
 **shr**: Slope = 51.34 cycles/gas, R² = 1.0000
 
-![shr](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_shr.png)
+![shr](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_shr.png)
 
 **shl**: Slope = 50.34 cycles/gas, R² = 1.0000
 
-![shl](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_shl.png)
+![shl](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_shl.png)
 
 **codecopy**: Slope = 47.07 cycles/gas, R² = 0.9929
 
-![codecopy](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_codecopy.png)
+![codecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_codecopy.png)
 
 **blobbasefee**: Slope = 42.50 cycles/gas, R² = 1.0000
 
-![blobbasefee](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blobbasefee.png)
+![blobbasefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blobbasefee.png)
 
 **push32**: Slope = 41.71 cycles/gas, R² = 1.0000
 
-![push32](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push32.png)
+![push32](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push32.png)
 
 **bn128_add**: Slope = 40.55 cycles/gas, R² = 1.0000
 
-![bn128_add](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_add.png)
+![bn128_add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_bn128_add.png)
 
 **gasprice**: Slope = 40.50 cycles/gas, R² = 1.0000
 
-![gasprice](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gasprice.png)
+![gasprice](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gasprice.png)
 
 **callvalue**: Slope = 39.00 cycles/gas, R² = 1.0000
 
-![callvalue](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_callvalue.png)
+![callvalue](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_callvalue.png)
 
 **sgt**: Slope = 38.02 cycles/gas, R² = 1.0000
 
-![sgt](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sgt.png)
+![sgt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sgt.png)
 
 **slt**: Slope = 38.02 cycles/gas, R² = 1.0000
 
-![slt](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_slt.png)
+![slt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_slt.png)
 
 **sub**: Slope = 37.36 cycles/gas, R² = 1.0000
 
-![sub](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sub.png)
+![sub](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sub.png)
 
 **calldatacopy**: Slope = 35.33 cycles/gas, R² = 1.0000
 
-![calldatacopy](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldatacopy.png)
+![calldatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldatacopy.png)
 
 **sstore**: Slope = 34.90 cycles/gas, R² = 1.0000
 
-![sstore](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sstore.png)
+![sstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sstore.png)
 
 **number**: Slope = 32.50 cycles/gas, R² = 1.0000
 
-![number](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_number.png)
+![number](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_number.png)
 
 **timestamp**: Slope = 32.50 cycles/gas, R² = 1.0000
 
-![timestamp](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_timestamp.png)
+![timestamp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_timestamp.png)
 
 **add**: Slope = 32.36 cycles/gas, R² = 1.0000
 
-![add](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_add.png)
+![add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_add.png)
 
 **calldatasize**: Slope = 32.00 cycles/gas, R² = 1.0000
 
-![calldatasize](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldatasize.png)
+![calldatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_calldatasize.png)
 
 **pc**: Slope = 32.00 cycles/gas, R² = 1.0000
 
-![pc](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_pc.png)
+![pc](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_pc.png)
 
 **chainid**: Slope = 31.50 cycles/gas, R² = 1.0000
 
-![chainid](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_chainid.png)
+![chainid](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_chainid.png)
 
 **basefee**: Slope = 31.50 cycles/gas, R² = 1.0000
 
-![basefee](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_basefee.png)
+![basefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_basefee.png)
 
 **codesize**: Slope = 30.50 cycles/gas, R² = 1.0000
 
-![codesize](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_codesize.png)
+![codesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_codesize.png)
 
 **msize**: Slope = 30.00 cycles/gas, R² = 1.0000
 
-![msize](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_msize.png)
+![msize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_msize.png)
 
 **gaslimit**: Slope = 30.00 cycles/gas, R² = 1.0000
 
-![gaslimit](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gaslimit.png)
+![gaslimit](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gaslimit.png)
 
 **gas**: Slope = 30.00 cycles/gas, R² = 1.0000
 
-![gas](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gas.png)
+![gas](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gas.png)
 
 **returndatasize**: Slope = 30.00 cycles/gas, R² = 1.0000
 
-![returndatasize](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_returndatasize.png)
+![returndatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_returndatasize.png)
 
 **push0**: Slope = 28.50 cycles/gas, R² = 1.0000
 
-![push0](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push0.png)
+![push0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push0.png)
 
 **push16**: Slope = 28.36 cycles/gas, R² = 1.0000
 
-![push16](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push16.png)
+![push16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push16.png)
 
 **gt**: Slope = 27.36 cycles/gas, R² = 1.0000
 
-![gt](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gt.png)
+![gt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_gt.png)
 
 **lt**: Slope = 27.36 cycles/gas, R² = 1.0000
 
-![lt](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_lt.png)
+![lt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_lt.png)
 
 **byte**: Slope = 27.34 cycles/gas, R² = 1.0000
 
-![byte](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_byte.png)
+![byte](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_byte.png)
 
 **returndatacopy**: Slope = 26.45 cycles/gas, R² = 1.0000
 
-![returndatacopy](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_returndatacopy.png)
+![returndatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_returndatacopy.png)
 
 **mstore8**: Slope = 26.01 cycles/gas, R² = 1.0000
 
-![mstore8](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mstore8.png)
+![mstore8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mstore8.png)
 
 **jumpdest**: Slope = 26.00 cycles/gas, R² = 1.0000
 
-![jumpdest](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jumpdest.png)
+![jumpdest](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jumpdest.png)
 
 **and**: Slope = 24.03 cycles/gas, R² = 1.0000
 
-![and](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_and.png)
+![and](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_and.png)
 
 **xor**: Slope = 24.03 cycles/gas, R² = 1.0000
 
-![xor](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_xor.png)
+![xor](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_xor.png)
 
 **or**: Slope = 24.02 cycles/gas, R² = 1.0000
 
-![or](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_or.png)
+![or](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_or.png)
 
 **blobhash**: Slope = 22.34 cycles/gas, R² = 1.0000
 
-![blobhash](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blobhash.png)
+![blobhash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_blobhash.png)
 
 **extcodehash**: Slope = 22.15 cycles/gas, R² = 1.0000
 
-![extcodehash](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodehash.png)
+![extcodehash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodehash.png)
 
 **iszero**: Slope = 19.33 cycles/gas, R² = 1.0000
 
-![iszero](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_iszero.png)
+![iszero](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_iszero.png)
 
 **not**: Slope = 18.34 cycles/gas, R² = 1.0000
 
-![not](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_not.png)
+![not](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_not.png)
 
 **keccak256**: Slope = 17.78 cycles/gas, R² = 1.0000
 
-![keccak256](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_keccak256.png)
+![keccak256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_keccak256.png)
 
 **dup8**: Slope = 17.02 cycles/gas, R² = 1.0000
 
-![dup8](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup8.png)
+![dup8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup8.png)
 
 **dup1**: Slope = 17.00 cycles/gas, R² = 1.0000
 
-![dup1](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup1.png)
+![dup1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup1.png)
 
 **dup16**: Slope = 16.99 cycles/gas, R² = 1.0000
 
-![dup16](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup16.png)
+![dup16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_dup16.png)
 
 **extcodesize**: Slope = 16.66 cycles/gas, R² = 1.0000
 
-![extcodesize](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodesize.png)
+![extcodesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodesize.png)
 
 **balance**: Slope = 16.60 cycles/gas, R² = 1.0000
 
-![balance](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_balance.png)
+![balance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_balance.png)
 
 **tstore**: Slope = 15.90 cycles/gas, R² = 1.0000
 
-![tstore](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_tstore.png)
+![tstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_tstore.png)
 
 **extcodecopy**: Slope = 15.75 cycles/gas, R² = 1.0000
 
-![extcodecopy](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodecopy.png)
+![extcodecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_extcodecopy.png)
 
 **push1**: Slope = 15.34 cycles/gas, R² = 1.0000
 
-![push1](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push1.png)
+![push1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_push1.png)
 
 **pop**: Slope = 15.00 cycles/gas, R² = 1.0000
 
-![pop](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_pop.png)
+![pop](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_pop.png)
 
 **sload**: Slope = 15.00 cycles/gas, R² = 1.0000
 
-![sload](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sload.png)
+![sload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sload.png)
 
 **mcopy**: Slope = 14.80 cycles/gas, R² = 1.0000
 
-![mcopy](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mcopy.png)
+![mcopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_mcopy.png)
 
 **sha256**: Slope = 12.40 cycles/gas, R² = 1.0000
 
-![sha256](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sha256.png)
+![sha256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_sha256.png)
 
 **jumpi**: Slope = 11.60 cycles/gas, R² = 1.0000
 
-![jumpi](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jumpi.png)
+![jumpi](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jumpi.png)
 
 **ecrecover**: Slope = 10.67 cycles/gas, R² = 1.0000
 
-![ecrecover](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_ecrecover.png)
+![ecrecover](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_ecrecover.png)
 
 **ripemd160**: Slope = 9.01 cycles/gas, R² = 1.0000
 
-![ripemd160](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_ripemd160.png)
+![ripemd160](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_ripemd160.png)
 
 **jump**: Slope = 7.88 cycles/gas, R² = 1.0000
 
-![jump](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jump.png)
+![jump](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_jump.png)
 
 **identity**: Slope = 4.66 cycles/gas, R² = 1.0000
 
-![identity](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_identity.png)
+![identity](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_identity.png)
 
 **tload**: Slope = 2.43 cycles/gas, R² = 1.0000
 
-![tload](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_tload.png)
+![tload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_tload.png)
 
 **create2**: Slope = 0.8391 cycles/gas, R² = 0.9997
 
-![create2](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_create2.png)
+![create2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_create2.png)
 
 **create**: Slope = 0.8048 cycles/gas, R² = 0.9996
 
-![create](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_create.png)
+![create](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_create.png)
 
 **log1**: Slope = 0.5628 cycles/gas, R² = 0.9997
 
-![log1](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log1.png)
+![log1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log1.png)
 
 **log0**: Slope = 0.5558 cycles/gas, R² = 0.9944
 
-![log0](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log0.png)
+![log0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log0.png)
 
 **log3**: Slope = 0.316 cycles/gas, R² = 0.9999
 
-![log3](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log3.png)
+![log3](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log3.png)
 
 **log4**: Slope = 0.3136 cycles/gas, R² = 0.9998
 
-![log4](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log4.png)
+![log4](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log4.png)
 
 **log2**: Slope = 0.3078 cycles/gas, R² = 0.9999
 
-![log2](/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log2.png)
+![log2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/gas_zkcycles_log2.png)
 
 ### sp1 ZK Cycles vs Proving Time
 
 **bn128_add**: Slope = 0.93µs/cycle, R² = 0.9193
 
-![bn128_add](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_add.png)
+![bn128_add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_add.png)
 
 **ecrecover**: Slope = 0.89µs/cycle, R² = 0.9380
 
-![ecrecover](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_ecrecover.png)
+![ecrecover](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_ecrecover.png)
 
 **sha256**: Slope = 0.77µs/cycle, R² = 0.9985
 
-![sha256](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sha256.png)
+![sha256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sha256.png)
 
 **bn128_mul**: Slope = 0.52µs/cycle, R² = 0.9977
 
-![bn128_mul](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_mul.png)
+![bn128_mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_mul.png)
 
 **bn128_pairing**: Slope = 0.41µs/cycle, R² = 0.9909
 
-![bn128_pairing](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_pairing.png)
+![bn128_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bn128_pairing.png)
 
 **keccak256**: Slope = 0.38µs/cycle, R² = 0.9992
 
-![keccak256](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_keccak256.png)
+![keccak256](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_keccak256.png)
 
 **log0**: Slope = 0.27µs/cycle, R² = 0.9422
 
-![log0](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log0.png)
+![log0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log0.png)
 
 **log2**: Slope = 0.26µs/cycle, R² = 0.9747
 
-![log2](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log2.png)
+![log2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log2.png)
 
 **log4**: Slope = 0.25µs/cycle, R² = 0.9886
 
-![log4](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log4.png)
+![log4](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log4.png)
 
 **log1**: Slope = 0.24µs/cycle, R² = 0.9988
 
-![log1](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log1.png)
+![log1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log1.png)
 
 **and**: Slope = 0.22µs/cycle, R² = 0.9896
 
-![and](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_and.png)
+![and](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_and.png)
 
 **log3**: Slope = 0.22µs/cycle, R² = 0.9981
 
-![log3](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log3.png)
+![log3](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_log3.png)
 
 **dup16**: Slope = 0.21µs/cycle, R² = 0.9461
 
-![dup16](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup16.png)
+![dup16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup16.png)
 
 **xor**: Slope = 0.20µs/cycle, R² = 0.9720
 
-![xor](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_xor.png)
+![xor](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_xor.png)
 
 **swap16**: Slope = 0.20µs/cycle, R² = 0.9845
 
-![swap16](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap16.png)
+![swap16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap16.png)
 
 **dup8**: Slope = 0.19µs/cycle, R² = 0.9216
 
-![dup8](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup8.png)
+![dup8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup8.png)
 
 **create**: Slope = 0.19µs/cycle, R² = 0.9990
 
-![create](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_create.png)
+![create](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_create.png)
 
 **swap8**: Slope = 0.19µs/cycle, R² = 0.9846
 
-![swap8](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap8.png)
+![swap8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap8.png)
 
 **codesize**: Slope = 0.18µs/cycle, R² = 0.9863
 
-![codesize](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_codesize.png)
+![codesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_codesize.png)
 
 **gas**: Slope = 0.18µs/cycle, R² = 0.9837
 
-![gas](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gas.png)
+![gas](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gas.png)
 
 **push32**: Slope = 0.18µs/cycle, R² = 0.9244
 
-![push32](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push32.png)
+![push32](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push32.png)
 
 **jumpi**: Slope = 0.18µs/cycle, R² = 0.9972
 
-![jumpi](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jumpi.png)
+![jumpi](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jumpi.png)
 
 **dup1**: Slope = 0.18µs/cycle, R² = 0.8879
 
-![dup1](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup1.png)
+![dup1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_dup1.png)
 
 **push1**: Slope = 0.18µs/cycle, R² = 0.9551
 
-![push1](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push1.png)
+![push1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push1.png)
 
 **create2**: Slope = 0.18µs/cycle, R² = 0.9989
 
-![create2](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_create2.png)
+![create2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_create2.png)
 
 **swap1**: Slope = 0.18µs/cycle, R² = 0.9784
 
-![swap1](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap1.png)
+![swap1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_swap1.png)
 
 **push0**: Slope = 0.17µs/cycle, R² = 0.9421
 
-![push0](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push0.png)
+![push0](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push0.png)
 
 **ripemd160**: Slope = 0.17µs/cycle, R² = 0.9550
 
-![ripemd160](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_ripemd160.png)
+![ripemd160](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_ripemd160.png)
 
 **calldatasize**: Slope = 0.17µs/cycle, R² = 0.9780
 
-![calldatasize](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldatasize.png)
+![calldatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldatasize.png)
 
 **pc**: Slope = 0.17µs/cycle, R² = 0.9563
 
-![pc](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_pc.png)
+![pc](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_pc.png)
 
 **byte**: Slope = 0.17µs/cycle, R² = 0.9691
 
-![byte](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_byte.png)
+![byte](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_byte.png)
 
 **callvalue**: Slope = 0.16µs/cycle, R² = 0.9789
 
-![callvalue](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_callvalue.png)
+![callvalue](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_callvalue.png)
 
 **gasprice**: Slope = 0.16µs/cycle, R² = 0.9995
 
-![gasprice](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gasprice.png)
+![gasprice](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gasprice.png)
 
 **chainid**: Slope = 0.16µs/cycle, R² = 1.0000
 
-![chainid](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_chainid.png)
+![chainid](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_chainid.png)
 
 **gaslimit**: Slope = 0.16µs/cycle, R² = 0.9960
 
-![gaslimit](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gaslimit.png)
+![gaslimit](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gaslimit.png)
 
 **returndatacopy**: Slope = 0.16µs/cycle, R² = 0.9857
 
-![returndatacopy](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_returndatacopy.png)
+![returndatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_returndatacopy.png)
 
 **jumpdest**: Slope = 0.16µs/cycle, R² = 0.9930
 
-![jumpdest](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jumpdest.png)
+![jumpdest](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jumpdest.png)
 
 **returndatasize**: Slope = 0.16µs/cycle, R² = 0.9945
 
-![returndatasize](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_returndatasize.png)
+![returndatasize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_returndatasize.png)
 
 **blobbasefee**: Slope = 0.16µs/cycle, R² = 0.9941
 
-![blobbasefee](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blobbasefee.png)
+![blobbasefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blobbasefee.png)
 
 **mstore**: Slope = 0.16µs/cycle, R² = 0.9946
 
-![mstore](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mstore.png)
+![mstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mstore.png)
 
 **codecopy**: Slope = 0.15µs/cycle, R² = 0.9996
 
-![codecopy](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_codecopy.png)
+![codecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_codecopy.png)
 
 **basefee**: Slope = 0.15µs/cycle, R² = 0.9867
 
-![basefee](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_basefee.png)
+![basefee](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_basefee.png)
 
 **eq**: Slope = 0.15µs/cycle, R² = 0.9872
 
-![eq](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_eq.png)
+![eq](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_eq.png)
 
 **extcodehash**: Slope = 0.15µs/cycle, R² = 0.9982
 
-![extcodehash](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodehash.png)
+![extcodehash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodehash.png)
 
 **modexp**: Slope = 0.15µs/cycle, R² = 0.9945
 
-![modexp](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_modexp.png)
+![modexp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_modexp.png)
 
 **extcodecopy**: Slope = 0.15µs/cycle, R² = 0.9967
 
-![extcodecopy](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodecopy.png)
+![extcodecopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodecopy.png)
 
 **balance**: Slope = 0.15µs/cycle, R² = 0.9993
 
-![balance](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_balance.png)
+![balance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_balance.png)
 
 **lt**: Slope = 0.14µs/cycle, R² = 0.9970
 
-![lt](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_lt.png)
+![lt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_lt.png)
 
 **number**: Slope = 0.14µs/cycle, R² = 0.9845
 
-![number](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_number.png)
+![number](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_number.png)
 
 **tload**: Slope = 0.14µs/cycle, R² = 0.9983
 
-![tload](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_tload.png)
+![tload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_tload.png)
 
 **coinbase**: Slope = 0.14µs/cycle, R² = 0.9856
 
-![coinbase](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_coinbase.png)
+![coinbase](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_coinbase.png)
 
 **mcopy**: Slope = 0.14µs/cycle, R² = 0.9948
 
-![mcopy](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mcopy.png)
+![mcopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mcopy.png)
 
 **caller**: Slope = 0.14µs/cycle, R² = 0.9845
 
-![caller](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_caller.png)
+![caller](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_caller.png)
 
 **bls12_g2msm**: Slope = 0.14µs/cycle, R² = 0.9966
 
-![bls12_g2msm](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g2msm.png)
+![bls12_g2msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g2msm.png)
 
 **gt**: Slope = 0.14µs/cycle, R² = 0.9895
 
-![gt](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gt.png)
+![gt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_gt.png)
 
 **sload**: Slope = 0.14µs/cycle, R² = 0.9979
 
-![sload](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sload.png)
+![sload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sload.png)
 
 **bls12_g1msm**: Slope = 0.14µs/cycle, R² = 0.9974
 
-![bls12_g1msm](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g1msm.png)
+![bls12_g1msm](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g1msm.png)
 
 **origin**: Slope = 0.14µs/cycle, R² = 0.9678
 
-![origin](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_origin.png)
+![origin](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_origin.png)
 
 **callcode**: Slope = 0.14µs/cycle, R² = 0.9990
 
-![callcode](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_callcode.png)
+![callcode](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_callcode.png)
 
 **shr**: Slope = 0.14µs/cycle, R² = 0.9971
 
-![shr](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_shr.png)
+![shr](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_shr.png)
 
 **bls12_g1add**: Slope = 0.14µs/cycle, R² = 0.9995
 
-![bls12_g1add](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g1add.png)
+![bls12_g1add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g1add.png)
 
 **exp**: Slope = 0.14µs/cycle, R² = 0.9968
 
-![exp](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_exp.png)
+![exp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_exp.png)
 
 **bls12_map_fp_to_g1**: Slope = 0.14µs/cycle, R² = 0.9993
 
-![bls12_map_fp_to_g1](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_map_fp_to_g1.png)
+![bls12_map_fp_to_g1](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_map_fp_to_g1.png)
 
 **bls12_g2add**: Slope = 0.14µs/cycle, R² = 0.9986
 
-![bls12_g2add](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g2add.png)
+![bls12_g2add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_g2add.png)
 
 **blake2f**: Slope = 0.14µs/cycle, R² = 0.9995
 
-![blake2f](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blake2f.png)
+![blake2f](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blake2f.png)
 
 **prevrandao**: Slope = 0.14µs/cycle, R² = 0.9903
 
-![prevrandao](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_prevrandao.png)
+![prevrandao](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_prevrandao.png)
 
 **bls12_map_fp2_to_g2**: Slope = 0.14µs/cycle, R² = 0.9999
 
-![bls12_map_fp2_to_g2](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_map_fp2_to_g2.png)
+![bls12_map_fp2_to_g2](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_map_fp2_to_g2.png)
 
 **extcodesize**: Slope = 0.13µs/cycle, R² = 0.9978
 
-![extcodesize](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodesize.png)
+![extcodesize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_extcodesize.png)
 
 **point_evaluation**: Slope = 0.13µs/cycle, R² = 1.0000
 
-![point_evaluation](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_point_evaluation.png)
+![point_evaluation](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_point_evaluation.png)
 
 **call**: Slope = 0.13µs/cycle, R² = 0.9931
 
-![call](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_call.png)
+![call](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_call.png)
 
 **bls12_pairing**: Slope = 0.13µs/cycle, R² = 1.0000
 
-![bls12_pairing](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_pairing.png)
+![bls12_pairing](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_bls12_pairing.png)
 
 **staticcall**: Slope = 0.13µs/cycle, R² = 0.9999
 
-![staticcall](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_staticcall.png)
+![staticcall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_staticcall.png)
 
 **delegatecall**: Slope = 0.13µs/cycle, R² = 0.9999
 
-![delegatecall](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_delegatecall.png)
+![delegatecall](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_delegatecall.png)
 
 **selfbalance**: Slope = 0.13µs/cycle, R² = 0.9980
 
-![selfbalance](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_selfbalance.png)
+![selfbalance](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_selfbalance.png)
 
 **timestamp**: Slope = 0.13µs/cycle, R² = 0.9886
 
-![timestamp](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_timestamp.png)
+![timestamp](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_timestamp.png)
 
 **sstore**: Slope = 0.13µs/cycle, R² = 0.9998
 
-![sstore](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sstore.png)
+![sstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sstore.png)
 
 **msize**: Slope = 0.13µs/cycle, R² = 0.9917
 
-![msize](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_msize.png)
+![msize](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_msize.png)
 
 **push16**: Slope = 0.13µs/cycle, R² = 0.9961
 
-![push16](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push16.png)
+![push16](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_push16.png)
 
 **tstore**: Slope = 0.13µs/cycle, R² = 0.9995
 
-![tstore](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_tstore.png)
+![tstore](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_tstore.png)
 
 **mstore8**: Slope = 0.13µs/cycle, R² = 0.9736
 
-![mstore8](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mstore8.png)
+![mstore8](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mstore8.png)
 
 **address**: Slope = 0.13µs/cycle, R² = 0.9954
 
-![address](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_address.png)
+![address](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_address.png)
 
 **div**: Slope = 0.13µs/cycle, R² = 0.9973
 
-![div](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_div.png)
+![div](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_div.png)
 
 **or**: Slope = 0.13µs/cycle, R² = 0.8900
 
-![or](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_or.png)
+![or](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_or.png)
 
 **addmod**: Slope = 0.13µs/cycle, R² = 0.9999
 
-![addmod](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_addmod.png)
+![addmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_addmod.png)
 
 **sdiv**: Slope = 0.13µs/cycle, R² = 0.9951
 
-![sdiv](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sdiv.png)
+![sdiv](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sdiv.png)
 
 **sar**: Slope = 0.13µs/cycle, R² = 0.9839
 
-![sar](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sar.png)
+![sar](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sar.png)
 
 **mod**: Slope = 0.12µs/cycle, R² = 0.9997
 
-![mod](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mod.png)
+![mod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mod.png)
 
 **mulmod**: Slope = 0.12µs/cycle, R² = 0.9999
 
-![mulmod](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mulmod.png)
+![mulmod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mulmod.png)
 
 **shl**: Slope = 0.12µs/cycle, R² = 0.9913
 
-![shl](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_shl.png)
+![shl](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_shl.png)
 
 **smod**: Slope = 0.12µs/cycle, R² = 0.9969
 
-![smod](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_smod.png)
+![smod](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_smod.png)
 
 **mload**: Slope = 0.12µs/cycle, R² = 0.9755
 
-![mload](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mload.png)
+![mload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mload.png)
 
 **mul**: Slope = 0.12µs/cycle, R² = 0.9892
 
-![mul](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mul.png)
+![mul](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_mul.png)
 
 **iszero**: Slope = 0.12µs/cycle, R² = 0.8634
 
-![iszero](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_iszero.png)
+![iszero](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_iszero.png)
 
 **calldatacopy**: Slope = 0.12µs/cycle, R² = 0.9724
 
-![calldatacopy](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldatacopy.png)
+![calldatacopy](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldatacopy.png)
 
 **calldataload**: Slope = 0.12µs/cycle, R² = 0.9983
 
-![calldataload](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldataload.png)
+![calldataload](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_calldataload.png)
 
 **add**: Slope = 0.12µs/cycle, R² = 0.9987
 
-![add](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_add.png)
+![add](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_add.png)
 
 **jump**: Slope = 0.11µs/cycle, R² = 0.8975
 
-![jump](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jump.png)
+![jump](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_jump.png)
 
 **signextend**: Slope = 0.11µs/cycle, R² = 0.9919
 
-![signextend](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_signextend.png)
+![signextend](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_signextend.png)
 
 **not**: Slope = 0.10µs/cycle, R² = 0.9312
 
-![not](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_not.png)
+![not](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_not.png)
 
 **slt**: Slope = 0.10µs/cycle, R² = 0.8383
 
-![slt](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_slt.png)
+![slt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_slt.png)
 
 **sgt**: Slope = 0.09µs/cycle, R² = 0.8261
 
-![sgt](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sgt.png)
+![sgt](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sgt.png)
 
 **blobhash**: Slope = 0.09µs/cycle, R² = 0.9642
 
-![blobhash](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blobhash.png)
+![blobhash](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_blobhash.png)
 
 **sub**: Slope = 0.07µs/cycle, R² = 0.7967
 
-![sub](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sub.png)
+![sub](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_sub.png)
 
 **pop**: Slope = 0.06µs/cycle, R² = 0.7252
 
-![pop](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_pop.png)
+![pop](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_pop.png)
 
 **identity**: Slope = 0.44µs/cycle, R² = 0.6975
 
-![identity](/marginal-gas-benchmark/sp1/plots/zkcycles_proving_identity.png)
+![identity](/zkevm-benchmark-workload/marginal-gas-benchmark/sp1/plots/zkcycles_proving_identity.png)
 
 ## Appendix: Per-Op-Count Regression
 
