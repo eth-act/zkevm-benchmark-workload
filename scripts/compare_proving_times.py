@@ -2,6 +2,7 @@
 """
 Script to compare proving times across different zkVMs from benchmark JSON files.
 Scans zkevm-metrics-{zkvm}-{gas}-{gpus} directories for benchmark data.
+Gas can be a rational number (e.g., 0.1M, 0.2M, 1M).
 """
 
 import argparse
@@ -28,13 +29,15 @@ def parse_directory_name(dirname: str) -> Tuple[Optional[str], Optional[str], Op
     
     Args:
         dirname: Directory name in format zkevm-metrics-{zkvm}-{gas}-{gpus}
+                 Gas can be a rational number (e.g., 0.1M, 0.2M, 1M)
         
     Returns:
         Tuple of (zkvm_name, gas_category, gpu_count) or (None, None, None) if parsing fails
     """
     # Pattern: zkevm-metrics-{zkvm}-{gas}-{gpus}
     # Example: zkevm-metrics-sp1-1M-1, zkevm-metrics-risc0-1M-4
-    pattern = r'^zkevm-metrics-([a-z0-9]+)-([A-Za-z0-9]+)-(\d+)$'
+    # Gas can be a rational number like 0.1M, 0.2M, etc.
+    pattern = r'^zkevm-metrics-([a-z0-9]+)-([0-9.]+[A-Za-z]+)-(\d+)$'
     match = re.match(pattern, dirname)
     
     if match:
@@ -495,7 +498,7 @@ def main():
         if not benchmark_dirs:
             print("No benchmark directories found!", file=sys.stderr)
             print(f"Searched in: {scan_dir}", file=sys.stderr)
-            print("Looking for directories matching pattern: zkevm-metrics-{{zkvm}}-{{gas}}-{{gpus}}", file=sys.stderr)
+            print("Looking for directories matching pattern: zkevm-metrics-{{zkvm}}-{{gas}}-{{gpus}} (gas can be 0.1M, 0.2M, 1M, etc.)", file=sys.stderr)
             print("(excluding zkevm-metrics-results*)", file=sys.stderr)
             return 1
         
