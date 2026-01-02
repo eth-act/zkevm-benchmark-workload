@@ -366,6 +366,7 @@ dependencies = [
  "proptest",
  "proptest-derive 0.6.0",
  "rand 0.9.2",
+ "rayon",
  "ruint",
  "rustc-hash",
  "serde",
@@ -3850,6 +3851,7 @@ dependencies = [
  "allocator-api2",
  "equivalent",
  "foldhash 0.2.0",
+ "rayon",
  "serde",
  "serde_core",
 ]
@@ -4377,6 +4379,7 @@ dependencies = [
  "arbitrary",
  "equivalent",
  "hashbrown 0.16.1",
+ "rayon",
  "serde",
  "serde_core",
 ]
@@ -5798,7 +5801,7 @@ dependencies = [
 [[package]]
 name = "openvm-mpt"
 version = "0.3.0"
-source = "git+https://github.com/jsign/openvm-reth-benchmark.git?rev=f2cba1e96040fbf216ec72f22e5b4a13ebdcc04e#f2cba1e96040fbf216ec72f22e5b4a13ebdcc04e"
+source = "git+https://github.com/jsign/openvm-reth-benchmark.git?rev=be86a636ad9259ba1ee9acd97326d1ef0b5092a8#be86a636ad9259ba1ee9acd97326d1ef0b5092a8"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
