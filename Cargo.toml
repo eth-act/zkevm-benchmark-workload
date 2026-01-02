@@ -116,11 +116,10 @@ reth-stateless-executor = { path = "ere-guests/stateless-executor" }
 ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
 # ere
-# branch is nm/feat/sp1-cluster 
-ere-zkvm-interface = { git = "https://github.com/NethermindEth/ere", rev = "4bac87eb8dc14ab51188b49feaba971bd90859bb", package = "ere-zkvm-interface" }
-ere-platform-trait = { git = "https://github.com/NethermindEth/ere", rev = "4bac87eb8dc14ab51188b49feaba971bd90859bb" }
-ere-dockerized = { git = "https://github.com/NethermindEth/ere", rev = "4bac87eb8dc14ab51188b49feaba971bd90859bb", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/NethermindEth/ere", rev = "4bac87eb8dc14ab51188b49feaba971bd90859bb", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", package = "ere-zkvm-interface" }
+ere-platform-trait = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2" }
+ere-dockerized = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", package = "ere-io" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.

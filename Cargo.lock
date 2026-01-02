@@ -2809,26 +2809,40 @@ dependencies = [
 
 [[package]]
 name = "ere-build-utils"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "cargo_metadata",
 ]
 
 [[package]]
 name = "ere-common"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "ere-build-utils",
  "serde",
- "strum 0.27.2",
 ]
 
 [[package]]
 name = "ere-dockerized"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "anyhow",
  "ere-common",
@@ -2858,8 +2872,13 @@ dependencies = [
 
 [[package]]
 name = "ere-io"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2868,16 +2887,26 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-trait"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "digest 0.10.7",
 ]
 
 [[package]]
 name = "ere-server"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2891,8 +2920,13 @@ dependencies = [
 
 [[package]]
 name = "ere-zkvm-interface"
+<<<<<<< HEAD
+version = "0.0.15"
+source = "git+https://github.com/eth-applied-research-group/ere?rev=d15d36aa0a5d552a5159087884e7bea9ea74c745#d15d36aa0a5d552a5159087884e7bea9ea74c745"
+=======
 version = "0.0.16"
 source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
+>>>>>>> 4111566 (Update dependencies to point to NethermindEth/ere repository and version 4bac87e for ere packages in Cargo.toml and Cargo.lock)
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -2989,8 +3023,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-blockchain"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bytes",
  "ethrex-common",
@@ -3010,8 +3044,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-common"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -3020,7 +3054,6 @@ dependencies = [
  "ethrex-rlp",
  "ethrex-trie",
  "hex",
- "hex-literal",
  "k256",
  "kzg-rs",
  "lazy_static",
@@ -3042,8 +3075,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-crypto"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "c-kzg",
  "kzg-rs",
@@ -3065,8 +3098,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-l2-common"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3085,13 +3118,12 @@ dependencies = [
  "serde_with",
  "sha3",
  "thiserror 2.0.17",
- "tracing",
 ]
 
 [[package]]
 name = "ethrex-levm"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -3123,8 +3155,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-metrics"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "axum",
  "ethrex-common",
@@ -3139,8 +3171,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-p2p"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "aes",
  "async-trait",
@@ -3164,7 +3196,6 @@ dependencies = [
  "prometheus 0.14.0",
  "rand 0.8.5",
  "rayon",
- "rustc-hash",
  "secp256k1 0.30.0",
  "serde",
  "serde_json",
@@ -3181,8 +3212,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rlp"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3195,8 +3226,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rpc"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "axum",
  "axum-extra",
@@ -3234,8 +3265,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-storage"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -3260,15 +3291,15 @@ dependencies = [
 [[package]]
 name = "ethrex-threadpool"
 version = "0.1.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "crossbeam 0.8.4",
 ]
 
 [[package]]
 name = "ethrex-trie"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3291,8 +3322,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-vm"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
@@ -3754,8 +3785,8 @@ dependencies = [
 
 [[package]]
 name = "guest_program"
-version = "8.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
+version = "7.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=35397ff6bcaa39c92c112e5af9de8deeb33b43cd#35397ff6bcaa39c92c112e5af9de8deeb33b43cd"
 dependencies = [
  "bincode 1.3.3",
  "bytes",
