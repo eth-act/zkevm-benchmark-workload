@@ -2810,7 +2810,7 @@ dependencies = [
 [[package]]
 name = "ere-build-utils"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "cargo_metadata",
 ]
@@ -2818,7 +2818,7 @@ dependencies = [
 [[package]]
 name = "ere-common"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "ere-build-utils",
  "serde",
@@ -2828,7 +2828,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "anyhow",
  "ere-common",
@@ -2859,7 +2859,7 @@ dependencies = [
 [[package]]
 name = "ere-io"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2869,7 +2869,7 @@ dependencies = [
 [[package]]
 name = "ere-platform-trait"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "digest 0.10.7",
 ]
@@ -2877,7 +2877,7 @@ dependencies = [
 [[package]]
 name = "ere-server"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2892,7 +2892,7 @@ dependencies = [
 [[package]]
 name = "ere-zkvm-interface"
 version = "0.0.16"
-source = "git+https://github.com/eth-applied-research-group/ere?rev=73a760aa635d355e5cc581777cc7703fdf60a3ac#73a760aa635d355e5cc581777cc7703fdf60a3ac"
+source = "git+https://github.com/NethermindEth/ere?rev=4bac87eb8dc14ab51188b49feaba971bd90859bb#4bac87eb8dc14ab51188b49feaba971bd90859bb"
 dependencies = [
  "anyhow",
  "auto_impl",
