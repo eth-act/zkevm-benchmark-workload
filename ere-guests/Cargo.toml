@@ -131,14 +131,14 @@ ethrex-guest = { path = "stateless-validator/ethrex/guest", default-features = f
 block-encoding-length-guest = { path = "block-encoding-length/guest", default-features = false }
 
 # ere
-ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac" }
-ere-platform-airbender = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-openvm = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-pico = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-risc0 = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-sp1 = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
-ere-platform-zisk = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", default-features = false }
+ere-io = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-trait = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2" }
+ere-platform-airbender = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-openvm = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-pico = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-risc0 = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-sp1 = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
+ere-platform-zisk = { git = "https://github.com/NethermindEth/ere", rev = "b5a5624115577e1c9df0e0070a60b85bd200e2f2", default-features = false }
 
 # openvm
 openvm = { git = "https://github.com/openvm-org/openvm.git", tag = "v1.4.2" }
