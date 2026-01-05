@@ -1,0 +1,217 @@
+# Docker Compose for SP1 Cluster using REMOTE images from GHCR
+# No local build required - just pull and run!
+#
+# Usage:
+#   docker compose -f docker-compose.yml down -v
+#   docker compose -f docker-compose.yml up -d postgresql redis api coordinator cpu-node gpu0 gpu1 gpu2 gpu3
+#   sleep 15
+
+services:
+  # Redis service
+  redis:
+    image: bitnami/redis:latest
+    environment:
+      - REDIS_PASSWORD=redispassword
+      - REDIS_AOF_ENABLED=no
+    volumes:
+      - redis_data:/bitnami/redis/data
+    ports:
+      - "0.0.0.0:6379:6379"
+    deploy:
+      resources:
+        limits:
+          memory: 30G
+        reservations:
+          memory: 30G
+
+  # PostgreSQL database
+  postgresql:
+    image: bitnami/postgresql:latest
+    environment:
+      - POSTGRES_PASSWORD=postgrespassword
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    volumes:
+      - postgresql_data:/bitnami/postgresql
+    # ports:
+    #   - "5432:5432"
+
+  # API Service
+  api:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - API_GRPC_ADDR=0.0.0.0:50051
+      - API_HTTP_ADDR=0.0.0.0:3000
+      - API_AUTO_MIGRATE=true
+      - API_DATABASE_URL=postgresql://postgres:postgrespassword@postgresql:5432/postgres
+    ports:
+      - "0.0.0.0:50051:50051"
+    depends_on:
+      - postgresql
+
+  # Coordinator Service
+  coordinator:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - COORDINATOR_CLUSTER_RPC=http://api:50051
+      - COORDINATOR_METRICS_ADDR=0.0.0.0:9090
+      - COORDINATOR_ADDR=0.0.0.0:50051
+    command: ["/bin/sh", "-c", "/coordinator"]
+    # ports:
+    #   - "50052:50051"
+    depends_on:
+      - api
+
+  # CPU Node
+  cpu-node:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - NODE_COORDINATOR_RPC=http://coordinator:50051
+      - WORKER_MAX_WEIGHT_OVERRIDE=32
+      - NODE_ARTIFACT_STORE=redis
+      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - WORKER_TYPE=CPU
+    volumes:
+      - ${HOME}/.sp1/circuits:/root/.sp1/circuits
+    command: ["/bin/sh", "-c", "/node"]
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 32G
+        reservations:
+          cpus: '4'
+          memory: 32G
+    depends_on:
+      - coordinator
+      - redis
+
+  # CPU Node (mixed mode)
+  mixed:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - NODE_COORDINATOR_RPC=http://coordinator:50051
+      - WORKER_MAX_WEIGHT_OVERRIDE=32
+      - NODE_ARTIFACT_STORE=redis
+      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - WORKER_TYPE=ALL
+    volumes:
+      - ${HOME}/.sp1/circuits:/root/.sp1/circuits
+    command: ["/bin/sh", "-c", "/node"]
+    deploy:
+      resources:
+        limits:
+          cpus: '8'
+          memory: 32G
+        reservations:
+          cpus: '4'
+          memory: 32G
+    depends_on:
+      - coordinator
+      - redis
+
+  # GPU Node
+  gpu0:
+    image: ghcr.io/succinctlabs/sp1-cluster:node-gpu-latest
+    command: ["/bin/sh", "-c", "/app/sp1-cluster-node"]
+    environment:
+      - NODE_COORDINATOR_RPC=http://coordinator:50051
+      - WORKER_MAX_WEIGHT_OVERRIDE=24
+      - NODE_ARTIFACT_STORE=redis
+      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - WORKER_TYPE=GPU
+      - RUST_LOG=info,moongate_core=off
+    deploy:
+      resources:
+        limits:
+          cpus: '32'
+          memory: 24G
+        reservations:
+          cpus: '32'
+          memory: 24G
+    depends_on:
+      - coordinator
+      - redis
+      - cpu-node
+    # GPU support - requires NVIDIA Container Toolkit
+    runtime: nvidia
+
+  gpu1:
+    environment:
+    - CUDA_VISIBLE_DEVICES=1
+    extends:
+      service: gpu0
+
+  gpu2:
+    environment:
+    - CUDA_VISIBLE_DEVICES=2
+    extends:
+      service: gpu0
+
+  gpu3:
+    environment:
+    - CUDA_VISIBLE_DEVICES=3
+    extends:
+      service: gpu0
+
+  gpu4:
+    environment:
+    - CUDA_VISIBLE_DEVICES=4
+    extends:
+      service: gpu0
+
+  gpu5:
+    environment:
+    - CUDA_VISIBLE_DEVICES=5
+    extends:
+      service: gpu0
+
+  gpu6:
+    environment:
+    - CUDA_VISIBLE_DEVICES=6
+    extends:
+      service: gpu0
+
+  gpu7:
+    environment:
+    - CUDA_VISIBLE_DEVICES=7
+    extends:
+      service: gpu0
+
+  # Fulfiller Service
+  fulfiller:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - FULFILLER_CLUSTER_RPC=http://api:50051
+      - FULFILLER_LOG_FORMAT=Pretty
+      - FULFILLER_CLUSTER_ARTIFACT_STORE=redis
+      - FULFILLER_VERSION=sp1-v5.0.0
+      - FULFILLER_DOMAIN=SPN_SEPOLIA_V1_DOMAIN
+      - FULFILLER_CLUSTER_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - FULFILLER_METRICS_ADDR=0.0.0.0:9090
+      - FULFILLER_RPC_GRPC_ADDR=${RPC_GRPC_ADDR}
+      - FULFILLER_SP1_PRIVATE_KEY=8f59a842310388db9a785653312f501c16e6753979ba6ca5eb74d2e64acef1c7
+    depends_on:
+      - coordinator
+      - redis
+    command: ["/bin/sh", "-c", "/fulfiller"]
+
+  # Bidder Service
+  bidder:
+    image: ghcr.io/succinctlabs/sp1-cluster:base-latest
+    environment:
+      - BIDDER_LOG_FORMAT=Pretty
+      - BIDDER_VERSION=sp1-v5.0.0
+      - BIDDER_DOMAIN=SPN_SEPOLIA_V1_DOMAIN
+      - BIDDER_METRICS_ADDR=0.0.0.0:9090
+      - BIDDER_RPC_GRPC_ADDR=${RPC_GRPC_ADDR}
+      - BIDDER_SP1_PRIVATE_KEY=8f59a842310388db9a785653312f501c16e6753979ba6ca5eb74d2e64acef1c7
+      - BIDDER_THROUGHPUT_MGAS=1
+      - BIDDER_MAX_CONCURRENT_PROOFS=1
+      - BIDDER_BID_AMOUNT=1
+    command: ["/bin/sh", "-c", "/bidder"]
+
+volumes:
+  redis_data:
+  postgresql_data:
+
