@@ -6,7 +6,7 @@ use anyhow::Result;
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
-use ere_zkvm_interface::ProverResourceType;
+use ere_zkvm_interface::{ClusterProverConfig, ProverResourceType};
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -111,6 +111,8 @@ pub enum Resource {
     Cpu,
     /// GPU resource
     Gpu,
+    /// SP1 cluster resource
+    Cluster,
 }
 
 /// Benchmark actions
@@ -127,6 +129,7 @@ impl From<Resource> for ProverResourceType {
         match resource {
             Resource::Cpu => Self::Cpu,
             Resource::Gpu => Self::Gpu,
+            Resource::Cluster => Self::Cluster(ClusterProverConfig::default()),
         }
     }
 }
