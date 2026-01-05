@@ -2,7 +2,7 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
@@ -10,12 +10,13 @@ use benchmark_runner::{
 };
 
 use clap::Parser;
+use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
 use std::path::{Path, PathBuf};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::cli::{Cli, ExecutionClient, GuestProgramCommand};
+use crate::cli::{Cli, ExecutionClient, GuestProgramCommand, Resource};
 
 pub mod cli;
 
@@ -25,6 +26,13 @@ fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
+
+    // validate that cluster proving is only used with sp1
+    if matches!(cli.resource, Resource::Cluster) {
+        if cli.zkvms.iter().any(|z| *z != zkVMKind::SP1) {
+            bail!("Cluster proving is only supported with SP1 zkVMs");
+        }
+    }
 
     let resource: ProverResourceType = cli.resource.into();
     let action: Action = cli.action.into();
