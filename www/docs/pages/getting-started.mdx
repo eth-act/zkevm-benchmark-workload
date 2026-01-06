@@ -19,6 +19,20 @@ zkGas profiling is a comprehensive framework for measuring and comparing the res
 - **Automated Workflows**: Scripts for fixture download, generation, profiling execution, and results analysis
 - **Docker-Based Compilation**: All zkVMs use EreDockerized for consistent builds
 
+## Choosing the Right Guest Program
+
+| Guest Program | Best For | Execution Clients |
+|---------------|----------|-------------------|
+| `stateless-executor` | Pure EVM opcode benchmarking, execution research | Reth only |
+| `stateless-validator` | Realistic block validation costs, production estimates | Reth, Ethrex |
+| `empty-program` | zkVM baseline overhead measurement | N/A |
+
+:::tip[Quick Decision]
+- **Measuring opcode costs?** → Use `stateless-executor`
+- **Estimating proving costs?** → Use `stateless-validator`
+- See [Executor vs Validator](/executor-vs-validator) for detailed comparison.
+:::
+
 ## Quick Start
 
 ### Prerequisites

@@ -4,6 +4,49 @@ This comprehensive guide explains how to run benchmarks using the **stateless-ex
 
 ---
 
+## When to Use Stateless Executor
+
+The `stateless-executor` is designed for specific benchmarking scenarios. Understanding when to use it helps ensure accurate measurements.
+
+### Ideal Use Cases
+
+| Use Case | Why Executor? |
+|----------|---------------|
+| **Opcode cost analysis** | Measures pure EVM execution cycles without validation noise |
+| **EVM optimization research** | Isolates execution performance for comparison |
+| **zkVM execution benchmarking** | Provides raw cycle counts for execution paths |
+| **Gas cost modeling** | Accurate measurement of opcode-level costs |
+| **Performance regression testing** | Consistent execution-only baseline for comparisons |
+
+### When NOT to Use
+
+| Scenario | Use Instead |
+|----------|-------------|
+| Production proving cost estimates | `stateless-validator` (includes full validation overhead) |
+| Multi-client comparison (Reth vs Ethrex) | `stateless-validator` (supports both clients) |
+| Realistic block validation benchmarks | `stateless-validator` (full validation pipeline) |
+| zkVM baseline overhead measurement | `empty-program` (minimal workload) |
+
+### Trade-offs to Consider
+
+:::warning[Accuracy vs Isolation]
+The executor provides **more accurate** measurement of pure EVM execution but **less realistic** overall proving costs. Choose based on your research goals:
+
+- **Research goal: "How expensive is SLOAD in zkVM?"** → Use `stateless-executor`
+- **Research goal: "How much to prove this block?"** → Use `stateless-validator`
+:::
+
+### Decision Criteria
+
+1. **Are you measuring opcode costs?** → Use `stateless-executor`
+2. **Do you need Ethrex support?** → Use `stateless-validator`
+3. **Do you need realistic proving estimates?** → Use `stateless-validator`
+4. **Are you comparing EVM implementations?** → Use `stateless-executor`
+
+For a detailed comparison, see [Executor vs Validator](/executor-vs-validator).
+
+---
+
 ## TLDR: Quick Start
 
 For those who want to get started immediately with default settings:
