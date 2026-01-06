@@ -180,6 +180,18 @@ This repository supports multiple guest program types for comprehensive zkVM ben
    - **Encoding Formats**: Supports both RLP (`--format rlp`) and SSZ (`--format ssz`) encoding
    - **Usage**: `cargo run -- block-encoding-length --loop-count 100 --format rlp`
 
+4. **`stateless-executor`** - Pure EVM execution without validation overhead
+   - **Purpose**: Measures raw EVM execution cycles in zkVMs without the overhead of pre/post validation checks. Ideal for benchmarking pure opcode execution costs.
+   - **Input**: Uses the same `BlockAndWitness` fixture files as `stateless-validator`
+   - **Computation**: Executes EVM transactions but **skips**:
+     - Pre-execution consensus validation (header checks, ancestor verification)
+     - Post-execution consensus checks (receipts root, gas used validation)
+     - State root verification (both pre-state and post-state)
+   - **Execution Clients**: 
+     - `reth`: Reth execution client only (Ethrex not supported)
+   - **Key Difference from `stateless-validator`**: While `stateless-validator` performs full block validation including all consensus checks, `stateless-executor` only performs the EVM transaction execution, providing more accurate measurements of pure execution cycles.
+   - **Usage**: `cargo run -- stateless-executor --execution-client reth`
+
 ### Guest Program Architecture
 
 Each guest program type follows a consistent structure across different zkVM platforms. For `stateless-validator`, there are separate implementations for different execution clients:
