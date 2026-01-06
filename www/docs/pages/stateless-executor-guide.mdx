@@ -138,6 +138,15 @@ If the process hangs or fails, try limiting parallelization by prefixing command
 
 **Output:** Creates directories like `./zkevm-fixtures-input-1M/`, `./zkevm-fixtures-input-10M/`, etc.
 
+:::info[Fixture Compatibility]
+The generated fixtures are compatible with both `stateless-executor` and `stateless-validator` guest programs. The fixture format (`StatelessValidationFixture`) contains:
+- **Block data**: The Ethereum block to execute
+- **Witness data**: State, bytecode, and ancestor headers needed for execution
+- **Chain config**: Hardfork settings
+
+See [Gas Categorized Fixtures](/gas-categorized-fixtures#fixture-format) for detailed fixture format documentation.
+:::
+
 ### Stage 3: Execute Benchmarks
 
 Run the stateless-executor benchmarks across your chosen configuration.

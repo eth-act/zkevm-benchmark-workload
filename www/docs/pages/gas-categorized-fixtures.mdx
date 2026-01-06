@@ -83,6 +83,120 @@ Each directory contains:
 - Test data optimized for the specific gas category
 - Metadata about the test cases, gas parameters, and opcode usage patterns
 
+## Fixture Format
+
+Both `stateless-executor` and `stateless-validator` use the same fixture format. Each fixture file is a JSON document with the following structure:
+
+### StatelessValidationFixture / StatelessExecutorFixture
+
+```json
+{
+  "name": "benchmark-gas-value_1M-CREATE_MODEXP_1000_bytes__d0g0v0",
+  "stateless_input": {
+    "block": {
+      "header": {
+        "parent_hash": "0x...",
+        "ommers_hash": "0x...",
+        "beneficiary": "0x...",
+        "state_root": "0x...",
+        "transactions_root": "0x...",
+        "receipts_root": "0x...",
+        "logs_bloom": "0x...",
+        "difficulty": "0x0",
+        "number": 1,
+        "gas_limit": 1000000,
+        "gas_used": 500000,
+        "timestamp": 1000,
+        "extra_data": "0x",
+        "mix_hash": "0x...",
+        "nonce": "0x0000000000000000",
+        "base_fee_per_gas": 7
+      },
+      "body": {
+        "transactions": [
+          {
+            "type": "0x02",
+            "chain_id": 1,
+            "nonce": 0,
+            "gas_limit": 500000,
+            "to": "0x...",
+            "value": "0x0",
+            "input": "0x...",
+            "max_fee_per_gas": 1000000007,
+            "max_priority_fee_per_gas": 0,
+            "access_list": []
+          }
+        ],
+        "ommers": [],
+        "withdrawals": []
+      }
+    },
+    "witness": {
+      "state": {
+        "0x1234...": {
+          "balance": "0xde0b6b3a7640000",
+          "nonce": 0,
+          "code_hash": "0x...",
+          "storage_root": "0x...",
+          "code": "0x...",
+          "storage": {}
+        }
+      },
+      "codes": {
+        "0xabcd...": "0x6080604052..."
+      },
+      "headers": [
+        "0xf90..."
+      ]
+    },
+    "chain_config": {
+      "chain_id": 1,
+      "homestead_block": 0,
+      "dao_fork_block": null,
+      "eip150_block": 0,
+      "eip155_block": 0,
+      "eip158_block": 0,
+      "byzantium_block": 0,
+      "constantinople_block": 0,
+      "petersburg_block": 0,
+      "istanbul_block": 0,
+      "muir_glacier_block": null,
+      "berlin_block": 0,
+      "london_block": 0,
+      "arrow_glacier_block": null,
+      "gray_glacier_block": null,
+      "merge_netsplit_block": 0,
+      "shanghai_time": 0,
+      "cancun_time": 0,
+      "prague_time": 0
+    }
+  },
+  "success": true
+}
+```
+
+### Field Descriptions
+
+| Field | Description |
+|-------|-------------|
+| `name` | Unique identifier for the test case, includes gas category and opcode info |
+| `stateless_input.block` | The Ethereum block to execute/validate |
+| `stateless_input.witness` | State witness data required for stateless execution |
+| `stateless_input.chain_config` | Chain configuration (hardfork settings) |
+| `success` | Expected validation result (true for valid blocks) |
+
+### Witness Components
+
+| Component | Description |
+|-----------|-------------|
+| `state` | Account states (balance, nonce, code, storage) |
+| `codes` | Contract bytecode indexed by code hash |
+| `headers` | RLP-encoded ancestor headers (for BLOCKHASH opcode) |
+
+:::info[Fixture Compatibility]
+The same fixture files work with both `stateless-executor` and `stateless-validator` guest programs. The executor uses the fixture data for execution-only benchmarks, while the validator uses it for full block validation.
+:::
+
 ## Prerequisites
 
 Before running the fixture generation script, ensure you have:
