@@ -603,11 +603,9 @@ Each metrics file contains:
   "name": "test-case-name",
   "execution": {
     "success": {
-      "total_num_cycles": 12345678,
+      "total_num_cycles": 5000000,
       "region_cycles": {
-        "verify_witness": 1000000,
-        "post_state_compute": 2000000,
-        "validation": 500000
+        "execution": 5000000
       },
       "execution_duration": {
         "secs": 45,
@@ -624,6 +622,12 @@ Each metrics file contains:
   }
 }
 ```
+
+:::info[Executor-Specific Metrics]
+The `stateless-executor` only measures the **"execution"** region, which represents pure EVM transaction execution cycles. Unlike `stateless-validator`, the executor does not include `verify_witness`, `post_state_compute`, or `validation` regions because it skips all validation steps.
+
+This makes the metrics directly reflect the cost of EVM opcode execution without validation overhead.
+:::
 
 ---
 
