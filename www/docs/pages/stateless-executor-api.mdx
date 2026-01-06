@@ -1,0 +1,263 @@
+# Stateless Executor API Reference
+
+This page documents the public types and interfaces of the `stateless-executor` guest program.
+
+## Input Types
+
+### `RethStatelessExecutorInput`
+
+The primary input type for the stateless executor guest program.
+
+```rust
+pub struct RethStatelessExecutorInput {
+    /// The stateless input for the execution function.
+    pub stateless_input: StatelessInput,
+    /// The recovered signers for the transactions in the block.
+    pub public_keys: Vec<UncompressedPublicKey>,
+}
+```
+
+#### Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `stateless_input` | `StatelessInput` | Contains the block to execute and the execution witness |
+| `public_keys` | `Vec<UncompressedPublicKey>` | Public keys for each transaction signer (must match transaction count) |
+
+#### `StatelessInput` Structure
+
+The `StatelessInput` type (re-exported from `reth_stateless`) contains:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `block` | `Block` | The Ethereum block to execute |
+| `witness` | `ExecutionWitness` | State witness data for stateless execution |
+| `chain_config` | `ChainConfig` | Chain configuration (hardfork settings, chain ID, etc.) |
+
+#### `ExecutionWitness` Structure
+
+The witness data required for stateless execution:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `state` | `HashMap<Address, AccountState>` | Account states (balance, nonce, code, storage) |
+| `codes` | `HashMap<B256, Bytes>` | Contract bytecode by code hash |
+| `headers` | `Vec<Bytes>` | RLP-encoded ancestor headers (for BLOCKHASH opcode) |
+
+---
+
+## Output Types
+
+### `RethStatelessExecutorOutput`
+
+The output type returned by the executor.
+
+```rust
+pub type RethStatelessExecutorOutput = bool;
+```
+
+| Value | Meaning |
+|-------|---------|
+| `true` | All transactions executed successfully |
+| `false` | One or more transactions failed during execution |
+
+:::info[Success Criteria]
+The executor returns `true` if the EVM successfully processed all transactions, regardless of whether individual transactions reverted. A `false` return indicates a fundamental execution error (e.g., invalid signature, missing state).
+:::
+
+---
+
+## Error Types
+
+### `StatelessExecutionError`
+
+Errors that can occur during stateless execution.
+
+```rust
+pub enum StatelessExecutionError {
+    ExecutionFailed(String),
+    SignerRecovery,
+    HomesteadSignatureNotNormalized,
+    PublicKeyCountMismatch { keys: usize, txs: usize },
+    WitnessBuildFailed,
+    HeaderDeserializationFailed,
+    MissingAncestorHeader,
+}
+```
+
+#### Error Variants
+
+| Variant | Description | Common Cause |
+|---------|-------------|--------------|
+| `ExecutionFailed(String)` | EVM execution failed | Invalid transaction, missing state, EVM error |
+| `SignerRecovery` | Failed to recover signer from public key | Corrupted public key, invalid signature |
+| `HomesteadSignatureNotNormalized` | Non-normalized signature in post-Homestead block | Legacy transaction with high-S signature |
+| `PublicKeyCountMismatch` | Number of public keys doesn't match transactions | Mismatched input data |
+| `WitnessBuildFailed` | Failed to build state from witness | Invalid or incomplete witness data |
+| `HeaderDeserializationFailed` | Failed to deserialize ancestor headers | Corrupted header RLP data |
+| `MissingAncestorHeader` | No ancestor headers provided | Empty headers in witness |
+
+---
+
+## Core Functions
+
+### `stateless_execution_with_trie`
+
+The main execution function that performs EVM transaction execution.
+
+```rust
+pub fn stateless_execution_with_trie<T, ChainSpec, E>(
+    current_block: Block,
+    public_keys: Vec<UncompressedPublicKey>,
+    witness: ExecutionWitness,
+    chain_spec: Arc<ChainSpec>,
+    evm_config: E,
+) -> bool
+where
+    T: StatelessTrie,
+    ChainSpec: Send + Sync + EthChainSpec<Header = Header> + EthereumHardforks,
+    E: ConfigureEvm<Primitives = EthPrimitives> + Clone + 'static;
+```
+
+#### Parameters
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `current_block` | `Block` | The block containing transactions to execute |
+| `public_keys` | `Vec<UncompressedPublicKey>` | Transaction signer public keys |
+| `witness` | `ExecutionWitness` | State witness for execution |
+| `chain_spec` | `Arc<ChainSpec>` | Chain specification |
+| `evm_config` | `E` | EVM configuration |
+
+#### Returns
+
+- `true` if all transactions executed successfully
+- `false` if any error occurred during execution
+
+#### Type Parameters
+
+| Parameter | Constraint | Description |
+|-----------|------------|-------------|
+| `T` | `StatelessTrie` | Trie implementation (e.g., `SparseState`) |
+| `ChainSpec` | `EthChainSpec + EthereumHardforks` | Chain specification type |
+| `E` | `ConfigureEvm` | EVM configuration type |
+
+---
+
+## Guest Implementation
+
+### `RethStatelessExecutorGuest`
+
+The guest program implementation for zkVM execution.
+
+```rust
+pub struct RethStatelessExecutorGuest;
+
+impl Guest for RethStatelessExecutorGuest {
+    type Io = IoSerde<RethStatelessExecutorInput, RethStatelessExecutorOutput, BincodeLegacy>;
+
+    fn compute<P: Platform>(input: <Self::Io as Io>::Input) -> <Self::Io as Io>::Output {
+        // ... execution logic
+    }
+}
+```
+
+#### Methods
+
+| Method | Description |
+|--------|-------------|
+| `compute<P: Platform>(input)` | Executes the block and returns success status |
+| `run_output_sha256<P: Platform>()` | Entry point that reads input, computes, and writes output |
+
+---
+
+## Example Input JSON
+
+The following shows an example of the input structure (simplified for clarity):
+
+```json
+{
+  "stateless_input": {
+    "block": {
+      "header": {
+        "parent_hash": "0x1234...",
+        "number": 12345,
+        "gas_limit": 30000000,
+        "gas_used": 1500000,
+        "timestamp": 1699999999,
+        "base_fee_per_gas": 1000000000
+      },
+      "body": {
+        "transactions": [
+          {
+            "type": "0x02",
+            "chain_id": 1,
+            "nonce": 5,
+            "gas_limit": 21000,
+            "to": "0xabcd...",
+            "value": "1000000000000000000",
+            "data": "0x",
+            "max_fee_per_gas": 2000000000,
+            "max_priority_fee_per_gas": 100000000
+          }
+        ]
+      }
+    },
+    "witness": {
+      "state": {
+        "0x1234...": {
+          "balance": "1000000000000000000000",
+          "nonce": 5,
+          "code_hash": "0x...",
+          "storage": {}
+        }
+      },
+      "codes": {},
+      "headers": ["0xf90..."]
+    },
+    "chain_config": {
+      "chain_id": 1,
+      "homestead_block": 1150000,
+      "eip150_block": 2463000
+    }
+  },
+  "public_keys": [
+    "0x04..."
+  ]
+}
+```
+
+---
+
+## Serialization
+
+The executor uses **Bincode (Legacy)** serialization for zkVM I/O:
+
+```rust
+type Io = IoSerde<RethStatelessExecutorInput, RethStatelessExecutorOutput, BincodeLegacy>;
+```
+
+### Input Serialization
+
+When preparing inputs for the executor:
+
+1. Serialize `RethStatelessExecutorInput` using Bincode
+2. The zkVM reads this from stdin
+3. Deserialization happens inside the guest
+
+### Output Serialization
+
+The output is a simple boolean:
+
+1. `true` or `false` serialized as Bincode
+2. Written to zkVM stdout
+3. Host reads and interprets result
+
+---
+
+## See Also
+
+- [Stateless Executor Guide](/stateless-executor-guide) - How to run executor benchmarks
+- [Stateless Executor Architecture](/stateless-executor-architecture) - Internal architecture details
+- [Executor vs Validator](/executor-vs-validator) - Comparison with stateless-validator
+

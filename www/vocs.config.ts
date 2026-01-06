@@ -41,6 +41,10 @@ export default defineConfig({
           text: 'Architecture',
           link: '/stateless-executor-architecture',
         },
+        {
+          text: 'API Reference',
+          link: '/stateless-executor-api',
+        },
       ],
     },
     {
