@@ -22,6 +22,9 @@
 #   -o, --output-dir <DIR>       Base metrics output directory (default: ./zkevm-metrics)
 #   -c, --gas-categories <LIST>  Comma-separated list of gas categories (e.g., 0.5M,1M,2.5M,10M)
 #   -m, --memory-tracking        Enable memory tracking as a cargo feature
+#       --risc0-keccak-po2 <NUM> RISC0 keccak accelerator cycle limit as power of 2 (default: 15)
+#                                Higher values allow more keccak ops per segment before splitting 
+#                                but uses more memory and could cause the benchmark to be out of memory.
 #
 # Examples:
 #   # Run all gas categories with default settings
@@ -53,11 +56,6 @@
 
 set -euo pipefail
 
-# SP1 Network proving environment variables
-# Set default NETWORK_RPC_URL if not already set
-export NETWORK_RPC_URL="${NETWORK_RPC_URL:-http://127.0.0.1:50051/}"
-# NETWORK_PRIVATE_KEY is optional - if set, it will be used for authenticated proving
-
 # Default values
 DRY_RUN=false
 FORCE_RERUN=false
@@ -70,6 +68,7 @@ BASE_INPUT_DIR="./zkevm-fixtures-input"
 BASE_METRICS_DIR="./zkevm-metrics"
 CUSTOM_GAS_CATEGORIES=""
 MEMORY_TRACKING=false
+RISC0_KECCAK_PO2="${RISC0_KECCAK_PO2:-15}"
 
 # Default gas parameter categories (used when no custom categories are specified)
 declare -a DEFAULT_GAS_CATEGORIES=(
@@ -121,6 +120,8 @@ show_help() {
     echo "  -o, --output-dir <DIR>           Base metrics output directory (default: ./zkevm-metrics)"
     echo "  -c, --gas-categories <LIST>      Comma-separated gas categories (e.g., 0.5M,1M,10M)"
     echo "  -m, --memory-tracking            Enable memory tracking cargo feature"
+    echo "      --risc0-keccak-po2 <NUM>     RISC0 keccak accelerator cycle limit as power of 2 (default: 15)"
+    echo "                                   Higher values allow more keccak ops per segment before splitting"
     echo ""
     echo "Available zkVMs:"
     echo "  risc0 (default), sp1, openvm, pico, zisk, airbender, zkm"
@@ -203,6 +204,10 @@ while [[ $# -gt 0 ]]; do
             MEMORY_TRACKING=true
             shift
             ;;
+        --risc0-keccak-po2)
+            RISC0_KECCAK_PO2="$2"
+            shift 2
+            ;;
         *)
             echo "Unknown option: $1"
             show_help
@@ -266,7 +271,7 @@ get_categories_to_run() {
 
 # Function to validate resource and zkVM combination
 validate_resource_zkvm() {
-    if [[ "$RESOURCE" == "network" || "$RESOURCE" == "cluster" ]] && "$ZKVM" != "sp1" ]]; then
+    if [[ "$RESOURCE" == "network" || "$RESOURCE" == "cluster" ]] && [[ "$ZKVM" != "sp1" ]]; then
         print_status "$RED" "❌ Error: Network or cluster resource is only supported for SP1 zkVM"
         print_status "$RED" "   Use: -z sp1 -r network or -z sp1 -r cluster"
         exit 1
@@ -395,7 +400,14 @@ run_benchmark() {
         --execution-client "$EXECUTION_CLIENT"
     )
     
-    if cargo run "${cmd_args[@]}"; then
+    # Set RISC0_KECCAK_PO2 environment variable for risc0 benchmarks
+    local env_prefix=""
+    if [ "$ZKVM" = "risc0" ]; then
+        env_prefix="RISC0_KECCAK_PO2=$RISC0_KECCAK_PO2"
+        print_status "$BLUE" "🔧 RISC0_KECCAK_PO2=$RISC0_KECCAK_PO2"
+    fi
+    
+    if env $env_prefix cargo run "${cmd_args[@]}"; then
         print_status "$GREEN" "✅ Successfully completed benchmark for $gas_value"
         
         # Count the generated metric files
@@ -454,6 +466,9 @@ main() {
         fi
         print_status "$BLUE" "🔄 Force Rerun: $FORCE_RERUN"
         print_status "$BLUE" "🧠 Memory Tracking: $MEMORY_TRACKING"
+        if [ "$ZKVM" = "risc0" ]; then
+            print_status "$BLUE" "🔧 RISC0_KECCAK_PO2: $RISC0_KECCAK_PO2"
+        fi
         print_status "$BLUE" "\n📋 Would execute the following commands:"
         
         for gas_value in "${GAS_CATEGORIES[@]}"; do
@@ -471,7 +486,12 @@ main() {
                 force_arg="--force-rerun"
             fi
             
-            local cmd_preview="cargo run --release --bin ere-hosts"
+            local env_prefix=""
+            if [ "$ZKVM" = "risc0" ]; then
+                env_prefix="RISC0_KECCAK_PO2=$RISC0_KECCAK_PO2 "
+            fi
+            
+            local cmd_preview="${env_prefix}cargo run --release --bin ere-hosts"
             if [ -n "$features" ]; then
                 cmd_preview="$cmd_preview --features $features"
             fi
@@ -504,6 +524,9 @@ main() {
     fi
     print_status "$BLUE" "🔄 Force Rerun: $FORCE_RERUN"
     print_status "$BLUE" "🧠 Memory Tracking: $MEMORY_TRACKING"
+    if [ "$ZKVM" = "risc0" ]; then
+        print_status "$BLUE" "🔧 RISC0_KECCAK_PO2: $RISC0_KECCAK_PO2"
+    fi
     
     # Pre-flight checks
     check_cargo
