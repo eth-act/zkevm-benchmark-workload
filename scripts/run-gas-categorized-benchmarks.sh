@@ -14,7 +14,7 @@
 #   -f, --force-rerun            Force rerun of benchmarks (default: false)
 #       --no-force-rerun         Disable force rerun
 #   -a, --action <ACTION>        Benchmark action to run (default: prove)
-#   -r, --resource <RESOURCE>    Resource type: cpu, gpu, network (default: gpu)
+#   -r, --resource <RESOURCE>    Resource type: cpu, gpu, network, cluster (default: gpu)
 #   -g, --guest <GUEST>          Guest program type (default: stateless-executor)
 #   -z, --zkvm <ZKVM>            zkVM implementation to use (default: risc0)
 #   -e, --execution-client <CLIENT> Execution client to use (default: reth)
@@ -112,10 +112,8 @@ show_help() {
     echo "  -f, --force-rerun                Force rerun of benchmarks"
     echo "      --no-force-rerun             Disable force rerun (default)"
     echo "  -a, --action <ACTION>            Benchmark action (default: prove)"
-    echo "  -r, --resource <RESOURCE>        Resource type: cpu, gpu, network (default: gpu)"
-    echo "                                   Note: 'network' requires SP1 zkVM"
-    echo "                                   Default NETWORK_RPC_URL: http://127.0.0.1:50051/"
-    echo "                                   NETWORK_PRIVATE_KEY env var is optional"
+    echo "  -r, --resource <RESOURCE>        Resource type: cpu, gpu, network, cluster (default: gpu)"
+    echo "                                   Note: 'network' and 'cluster' requires SP1 zkVM"
     echo "  -g, --guest <GUEST>              Guest program (default: stateless-executor)"
     echo "  -z, --zkvm <ZKVM>                zkVM implementation (default: risc0)"
     echo "  -e, --execution-client <CLIENT>  Execution client (default: reth)"
@@ -126,10 +124,10 @@ show_help() {
     echo ""
     echo "Available zkVMs:"
     echo "  risc0 (default), sp1, openvm, pico, zisk, airbender, zkm"
-    echo "  Note: SP1 is required when using 'network' resource for proving on SP1 Network"
+    echo "  Note: SP1 is required when using 'network' or 'cluster' resource for proving on SP1 Network"
     echo ""
     echo "Available Resources:"
-    echo "  cpu, gpu (default), network (SP1 only)"
+    echo "  cpu, gpu (default), network (SP1 only), cluster (SP1 only)"
     echo ""
     echo "Available Execution Clients:"
     echo "  reth (default), ethrex"
@@ -268,11 +266,11 @@ get_categories_to_run() {
 
 # Function to validate resource and zkVM combination
 validate_resource_zkvm() {
-    if [[ "$RESOURCE" == "network" && "$ZKVM" != "sp1" ]]; then
-        print_status "$RED" "❌ Error: Network resource is only supported for SP1 zkVM"
-        print_status "$RED" "   Use: -z sp1 -r network"
+    if [[ "$RESOURCE" == "network" || "$RESOURCE" == "cluster" ]] && "$ZKVM" != "sp1" ]]; then
+        print_status "$RED" "❌ Error: Network or cluster resource is only supported for SP1 zkVM"
+        print_status "$RED" "   Use: -z sp1 -r network or -z sp1 -r cluster"
         exit 1
-    fi
+    fi   
 }
 
 # Function to check if we're in the right directory
