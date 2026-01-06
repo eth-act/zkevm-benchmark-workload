@@ -419,6 +419,73 @@ python3 scripts/analyze_opcode_traces.py --fixtures-dir ./zkevm-fixtures --outpu
 
 ---
 
+## zkVM Compatibility
+
+The stateless-executor supports multiple zkVM platforms. Each platform has been tested for compatibility with the executor guest program.
+
+### Supported zkVM Platforms
+
+| zkVM | Status | GPU Support | Notes |
+|------|:------:|:-----------:|-------|
+| **RISC0** | ✅ Supported | ✅ Yes | Default zkVM, well-tested, production-ready |
+| **SP1** | ✅ Supported | ✅ Yes | Excellent GPU acceleration, fast proving |
+| **OpenVM** | ✅ Supported | ✅ Yes | Good performance characteristics |
+| **Pico** | ✅ Supported | ⚠️ Limited | Experimental GPU support |
+| **Zisk** | ✅ Supported | ✅ Yes | Strong GPU performance |
+| **Airbender** | ✅ Supported | ✅ Yes | Optimized for specific workloads |
+
+### Platform Selection Guidelines
+
+```bash
+# RISC0 - Default choice, best documentation and support
+./scripts/run-gas-categorized-benchmarks.sh -z risc0
+
+# SP1 - Fast proving, excellent for large workloads
+./scripts/run-gas-categorized-benchmarks.sh -z sp1
+
+# OpenVM - Alternative with good performance
+./scripts/run-gas-categorized-benchmarks.sh -z openvm
+
+# Zisk - Strong GPU acceleration
+./scripts/run-gas-categorized-benchmarks.sh -z zisk
+```
+
+### Performance Characteristics
+
+Different zkVMs have different performance profiles:
+
+| zkVM | Cycle Counting | Proving Speed | Memory Usage |
+|------|----------------|---------------|--------------|
+| **RISC0** | Accurate | Moderate | Moderate |
+| **SP1** | Accurate | Fast | Higher |
+| **OpenVM** | Accurate | Fast | Moderate |
+| **Pico** | Accurate | Moderate | Lower |
+| **Zisk** | Accurate | Fast | Higher |
+| **Airbender** | Accurate | Variable | Variable |
+
+:::info[Cycle Count Consistency]
+All supported zkVMs provide consistent cycle counts for the same execution workload. The primary differences are in proving speed and memory requirements, not in the cycle measurement accuracy.
+:::
+
+### Running Multi-zkVM Comparisons
+
+To compare the same workload across multiple zkVMs:
+
+```bash
+# Run the same gas category across different zkVMs
+for zkvm in risc0 sp1 openvm zisk; do
+  ./scripts/run-gas-categorized-benchmarks.sh \
+    -z "$zkvm" \
+    -c 1M \
+    -o "./zkevm-metrics-${zkvm}"
+done
+
+# Compare results
+python3 scripts/compare_proving_times.py
+```
+
+---
+
 ## Troubleshooting
 
 ### Stage 1: Download Fixtures
