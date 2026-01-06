@@ -50,10 +50,14 @@ The gas-categorized profiling system runs resource analysis tests on pre-generat
 
 ### Supported Execution Clients
 
-| Client | Description | Status |
-|--------|-------------|--------|
-| `reth` | Reth execution client | ✅ Default |
-| `ethrex` | Ethrex execution client | ✅ Supported |
+| Client | Description | stateless-executor | stateless-validator |
+|--------|-------------|:------------------:|:-------------------:|
+| `reth` | Reth execution client | ✅ Default | ✅ Supported |
+| `ethrex` | Ethrex execution client | ❌ Not supported | ✅ Supported |
+
+:::info[Execution Client Support]
+The `stateless-executor` guest program only supports **Reth**. If you need Ethrex support, use `stateless-validator` instead. See [Executor vs Validator](/executor-vs-validator) for a detailed comparison.
+:::
 
 ### Supported Gas Categories
 

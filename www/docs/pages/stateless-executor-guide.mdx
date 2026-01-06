@@ -32,6 +32,10 @@ RAYON_NUM_THREADS=4 ./scripts/generate-gas-categorized-fixtures.sh
 - **Gas Categories**: 1M, 10M, 30M, 45M, 60M, 100M, 150M
 - **Action**: prove
 
+:::warning[Execution Client Limitation]
+The **stateless-executor** only supports the **Reth** execution client. Unlike `stateless-validator` which supports both Reth and Ethrex, the executor is limited to Reth. If you need Ethrex support, use [stateless-validator](/executor-vs-validator) instead.
+:::
+
 ---
 
 ## Prerequisites
