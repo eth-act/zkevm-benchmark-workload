@@ -44,6 +44,10 @@ export default defineConfig({
       ],
     },
     {
+      text: 'Executor vs Validator',
+      link: '/executor-vs-validator',
+    },
+    {
       text: 'Download Fixtures',
       link: '/download-fixtures',
     },
