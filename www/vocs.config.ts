@@ -31,8 +31,17 @@ export default defineConfig({
       link: '/getting-started',
     },
     {
-      text: 'Stateless Executor Guide',
-      link: '/stateless-executor-guide',
+      text: 'Stateless Executor',
+      items: [
+        {
+          text: 'Guide',
+          link: '/stateless-executor-guide',
+        },
+        {
+          text: 'Architecture',
+          link: '/stateless-executor-architecture',
+        },
+      ],
     },
     {
       text: 'Download Fixtures',

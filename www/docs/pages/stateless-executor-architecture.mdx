@@ -1,0 +1,270 @@
+# Stateless Executor Architecture
+
+This page provides a deep dive into the technical architecture of the **stateless-executor** guest program, explaining how it achieves pure EVM execution without validation overhead.
+
+## Overview
+
+The stateless-executor is designed for benchmarking raw EVM execution cycles in zkVMs. Unlike the `stateless-validator` which performs complete block validation, the executor focuses solely on transaction execution, skipping all consensus-related validation steps.
+
+## Module Structure
+
+The stateless-executor crate is organized into three main modules:
+
+```
+ere-guests/stateless-executor/
+├── src/
+│   ├── lib.rs          # Public API and re-exports
+│   ├── execution.rs    # Core execution logic
+│   ├── guest.rs        # zkVM guest implementation
+│   └── witness_db.rs   # EVM database backed by witness data
+├── sp1/                # SP1 zkVM implementation
+├── risc0/              # RISC0 zkVM implementation
+├── openvm/             # OpenVM implementation
+├── pico/               # Pico implementation
+├── zisk/               # Zisk implementation
+└── airbender/          # Airbender implementation
+```
+
+### `lib.rs` - Public API
+
+The entry point that exposes the core functionality:
+
+- `stateless_execution_with_trie()` - Main execution function
+- `StatelessExecutionError` - Error types for execution failures
+- Re-exports from `reth_stateless` for input types
+
+### `execution.rs` - Core Execution Logic
+
+Contains the `stateless_execution_with_trie` function that performs EVM execution. The key steps are:
+
+1. **Signer Recovery** - Recover transaction signers from public keys
+2. **Build Ancestor Hashes** - Construct block hash map for BLOCKHASH opcode (without validation)
+3. **Build State from Witness** - Create the state trie from witness data
+4. **Create Database** - Initialize the `WitnessDatabase` for EVM access
+5. **Execute Block** - Run all transactions through the EVM
+
+### `guest.rs` - zkVM Guest Implementation
+
+Implements the `Guest` trait for zkVM execution:
+
+- `RethStatelessExecutorInput` - Input type containing stateless input and public keys
+- `RethStatelessExecutorOutput` - Boolean indicating execution success
+- `RethStatelessExecutorGuest` - The guest implementation that runs in zkVMs
+
+### `witness_db.rs` - EVM Database
+
+Provides `WitnessDatabase`, an EVM database implementation backed by witness data:
+
+- Implements `reth_revm::Database` trait
+- Provides account state, storage, and bytecode access
+- Supports BLOCKHASH opcode via ancestor hashes map
+
+---
+
+## What Gets Skipped
+
+The stateless-executor deliberately skips several validation steps to measure pure execution costs:
+
+| Validation Step | Stateless-Validator | Stateless-Executor |
+|-----------------|:------------------:|:-----------------:|
+| Pre-execution consensus validation | ✅ Performed | ❌ Skipped |
+| Header checks | ✅ Performed | ❌ Skipped |
+| Ancestor verification | ✅ Performed | ❌ Skipped |
+| Post-execution consensus checks | ✅ Performed | ❌ Skipped |
+| Receipts root validation | ✅ Performed | ❌ Skipped |
+| Gas used validation | ✅ Performed | ❌ Skipped |
+| Pre-state root verification | ✅ Performed | ❌ Skipped |
+| Post-state root verification | ✅ Performed | ❌ Skipped |
+| EVM transaction execution | ✅ Performed | ✅ Performed |
+
+### Why Skip Validation?
+
+When benchmarking opcode execution costs, the validation overhead can obscure the actual execution metrics:
+
+- **Pre-execution validation** involves header parsing, hash computations, and ancestor chain verification
+- **Post-execution validation** requires computing receipts root, state root, and comparing against expected values
+- **State root verification** involves MPT traversal and hashing
+
+By skipping these steps, the executor provides more accurate measurements of:
+- Raw EVM opcode cycles
+- Transaction execution overhead
+- Memory access patterns during execution
+
+---
+
+## Execution Flow
+
+The following diagram illustrates how the stateless-executor processes a block:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                        Stateless Executor Flow                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+   Input: StatelessInput + PublicKeys
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  1. Recover Block with PKs    │  ← Verify signatures, compute senders
+    │     (recover_block_with_      │
+    │      public_keys)             │
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  2. Build Ancestor Hashes     │  ← Parse headers, build hash map
+    │     (build_ancestor_hashes_   │     (NO contiguity validation)
+    │      unchecked)               │
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  3. Build State from Witness  │  ← Create StatelessTrie from witness
+    │     (T::new)                  │     (NO state root verification)
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  4. Create WitnessDatabase    │  ← Initialize EVM database with
+    │                               │     trie, bytecode, ancestor hashes
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  5. Execute Block             │  ← Run all transactions via EVM
+    │     (executor.execute)        │     This is what we're measuring!
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  SKIP: Post-execution         │  ← NO receipts root validation
+    │        validation             │     NO gas used validation
+    │                               │     NO state root computation
+    └───────────────────────────────┘
+                    │
+                    ▼
+            Output: bool (success)
+```
+
+---
+
+## Comparison with Validator Flow
+
+For comparison, here's how the stateless-validator processes the same input:
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                       Stateless Validator Flow                          │
+└─────────────────────────────────────────────────────────────────────────┘
+
+   Input: StatelessInput + PublicKeys
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  1. Pre-execution Validation  │  ← Header checks, ancestor verification
+    │     (validate_header)         │     Consensus rule validation
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  2. State Root Verification   │  ← Verify pre-state root matches
+    │     (verify_state_root)       │     witness state root
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  3. Execute Block             │  ← Same as executor
+    │     (executor.execute)        │
+    └───────────────────────────────┘
+                    │
+                    ▼
+    ┌───────────────────────────────┐
+    │  4. Post-execution Validation │  ← Verify receipts root
+    │     (validate_block_post_     │     Verify gas used
+    │      execution)               │     Compute & verify state root
+    └───────────────────────────────┘
+                    │
+                    ▼
+            Output: bool (valid)
+```
+
+---
+
+## Key Data Structures
+
+### RethStatelessExecutorInput
+
+The input provided to the guest program:
+
+```rust
+pub struct RethStatelessExecutorInput {
+    /// The stateless input for the execution function.
+    pub stateless_input: StatelessInput,
+    /// The recovered signers for the transactions in the block.
+    pub public_keys: Vec<UncompressedPublicKey>,
+}
+```
+
+### StatelessExecutionError
+
+Possible errors during execution:
+
+| Error | Description |
+|-------|-------------|
+| `ExecutionFailed` | EVM execution failed for a transaction |
+| `SignerRecovery` | Failed to recover signer from public key |
+| `HomesteadSignatureNotNormalized` | Non-normalized signature in post-Homestead block |
+| `PublicKeyCountMismatch` | Number of public keys doesn't match transactions |
+| `WitnessBuildFailed` | Failed to build state from witness |
+| `HeaderDeserializationFailed` | Failed to deserialize ancestor headers |
+| `MissingAncestorHeader` | No ancestor headers provided |
+
+### WitnessDatabase
+
+The EVM database implementation:
+
+```rust
+pub struct WitnessDatabase<'a, T: StatelessTrie> {
+    /// Map of block numbers to block hashes (for BLOCKHASH opcode)
+    block_hashes_by_block_number: BTreeMap<u64, B256>,
+    /// Map of code hashes to bytecode
+    bytecode: B256Map<Bytecode>,
+    /// The sparse state trie containing account and storage state
+    trie: &'a T,
+}
+```
+
+The `WitnessDatabase` implements the `reth_revm::Database` trait, providing:
+- `basic()` - Account information (balance, nonce, code hash)
+- `storage()` - Storage slot values
+- `code_by_hash()` - Contract bytecode
+- `block_hash()` - Historical block hashes
+
+---
+
+## Cycle Measurement
+
+The executor wraps the execution step in a cycle scope for accurate measurement:
+
+```rust
+P::cycle_scope("execution", || {
+    stateless_execution_with_trie::<SparseState, _, _>(
+        input.stateless_input.block,
+        input.public_keys,
+        input.stateless_input.witness,
+        chain_spec,
+        evm_config,
+    )
+})
+```
+
+This ensures that only the actual EVM execution cycles are measured, not setup or teardown operations.
+
+---
+
+## See Also
+
+- [Stateless Executor Guide](/stateless-executor-guide) - How to run executor benchmarks
+- [Executor vs Validator](/executor-vs-validator) - Detailed comparison and when to use each
+- [Stateless Executor API](/stateless-executor-api) - Complete API reference
+
