@@ -34,6 +34,9 @@ DETACH=false
 MIXED_MODE=false
 SKIP_GPU_CHECK=false
 
+# Docker Compose command (will be set by detect_docker_compose)
+DOCKER_COMPOSE_CMD=""
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -154,6 +157,37 @@ else
     log_warn "No .env file found. Using defaults. Copy env.example to .env to customize."
 fi
 
+# Detect and set Docker Compose command
+# Supports both Docker Compose v2 (docker compose) and v1 (docker-compose)
+detect_docker_compose() {
+    # Try Docker Compose v2 first (preferred)
+    if docker compose version &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker compose"
+        local version
+        version=$(docker compose version --short 2>/dev/null || docker compose version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        log_info "Using Docker Compose v2 ($version)"
+        return 0
+    fi
+    
+    # Fall back to Docker Compose v1 (legacy)
+    if command -v docker-compose &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+        local version
+        version=$(docker-compose version --short 2>/dev/null || docker-compose --version 2>/dev/null | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+        log_warn "Using Docker Compose v1 ($version) - legacy version"
+        log_warn "Consider upgrading to Docker Compose v2 for better performance and features"
+        log_hint "Upgrade guide: https://docs.docker.com/compose/migrate/"
+        return 0
+    fi
+    
+    # Neither found
+    log_error "Docker Compose is not installed."
+    log_hint "Install Docker Compose:"
+    log_hint "  - Docker Desktop (includes Compose v2): https://docs.docker.com/desktop/"
+    log_hint "  - Linux standalone: https://docs.docker.com/compose/install/linux/"
+    return 1
+}
+
 # Check NVIDIA GPU availability
 check_nvidia_gpu() {
     local gpu_available=false
@@ -238,11 +272,8 @@ check_prerequisites() {
         exit 1
     fi
     
-    # Check Docker Compose
-    if ! docker compose version &> /dev/null; then
-        log_error "Docker Compose is not available. Please install Docker Compose v2."
-        log_hint "Docker Compose v2 is included with Docker Desktop."
-        log_hint "For Linux standalone: https://docs.docker.com/compose/install/linux/"
+    # Detect Docker Compose (v1 or v2)
+    if ! detect_docker_compose; then
         exit 1
     fi
     
@@ -262,7 +293,7 @@ check_prerequisites() {
 # Pull Docker images
 pull_images() {
     log_info "Pulling Docker images..."
-    docker compose -f docker-compose.yml pull
+    $DOCKER_COMPOSE_CMD -f docker-compose.yml pull
     log_success "Docker images pulled"
 }
 
@@ -307,7 +338,7 @@ start_cluster() {
     
     # Start services
     # shellcheck disable=SC2086
-    docker compose -f docker-compose.yml up $detach_flag $services
+    $DOCKER_COMPOSE_CMD -f docker-compose.yml up $detach_flag $services
 }
 
 # Wait for services to be healthy
@@ -319,7 +350,7 @@ wait_for_health() {
     
     while [[ $attempt -lt $max_attempts ]]; do
         # Check if API container is running and healthy
-        if docker compose -f docker-compose.yml ps api 2>/dev/null | grep -q "Up"; then
+        if $DOCKER_COMPOSE_CMD -f docker-compose.yml ps api 2>/dev/null | grep -q "Up"; then
             log_success "SP1 Cluster API is running"
             return 0
         fi
@@ -360,8 +391,8 @@ print_info() {
     echo "Running services: $services"
     echo ""
     echo "Useful commands:"
-    echo "  View logs:     cd $SCRIPT_DIR && docker compose logs -f"
-    echo "  View status:   cd $SCRIPT_DIR && docker compose ps"
+    echo "  View logs:     cd $SCRIPT_DIR && $DOCKER_COMPOSE_CMD logs -f"
+    echo "  View status:   cd $SCRIPT_DIR && $DOCKER_COMPOSE_CMD ps"
     echo "  Stop cluster:  $SCRIPT_DIR/stop-sp1-cluster.sh"
     echo ""
 }

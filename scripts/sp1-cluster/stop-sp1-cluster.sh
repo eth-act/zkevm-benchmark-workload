@@ -21,11 +21,15 @@ cd "$SCRIPT_DIR"
 REMOVE_VOLUMES=false
 REMOVE_IMAGES=false
 
+# Docker Compose command (will be set by detect_docker_compose)
+DOCKER_COMPOSE_CMD=""
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
+CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
 # Logging functions
@@ -43,6 +47,10 @@ log_warn() {
 
 log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
+}
+
+log_hint() {
+    echo -e "${CYAN}[HINT]${NC} $1"
 }
 
 # Show help
@@ -94,6 +102,30 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Detect and set Docker Compose command
+# Supports both Docker Compose v2 (docker compose) and v1 (docker-compose)
+detect_docker_compose() {
+    # Try Docker Compose v2 first (preferred)
+    if docker compose version &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker compose"
+        return 0
+    fi
+    
+    # Fall back to Docker Compose v1 (legacy)
+    if command -v docker-compose &> /dev/null; then
+        DOCKER_COMPOSE_CMD="docker-compose"
+        log_warn "Using Docker Compose v1 (legacy). Consider upgrading to v2."
+        return 0
+    fi
+    
+    # Neither found
+    log_error "Docker Compose is not installed."
+    log_hint "Install Docker Compose:"
+    log_hint "  - Docker Desktop (includes Compose v2): https://docs.docker.com/desktop/"
+    log_hint "  - Linux standalone: https://docs.docker.com/compose/install/linux/"
+    return 1
+}
+
 # Stop all services
 stop_services() {
     log_info "Stopping SP1 Cluster services..."
@@ -113,7 +145,7 @@ stop_services() {
     
     # Stop all services from docker-compose.yml
     # shellcheck disable=SC2086
-    docker compose -f docker-compose.yml down $down_flags 2>/dev/null || true
+    $DOCKER_COMPOSE_CMD -f docker-compose.yml down $down_flags 2>/dev/null || true
     
     log_success "Services stopped"
 }
@@ -124,12 +156,12 @@ show_status() {
     
     # Check if any containers are still running
     local running_containers
-    running_containers=$(docker compose -f docker-compose.yml ps -q 2>/dev/null | wc -l)
+    running_containers=$($DOCKER_COMPOSE_CMD -f docker-compose.yml ps -q 2>/dev/null | wc -l)
     
     if [[ "$running_containers" -eq 0 ]]; then
         log_success "All SP1 Cluster containers have been stopped"
     else
-        log_warn "Some containers may still be running. Check with: docker compose ps"
+        log_warn "Some containers may still be running. Check with: $DOCKER_COMPOSE_CMD ps"
     fi
 }
 
@@ -140,6 +172,11 @@ main() {
     echo "        SP1 Cluster Stop Script         "
     echo "========================================"
     echo ""
+    
+    # Detect Docker Compose
+    if ! detect_docker_compose; then
+        exit 1
+    fi
     
     stop_services
     show_status
