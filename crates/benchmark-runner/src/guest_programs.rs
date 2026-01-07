@@ -44,7 +44,7 @@ pub struct GenericGuestFixture2<M> {
     /// The input to be provided to the guest program fixture.
     pub input: Input,
     /// The expected public values of guest program.
-    expected_public_values: Vec<u8>,
+    pub expected_public_values: Vec<u8>,
     /// Associated metadata for the guest program fixture.
     pub metadata: M,
 }

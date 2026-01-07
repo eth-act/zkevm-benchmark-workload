@@ -65,7 +65,7 @@ async fn main() -> Result<()> {
             info!("Running empty-program benchmarks");
             let guest_io = empty_program::empty_program_input()
                 .context("Failed to create empty program input")?;
-            let zkvms = get_guest_zkvm_instances("empty-program", &cli.zkvms, resource).await?;
+            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource).await?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,

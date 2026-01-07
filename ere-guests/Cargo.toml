@@ -1,12 +1,5 @@
 [workspace]
 members = [
-    # Empty program
-    "empty-program/sp1",
-    "empty-program/risc0",
-    "empty-program/zisk",
-    "empty-program/openvm",
-    "empty-program/pico",
-
     # Panic guest
     "panic-guest/sp1",
     "panic-guest/risc0",
