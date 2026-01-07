@@ -34,6 +34,7 @@ pub trait GuestFixture: Sync + Send {
     }
 }
 
+/// A generic guest fixture containing the input, expected output, and metadata.
 #[derive(Debug)]
 pub struct GenericGuestFixture<M> {
     /// The name of the guest program fixture.
@@ -50,6 +51,7 @@ impl<M> GenericGuestFixture<M>
 where
     M: 'static + Send + Sync + Serialize,
 {
+    /// Creates a new [`GenericGuestFixture`] from a guest input, output, and metadata.
     pub fn new<G: ere_guests_guest::Guest>(
         name: impl AsRef<str>,
         input: ere_guests_guest::GuestInput<G>,

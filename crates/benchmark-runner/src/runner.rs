@@ -185,7 +185,7 @@ pub async fn get_guest_zkvm_instances(
             download_guest_program(&artifact_name, gh_token.as_deref(), &output_dir, false).await?;
         let program = program.load().await?;
         let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
-            .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {}", zkvm))?;
+            .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
         instances.push(zkvm);
     }
     Ok(instances)
@@ -205,7 +205,7 @@ fn dump_input(
         input_dir.display()
     ))?;
 
-    let input_path = input_dir.join(format!("{}.bin", name));
+    let input_path = input_dir.join(format!("{name}.bin"));
 
     // Only write if it doesn't exist (avoid duplicate writes across zkVMs)
     if !input_path.exists() {
