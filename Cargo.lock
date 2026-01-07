@@ -851,7 +851,7 @@ version = "1.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "40c48f72fd53cd289104fc64099abca73db4166ad86ea0b4341abe65af83dadc"
 dependencies = [
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -862,7 +862,7 @@ checksum = "291e6a250ff86cd4a820112fb8898808a366d8f9f58ce16d1f538353ad55747d"
 dependencies = [
  "anstyle",
  "once_cell_polyfill",
- "windows-sys 0.60.2",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -1416,6 +1416,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha2",
+ "stateless-validator-reth",
  "strum 0.26.3",
  "tempfile",
  "tracing",
@@ -1547,7 +1548,7 @@ dependencies = [
 [[package]]
 name = "block-encoding-length"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.1.0#28202ea77952b1a5674b6dd1da2a35c4b440b0af"
+source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -2541,7 +2542,7 @@ dependencies = [
  "libc",
  "option-ext",
  "redox_users 0.5.2",
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -2920,7 +2921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39cab71617ae0d63f51a36d69f866391735b51691dbda63cf6f96d042b63efeb"
 dependencies = [
  "libc",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -3720,7 +3721,7 @@ dependencies = [
 [[package]]
 name = "guest"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.1.0#28202ea77952b1a5674b6dd1da2a35c4b440b0af"
+source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "ere-io",
  "ere-platform-trait",
@@ -4123,7 +4124,7 @@ dependencies = [
  "libc",
  "percent-encoding",
  "pin-project-lite",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "system-configuration",
  "tokio",
  "tower-service",
@@ -5324,7 +5325,7 @@ version = "0.50.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7957b9740744892f114936ab4a57b3f487491bbeafaf8083688b16841a4240e5"
 dependencies = [
- "windows-sys 0.59.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -6444,7 +6445,7 @@ dependencies = [
  "quinn-udp",
  "rustc-hash",
  "rustls",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "thiserror 2.0.17",
  "tokio",
  "tracing",
@@ -6481,7 +6482,7 @@ dependencies = [
  "cfg_aliases",
  "libc",
  "once_cell",
- "socket2 0.6.1",
+ "socket2 0.5.10",
  "tracing",
  "windows-sys 0.60.2",
 ]
@@ -8747,7 +8748,7 @@ dependencies = [
  "errno",
  "libc",
  "linux-raw-sys 0.11.0",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]
@@ -9470,6 +9471,36 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
+name = "stateless-validator-common"
+version = "0.1.0"
+source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+dependencies = [
+ "reth-stateless",
+ "serde",
+ "sha2",
+]
+
+[[package]]
+name = "stateless-validator-reth"
+version = "0.1.0"
+source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+dependencies = [
+ "anyhow",
+ "ere-io",
+ "ere-zkvm-interface",
+ "guest",
+ "once_cell",
+ "reth-chainspec",
+ "reth-ethereum-primitives",
+ "reth-evm-ethereum",
+ "reth-primitives-traits",
+ "reth-stateless",
+ "serde",
+ "sparsestate",
+ "stateless-validator-common",
+]
+
+[[package]]
 name = "static_assertions"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9655,7 +9686,7 @@ dependencies = [
  "getrandom 0.3.4",
  "once_cell",
  "rustix 1.1.3",
- "windows-sys 0.52.0",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

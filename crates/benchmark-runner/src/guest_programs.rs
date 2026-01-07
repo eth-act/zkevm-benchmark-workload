@@ -67,6 +67,14 @@ where
         }
     }
 
+    /// Consumes the [`GericGuestFixture`] and constructs a new one with sha256 output.
+    pub fn output_sha256(mut self) -> Self {
+        self.expected_public_values = Sha256::digest(self.expected_public_values).to_vec();
+        self
+    }
+
+    /// Converts this [`OutputHashedGuestFixture`] into a boxed [`GuestFixture`] trait
+    /// object.
     pub fn into_boxed(self) -> Box<dyn GuestFixture> {
         Box::new(self)
     }

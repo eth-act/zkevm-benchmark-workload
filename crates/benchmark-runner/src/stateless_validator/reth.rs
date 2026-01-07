@@ -1,8 +1,12 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture, GuestFixture},
+    guest_programs::{GenericGuestFixture, GenericGuestFixture2, GuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
+};
+use anyhow::Context;
+use ere_guests_stateless_validator_reth::guest::{
+    StatelessValidatorOutput, StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
 use guest_libs::senders::recover_signers;
 use reth_guest::guest::{RethStatelessValidatorGuest, RethStatelessValidatorInput};
@@ -24,35 +28,27 @@ pub fn stateless_validator_inputs_from_fixture(
     fixture
         .iter()
         .map(|bw| {
-            let input = get_input_full_validation(bw)?;
+            let input = StatelessValidatorRethInput::new(&bw.stateless_input)
+                .context("Failed to create Reth stateless validator input")?;
+            let output = StatelessValidatorOutput::new(
+                bw.stateless_input.block.hash_slow(),
+                bw.stateless_input.block.parent_hash,
+                bw.success,
+            );
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
 
-            Ok(GenericGuestFixture::<RethStatelessValidatorGuest, _> {
-                name: bw.name.clone(),
-                input,
-                metadata,
-                output: OnceLock::from((
-                    bw.stateless_input.block.hash_slow().0,
-                    bw.stateless_input.block.parent_hash.0,
-                    bw.success,
-                )),
-            }
-            .into_output_sha256()
-            .into_boxed())
+            let fixture =
+                GenericGuestFixture2::<BlockMetadata>::new::<StatelessValidatorRethGuest>(
+                    bw.name.clone(),
+                    input,
+                    output,
+                    metadata,
+                )
+                .output_sha256();
+
+            Ok(fixture.into_boxed())
         })
         .collect()
-}
-
-fn get_input_full_validation(
-    bw: &StatelessValidationFixture,
-) -> anyhow::Result<RethStatelessValidatorInput> {
-    let stateless_input = &bw.stateless_input;
-    let signers = recover_signers(&stateless_input.block.body.transactions)?;
-
-    Ok(RethStatelessValidatorInput {
-        stateless_input: stateless_input.clone(),
-        public_keys: signers,
-    })
 }
