@@ -1,16 +1,14 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture, GenericGuestFixture2, GuestFixture},
+    guest_programs::{GenericGuestFixture2, GuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use anyhow::Context;
 use ere_guests_stateless_validator_reth::guest::{
     StatelessValidatorOutput, StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
-use guest_libs::senders::recover_signers;
-use reth_guest::guest::{RethStatelessValidatorGuest, RethStatelessValidatorInput};
-use std::{path::Path, sync::OnceLock};
+use std::path::Path;
 use witness_generator::StatelessValidationFixture;
 
 /// Prepares the inputs for the Reth stateless validator guest program.

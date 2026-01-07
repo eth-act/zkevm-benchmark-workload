@@ -12,7 +12,6 @@ ere-dockerized.workspace = true
 ere-io.workspace = true
 
 guest-libs = { workspace = true, default-features = true }
-reth-guest.workspace = true
 ethrex-guest.workspace = true
 
 alloy-rlp.workspace = true

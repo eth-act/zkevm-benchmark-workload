@@ -1411,7 +1411,6 @@ dependencies = [
  "guest-libs",
  "guest_program",
  "rayon",
- "reth-guest",
  "reth-stateless",
  "serde",
  "serde_json",
@@ -7339,7 +7338,6 @@ dependencies = [
  "alloy-evm",
  "alloy-primitives",
  "alloy-rpc-types-engine",
- "derive_more 2.1.1",
  "reth-chainspec",
  "reth-ethereum-forks",
  "reth-ethereum-primitives",
@@ -7389,27 +7387,6 @@ dependencies = [
  "serde",
  "serde_json",
  "thiserror 2.0.17",
-]
-
-[[package]]
-name = "reth-guest"
-version = "0.1.0"
-dependencies = [
- "alloy-primitives",
- "ere-io",
- "ere-platform-trait",
- "guest-libs",
- "k256",
- "once_cell",
- "reth-chainspec",
- "reth-ethereum-primitives",
- "reth-evm-ethereum",
- "reth-primitives-traits",
- "reth-stateless",
- "reth-trie-common",
- "serde",
- "serde_with",
- "sparsestate",
 ]
 
 [[package]]

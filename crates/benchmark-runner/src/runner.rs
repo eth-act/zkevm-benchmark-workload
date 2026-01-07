@@ -1,18 +1,16 @@
 //! Runner for benchmark tests
 
-use anyhow::{anyhow, bail, Context, Result};
-use ere_dockerized::{zkVMKind, DockerizedCompiler, DockerizedzkVM};
+use anyhow::{anyhow, Context, Result};
+use ere_dockerized::{zkVMKind, DockerizedzkVM};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use std::env::temp_dir;
 use std::path::{Path, PathBuf};
-use std::process::Command;
 use std::{any::Any, panic};
 use std::{env, fs};
-use tracing::{error, info};
-use zkboost_ethereum_el_config::program::{download_guest_program, download_program};
+use tracing::info;
+use zkboost_ethereum_el_config::program::download_guest_program;
 use zkboost_ethereum_el_types::ElKind;
 
-use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
+use ere_zkvm_interface::{zkVM, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};

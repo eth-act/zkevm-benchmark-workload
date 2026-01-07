@@ -5,7 +5,6 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "ere-guests/stateless-validator/reth/guest",
     "ere-guests/stateless-validator/ethrex/guest",
     "xtask",
 ]
@@ -108,7 +107,6 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 guest-libs = { path = "ere-guests/libs" }
-reth-guest = { path = "ere-guests/stateless-validator/reth/guest" }
 ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
 # ere

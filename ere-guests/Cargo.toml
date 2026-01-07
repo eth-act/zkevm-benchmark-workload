@@ -1,14 +1,5 @@
 [workspace]
 members = [
-    # Reth stateless validator
-    "stateless-validator/reth/guest",
-    "stateless-validator/reth/airbender",
-    "stateless-validator/reth/openvm",
-    "stateless-validator/reth/pico",
-    "stateless-validator/reth/risc0",
-    "stateless-validator/reth/sp1",
-    "stateless-validator/reth/zisk",
-
     # Ethrex stateless validator is not part of the workspace
     "stateless-validator/ethrex/guest",
 
