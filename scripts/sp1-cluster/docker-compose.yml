@@ -9,9 +9,20 @@
 # Configuration:
 #   Copy env.example to .env and customize resource limits and ports.
 #   See env.example for all available configuration options.
+#
+# High Availability Notes:
+#   This configuration runs a single instance of each service. For production
+#   deployments requiring high availability:
+#   
+#   1. Run multiple SP1 clusters on separate machines with a load balancer
+#   2. Use external managed services for Redis and PostgreSQL
+#   3. Configure proper monitoring and alerting
+#   4. Implement backup and recovery procedures
+#
+#   See the documentation for detailed HA deployment guidance.
 
 services:
-  # Redis service
+  # Redis service - Used for artifact storage and caching
   redis:
     image: bitnami/redis:latest
     environment:
@@ -27,8 +38,15 @@ services:
           memory: ${REDIS_MEMORY_LIMIT:-30G}
         reservations:
           memory: ${REDIS_MEMORY_RESERVATION:-30G}
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-redispassword}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
 
-  # PostgreSQL database
+  # PostgreSQL database - Stores cluster state and job metadata
   postgresql:
     image: bitnami/postgresql:latest
     environment:
@@ -39,8 +57,15 @@ services:
       - postgresql_data:/bitnami/postgresql
     # ports:
     #   - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
-  # API Service
+  # API Service - Main entry point for proof requests
   api:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -51,9 +76,17 @@ services:
     ports:
       - "0.0.0.0:${API_PORT:-50051}:50051"
     depends_on:
-      - postgresql
+      postgresql:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 50051 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
-  # Coordinator Service
+  # Coordinator Service - Manages job distribution to workers
   coordinator:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -64,9 +97,17 @@ services:
     # ports:
     #   - "50052:50051"
     depends_on:
-      - api
+      api:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z localhost 50051 || exit 1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    restart: unless-stopped
 
-  # CPU Node
+  # CPU Node - Handles CPU-bound proving tasks
   cpu-node:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -87,10 +128,13 @@ services:
           cpus: '${CPU_NODE_CPUS_RESERVATION:-4}'
           memory: ${CPU_NODE_MEMORY_RESERVATION:-32G}
     depends_on:
-      - coordinator
-      - redis
+      coordinator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # CPU Node (mixed mode)
+  # CPU Node (mixed mode) - Handles both CPU and GPU tasks
   mixed:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -111,10 +155,15 @@ services:
           cpus: '${MIXED_NODE_CPUS_RESERVATION:-4}'
           memory: ${MIXED_NODE_MEMORY_RESERVATION:-32G}
     depends_on:
-      - coordinator
-      - redis
+      coordinator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # GPU Node
+  # GPU Node - Base configuration for GPU-accelerated proving
+  # Each GPU worker is assigned to a single GPU for isolation
+  # Benefits: Memory isolation, fault tolerance, predictable performance
   gpu0:
     image: ghcr.io/succinctlabs/sp1-cluster:node-gpu-latest
     command: ["/bin/sh", "-c", "/app/sp1-cluster-node"]
@@ -136,11 +185,15 @@ services:
           cpus: '${GPU_NODE_CPUS_RESERVATION:-32}'
           memory: ${GPU_NODE_MEMORY_RESERVATION:-24G}
     depends_on:
-      - coordinator
-      - redis
-      - cpu-node
+      coordinator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      cpu-node:
+        condition: service_started
     # GPU support - requires NVIDIA Container Toolkit
     runtime: nvidia
+    restart: unless-stopped
 
   gpu1:
     environment:
@@ -184,7 +237,7 @@ services:
     extends:
       service: gpu0
 
-  # Fulfiller Service
+  # Fulfiller Service - Handles proof fulfillment
   fulfiller:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -198,11 +251,14 @@ services:
       - FULFILLER_RPC_GRPC_ADDR=${RPC_GRPC_ADDR}
       - FULFILLER_SP1_PRIVATE_KEY=8f59a842310388db9a785653312f501c16e6753979ba6ca5eb74d2e64acef1c7
     depends_on:
-      - coordinator
-      - redis
+      coordinator:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     command: ["/bin/sh", "-c", "/fulfiller"]
+    restart: unless-stopped
 
-  # Bidder Service
+  # Bidder Service - Handles proof bidding
   bidder:
     image: ghcr.io/succinctlabs/sp1-cluster:base-latest
     environment:
@@ -216,6 +272,7 @@ services:
       - BIDDER_MAX_CONCURRENT_PROOFS=1
       - BIDDER_BID_AMOUNT=1
     command: ["/bin/sh", "-c", "/bidder"]
+    restart: unless-stopped
 
 volumes:
   redis_data:

@@ -13,6 +13,7 @@
 #   --redis-port PORT  Set Redis port (default: 6379)
 #   --pull             Force re-pull of Docker images
 #   --detach, -d       Run in detached mode
+#   --wait             Wait for all services to be healthy (implies --detach)
 #   --skip-gpu-check   Skip NVIDIA runtime verification (use if you know GPU is available)
 #   --help, -h         Show this help message
 #
@@ -23,6 +24,7 @@
 #   ./start-sp1-cluster.sh --gpu-nodes 4 -d # 4 GPU workers, detached
 #   ./start-sp1-cluster.sh --mixed -d       # Mixed mode worker
 #   ./start-sp1-cluster.sh --port 50052     # Custom API port (for multiple clusters)
+#   ./start-sp1-cluster.sh --wait           # Wait for all services to be healthy
 
 set -euo pipefail
 
@@ -36,6 +38,7 @@ FORCE_PULL=false
 DETACH=false
 MIXED_MODE=false
 SKIP_GPU_CHECK=false
+WAIT_HEALTHY=false
 
 # Port configuration (can be overridden via CLI or .env)
 # These are set here but may be overridden by .env file or CLI args
@@ -90,6 +93,7 @@ Options:
   --redis-port PORT  Set Redis port (default: 6379, overrides REDIS_PORT env var)
   --pull             Force re-pull of Docker images
   --detach, -d       Run in detached mode
+  --wait             Wait for all services to be healthy (implies --detach)
   --skip-gpu-check   Skip NVIDIA runtime verification
   --help, -h         Show this help message
 
@@ -101,6 +105,7 @@ Examples:
   $0 --mixed -d             # Mixed mode worker, detached
   $0 --port 50052           # Run on custom API port
   $0 --port 50052 --redis-port 6380  # Custom ports for multiple clusters
+  $0 --wait                 # Wait for all services to be healthy
 
 Images:
   Uses pre-built images from ghcr.io/succinctlabs/sp1-cluster
@@ -147,6 +152,11 @@ while [[ $# -gt 0 ]]; do
             ;;
         --detach|-d)
             DETACH=true
+            shift
+            ;;
+        --wait)
+            WAIT_HEALTHY=true
+            DETACH=true  # --wait implies --detach
             shift
             ;;
         --skip-gpu-check)
@@ -423,27 +433,63 @@ start_cluster() {
     $DOCKER_COMPOSE_CMD -f docker-compose.yml up $detach_flag $services
 }
 
-# Wait for services to be healthy
-wait_for_health() {
-    log_info "Waiting for services to be healthy..."
-    
-    local max_attempts=30
+# Wait for a specific service to be healthy
+wait_for_service() {
+    local service="$1"
+    local max_attempts="${2:-30}"
     local attempt=0
     
     while [[ $attempt -lt $max_attempts ]]; do
-        # Check if API container is running and healthy
-        if $DOCKER_COMPOSE_CMD -f docker-compose.yml ps api 2>/dev/null | grep -q "Up"; then
-            log_success "SP1 Cluster API is running"
+        local status
+        status=$($DOCKER_COMPOSE_CMD -f docker-compose.yml ps "$service" 2>/dev/null | tail -n +2 | head -1)
+        
+        # Check for "healthy" status or "Up" status
+        if echo "$status" | grep -qE "(healthy|Up)"; then
             return 0
         fi
         
         attempt=$((attempt + 1))
-        echo -n "."
         sleep 2
     done
     
-    log_warn "Health check timed out. Services may still be starting..."
     return 1
+}
+
+# Wait for all critical services to be healthy
+wait_for_health() {
+    local strict="${1:-false}"
+    
+    log_info "Waiting for services to be healthy..."
+    echo ""
+    
+    local services=("redis" "postgresql" "api" "coordinator")
+    local all_healthy=true
+    
+    for service in "${services[@]}"; do
+        printf "  Waiting for %-15s " "$service..."
+        if wait_for_service "$service" 60; then
+            echo -e "${GREEN}✓ healthy${NC}"
+        else
+            echo -e "${RED}✗ not ready${NC}"
+            all_healthy=false
+        fi
+    done
+    
+    echo ""
+    
+    if [[ "$all_healthy" == true ]]; then
+        log_success "All core services are healthy"
+        return 0
+    else
+        if [[ "$strict" == true ]]; then
+            log_error "Some services failed to become healthy"
+            return 1
+        else
+            log_warn "Some services may still be starting. Check logs for details."
+            log_hint "View logs: $DOCKER_COMPOSE_CMD logs -f"
+            return 0
+        fi
+    fi
 }
 
 # Print cluster information
@@ -497,7 +543,15 @@ main() {
     start_cluster
     
     if [[ "$DETACH" == true ]]; then
-        wait_for_health || true
+        # If --wait was specified, use strict health checking
+        if [[ "$WAIT_HEALTHY" == true ]]; then
+            if ! wait_for_health true; then
+                log_error "Cluster failed to start properly"
+                exit 1
+            fi
+        else
+            wait_for_health false || true
+        fi
         print_info
     fi
 }
