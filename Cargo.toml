@@ -123,7 +123,6 @@ zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = 
 
 # ere-guests
 ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "block-encoding-length" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "integration-tests" }
 ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "guest" }
 
 # branch is kw/zkevm-benchmark-workload-repo

@@ -41,7 +41,6 @@ zkboost-ethereum-el-config.workspace = true
 zkboost-ethereum-el-types.workspace = true
 
 ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
-ere-guests-integration-tests = { "workspace" = true }
 ere-guests-guest = { "workspace" = true }
 
 [lints]

@@ -1,7 +1,6 @@
 //! Guest program input generation and metadata types
 
 use anyhow::Context;
-use ere_guests_integration_tests::TestCase;
 use ere_io::Io;
 use ere_platform_trait::Platform;
 use ere_zkvm_interface::zkvm::Input;
