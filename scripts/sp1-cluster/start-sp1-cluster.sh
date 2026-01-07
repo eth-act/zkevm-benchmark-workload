@@ -9,6 +9,8 @@
 #   --gpu-nodes N      Number of GPU worker nodes (0-8, default: 1)
 #                      Use 0 for CPU-only mode
 #   --mixed            Use mixed worker instead of separate CPU/GPU workers
+#   --port PORT        Set API gRPC port (default: 50051)
+#   --redis-port PORT  Set Redis port (default: 6379)
 #   --pull             Force re-pull of Docker images
 #   --detach, -d       Run in detached mode
 #   --skip-gpu-check   Skip NVIDIA runtime verification (use if you know GPU is available)
@@ -20,6 +22,7 @@
 #   ./start-sp1-cluster.sh --gpu-nodes 0    # CPU-only mode
 #   ./start-sp1-cluster.sh --gpu-nodes 4 -d # 4 GPU workers, detached
 #   ./start-sp1-cluster.sh --mixed -d       # Mixed mode worker
+#   ./start-sp1-cluster.sh --port 50052     # Custom API port (for multiple clusters)
 
 set -euo pipefail
 
@@ -33,6 +36,11 @@ FORCE_PULL=false
 DETACH=false
 MIXED_MODE=false
 SKIP_GPU_CHECK=false
+
+# Port configuration (can be overridden via CLI or .env)
+# These are set here but may be overridden by .env file or CLI args
+CLI_API_PORT=""
+CLI_REDIS_PORT=""
 
 # Docker Compose command (will be set by detect_docker_compose)
 DOCKER_COMPOSE_CMD=""
@@ -78,6 +86,8 @@ Options:
   --gpu-nodes N      Number of GPU worker nodes (0-8, default: 1)
                      Use 0 for CPU-only mode
   --mixed            Use mixed worker (WORKER_TYPE=ALL) instead of separate workers
+  --port PORT        Set API gRPC port (default: 50051, overrides API_PORT env var)
+  --redis-port PORT  Set Redis port (default: 6379, overrides REDIS_PORT env var)
   --pull             Force re-pull of Docker images
   --detach, -d       Run in detached mode
   --skip-gpu-check   Skip NVIDIA runtime verification
@@ -89,6 +99,8 @@ Examples:
   $0 --gpu-nodes 0          # CPU-only mode (cpu-node only)
   $0 --gpu-nodes 4 -d       # 4 GPU workers, detached
   $0 --mixed -d             # Mixed mode worker, detached
+  $0 --port 50052           # Run on custom API port
+  $0 --port 50052 --redis-port 6380  # Custom ports for multiple clusters
 
 Images:
   Uses pre-built images from ghcr.io/succinctlabs/sp1-cluster
@@ -100,9 +112,11 @@ Services:
 
 API Endpoints:
   gRPC API:     http://localhost:\${API_PORT:-50051}
+  Redis:        localhost:\${REDIS_PORT:-6379}
   
 Configuration:
   Copy env.example to .env to customize resource limits and ports.
+  CLI arguments (--port, --redis-port) override .env settings.
 
 EOF
     exit 0
@@ -118,6 +132,14 @@ while [[ $# -gt 0 ]]; do
         --mixed)
             MIXED_MODE=true
             shift
+            ;;
+        --port)
+            CLI_API_PORT="$2"
+            shift 2
+            ;;
+        --redis-port)
+            CLI_REDIS_PORT="$2"
+            shift 2
             ;;
         --pull)
             FORCE_PULL=true
@@ -156,6 +178,30 @@ if [[ -f ".env" ]]; then
 else
     log_warn "No .env file found. Using defaults. Copy env.example to .env to customize."
 fi
+
+# Apply CLI port overrides (CLI args take precedence over .env)
+if [[ -n "$CLI_API_PORT" ]]; then
+    export API_PORT="$CLI_API_PORT"
+    log_info "Using CLI-specified API port: $API_PORT"
+fi
+
+if [[ -n "$CLI_REDIS_PORT" ]]; then
+    export REDIS_PORT="$CLI_REDIS_PORT"
+    log_info "Using CLI-specified Redis port: $REDIS_PORT"
+fi
+
+# Validate port numbers if specified
+validate_port() {
+    local port="$1"
+    local name="$2"
+    if [[ -n "$port" ]] && ! [[ "$port" =~ ^[0-9]+$ && "$port" -ge 1 && "$port" -le 65535 ]]; then
+        log_error "Invalid $name: $port (must be 1-65535)"
+        exit 1
+    fi
+}
+
+validate_port "${API_PORT:-}" "API port"
+validate_port "${REDIS_PORT:-}" "Redis port"
 
 # Ensure SP1 circuits cache directory exists
 # This directory is mounted into containers for caching compiled circuits
