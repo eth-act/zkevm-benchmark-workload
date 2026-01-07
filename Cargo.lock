@@ -1393,9 +1393,6 @@ checksum = "7d809780667f4410e7c41b07f52439b94d2bdf8528eeedc287fa38d3b7f95d82"
 name = "benchmark-runner"
 version = "0.1.0"
 dependencies = [
- "alloy-eips",
- "alloy-genesis",
- "alloy-rlp",
  "anyhow",
  "auto_impl",
  "block-encoding-length",
@@ -1403,18 +1400,13 @@ dependencies = [
  "ere-io",
  "ere-platform-trait",
  "ere-zkvm-interface",
- "ethrex-common",
- "ethrex-guest",
- "ethrex-rlp",
- "ethrex-rpc",
  "guest",
  "guest-libs",
- "guest_program",
  "rayon",
- "reth-stateless",
  "serde",
  "serde_json",
  "sha2",
+ "stateless-validator-ethrex",
  "stateless-validator-reth",
  "strum 0.26.3",
  "tempfile",
@@ -3038,7 +3030,6 @@ dependencies = [
  "rayon",
  "rkyv",
  "rustc-hash",
- "secp256k1 0.30.0",
  "serde",
  "serde_json",
  "sha2",
@@ -3061,18 +3052,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ethrex-guest"
-version = "0.1.0"
-dependencies = [
- "ere-io",
- "ere-platform-trait",
- "ethrex-common",
- "guest-libs",
- "guest_program",
- "rkyv",
-]
-
-[[package]]
 name = "ethrex-l2-common"
 version = "8.0.0"
 source = "git+https://github.com/lambdaclass/ethrex.git?rev=e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1#e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1"
@@ -3089,7 +3068,6 @@ dependencies = [
  "k256",
  "lambdaworks-crypto",
  "rkyv",
- "secp256k1 0.30.0",
  "serde",
  "serde_with",
  "sha3",
@@ -3120,7 +3098,6 @@ dependencies = [
  "p256",
  "ripemd",
  "rustc-hash",
- "secp256k1 0.30.0",
  "serde",
  "serde_json",
  "sha2",
@@ -9453,8 +9430,31 @@ version = "0.1.0"
 source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "reth-stateless",
+ "rkyv",
  "serde",
  "sha2",
+]
+
+[[package]]
+name = "stateless-validator-ethrex"
+version = "0.1.0"
+source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+dependencies = [
+ "alloy-consensus",
+ "alloy-eips",
+ "alloy-genesis",
+ "alloy-rlp",
+ "anyhow",
+ "ere-io",
+ "ere-zkvm-interface",
+ "ethrex-common",
+ "ethrex-rlp",
+ "ethrex-rpc",
+ "ethrex-vm",
+ "guest",
+ "guest_program",
+ "rkyv",
+ "stateless-validator-common",
 ]
 
 [[package]]

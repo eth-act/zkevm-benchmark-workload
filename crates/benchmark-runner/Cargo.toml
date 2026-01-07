@@ -12,18 +12,6 @@ ere-dockerized.workspace = true
 ere-io.workspace = true
 
 guest-libs = { workspace = true, default-features = true }
-ethrex-guest.workspace = true
-
-alloy-rlp.workspace = true
-alloy-eips.workspace = true
-alloy-genesis.workspace = true
-
-reth-stateless.workspace = true
-
-ethrex-guest-program.workspace = true
-ethrex-common.workspace = true
-ethrex-rlp.workspace = true
-ethrex-rpc.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
@@ -40,6 +28,9 @@ zkboost-ethereum-el-config.workspace = true
 zkboost-ethereum-el-types.workspace = true
 
 ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
+ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
+    "host",
+] }
 ere-guests-stateless-validator-reth = { "workspace" = true, features = [
     "host",
 ] }

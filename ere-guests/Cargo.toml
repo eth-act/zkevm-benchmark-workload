@@ -1,8 +1,5 @@
 [workspace]
 members = [
-    # Ethrex stateless validator is not part of the workspace
-    "stateless-validator/ethrex/guest",
-
     # Empty program
     "empty-program/sp1",
     "empty-program/risc0",

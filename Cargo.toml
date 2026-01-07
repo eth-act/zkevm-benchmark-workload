@@ -5,7 +5,6 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "ere-guests/stateless-validator/ethrex/guest",
     "xtask",
 ]
 resolver = "2"
@@ -123,6 +122,7 @@ zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = 
 ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "block-encoding-length" }
 ere-guests-stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-common" }
 ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-ethrex" }
 ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "guest" }
 
 # branch is kw/zkevm-benchmark-workload-repo
@@ -193,4 +193,5 @@ tempfile = "3.10"
 block-encoding-length = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 stateless-validator-common = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 stateless-validator-reth = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
+stateless-validator-ethrex = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 guest = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
