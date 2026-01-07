@@ -1,12 +1,5 @@
 [workspace]
 members = [
-    # Panic guest
-    "panic-guest/sp1",
-    "panic-guest/risc0",
-    "panic-guest/zisk",
-    "panic-guest/openvm",
-    "panic-guest/pico",
-
     # Libs
     "libs",
 ]

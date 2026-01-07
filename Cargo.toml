@@ -5,7 +5,6 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "xtask",
 ]
 resolver = "2"
 
