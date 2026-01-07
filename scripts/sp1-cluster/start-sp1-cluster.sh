@@ -123,6 +123,29 @@ Configuration:
   Copy env.example to .env to customize resource limits and ports.
   CLI arguments (--port, --redis-port) override .env settings.
 
+Architecture Notes:
+
+  GPU Worker Isolation (One GPU per Worker):
+    Each GPU worker is assigned to a single GPU via CUDA_VISIBLE_DEVICES.
+    This design provides several benefits:
+    
+    - Memory Isolation: Each worker has dedicated GPU memory, preventing
+      out-of-memory errors from affecting other workers
+    - Fault Tolerance: If one GPU worker crashes or hangs, other workers
+      continue operating independently
+    - Predictable Performance: No resource contention between workers on
+      the same GPU ensures consistent proving times
+    - Simplified Debugging: Issues can be traced to specific GPU/worker pairs
+    
+  GPU Worker Limit (Maximum 8):
+    The cluster supports up to 8 GPU workers (gpu0-gpu7). This limit is based on:
+    
+    - Typical Server Configurations: Most GPU servers have 4-8 GPUs
+    - Resource Management: Each GPU worker requires significant CPU and memory
+    - Coordinator Overhead: Managing more workers increases coordination complexity
+    
+    For larger deployments, run multiple SP1 clusters on separate machines.
+
 EOF
     exit 0
 }
@@ -174,8 +197,14 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Validate GPU_NODES is a valid integer (0-8)
+# The 8 GPU limit is a design decision based on:
+# - Typical server configurations (most GPU servers have 4-8 GPUs)
+# - Resource management (each GPU worker needs significant CPU/memory)
+# - Coordinator overhead (more workers = more coordination complexity)
+# For larger deployments, run multiple SP1 clusters on separate machines.
 if ! [[ "$GPU_NODES" =~ ^[0-8]$ ]]; then
     log_error "--gpu-nodes must be an integer between 0 and 8"
+    log_hint "For more than 8 GPUs, run multiple SP1 clusters on separate machines"
     exit 1
 fi
 
