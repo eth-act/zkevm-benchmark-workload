@@ -8,7 +8,6 @@ members = [
     "ere-guests/block-encoding-length/guest",
     "ere-guests/stateless-validator/reth/guest",
     "ere-guests/stateless-validator/ethrex/guest",
-    "tests",
     "xtask",
 ]
 resolver = "2"
