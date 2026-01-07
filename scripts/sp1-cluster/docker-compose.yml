@@ -5,32 +5,36 @@
 #   docker compose -f docker-compose.yml down -v
 #   docker compose -f docker-compose.yml up -d postgresql redis api coordinator cpu-node gpu0 gpu1 gpu2 gpu3
 #   sleep 15
+#
+# Configuration:
+#   Copy env.example to .env and customize resource limits and ports.
+#   See env.example for all available configuration options.
 
 services:
   # Redis service
   redis:
     image: bitnami/redis:latest
     environment:
-      - REDIS_PASSWORD=redispassword
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-redispassword}
       - REDIS_AOF_ENABLED=no
     volumes:
       - redis_data:/bitnami/redis/data
     ports:
-      - "0.0.0.0:6379:6379"
+      - "0.0.0.0:${REDIS_PORT:-6379}:6379"
     deploy:
       resources:
         limits:
-          memory: 30G
+          memory: ${REDIS_MEMORY_LIMIT:-30G}
         reservations:
-          memory: 30G
+          memory: ${REDIS_MEMORY_RESERVATION:-30G}
 
   # PostgreSQL database
   postgresql:
     image: bitnami/postgresql:latest
     environment:
-      - POSTGRES_PASSWORD=postgrespassword
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-postgrespassword}
+      - POSTGRES_USER=${POSTGRES_USER:-postgres}
+      - POSTGRES_DB=${POSTGRES_DB:-postgres}
     volumes:
       - postgresql_data:/bitnami/postgresql
     # ports:
@@ -43,9 +47,9 @@ services:
       - API_GRPC_ADDR=0.0.0.0:50051
       - API_HTTP_ADDR=0.0.0.0:3000
       - API_AUTO_MIGRATE=true
-      - API_DATABASE_URL=postgresql://postgres:postgrespassword@postgresql:5432/postgres
+      - API_DATABASE_URL=postgresql://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgrespassword}@postgresql:5432/${POSTGRES_DB:-postgres}
     ports:
-      - "0.0.0.0:50051:50051"
+      - "0.0.0.0:${API_PORT:-50051}:50051"
     depends_on:
       - postgresql
 
@@ -69,19 +73,19 @@ services:
       - NODE_COORDINATOR_RPC=http://coordinator:50051
       - WORKER_MAX_WEIGHT_OVERRIDE=32
       - NODE_ARTIFACT_STORE=redis
-      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - NODE_REDIS_NODES=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
       - WORKER_TYPE=CPU
     volumes:
-      - ${HOME}/.sp1/circuits:/root/.sp1/circuits
+      - ${SP1_CIRCUITS_DIR:-${HOME}/.sp1/circuits}:/root/.sp1/circuits
     command: ["/bin/sh", "-c", "/node"]
     deploy:
       resources:
         limits:
-          cpus: '8'
-          memory: 32G
+          cpus: '${CPU_NODE_CPUS_LIMIT:-8}'
+          memory: ${CPU_NODE_MEMORY_LIMIT:-32G}
         reservations:
-          cpus: '4'
-          memory: 32G
+          cpus: '${CPU_NODE_CPUS_RESERVATION:-4}'
+          memory: ${CPU_NODE_MEMORY_RESERVATION:-32G}
     depends_on:
       - coordinator
       - redis
@@ -93,19 +97,19 @@ services:
       - NODE_COORDINATOR_RPC=http://coordinator:50051
       - WORKER_MAX_WEIGHT_OVERRIDE=32
       - NODE_ARTIFACT_STORE=redis
-      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - NODE_REDIS_NODES=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
       - WORKER_TYPE=ALL
     volumes:
-      - ${HOME}/.sp1/circuits:/root/.sp1/circuits
+      - ${SP1_CIRCUITS_DIR:-${HOME}/.sp1/circuits}:/root/.sp1/circuits
     command: ["/bin/sh", "-c", "/node"]
     deploy:
       resources:
         limits:
-          cpus: '8'
-          memory: 32G
+          cpus: '${MIXED_NODE_CPUS_LIMIT:-8}'
+          memory: ${MIXED_NODE_MEMORY_LIMIT:-32G}
         reservations:
-          cpus: '4'
-          memory: 32G
+          cpus: '${MIXED_NODE_CPUS_RESERVATION:-4}'
+          memory: ${MIXED_NODE_MEMORY_RESERVATION:-32G}
     depends_on:
       - coordinator
       - redis
@@ -118,17 +122,19 @@ services:
       - NODE_COORDINATOR_RPC=http://coordinator:50051
       - WORKER_MAX_WEIGHT_OVERRIDE=24
       - NODE_ARTIFACT_STORE=redis
-      - NODE_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - NODE_REDIS_NODES=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
       - WORKER_TYPE=GPU
       - RUST_LOG=info,moongate_core=off
+    volumes:
+      - ${SP1_CIRCUITS_DIR:-${HOME}/.sp1/circuits}:/root/.sp1/circuits
     deploy:
       resources:
         limits:
-          cpus: '32'
-          memory: 24G
+          cpus: '${GPU_NODE_CPUS_LIMIT:-32}'
+          memory: ${GPU_NODE_MEMORY_LIMIT:-24G}
         reservations:
-          cpus: '32'
-          memory: 24G
+          cpus: '${GPU_NODE_CPUS_RESERVATION:-32}'
+          memory: ${GPU_NODE_MEMORY_RESERVATION:-24G}
     depends_on:
       - coordinator
       - redis
@@ -187,7 +193,7 @@ services:
       - FULFILLER_CLUSTER_ARTIFACT_STORE=redis
       - FULFILLER_VERSION=sp1-v5.0.0
       - FULFILLER_DOMAIN=SPN_SEPOLIA_V1_DOMAIN
-      - FULFILLER_CLUSTER_REDIS_NODES=redis://:redispassword@redis:6379/0
+      - FULFILLER_CLUSTER_REDIS_NODES=redis://:${REDIS_PASSWORD:-redispassword}@redis:6379/0
       - FULFILLER_METRICS_ADDR=0.0.0.0:9090
       - FULFILLER_RPC_GRPC_ADDR=${RPC_GRPC_ADDR}
       - FULFILLER_SP1_PRIVATE_KEY=8f59a842310388db9a785653312f501c16e6753979ba6ca5eb74d2e64acef1c7
@@ -214,4 +220,3 @@ services:
 volumes:
   redis_data:
   postgresql_data:
-
