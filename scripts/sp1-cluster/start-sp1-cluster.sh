@@ -157,6 +157,37 @@ else
     log_warn "No .env file found. Using defaults. Copy env.example to .env to customize."
 fi
 
+# Ensure SP1 circuits cache directory exists
+# This directory is mounted into containers for caching compiled circuits
+# Without this directory, Docker will create it as root, causing permission issues
+ensure_circuits_dir() {
+    local circuits_dir="${SP1_CIRCUITS_DIR:-${HOME}/.sp1/circuits}"
+    
+    if [[ ! -d "$circuits_dir" ]]; then
+        log_info "Creating SP1 circuits cache directory: $circuits_dir"
+        if mkdir -p "$circuits_dir"; then
+            log_success "Created circuits directory"
+        else
+            log_error "Failed to create circuits directory: $circuits_dir"
+            log_hint "Create it manually: mkdir -p $circuits_dir"
+            log_hint "Or set SP1_CIRCUITS_DIR in .env to a different location"
+            return 1
+        fi
+    else
+        log_info "SP1 circuits cache directory exists: $circuits_dir"
+    fi
+    
+    # Check if directory is writable
+    if [[ ! -w "$circuits_dir" ]]; then
+        log_warn "Circuits directory is not writable: $circuits_dir"
+        log_hint "Fix permissions: chmod u+w $circuits_dir"
+    fi
+    
+    # Export for use in docker-compose
+    export SP1_CIRCUITS_DIR="$circuits_dir"
+    return 0
+}
+
 # Detect and set Docker Compose command
 # Supports both Docker Compose v2 (docker compose) and v1 (docker-compose)
 detect_docker_compose() {
@@ -274,6 +305,11 @@ check_prerequisites() {
     
     # Detect Docker Compose (v1 or v2)
     if ! detect_docker_compose; then
+        exit 1
+    fi
+    
+    # Ensure SP1 circuits cache directory exists
+    if ! ensure_circuits_dir; then
         exit 1
     fi
     
