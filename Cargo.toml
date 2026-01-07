@@ -103,11 +103,8 @@ witness-generator = { path = "crates/witness-generator" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
-ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
-
 # ere
 ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-zkvm-interface" }
-ere-platform-trait = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27" }
 ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-dockerized" }
 ere-io = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-io" }
 
@@ -117,61 +114,31 @@ zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = 
 
 # ere-guests
 ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "block-encoding-length" }
-ere-guests-stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-common" }
 ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-reth" }
 ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "stateless-validator-ethrex" }
 ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "guest" }
 
-# branch is kw/zkevm-benchmark-workload-repo
-# NOTE: We are using a branch of a branch that has not yet been merged into master.
 ef-tests = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
 reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
 reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-errors = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-trie-common = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-evm-ethereum = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-
-sparsestate = { git = "https://github.com/eth-act/zkvm-ethereum-mpt.git", tag = "v0.4.0" }
-
-ethrex-guest-program = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", package = "guest_program" }
-ethrex-common = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false }
-ethrex-rlp = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false }
-ethrex-rpc = { git = "https://github.com/lambdaclass/ethrex.git", rev = "e6d70854d0fe3b0f29ed8961e5cbfc5de7bdd7d1", default-features = false }
 
 # alloy
 alloy-eips = { version = "1.1.2" }
 alloy-rpc-types-eth = "1.1.2"
-alloy-consensus = { version = "1.1.2", default-features = false }
-alloy-primitives = { version = "1.4.1", default-features = false }
-alloy-hardforks = { version = "0.4.5", default-features = false }
-alloy-chains = { version = "0.2.5", default-features = false }
-alloy-rlp = { version = "0.3.10", default-features = false }
-alloy-trie = { version = "0.9.1", default-features = false }
 alloy-genesis = { version = "1.1.2", default-features = false }
 
-ethereum_ssz_derive = "0.9"
-ethereum_ssz = "0.9"
-
-revm-bytecode = { version = "7.1.1", default-features = false }
-
-k256 = { version = "0.13", default-features = false }
-
 # misc
-bincode = "1.3"
 clap = { version = "4.0", features = ["derive"] }
 serde = { version = "1.0", default-features = false }
 strum = { version = "0.26", features = ["derive"] }
 walkdir = "2.3.3"
 rayon = "1.7"
-hex = "0.4.3"
 thiserror = "2"
 sha2 = "0.10.9"
 serde_json = "*"
 serde_derive = "*"
-serde_with = "3"
 jsonrpsee = "0.26.0"
 anyhow = "1.0"
 async-trait = "0.1.88"
@@ -179,16 +146,12 @@ tokio = { version = "1.45.1" }
 tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-rkyv = "0.8.10"
-bytes = "1.10"
 erased-serde = "0.4.8"
-once_cell = { version = "1.21", default-features = false }
 auto_impl = "1.3.0"
 tempfile = "3.10"
 
 [patch."https://github.com/eth-act/ere-guests"]
 block-encoding-length = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
-stateless-validator-common = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 stateless-validator-reth = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 stateless-validator-ethrex = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
 guest = { git = "https://github.com/eth-act//ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830" }
