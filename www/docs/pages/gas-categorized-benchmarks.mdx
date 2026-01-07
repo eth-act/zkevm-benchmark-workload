@@ -310,20 +310,14 @@ free -h
 
 The generated benchmark results are designed to work with the analysis system:
 
-1. **Markdown Tables**: Generate formatted tables from results
-   ```bash
-   ./scripts/generate_results.sh --compare --statistics
-   ```
-
-2. **Performance Comparison**: Compare results between different runs
+1. **Execution Comparison**: Compare execution metrics between different runs
    ```bash
    python3 scripts/compare_executions.py baseline-folder optimized-folder
-   python3 scripts/compare_provings.py baseline-folder optimized-folder
    ```
 
-3. **Statistical Analysis**: Include statistical analysis in reports
+2. **Proving Comparison**: Compare proving metrics between different runs
    ```bash
-   ./scripts/generate_results.sh --statistics --output detailed-results.md
+   python3 scripts/compare_provings.py baseline-folder optimized-folder
    ```
 
 ## Best Practices
@@ -353,14 +347,10 @@ The generated benchmark results are designed to work with the analysis system:
 
 After running gas-categorized benchmarks, you can:
 
-1. **Generate Analysis Reports**: Create markdown tables and statistical analysis
-   ```bash
-   ./scripts/generate_results.sh --compare --statistics
-   ```
-
-2. **Compare Performance**: Analyze performance differences between zkVM implementations
+1. **Compare Performance**: Analyze performance differences between zkVM implementations
    ```bash
    python3 scripts/compare_executions.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
+   python3 scripts/compare_provings.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
    ```
 
-3. **Optimize Configuration**: Use results to optimize benchmark parameters for your use case
+2. **Optimize Configuration**: Use results to optimize benchmark parameters for your use case

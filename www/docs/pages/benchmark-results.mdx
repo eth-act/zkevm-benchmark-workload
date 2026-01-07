@@ -18,14 +18,10 @@ This page displays the generated benchmark results from zkGas profiling. Here yo
    ./scripts/run-gas-categorized-benchmarks.sh
    ```
 
-3. **Generate Analysis Reports**:
+3. **Compare Results**:
    ```bash
-   ./scripts/generate_results.sh --compare --statistics --output benchmark-results/markdown-reports/latest/profiling-results.md
-   ```
-
-4. **Update Documentation**:
-   ```bash
-   ./scripts/update-docs-with-results.sh
+   python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+   python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
    ```
 
 ## Results Display
@@ -50,27 +46,6 @@ Comprehensive statistical analysis including:
 - Performance ranges and distributions
 - Correlation analysis between metrics
 
-## Automatic Results Updates
-
-The documentation is automatically updated with the latest results when you run the update script:
-
-```bash
-# Update documentation with latest results
-./scripts/update-docs-with-results.sh
-
-# Preview what would be updated (dry run)
-./scripts/update-docs-with-results.sh --dry-run
-
-# Update with results from specific directory
-./scripts/update-docs-with-results.sh --source benchmark-results/markdown-reports/comparisons
-```
-
-The update script will:
-1. Copy generated markdown reports to the documentation
-2. Update the main benchmark results page with the latest data
-3. Organize results in the documentation structure
-4. Preserve the original documentation structure
-
 ## Directory Structure
 
 ```
@@ -93,10 +68,6 @@ benchmark-results/
 ├── execution-clients/                  # Results organized by execution client
 │   ├── reth/                          # Reth execution client results
 │   └── ethrex/                        # Ethrex execution client results
-├── markdown-reports/                   # Generated markdown analysis reports
-│   ├── latest/                        # Most recent analysis reports
-│   ├── comparisons/                   # Comparison reports between different runs
-│   └── statistics/                    # Statistical analysis reports
 └── archived/                          # Archived results from previous runs
     ├── 2024-01/                       # Results from January 2024
     ├── 2024-02/                       # Results from February 2024
@@ -135,24 +106,6 @@ ls benchmark-results/zkvm-comparisons/risc0/
 diff benchmark-results/zkvm-comparisons/risc0/ benchmark-results/zkvm-comparisons/sp1/
 ```
 
-### Markdown Reports
-
-View human-readable analysis reports:
-
-```bash
-# View latest reports
-ls benchmark-results/markdown-reports/latest/
-
-# View a specific report
-cat benchmark-results/markdown-reports/latest/profiling-results.md
-
-# View comparison reports
-ls benchmark-results/markdown-reports/comparisons/
-
-# View statistical analysis
-ls benchmark-results/markdown-reports/statistics/
-```
-
 ## Generating Results
 
 ### Complete Workflow
@@ -164,39 +117,9 @@ ls benchmark-results/markdown-reports/statistics/
 # 2. Run profiling
 ./scripts/run-gas-categorized-benchmarks.sh
 
-# 3. Generate organized reports
-./scripts/generate_results.sh --compare --statistics \
-  --output benchmark-results/markdown-reports/latest/profiling-results.md
-```
-
-### Specific Report Generation
-
-#### Latest Results
-```bash
-# Generate comprehensive latest report
-./scripts/generate_results.sh --all --statistics \
-  --output benchmark-results/markdown-reports/latest/comprehensive-analysis.md
-```
-
-#### Comparison Reports
-```bash
-# Compare gas categories
-python3 scripts/generate_markdown_tables.py --compare --gas-categories \
-  zkevm-metrics-risc0-1M zkevm-metrics-risc0-10M zkevm-metrics-risc0-100M \
-  --output benchmark-results/markdown-reports/comparisons/gas-category-comparison.md
-
-# Compare zkVM implementations
-python3 scripts/generate_markdown_tables.py --compare \
-  zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M \
-  --output benchmark-results/markdown-reports/comparisons/zkvm-comparison.md
-```
-
-#### Statistical Analysis
-```bash
-# Generate statistical analysis
-python3 scripts/generate_markdown_tables.py --statistics \
-  zkevm-metrics-risc0-10M \
-  --output benchmark-results/markdown-reports/statistics/risc0-10M-statistics.md
+# 3. Compare results between different zkVM implementations
+python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
 ```
 
 ## File Types and Formats
@@ -206,24 +129,6 @@ python3 scripts/generate_markdown_tables.py --statistics \
 - **Format**: JSON files containing detailed profiling metrics
 - **Content**: Execution cycles, proving time, memory usage, and metadata
 - **Usage**: Raw data for analysis and comparison
-
-### Markdown Reports
-- **Location**: `markdown-reports/`
-- **Format**: Markdown files with formatted tables and analysis
-- **Content**: Human-readable analysis of profiling results
-- **Usage**: Documentation, presentations, and reports
-
-### Comparison Reports
-- **Location**: `markdown-reports/comparisons/`
-- **Format**: Markdown or text files comparing different runs
-- **Content**: Side-by-side comparisons of resource requirements
-- **Usage**: Performance analysis and optimization insights
-
-### Statistical Reports
-- **Location**: `markdown-reports/statistics/`
-- **Format**: Markdown files with statistical analysis
-- **Content**: Mathematical analysis of performance data
-- **Usage**: Data science analysis and trend identification
 
 ## Organization Best Practices
 
@@ -237,70 +142,32 @@ python3 scripts/generate_markdown_tables.py --statistics \
 - Format: `{ZKVM_NAME}` (e.g., `risc0`, `sp1`, `openvm`)
 - Purpose: Organize results by zkVM implementation
 
-#### Report Files
-- Format: `{DESCRIPTION}-{TIMESTAMP}.md` (e.g., `profiling-results-2024-01-15.md`)
-- Purpose: Version control and easy identification
-
 ### Archiving Strategy
 
 #### Regular Archiving
 ```bash
 # Archive current results monthly
-mv benchmark-results/markdown-reports/latest benchmark-results/archived/$(date +%Y-%m)
+mv benchmark-results/gas-categorized/1M benchmark-results/archived/$(date +%Y-%m)/1M
 
-# Create new latest directory
-mkdir -p benchmark-results/markdown-reports/latest
-```
-
-#### Selective Archiving
-```bash
-# Archive specific important results
-mv benchmark-results/markdown-reports/comparisons/important-comparison.md \
-   benchmark-results/archived/2024-01/
+# Create new directory for fresh results
+mkdir -p benchmark-results/gas-categorized/1M
 ```
 
 ## Analysis Workflows
 
 ### Quick Analysis
 ```bash
-# View latest comprehensive report
-cat benchmark-results/markdown-reports/latest/profiling-results.md
-
 # Check specific gas category
 ls benchmark-results/gas-categorized/10M/
 ```
 
 ### Detailed Comparison
 ```bash
-# Compare two zkVM implementations
-cat benchmark-results/markdown-reports/comparisons/zkvm-comparison.md
+# Compare execution metrics between zkVMs
+python3 scripts/compare_executions.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
 
-# View statistical analysis
-cat benchmark-results/markdown-reports/statistics/comprehensive-statistics.md
-```
-
-### Historical Analysis
-```bash
-# Compare current vs previous results
-diff benchmark-results/markdown-reports/latest/profiling-results.md \
-     benchmark-results/archived/2024-01/profiling-results.md
-```
-
-## Integration with Scripts
-
-### Automated Organization
-The scripts automatically organize results when using the `benchmark-results/` directory:
-
-```bash
-# Scripts automatically create organized structure
-./scripts/generate_results.sh --output benchmark-results/markdown-reports/latest/results.md
-```
-
-### Custom Organization
-```bash
-# Create custom organization
-mkdir -p benchmark-results/custom-analysis/my-experiment/
-./scripts/generate_results.sh --output benchmark-results/custom-analysis/my-experiment/results.md
+# Compare proving metrics between zkVMs
+python3 scripts/compare_provings.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
 ```
 
 ## Troubleshooting
@@ -343,9 +210,8 @@ rm -rf benchmark-results/archived/old-results/
 
 ### Analysis
 1. **Start with Latest**: Begin analysis with the most recent results
-2. **Compare Systematically**: Use comparison reports for systematic analysis
-3. **Include Statistics**: Always include statistical analysis for comprehensive insights
-4. **Document Findings**: Add notes about significant discoveries
+2. **Compare Systematically**: Use comparison scripts for systematic analysis
+3. **Document Findings**: Add notes about significant discoveries
 
 ### Maintenance
 1. **Regular Cleanup**: Archive old results to keep directory organized
@@ -359,31 +225,15 @@ The benchmark results directory integrates with the main documentation:
 
 - **Getting Started**: Overview of the profiling workflow and results organization
 - **Gas Categorized Benchmarks**: How to generate the results stored here
-- **Markdown Tables**: How to create the analysis reports in this directory
+- **Scripts**: Documentation for comparison scripts
 
 ## Examples
 
-### Viewing a Complete Analysis
-```bash
-# View comprehensive analysis
-cat benchmark-results/markdown-reports/latest/profiling-results.md
-
-# View specific gas category analysis
-cat benchmark-results/markdown-reports/comparisons/gas-category-comparison.md
-```
-
 ### Comparing Implementations
 ```bash
-# Compare RISC0 vs SP1
-cat benchmark-results/markdown-reports/comparisons/zkvm-comparison.md
+# Compare RISC0 vs SP1 execution metrics
+python3 scripts/compare_executions.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
 
-# View statistical comparison
-cat benchmark-results/markdown-reports/statistics/comprehensive-statistics.md
-```
-
-### Historical Analysis
-```bash
-# Compare current vs previous month
-diff benchmark-results/markdown-reports/latest/profiling-results.md \
-     benchmark-results/archived/2024-01/profiling-results.md
+# Compare RISC0 vs SP1 proving metrics
+python3 scripts/compare_provings.py zkevm-metrics-risc0-10M zkevm-metrics-sp1-10M
 ```

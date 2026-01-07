@@ -64,26 +64,6 @@ export default defineConfig({
       link: '/gas-categorized-benchmarks',
     },
     {
-      text: 'Single File Benchmark',
-      link: '/single-file-benchmark',
-    },
-    {
-      text: 'Markdown Tables',
-      link: '/markdown-tables',
-    },
-    {
-      text: 'Simplified Naming',
-      link: '/simplified-naming',
-    },
-    {
-      text: 'Export Comparison CSV',
-      link: '/export-comparison-csv',
-    },
-    {
-      text: 'Compare SP1 vs RISC0',
-      link: '/compare-sp1-risc0',
-    },
-    {
       text: 'SP1 Cluster Setup',
       link: '/sp1-cluster',
     },

@@ -425,9 +425,8 @@ After generating gas-categorized fixtures, you can:
    ./scripts/run-gas-categorized-benchmarks.sh
    ```
 
-2. **Analyze Resource Requirements**: Generate markdown tables from profiling results
+2. **Compare Results**: Use comparison scripts to analyze resource requirements across different zkVM implementations
    ```bash
-   ./scripts/generate_results.sh --compare --statistics
+   python3 scripts/compare_executions.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
+   python3 scripts/compare_provings.py zkevm-metrics-risc0-1M zkevm-metrics-sp1-1M
    ```
-
-3. **Compare OPCODE Costs**: Use comparison scripts to analyze resource requirements across gas categories and opcodes
