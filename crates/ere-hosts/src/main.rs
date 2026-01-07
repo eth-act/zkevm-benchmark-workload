@@ -5,7 +5,7 @@
 use anyhow::{Context, Result};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
-    runner::{Action, RunConfig, get_zkvm_instances, run_benchmark},
+    runner::{Action, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances, run_benchmark},
     stateless_validator::{self},
 };
 
@@ -19,7 +19,8 @@ use crate::cli::{Cli, ExecutionClient, GuestProgramCommand};
 
 pub mod cli;
 
-fn main() -> Result<()> {
+#[tokio::main]
+async fn main() -> Result<()> {
     tracing_subscriber::fmt()
         .with_env_filter(EnvFilter::from_default_env())
         .init();
@@ -33,7 +34,6 @@ fn main() -> Result<()> {
         resource, action
     );
 
-    let workspace_dir = workspace_root().join("ere-guests");
     match cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
@@ -45,18 +45,12 @@ fn main() -> Result<()> {
             );
             let el = execution_client.into();
             let guest_io =
-                stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)?;
-            let guest_relative = execution_client
-                .guest_rel_path()
-                .context("Failed to get guest relative path")?;
-            let apply_patches = matches!(execution_client, ExecutionClient::Reth);
-            let zkvms = get_zkvm_instances(
-                &cli.zkvms,
-                &workspace_dir,
-                &guest_relative,
-                resource,
-                apply_patches,
-            )?;
+                stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
+                    .context("Failed to get stateless validator inputs")?;
+
+            let zkvms = get_el_zkvm_instances(execution_client.into(), &cli.zkvms, resource)
+                .await
+                .context("Failed to get EL zkvm instances")?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: Some(el.as_ref().to_lowercase()),
@@ -72,13 +66,7 @@ fn main() -> Result<()> {
             info!("Running empty-program benchmarks");
             let guest_io = empty_program::empty_program_input()
                 .context("Failed to create empty program input")?;
-            let zkvms = get_zkvm_instances(
-                &cli.zkvms,
-                &workspace_dir,
-                Path::new("empty-program"),
-                resource,
-                true,
-            )?;
+            let zkvms = get_guest_zkvm_instances("empty-program", &cli.zkvms, resource).await?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,
@@ -106,13 +94,8 @@ fn main() -> Result<()> {
                 loop_count,
                 format.into(),
             )?;
-            let zkvms = get_zkvm_instances(
-                &cli.zkvms,
-                &workspace_dir,
-                Path::new("block-encoding-length"),
-                resource,
-                true,
-            )?;
+            let zkvms =
+                get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource).await?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,
@@ -127,12 +110,4 @@ fn main() -> Result<()> {
     }
 
     Ok(())
-}
-
-/// Repository root (assumes `ere-hosts` lives in `<root>/crates/ere-hosts`).
-fn workspace_root() -> PathBuf {
-    let mut p = PathBuf::from(env!("CARGO_MANIFEST_DIR"));
-    p.pop();
-    p.pop();
-    p
 }

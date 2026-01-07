@@ -36,6 +36,10 @@ serde_json.workspace = true
 strum.workspace = true
 anyhow.workspace = true
 auto_impl.workspace = true
+tempfile.workspace = true
+
+zkboost-ethereum-el-config.workspace = true
+zkboost-ethereum-el-types.workspace = true
 
 [lints]
 workspace = true

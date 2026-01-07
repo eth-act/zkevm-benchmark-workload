@@ -115,10 +115,14 @@ reth-guest = { path = "ere-guests/stateless-validator/reth/guest" }
 ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", package = "ere-zkvm-interface" }
-ere-platform-trait = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac" }
-ere-dockerized = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-applied-research-group/ere", rev = "73a760aa635d355e5cc581777cc7703fdf60a3ac", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-zkvm-interface" }
+ere-platform-trait = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-io" }
+
+# zkboost
+zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
+zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
@@ -182,3 +186,4 @@ bytes = "1.10"
 erased-serde = "0.4.8"
 once_cell = { version = "1.21", default-features = false }
 auto_impl = "1.3.0"
+tempfile = "3.10"

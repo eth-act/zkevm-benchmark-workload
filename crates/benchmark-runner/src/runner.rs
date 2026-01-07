@@ -3,11 +3,14 @@
 use anyhow::{anyhow, bail, Context, Result};
 use ere_dockerized::{zkVMKind, DockerizedCompiler, DockerizedzkVM};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
-use std::fs;
+use std::env::temp_dir;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::{any::Any, panic};
+use std::{env, fs};
 use tracing::{error, info};
+use zkboost_ethereum_el_config::program::{download_guest_program, download_program};
+use zkboost_ethereum_el_types::ElKind;
 
 use ere_zkvm_interface::{zkVM, Compiler, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -158,57 +161,36 @@ fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
         .unwrap_or_else(|| "Unknown panic occurred".to_string())
 }
 
-/// Creates the requested zkVMs configured for the guest program and resources.
-pub fn get_zkvm_instances(
+/// Creates the requested EL/zkVMs ere instances.
+pub async fn get_el_zkvm_instances(
+    el: ElKind,
     zkvms: &[zkVMKind],
-    workspace_dir: &Path,
-    guest_relative: &Path,
     resource: ProverResourceType,
-    apply_patches: bool,
 ) -> Result<Vec<DockerizedzkVM>> {
-    let mut instances = Vec::new();
-    for zkvm in zkvms {
-        if apply_patches {
-            run_cargo_patch_command(zkvm.as_str(), workspace_dir)?;
-        }
-        let program = DockerizedCompiler::new(
-            *zkvm,
-            ere_dockerized::CompilerKind::RustCustomized,
-            workspace_dir,
-        )?
-        .compile(&workspace_dir.join(guest_relative).join(zkvm.as_str()))?;
-        instances.push(DockerizedzkVM::new(*zkvm, program, resource.clone())?);
-    }
-    Ok(instances)
+    let artifact_name_prefix = format!("stateless-validator-{}", el.as_str());
+    get_guest_zkvm_instances(&artifact_name_prefix, zkvms, resource).await
 }
 
-/// Patches the precompiles for a specific zkvm
-fn run_cargo_patch_command(zkvm_name: &str, workspace_path: &Path) -> Result<()> {
-    info!("Running cargo {}...", zkvm_name);
-
-    let output = Command::new("cargo")
-        .arg(zkvm_name)
-        .arg("--manifest-folder")
-        .arg(workspace_path)
-        .output()?;
-
-    if !output.status.success() {
-        let stderr = String::from_utf8_lossy(&output.stderr);
-        let stdout = String::from_utf8_lossy(&output.stdout);
-
-        error!(
-            "cargo {} failed with exit code: {:?}",
-            zkvm_name,
-            output.status.code()
-        );
-        error!("stdout: {}", stdout);
-        error!("stderr: {}", stderr);
-
-        bail!("cargo {zkvm_name} command failed");
+/// Creates the requested guest program zkVMs ere instances.
+pub async fn get_guest_zkvm_instances(
+    artifact_name_prefix: &str,
+    zkvms: &[zkVMKind],
+    resource: ProverResourceType,
+) -> Result<Vec<DockerizedzkVM>> {
+    let output_dir =
+        tempfile::tempdir().context("Failed to create temporary directory for zkVM programs")?;
+    let gh_token = env::var("GITHUB_TOKEN").ok();
+    let mut instances = Vec::new();
+    for zkvm in zkvms {
+        let artifact_name = format!("{}-{}", artifact_name_prefix, zkvm.as_str());
+        let program =
+            download_guest_program(&artifact_name, gh_token.as_deref(), &output_dir, false).await?;
+        let program = program.load().await?;
+        let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
+            .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {}", zkvm))?;
+        instances.push(zkvm);
     }
-
-    info!("cargo {zkvm_name} completed successfully");
-    Ok(())
+    Ok(instances)
 }
 
 /// Dumps the raw input bytes to disk
