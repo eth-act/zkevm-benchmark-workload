@@ -1,0 +1,447 @@
+# SP1 Cluster Setup Guide
+
+This guide explains how to set up and run a local SP1 proving cluster using Docker Compose. The SP1 cluster provides a self-hosted environment for generating SP1 proofs with GPU acceleration.
+
+:::tip[When to Use SP1 Cluster]
+Use the local SP1 cluster when you need:
+- **Full control** over proving infrastructure
+- **Multiple GPUs** for parallel proving
+- **Offline operation** without network dependencies
+- **Consistent benchmarking** environment
+:::
+
+---
+
+## Quick Start
+
+```bash
+# Navigate to the sp1-cluster directory
+cd scripts/sp1-cluster
+
+# Copy environment template (optional, for customization)
+cp env.example .env
+
+# Start the cluster with 4 GPU workers
+./start-sp1-cluster.sh --gpu-nodes 4 -d
+
+# Wait for services to be healthy
+./start-sp1-cluster.sh --wait --gpu-nodes 4
+```
+
+---
+
+## Prerequisites
+
+### Required Software
+
+| Software | Minimum Version | Purpose |
+|----------|-----------------|---------|
+| **Docker** | 20.10+ | Container runtime |
+| **Docker Compose** | v2.0+ (v1 supported) | Service orchestration |
+| **NVIDIA Driver** | 525+ | GPU support |
+| **NVIDIA Container Toolkit** | Latest | Docker GPU access |
+
+### Hardware Requirements
+
+| Resource | Minimum | Recommended |
+|----------|---------|-------------|
+| **CPU** | 8 cores | 32+ cores |
+| **RAM** | 32 GB | 64+ GB |
+| **GPU** | 1x NVIDIA GPU | 4x RTX 4090 or A100 |
+| **Disk** | 50 GB | 100+ GB SSD |
+
+### Verify Prerequisites
+
+```bash
+# Check Docker
+docker --version
+docker info
+
+# Check Docker Compose
+docker compose version  # v2
+docker-compose --version  # v1 (legacy)
+
+# Check NVIDIA
+nvidia-smi
+
+# Check NVIDIA Container Toolkit
+docker info | grep -i nvidia
+```
+
+---
+
+## Installation
+
+### 1. Install NVIDIA Container Toolkit
+
+If Docker doesn't show NVIDIA runtime, install the NVIDIA Container Toolkit:
+
+```bash
+# Ubuntu/Debian
+curl -fsSL https://nvidia.github.io/libnvidia-container/gpgkey | \
+  sudo gpg --dearmor -o /usr/share/keyrings/nvidia-container-toolkit-keyring.gpg
+
+curl -s -L https://nvidia.github.io/libnvidia-container/stable/deb/nvidia-container-toolkit.list | \
+  sed 's#deb https://#deb [signed-by=/usr/share/keyrings/nvidia-container-toolkit-keyring.gpg] https://#g' | \
+  sudo tee /etc/apt/sources.list.d/nvidia-container-toolkit.list
+
+sudo apt-get update
+sudo apt-get install -y nvidia-container-toolkit
+sudo nvidia-ctk runtime configure --runtime=docker
+sudo systemctl restart docker
+```
+
+### 2. Verify GPU Access in Docker
+
+```bash
+docker run --rm --gpus all nvidia/cuda:12.0-base nvidia-smi
+```
+
+---
+
+## Configuration
+
+### Environment Variables
+
+Copy `env.example` to `.env` and customize:
+
+```bash
+cd scripts/sp1-cluster
+cp env.example .env
+```
+
+#### Resource Limits
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `REDIS_MEMORY_LIMIT` | 30G | Redis memory limit |
+| `CPU_NODE_CPUS_LIMIT` | 8 | CPU cores for CPU node |
+| `CPU_NODE_MEMORY_LIMIT` | 32G | Memory for CPU node |
+| `GPU_NODE_CPUS_LIMIT` | 32 | CPU cores per GPU node |
+| `GPU_NODE_MEMORY_LIMIT` | 24G | Memory per GPU node |
+
+#### Network Ports
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `API_PORT` | 50051 | gRPC API port |
+| `REDIS_PORT` | 6379 | Redis port |
+
+#### Other Settings
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `SP1_CIRCUITS_DIR` | `~/.sp1/circuits` | Circuit cache directory |
+| `REDIS_PASSWORD` | redispassword | Redis authentication |
+| `POSTGRES_PASSWORD` | postgrespassword | PostgreSQL authentication |
+
+### Example .env File
+
+```bash
+# Custom resource limits for high-memory workloads
+REDIS_MEMORY_LIMIT=64G
+CPU_NODE_MEMORY_LIMIT=64G
+GPU_NODE_MEMORY_LIMIT=48G
+
+# Custom ports for running multiple clusters
+API_PORT=50052
+REDIS_PORT=6380
+
+# Custom circuit cache location
+SP1_CIRCUITS_DIR=/data/sp1-circuits
+```
+
+---
+
+## Usage
+
+### Start the Cluster
+
+```bash
+# Start with 1 GPU worker (default)
+./start-sp1-cluster.sh
+
+# Start with 4 GPU workers in detached mode
+./start-sp1-cluster.sh --gpu-nodes 4 -d
+
+# Start and wait for all services to be healthy
+./start-sp1-cluster.sh --gpu-nodes 4 --wait
+
+# Start in CPU-only mode (no GPUs)
+./start-sp1-cluster.sh --gpu-nodes 0 -d
+
+# Start in mixed mode (single worker handling all tasks)
+./start-sp1-cluster.sh --mixed -d
+
+# Custom ports for multiple clusters
+./start-sp1-cluster.sh --port 50052 --redis-port 6380 -d
+```
+
+### Command Line Options
+
+| Option | Description |
+|--------|-------------|
+| `--gpu-nodes N` | Number of GPU workers (0-8, default: 1) |
+| `--mixed` | Use mixed worker mode |
+| `--port PORT` | API gRPC port (default: 50051) |
+| `--redis-port PORT` | Redis port (default: 6379) |
+| `--pull` | Force re-pull Docker images |
+| `--detach, -d` | Run in background |
+| `--wait` | Wait for services to be healthy |
+| `--skip-gpu-check` | Skip NVIDIA runtime check |
+| `--help, -h` | Show help message |
+
+### Stop the Cluster
+
+```bash
+# Stop services, keep data
+./stop-sp1-cluster.sh
+
+# Stop and remove all data
+./stop-sp1-cluster.sh --remove-volumes
+
+# Complete cleanup (data + images)
+./stop-sp1-cluster.sh --all
+```
+
+### View Logs and Status
+
+```bash
+cd scripts/sp1-cluster
+
+# View all logs
+docker compose logs -f
+
+# View specific service logs
+docker compose logs -f api
+docker compose logs -f gpu0
+
+# Check service status
+docker compose ps
+```
+
+---
+
+## Architecture
+
+### Services
+
+| Service | Description | Replicas |
+|---------|-------------|----------|
+| **redis** | Artifact storage and caching | 1 |
+| **postgresql** | Cluster state and job metadata | 1 |
+| **api** | gRPC API for proof requests | 1 |
+| **coordinator** | Job distribution to workers | 1 |
+| **cpu-node** | CPU-bound proving tasks | 1 |
+| **gpu0-gpu7** | GPU-accelerated proving | 0-8 |
+
+### Data Flow
+
+```
+                     ┌──────────────┐
+                     │   Client     │
+                     │ (SP1 Prover) │
+                     └──────┬───────┘
+                            │ gRPC
+                            ▼
+                     ┌──────────────┐
+                     │     API      │
+                     │  :50051      │
+                     └──────┬───────┘
+                            │
+                            ▼
+                     ┌──────────────┐
+                     │ Coordinator  │
+                     └──────┬───────┘
+                            │
+              ┌─────────────┼─────────────┐
+              ▼             ▼             ▼
+        ┌──────────┐  ┌──────────┐  ┌──────────┐
+        │ CPU Node │  │  GPU 0   │  │  GPU N   │
+        └────┬─────┘  └────┬─────┘  └────┬─────┘
+             │             │             │
+             └─────────────┼─────────────┘
+                           ▼
+                     ┌──────────────┐
+                     │    Redis     │
+                     │  (Artifacts) │
+                     └──────────────┘
+```
+
+---
+
+## GPU Worker Design
+
+### One GPU Per Worker
+
+Each GPU worker is assigned to a single GPU via `CUDA_VISIBLE_DEVICES`. This design provides:
+
+| Benefit | Description |
+|---------|-------------|
+| **Memory Isolation** | Dedicated GPU memory prevents OOM errors from affecting other workers |
+| **Fault Tolerance** | Worker crashes don't impact other workers |
+| **Predictable Performance** | No resource contention ensures consistent proving times |
+| **Simplified Debugging** | Issues traceable to specific GPU/worker pairs |
+
+### GPU Worker Limit (Maximum 8)
+
+The cluster supports up to 8 GPU workers (gpu0-gpu7). This limit is based on:
+
+- **Typical Server Configurations**: Most GPU servers have 4-8 GPUs
+- **Resource Management**: Each worker requires significant CPU and memory
+- **Coordinator Overhead**: More workers increases coordination complexity
+
+:::info[Scaling Beyond 8 GPUs]
+For deployments requiring more than 8 GPUs, run multiple SP1 clusters on separate machines and distribute workloads using a load balancer or job queue.
+:::
+
+---
+
+## Running Multiple Clusters
+
+You can run multiple SP1 clusters on the same machine by using different ports:
+
+```bash
+# Cluster 1 (default ports)
+./start-sp1-cluster.sh --gpu-nodes 4 -d
+
+# Cluster 2 (custom ports)
+cd /path/to/second/cluster
+API_PORT=50052 REDIS_PORT=6380 ./start-sp1-cluster.sh --gpu-nodes 4 -d
+```
+
+Or use CLI arguments:
+
+```bash
+# Cluster 2 with CLI arguments
+./start-sp1-cluster.sh --port 50052 --redis-port 6380 --gpu-nodes 4 -d
+```
+
+---
+
+## High Availability
+
+:::warning[Single Instance Architecture]
+The default configuration runs a single instance of each service. For production deployments requiring high availability, consider the following recommendations.
+:::
+
+### Production Recommendations
+
+1. **Multiple Clusters**: Run multiple SP1 clusters on separate machines with a load balancer
+2. **External Databases**: Use managed services for Redis and PostgreSQL (AWS ElastiCache, RDS)
+3. **Monitoring**: Configure Prometheus/Grafana for metrics and alerting
+4. **Backup**: Implement regular backups of PostgreSQL and Redis data
+5. **Recovery**: Test disaster recovery procedures regularly
+
+### Health Checks
+
+All critical services have health checks configured:
+
+```yaml
+healthcheck:
+  test: ["CMD", "redis-cli", "ping"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+```
+
+Use the `--wait` flag to ensure all services are healthy before proceeding:
+
+```bash
+./start-sp1-cluster.sh --wait --gpu-nodes 4
+```
+
+---
+
+## Troubleshooting
+
+### Common Issues
+
+| Problem | Symptoms | Solution |
+|---------|----------|----------|
+| **NVIDIA runtime not detected** | GPU workers fail to start | Install NVIDIA Container Toolkit |
+| **Out of memory** | Workers killed | Reduce memory limits or add more RAM |
+| **Port already in use** | Startup fails | Use `--port` and `--redis-port` flags |
+| **Circuit cache permissions** | Workers can't write circuits | Check `SP1_CIRCUITS_DIR` permissions |
+| **Services not healthy** | API unreachable | Check logs with `docker compose logs` |
+
+### Diagnostic Commands
+
+```bash
+cd scripts/sp1-cluster
+
+# Check if all containers are running
+docker compose ps
+
+# View logs for specific service
+docker compose logs -f api
+docker compose logs -f coordinator
+docker compose logs -f gpu0
+
+# Check GPU availability in container
+docker compose exec gpu0 nvidia-smi
+
+# Check Redis connectivity
+docker compose exec redis redis-cli -a redispassword ping
+
+# Check PostgreSQL connectivity
+docker compose exec postgresql pg_isready -U postgres
+```
+
+### Reset the Cluster
+
+```bash
+# Stop and remove everything
+./stop-sp1-cluster.sh --all
+
+# Remove orphan volumes manually
+docker volume ls | grep sp1-cluster
+docker volume rm <volume_name>
+
+# Start fresh
+./start-sp1-cluster.sh --pull --gpu-nodes 4 -d
+```
+
+---
+
+## Integration with Benchmarks
+
+To use the local SP1 cluster with the benchmark scripts:
+
+```bash
+# Set the SP1 prover to use local cluster
+export SP1_PROVER=cluster
+export SP1_CLUSTER_URL=http://localhost:50051
+
+# Run benchmarks
+./scripts/run-gas-categorized-benchmarks.sh -z sp1 -c 1M
+```
+
+---
+
+## FAQ
+
+### How many GPUs should I use?
+
+Start with the number of physical GPUs in your system. For a 4-GPU server, use `--gpu-nodes 4`.
+
+### Can I run without GPUs?
+
+Yes, use `--gpu-nodes 0` for CPU-only mode. Proving will be significantly slower.
+
+### How do I update the cluster?
+
+```bash
+./stop-sp1-cluster.sh
+./start-sp1-cluster.sh --pull --gpu-nodes 4 -d
+```
+
+### Where are the circuit files stored?
+
+By default in `~/.sp1/circuits`. Override with `SP1_CIRCUITS_DIR` environment variable.
+
+### Can I run multiple proofs simultaneously?
+
+Yes, the cluster automatically distributes work across available workers based on capacity and current load.
+

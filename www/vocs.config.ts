@@ -84,6 +84,10 @@ export default defineConfig({
       link: '/compare-sp1-risc0',
     },
     {
+      text: 'SP1 Cluster Setup',
+      link: '/sp1-cluster',
+    },
+    {
       text: 'Marginal Gas Benchmark',
       items: [
         {
