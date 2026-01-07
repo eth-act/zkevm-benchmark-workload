@@ -39,11 +39,19 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
 
+      - name: Check Cargo.lock is up-to-date
+        run: cargo check --locked --workspace
+
       - name: Check formatting
         run: cargo fmt --check --all
 
       - name: Check clippy
-        run: cargo clippy --workspace --bins --lib --examples --tests --benches --all-features -- -D warnings 
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+
+      - name: Check documentation
+        run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: "-D warnings"
 
       - name: Run all tests
         env:
