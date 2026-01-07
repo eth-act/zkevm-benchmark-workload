@@ -12,7 +12,6 @@ ere-dockerized.workspace = true
 ere-io.workspace = true
 
 guest-libs = { workspace = true, default-features = true }
-block-encoding-length-guest.workspace = true
 reth-guest.workspace = true
 ethrex-guest.workspace = true
 
@@ -40,6 +39,10 @@ tempfile.workspace = true
 
 zkboost-ethereum-el-config.workspace = true
 zkboost-ethereum-el-types.workspace = true
+
+ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
+ere-guests-integration-tests = { "workspace" = true }
+ere-guests-guest = { "workspace" = true }
 
 [lints]
 workspace = true

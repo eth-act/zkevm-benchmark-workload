@@ -1,6 +1,7 @@
 //! Guest program input generation and metadata types
 
 use anyhow::Context;
+use ere_guests_integration_tests::TestCase;
 use ere_io::Io;
 use ere_platform_trait::Platform;
 use ere_zkvm_interface::zkvm::Input;
@@ -34,6 +35,62 @@ pub trait GuestFixture: Sync + Send {
                 "Public values mismatch: expected {expected_public_values:?}, got {public_values:?}",
             ))
         })
+    }
+}
+
+#[derive(Debug)]
+pub struct GenericGuestFixture2<M> {
+    /// The name of the guest program fixture.
+    pub name: String,
+    /// The input to be provided to the guest program fixture.
+    pub input: Input,
+    /// The expected public values of guest program.
+    expected_public_values: Vec<u8>,
+    /// Associated metadata for the guest program fixture.
+    pub metadata: M,
+}
+
+impl<M> GenericGuestFixture2<M>
+where
+    M: 'static + Send + Sync + Serialize,
+{
+    pub fn new<G: ere_guests_guest::Guest>(
+        name: impl AsRef<str>,
+        input: ere_guests_guest::GuestInput<G>,
+        output: ere_guests_guest::GuestOutput<G>,
+        metadata: M,
+    ) -> Self {
+        Self {
+            name: name.as_ref().to_string(),
+            input: Input::new().with_prefixed_stdin(G::Io::serialize_input(&input).unwrap()),
+            expected_public_values: G::Io::serialize_output(&output).unwrap(),
+            metadata,
+        }
+    }
+
+    pub fn into_boxed(self) -> Box<dyn GuestFixture> {
+        Box::new(self)
+    }
+}
+
+impl<M> GuestFixture for GenericGuestFixture2<M>
+where
+    M: 'static + Send + Sync + Serialize,
+{
+    fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn metadata(&self) -> serde_json::Value {
+        serde_json::to_value(&self.metadata).unwrap()
+    }
+
+    fn input(&self) -> anyhow::Result<Input> {
+        Ok(self.input.clone())
+    }
+
+    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
+        Ok(self.expected_public_values.clone())
     }
 }
 

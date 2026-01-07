@@ -149,7 +149,7 @@ impl From<BenchmarkAction> for Action {
     }
 }
 
-impl From<BlockEncodingFormat> for block_encoding_length_guest::guest::BlockEncodingFormat {
+impl From<BlockEncodingFormat> for ere_guests_block_encoding_length::guest::BlockEncodingFormat {
     fn from(format: BlockEncodingFormat) -> Self {
         match format {
             BlockEncodingFormat::Rlp => Self::Rlp,

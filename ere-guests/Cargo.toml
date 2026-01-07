@@ -19,10 +19,6 @@ members = [
     "empty-program/openvm",
     "empty-program/pico",
 
-    # Block encoding length
-    "block-encoding-length/guest",
-    "block-encoding-length/sp1",
-
     # Panic guest
     "panic-guest/sp1",
     "panic-guest/risc0",

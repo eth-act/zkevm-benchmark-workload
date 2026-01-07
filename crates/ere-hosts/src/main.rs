@@ -11,11 +11,10 @@ use benchmark_runner::{
 
 use clap::Parser;
 use ere_zkvm_interface::ProverResourceType;
-use std::path::{Path, PathBuf};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
-use crate::cli::{Cli, ExecutionClient, GuestProgramCommand};
+use crate::cli::{Cli, GuestProgramCommand};
 
 pub mod cli;
 
@@ -93,9 +92,11 @@ async fn main() -> Result<()> {
                 input_folder.as_path(),
                 loop_count,
                 format.into(),
-            )?;
-            let zkvms =
-                get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource).await?;
+            )
+            .context("Failed to get block encoding length inputs")?;
+            let zkvms = get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource)
+                .await
+                .context("Failed to get block encoding length zkvm instances")?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,

@@ -5,7 +5,6 @@ members = [
     "crates/witness-generator-cli",
     "crates/ere-hosts",
     "ere-guests/libs",
-    "ere-guests/block-encoding-length/guest",
     "ere-guests/stateless-validator/reth/guest",
     "ere-guests/stateless-validator/ethrex/guest",
     "xtask",
@@ -109,7 +108,6 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 guest-libs = { path = "ere-guests/libs" }
-block-encoding-length-guest = { path = "ere-guests/block-encoding-length/guest" }
 reth-guest = { path = "ere-guests/stateless-validator/reth/guest" }
 ethrex-guest = { path = "ere-guests/stateless-validator/ethrex/guest" }
 
@@ -122,6 +120,11 @@ ere-io = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44
 # zkboost
 zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
 zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
+
+# ere-guests
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "block-encoding-length" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "integration-tests" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "guest" }
 
 # branch is kw/zkevm-benchmark-workload-repo
 # NOTE: We are using a branch of a branch that has not yet been merged into master.
