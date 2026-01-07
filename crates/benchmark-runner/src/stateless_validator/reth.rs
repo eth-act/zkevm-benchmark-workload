@@ -1,7 +1,7 @@
 //! Stateless validator guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture2, GuestFixture},
+    guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::{read_benchmark_fixtures_folder, BlockMetadata},
 };
 use anyhow::Context;
@@ -37,14 +37,13 @@ pub fn stateless_validator_inputs_from_fixture(
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
 
-            let fixture =
-                GenericGuestFixture2::<BlockMetadata>::new::<StatelessValidatorRethGuest>(
-                    bw.name.clone(),
-                    input,
-                    output,
-                    metadata,
-                )
-                .output_sha256();
+            let fixture = GenericGuestFixture::<BlockMetadata>::new::<StatelessValidatorRethGuest>(
+                bw.name.clone(),
+                input,
+                output,
+                metadata,
+            )
+            .output_sha256();
 
             Ok(fixture.into_boxed())
         })

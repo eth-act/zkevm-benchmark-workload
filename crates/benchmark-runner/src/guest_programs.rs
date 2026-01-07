@@ -1,13 +1,10 @@
 //! Guest program input generation and metadata types
 
-use anyhow::Context;
 use ere_io::Io;
-use ere_platform_trait::Platform;
 use ere_zkvm_interface::zkvm::Input;
-use guest_libs::guest::{Guest, GuestInput, GuestOutput};
 use serde::Serialize;
 use sha2::{Digest, Sha256};
-use std::{fmt::Debug, marker::PhantomData, ops::Deref, sync::OnceLock};
+use std::fmt::Debug;
 
 /// Trait for a guest program fixture with associated metadata.
 #[auto_impl::auto_impl(&, Box)]
@@ -38,7 +35,7 @@ pub trait GuestFixture: Sync + Send {
 }
 
 #[derive(Debug)]
-pub struct GenericGuestFixture2<M> {
+pub struct GenericGuestFixture<M> {
     /// The name of the guest program fixture.
     pub name: String,
     /// The input to be provided to the guest program fixture.
@@ -49,7 +46,7 @@ pub struct GenericGuestFixture2<M> {
     pub metadata: M,
 }
 
-impl<M> GenericGuestFixture2<M>
+impl<M> GenericGuestFixture<M>
 where
     M: 'static + Send + Sync + Serialize,
 {
@@ -80,7 +77,7 @@ where
     }
 }
 
-impl<M> GuestFixture for GenericGuestFixture2<M>
+impl<M> GuestFixture for GenericGuestFixture<M>
 where
     M: 'static + Send + Sync + Serialize,
 {
@@ -98,145 +95,6 @@ where
 
     fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
         Ok(self.expected_public_values.clone())
-    }
-}
-
-/// A generic implementation of `GuestFixture` that wraps a guest program fixture
-/// with its input, output, and metadata.
-#[derive(Debug)]
-pub struct GenericGuestFixture<G: Guest, M> {
-    /// The name of the guest program fixture.
-    pub name: String,
-    /// The input to be provided to the guest program fixture.
-    pub input: GuestInput<G>,
-    /// The expected output for the guest program fixture.
-    ///
-    /// If `None` is given, `G::compute` will be used to compute the output.
-    pub output: OnceLock<GuestOutput<G>>,
-    /// Associated metadata for the guest program fixture.
-    pub metadata: M,
-}
-
-impl<G, M> GenericGuestFixture<G, M>
-where
-    G: 'static + Guest,
-    M: 'static + Send + Sync + Serialize,
-{
-    /// Converts this [`GenericGuestFixture`] into a boxed [`GuestFixture`] trait object.
-    pub fn into_boxed(self) -> Box<dyn GuestFixture> {
-        Box::new(self)
-    }
-
-    /// Converts this [`GenericGuestFixture`] into a [`OutputHashedGuestFixture`]
-    /// with [`Sha256`].
-    pub const fn into_output_sha256(self) -> OutputHashedGuestFixture<Self, Sha256> {
-        OutputHashedGuestFixture::new(self)
-    }
-
-    /// Returns the guest program input.
-    fn input(&self) -> GuestInput<G> {
-        self.input.clone()
-    }
-
-    /// Returns the guest program output, computing it if not provided.
-    fn output(&self) -> GuestOutput<G> {
-        self.output
-            .get_or_init(|| {
-                struct HostPlatform;
-
-                impl Platform for HostPlatform {
-                    fn read_whole_input() -> impl Deref<Target = [u8]> {
-                        panic!("`Guest::compute` should not invoke `Platform::read_whole_input`");
-                        #[allow(unreachable_code)]
-                        Vec::new() // For `impl Deref<Target = [u8]>` to know the concrete type.
-                    }
-
-                    fn write_whole_output(_: &[u8]) {
-                        panic!("`Guest::compute` should not invoke `Platform::write_whole_output`")
-                    }
-
-                    fn print(message: &str) {
-                        print!("{message}");
-                    }
-                }
-
-                G::compute::<HostPlatform>(self.input())
-            })
-            .clone()
-    }
-}
-
-impl<G, M> GuestFixture for GenericGuestFixture<G, M>
-where
-    G: 'static + Guest,
-    M: 'static + Send + Sync + Serialize,
-{
-    fn name(&self) -> String {
-        self.name.clone()
-    }
-
-    fn metadata(&self) -> serde_json::Value {
-        serde_json::to_value(&self.metadata).unwrap()
-    }
-
-    fn input(&self) -> anyhow::Result<Input> {
-        let stdin = G::Io::serialize_input(&self.input()).context("Failed to serialize input")?;
-        Ok(Input::new().with_prefixed_stdin(stdin))
-    }
-
-    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
-        G::Io::serialize_output(&self.output()).context("Failed to serialize output")
-    }
-}
-
-/// A wrapper around a `GuestFixture` expects the output is hashed.
-///
-/// This is useful when the guest program outputs a hash of the result instead of the full result.
-#[derive(Debug)]
-pub struct OutputHashedGuestFixture<G: GuestFixture, D> {
-    inner: G,
-    _marker: PhantomData<D>,
-}
-
-impl<G, D> OutputHashedGuestFixture<G, D>
-where
-    G: 'static + GuestFixture,
-    D: 'static + Send + Sync + Digest,
-{
-    /// Creates a new [`OutputHashedGuestFixture`] wrapping the given [`GuestFixture`].
-    pub const fn new(inner: G) -> Self {
-        Self {
-            inner,
-            _marker: PhantomData,
-        }
-    }
-
-    /// Converts this [`OutputHashedGuestFixture`] into a boxed [`GuestFixture`] trait
-    /// object.
-    pub fn into_boxed(self) -> Box<dyn GuestFixture> {
-        Box::new(self)
-    }
-}
-
-impl<G, D> GuestFixture for OutputHashedGuestFixture<G, D>
-where
-    G: 'static + GuestFixture,
-    D: 'static + Send + Sync + Digest,
-{
-    fn name(&self) -> String {
-        self.inner.name()
-    }
-
-    fn metadata(&self) -> serde_json::Value {
-        self.inner.metadata()
-    }
-
-    fn input(&self) -> anyhow::Result<Input> {
-        self.inner.input()
-    }
-
-    fn expected_public_values(&self) -> anyhow::Result<Vec<u8>> {
-        Ok(D::digest(self.inner.expected_public_values()?).to_vec())
     }
 }
 

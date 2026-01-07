@@ -1398,10 +1398,8 @@ dependencies = [
  "block-encoding-length",
  "ere-dockerized",
  "ere-io",
- "ere-platform-trait",
  "ere-zkvm-interface",
  "guest",
- "guest-libs",
  "rayon",
  "serde",
  "serde_json",
@@ -3702,28 +3700,6 @@ dependencies = [
  "ere-io",
  "ere-platform-trait",
  "sha2",
-]
-
-[[package]]
-name = "guest-libs"
-version = "0.1.0"
-dependencies = [
- "alloy-consensus",
- "alloy-eips",
- "alloy-primitives",
- "anyhow",
- "ere-io",
- "ere-platform-trait",
- "ethereum_ssz",
- "ethereum_ssz_derive",
- "reth-ethereum-primitives",
- "reth-primitives-traits",
- "reth-stateless",
- "serde",
- "serde_json",
- "serde_with",
- "sha2",
- "thiserror 2.0.17",
 ]
 
 [[package]]

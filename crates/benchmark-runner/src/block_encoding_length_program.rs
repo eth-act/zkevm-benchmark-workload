@@ -1,7 +1,7 @@
 //! Block encoding length calculation guest program.
 
 use crate::{
-    guest_programs::{GenericGuestFixture2, GuestFixture},
+    guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::read_benchmark_fixtures_folder,
 };
 use anyhow::*;
@@ -31,7 +31,7 @@ pub fn block_encoding_length_inputs(
             let input =
                 BlockEncodingLengthInput::new(&bw.stateless_input.block, loop_count, format)
                     .context("creating block-encoding-length-input")?;
-            let fixture = GenericGuestFixture2::new::<BlockEncodingLengthGuest>(
+            let fixture = GenericGuestFixture::new::<BlockEncodingLengthGuest>(
                 bw.name,
                 input,
                 (),
