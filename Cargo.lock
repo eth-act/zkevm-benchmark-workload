@@ -11240,7 +11240,7 @@ dependencies = [
 [[package]]
 name = "zkboost-ethereum-el-config"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=11f563aff7c78008c1e3033262c8619580d75a0e#11f563aff7c78008c1e3033262c8619580d75a0e"
+source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
 dependencies = [
  "anyhow",
  "clap",
@@ -11258,7 +11258,7 @@ dependencies = [
 [[package]]
 name = "zkboost-ethereum-el-types"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=11f563aff7c78008c1e3033262c8619580d75a0e#11f563aff7c78008c1e3033262c8619580d75a0e"
+source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
 dependencies = [
  "cargo_metadata",
  "serde",
@@ -11268,7 +11268,7 @@ dependencies = [
 [[package]]
 name = "zkboost-server-config"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=11f563aff7c78008c1e3033262c8619580d75a0e#11f563aff7c78008c1e3033262c8619580d75a0e"
+source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
 dependencies = [
  "anyhow",
  "ere-dockerized",
@@ -11283,7 +11283,7 @@ dependencies = [
 [[package]]
 name = "zkboost-types"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=11f563aff7c78008c1e3033262c8619580d75a0e#11f563aff7c78008c1e3033262c8619580d75a0e"
+source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
 dependencies = [
  "ere-zkvm-interface",
  "indexmap 2.12.1",

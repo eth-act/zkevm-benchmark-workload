@@ -109,8 +109,8 @@ ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657dd
 ere-io = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-io" }
 
 # zkboost
-zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
-zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "11f563aff7c78008c1e3033262c8619580d75a0e" }
+zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev = "c8d3d3b0bed67dd11614c390a6e8ab774c85af1c" }
+zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "c8d3d3b0bed67dd11614c390a6e8ab774c85af1c" }
 
 # ere-guests
 ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.1.0", package = "block-encoding-length" }

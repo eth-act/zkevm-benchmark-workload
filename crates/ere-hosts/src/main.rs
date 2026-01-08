@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
         resource, action
     );
 
+    let bin_path = cli.bin_path.as_deref();
     match cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
@@ -47,9 +48,10 @@ async fn main() -> Result<()> {
                 stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
                     .context("Failed to get stateless validator inputs")?;
 
-            let zkvms = get_el_zkvm_instances(execution_client.into(), &cli.zkvms, resource)
-                .await
-                .context("Failed to get EL zkvm instances")?;
+            let zkvms =
+                get_el_zkvm_instances(execution_client.into(), &cli.zkvms, resource, bin_path)
+                    .await
+                    .context("Failed to get EL zkvm instances")?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: Some(el.as_ref().to_lowercase()),
@@ -65,7 +67,7 @@ async fn main() -> Result<()> {
             info!("Running empty-program benchmarks");
             let guest_io = empty_program::empty_program_input()
                 .context("Failed to create empty program input")?;
-            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource).await?;
+            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource, bin_path).await?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,
@@ -94,9 +96,10 @@ async fn main() -> Result<()> {
                 format.into(),
             )
             .context("Failed to get block encoding length inputs")?;
-            let zkvms = get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource)
-                .await
-                .context("Failed to get block encoding length zkvm instances")?;
+            let zkvms =
+                get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource, bin_path)
+                    .await
+                    .context("Failed to get block encoding length zkvm instances")?;
             let config = RunConfig {
                 output_folder: cli.output_folder,
                 sub_folder: None,

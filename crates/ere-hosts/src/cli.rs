@@ -42,6 +42,11 @@ pub struct Cli {
     /// Output folder for dumping input files used in benchmarks
     #[arg(long)]
     pub dump_inputs: Option<PathBuf>,
+
+    /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
+    /// from the latest ere-guests release.
+    #[arg(long)]
+    pub bin_path: Option<PathBuf>,
 }
 
 /// Subcommands for different guest programs

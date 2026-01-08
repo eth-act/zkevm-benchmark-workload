@@ -1,14 +1,14 @@
 //! Runner for benchmark tests
 
 use anyhow::{anyhow, Context, Result};
-use ere_dockerized::{zkVMKind, DockerizedzkVM};
+use ere_dockerized::{zkVMKind, DockerizedzkVM, SerializedProgram};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
 use std::{env, fs};
 use tracing::info;
 use zkboost_ethereum_el_config::program::download_guest_program;
-use zkboost_ethereum_el_types::ElKind;
+use zkboost_ethereum_el_types::{ElKind, PackageVersion};
 
 use ere_zkvm_interface::{zkVM, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -164,9 +164,10 @@ pub async fn get_el_zkvm_instances(
     el: ElKind,
     zkvms: &[zkVMKind],
     resource: ProverResourceType,
+    bin_path: Option<&Path>,
 ) -> Result<Vec<DockerizedzkVM>> {
     let artifact_name_prefix = format!("stateless-validator-{}", el.as_str());
-    get_guest_zkvm_instances(&artifact_name_prefix, zkvms, resource).await
+    get_guest_zkvm_instances(&artifact_name_prefix, zkvms, resource, bin_path).await
 }
 
 /// Creates the requested guest program zkVMs ere instances.
@@ -174,21 +175,38 @@ pub async fn get_guest_zkvm_instances(
     artifact_name_prefix: &str,
     zkvms: &[zkVMKind],
     resource: ProverResourceType,
+    bin_path: Option<&Path>,
 ) -> Result<Vec<DockerizedzkVM>> {
-    let output_dir =
-        tempfile::tempdir().context("Failed to create temporary directory for zkVM programs")?;
-    let gh_token = env::var("GITHUB_TOKEN").ok();
     let mut instances = Vec::new();
     for zkvm in zkvms {
         let artifact_name = format!("{}-{}", artifact_name_prefix, zkvm.as_str());
-        let program =
-            download_guest_program(&artifact_name, gh_token.as_deref(), &output_dir, false).await?;
-        let program = program.load().await?;
+        let program = get_program_config(&artifact_name, bin_path).await?;
         let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
             .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
         instances.push(zkvm);
     }
     Ok(instances)
+}
+
+async fn get_program_config(artifact_name: &str, path: Option<&Path>) -> Result<SerializedProgram> {
+    if let Some(path) = path {
+        let bytes = fs::read(path.join(artifact_name))
+            .with_context(|| format!("Failed to read program from path: {}", path.display()))?;
+        return Ok(SerializedProgram(bytes));
+    }
+
+    let output_dir =
+        tempfile::tempdir().context("Failed to create temporary directory for zkVM programs")?;
+    let gh_token = env::var("GITHUB_TOKEN").ok();
+    let program = download_guest_program(
+        artifact_name,
+        PackageVersion::Tag("v0.1.0"),
+        gh_token.as_deref(),
+        &output_dir,
+        false,
+    )
+    .await?;
+    program.load().await
 }
 
 /// Dumps the raw input bytes to disk
