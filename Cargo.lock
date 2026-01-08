@@ -5801,7 +5801,7 @@ dependencies = [
 [[package]]
 name = "openvm-mpt"
 version = "0.3.0"
-source = "git+https://github.com/jsign/openvm-reth-benchmark.git?rev=be86a636ad9259ba1ee9acd97326d1ef0b5092a8#be86a636ad9259ba1ee9acd97326d1ef0b5092a8"
+source = "git+https://github.com/jsign/openvm-reth-benchmark.git?rev=65289c489e180836c845bc5290d3f3d517caaffc#65289c489e180836c845bc5290d3f3d517caaffc"
 dependencies = [
  "alloy-consensus",
  "alloy-primitives",
