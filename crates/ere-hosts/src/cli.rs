@@ -1,12 +1,10 @@
 //! CLI definitions for the zkVM benchmarker
 
-use std::{path::PathBuf, str::FromStr};
-
-use anyhow::Result;
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
+use std::path::PathBuf;
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -42,6 +40,11 @@ pub struct Cli {
     /// Output folder for dumping input files used in benchmarks
     #[arg(long)]
     pub dump_inputs: Option<PathBuf>,
+
+    /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
+    /// from the latest ere-guests release.
+    #[arg(long)]
+    pub bin_path: Option<PathBuf>,
 }
 
 /// Subcommands for different guest programs
@@ -93,14 +96,23 @@ pub enum ExecutionClient {
     Ethrex,
 }
 
+impl From<ExecutionClient> for zkboost_ethereum_el_types::ElKind {
+    fn from(client: ExecutionClient) -> Self {
+        match client {
+            ExecutionClient::Reth => Self::Reth,
+            ExecutionClient::Ethrex => Self::Ethrex,
+        }
+    }
+}
+
 impl ExecutionClient {
     /// Get the guest relative path for the execution client
-    pub fn guest_rel_path(&self) -> Result<PathBuf> {
+    pub fn guest_rel_path(&self) -> PathBuf {
         let path = match self {
             Self::Reth => "stateless-validator/reth",
             Self::Ethrex => "stateless-validator/ethrex",
         };
-        Ok(PathBuf::from_str(path).unwrap())
+        PathBuf::from(path)
     }
 }
 
@@ -140,7 +152,7 @@ impl From<BenchmarkAction> for Action {
     }
 }
 
-impl From<BlockEncodingFormat> for block_encoding_length_guest::guest::BlockEncodingFormat {
+impl From<BlockEncodingFormat> for ere_guests_block_encoding_length::guest::BlockEncodingFormat {
     fn from(format: BlockEncodingFormat) -> Self {
         match format {
             BlockEncodingFormat::Rlp => Self::Rlp,

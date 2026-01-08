@@ -1,4 +1,0 @@
-[patch.crates-io]
-radium = { git = "https://github.com/han0110/radium", branch = "feature/riscv32ima" }
-ethereum_ssz_derive = { git = "https://github.com/han0110/ethereum_ssz", branch = "feature/no-std" }
-ethereum_ssz = { git = "https://github.com/han0110/ethereum_ssz", branch = "feature/no-std" }

@@ -1,7 +1,0 @@
-[package]
-name = "risc0-panic-guest"
-version = "0.1.0"
-edition = "2021"
-
-[dependencies]
-ere-platform-risc0 = { workspace = true, features = ["std"] }

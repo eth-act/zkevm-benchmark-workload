@@ -1,11 +1,2 @@
 [env]
 CARGO_WORKSPACE_DIR = { value = "", relative = true }
-
-[alias]
-airbender = ["run", "-p", "xtask", "--", "airbender"]
-openvm = ["run", "-p", "xtask", "--", "openvm"]
-pico = ["run", "-p", "xtask", "--", "pico"]
-risc0 = ["run", "-p", "xtask", "--", "risc0"]
-sp1 = ["run", "-p", "xtask", "--", "sp1"]
-zisk = ["run", "-p", "xtask", "--", "zisk"]
-zkm = ["run", "-p", "xtask", "--", "zkm"]

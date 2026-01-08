@@ -9,7 +9,7 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs: 
-  check-scripts:
+  download-fixtures-check:
     name: Check bash scripts
     runs-on: ubuntu-latest
     steps:
@@ -24,43 +24,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  check-precompile-patches:
-    name: Check ${{ matrix.zkVM }} unused precompile patches
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          - zkVM: reth-sp1-stateless-validator
-            xtask: sp1
-          - zkVM: reth-risc0-stateless-validator
-            xtask: risc0
-          - zkVM: reth-zisk-stateless-validator
-            xtask: zisk
-          - zkVM: reth-pico-stateless-validator
-            xtask: pico
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-       
-      - name: Install Rust toolchain
-        uses: dtolnay/rust-toolchain@stable
-
-      - name: Cache dependencies
-        uses: Swatinem/rust-cache@v2
-        with:
-          workspaces: ere-guests
-
-      - name: Check for unused [patch] entries
-        shell: bash
-        run: |
-          set -euo pipefail
-          cargo ${{ matrix.xtask }} 
-          cd ere-guests
-          if cargo tree -p ${{ matrix.zkVM }} 2>&1 | grep -F "was not used in the crate graph"; then
-            exit 1
-          fi
-
   lint-and-test:
     name: Lint and Test
     runs-on: ubuntu-latest
@@ -68,11 +31,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Install protoc
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y protobuf-compiler
-
       - name: Install Rust toolchain
         uses: dtolnay/rust-toolchain@nightly
         with:
@@ -81,32 +39,22 @@ jobs:
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
 
+      - name: Check Cargo.lock is up-to-date
+        run: cargo check --locked --workspace
+
       - name: Check formatting
         run: cargo fmt --check --all
 
       - name: Check clippy
-        run: cargo clippy --workspace --bins --lib --examples --tests --benches --all-features -- -D warnings 
+        run: cargo clippy --workspace --all-targets --all-features -- -D warnings
 
-      - name: Run all tests except integration tests
+      - name: Check documentation
+        run: cargo doc --workspace --no-deps
+        env:
+          RUSTDOCFLAGS: "-D warnings"
+
+      - name: Run all tests
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
           RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
-        run: cargo test --release --workspace --exclude integration-tests -- --no-capture
- 
-  check-empty-patch-crates-io:
-    name: Check [patch.crates-io] is empty
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Check patch.crates-io is empty in ere-guests/Cargo.toml
-        run: |
-          # Extract lines between [patch.crates-io] and the next section
-          # Fail if there are non-empty, non-comment lines
-          sed -n '/^\[patch\.crates-io\]/,/^\[/p' ere-guests/Cargo.toml | \
-            sed '1d;$d' | \
-            grep -v '^[[:space:]]*#' | \
-            grep -v '^[[:space:]]*$' && \
-            { echo "ERROR: [patch.crates-io] section in ere-guests/Cargo.toml must be empty"; exit 1; } || \
-            echo "✓ [patch.crates-io] section is empty"
+        run: cargo test --release --workspace -- --no-capture
