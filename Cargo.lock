@@ -1537,7 +1537,7 @@ dependencies = [
 [[package]]
 name = "block-encoding-length"
 version = "0.1.0"
-source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+source = "git+https://github.com/eth-act/ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -3695,7 +3695,7 @@ dependencies = [
 [[package]]
 name = "guest"
 version = "0.1.0"
-source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+source = "git+https://github.com/eth-act/ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "ere-io",
  "ere-platform-trait",
@@ -9403,7 +9403,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stateless-validator-common"
 version = "0.1.0"
-source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+source = "git+https://github.com/eth-act/ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "reth-stateless",
  "rkyv",
@@ -9414,7 +9414,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-ethrex"
 version = "0.1.0"
-source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+source = "git+https://github.com/eth-act/ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9436,7 +9436,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-reth"
 version = "0.1.0"
-source = "git+https://github.com/eth-act//ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
+source = "git+https://github.com/eth-act/ere-guests?rev=91c5628b6318725d91f9039c552169ba02802830#91c5628b6318725d91f9039c552169ba02802830"
 dependencies = [
  "anyhow",
  "ere-io",
@@ -11240,7 +11240,7 @@ dependencies = [
 [[package]]
 name = "zkboost-ethereum-el-config"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
+source = "git+https://github.com/eth-act/zkboost?rev=9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2#9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2"
 dependencies = [
  "anyhow",
  "clap",
@@ -11258,7 +11258,7 @@ dependencies = [
 [[package]]
 name = "zkboost-ethereum-el-types"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
+source = "git+https://github.com/eth-act/zkboost?rev=9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2#9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2"
 dependencies = [
  "cargo_metadata",
  "serde",
@@ -11268,7 +11268,7 @@ dependencies = [
 [[package]]
 name = "zkboost-server-config"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
+source = "git+https://github.com/eth-act/zkboost?rev=9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2#9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2"
 dependencies = [
  "anyhow",
  "ere-dockerized",
@@ -11283,7 +11283,7 @@ dependencies = [
 [[package]]
 name = "zkboost-types"
 version = "0.1.0"
-source = "git+https://github.com/eth-act/zkboost?rev=c8d3d3b0bed67dd11614c390a6e8ab774c85af1c#c8d3d3b0bed67dd11614c390a6e8ab774c85af1c"
+source = "git+https://github.com/eth-act/zkboost?rev=9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2#9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2"
 dependencies = [
  "ere-zkvm-interface",
  "indexmap 2.12.1",
