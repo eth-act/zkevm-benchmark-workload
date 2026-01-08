@@ -76,8 +76,7 @@ where
         self
     }
 
-    /// Converts this [`OutputHashedGuestFixture`] into a boxed [`GuestFixture`] trait
-    /// object.
+    /// Consumes the [`GenericGuestFixture`] and returns it as a boxed trait object.
     pub fn into_boxed(self) -> Box<dyn GuestFixture> {
         Box::new(self)
     }
