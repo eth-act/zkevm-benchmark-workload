@@ -2,21 +2,19 @@
 
 use crate::guest_programs::GenericGuestFixture;
 use crate::guest_programs::GuestFixture;
-use anyhow::Context;
-use ere_guests_stateless_validator_reth::guest::{
-    StatelessValidatorOutput, StatelessValidatorRethGuest, StatelessValidatorRethInput,
-};
-use std::path::Path;
-use witness_generator::StatelessValidationFixture;
-
-use anyhow::Result;
+use anyhow::{Context, Result};
 use ere_guests_stateless_validator_ethrex::guest::{
     StatelessValidatorEthrexGuest, StatelessValidatorEthrexInput,
 };
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use ere_guests_stateless_validator_reth::guest::{
+    StatelessValidatorOutput, StatelessValidatorRethGuest, StatelessValidatorRethInput,
+};
+use rayon::iter::{ParallelBridge, ParallelIterator};
 use serde::{Deserialize, Serialize};
+use std::path::Path;
 use strum::{AsRefStr, EnumString};
 use walkdir::WalkDir;
+use witness_generator::StatelessValidationFixture;
 
 /// Execution client variants.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, EnumString, AsRefStr)]
@@ -31,7 +29,8 @@ pub enum ExecutionClient {
 /// Extra information about the block being benchmarked
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct BlockMetadata {
-    block_used_gas: u64,
+    /// Gas used by the block
+    pub block_used_gas: u64,
 }
 
 /// Prepares the inputs for the stateless validator guest program based on the mode.
@@ -48,9 +47,9 @@ pub fn stateless_validator_inputs(
 
 /// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
 pub fn ethrex_inputs_from_fixture(
-    fixture: &[StatelessValidationFixture],
-) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    fixture
+    fixtures: &[StatelessValidationFixture],
+) -> Result<Vec<Box<dyn GuestFixture>>> {
+    fixtures
         .iter()
         .map(|bw| {
             let input = StatelessValidatorEthrexInput::new(&bw.stateless_input)
@@ -70,7 +69,7 @@ pub fn ethrex_inputs_from_fixture(
                     input,
                     output,
                     metadata,
-                )
+                )?
                 .output_sha256();
 
             Ok(fixture.into_boxed())
@@ -80,9 +79,9 @@ pub fn ethrex_inputs_from_fixture(
 
 /// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
 pub fn reth_inputs_from_fixture(
-    fixture: &[StatelessValidationFixture],
-) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    fixture
+    fixtures: &[StatelessValidationFixture],
+) -> Result<Vec<Box<dyn GuestFixture>>> {
+    fixtures
         .iter()
         .map(|bw| {
             let input = StatelessValidatorRethInput::new(&bw.stateless_input)
@@ -101,7 +100,7 @@ pub fn reth_inputs_from_fixture(
                 input,
                 output,
                 metadata,
-            )
+            )?
             .output_sha256();
 
             Ok(fixture.into_boxed())
@@ -114,19 +113,14 @@ pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<StatelessValida
     WalkDir::new(path)
         .min_depth(1)
         .into_iter()
-        .collect::<Result<Vec<_>, _>>()?
-        .into_par_iter()
+        .filter_map(|entry| entry.ok())
+        .filter(|entry| entry.file_type().is_file())
+        .par_bridge()
         .map(|entry| {
-            if entry.file_type().is_file() {
-                let content = std::fs::read(entry.path())?;
-                let bw: StatelessValidationFixture =
-                    serde_json::from_slice(&content).map_err(|e| {
-                        anyhow::anyhow!("Failed to parse {}: {}", entry.path().display(), e)
-                    })?;
-                Ok(bw)
-            } else {
-                anyhow::bail!("Invalid input folder structure: expected files only")
-            }
+            let content = std::fs::read(entry.path())?;
+            let fixture: StatelessValidationFixture = serde_json::from_slice(&content)
+                .with_context(|| format!("Failed to parse {}", entry.path().display()))?;
+            Ok(fixture)
         })
         .collect()
 }

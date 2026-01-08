@@ -57,16 +57,20 @@ where
         input: ere_guests_guest::GuestInput<G>,
         output: ere_guests_guest::GuestOutput<G>,
         metadata: M,
-    ) -> Self {
-        Self {
+    ) -> anyhow::Result<Self> {
+        Ok(Self {
             name: name.as_ref().to_string(),
-            input: Input::new().with_prefixed_stdin(G::Io::serialize_input(&input).unwrap()),
-            expected_public_values: G::Io::serialize_output(&output).unwrap(),
+            input: Input::new().with_prefixed_stdin(
+                G::Io::serialize_input(&input)
+                    .map_err(|e| anyhow::anyhow!("Failed to serialize guest input: {}", e))?,
+            ),
+            expected_public_values: G::Io::serialize_output(&output)
+                .map_err(|e| anyhow::anyhow!("Failed to serialize guest output: {}", e))?,
             metadata,
-        }
+        })
     }
 
-    /// Consumes the [`GericGuestFixture`] and constructs a new one with sha256 output.
+    /// Consumes the [`GenericGuestFixture`] and constructs a new one with sha256 output.
     pub fn output_sha256(mut self) -> Self {
         self.expected_public_values = Sha256::digest(self.expected_public_values).to_vec();
         self

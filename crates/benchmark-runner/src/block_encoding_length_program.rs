@@ -4,7 +4,7 @@ use crate::{
     guest_programs::{GenericGuestFixture, GuestFixture},
     stateless_validator::read_benchmark_fixtures_folder,
 };
-use anyhow::*;
+use anyhow::{Context, Result};
 use ere_guests_block_encoding_length::guest::{
     BlockEncodingFormat, BlockEncodingLengthGuest, BlockEncodingLengthInput,
 };
@@ -30,7 +30,7 @@ pub fn block_encoding_length_inputs(
         .map(|bw| {
             let input =
                 BlockEncodingLengthInput::new(&bw.stateless_input.block, loop_count, format)
-                    .context("creating block-encoding-length-input")?;
+                    .context("Failed to create block encoding length input")?;
             let fixture = GenericGuestFixture::new::<BlockEncodingLengthGuest>(
                 bw.name,
                 input,
@@ -40,7 +40,7 @@ pub fn block_encoding_length_inputs(
                     block_hash: bw.stateless_input.block.hash_slow().to_string(),
                     loop_count,
                 },
-            );
+            )?;
             Ok(fixture.into_boxed())
         })
         .collect()

@@ -15,6 +15,9 @@ use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, Pro
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
+/// Default version tag for guest programs
+const DEFAULT_GUEST_VERSION: &str = "v0.1.0";
+
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
 pub struct RunConfig {
@@ -200,7 +203,7 @@ async fn get_program_config(artifact_name: &str, path: Option<&Path>) -> Result<
     let gh_token = env::var("GITHUB_TOKEN").ok();
     let program = download_guest_program(
         artifact_name,
-        PackageVersion::Tag("v0.1.0"),
+        PackageVersion::Tag(DEFAULT_GUEST_VERSION),
         gh_token.as_deref(),
         &output_dir,
         false,
@@ -218,17 +221,15 @@ fn dump_input(
 ) -> Result<()> {
     let input_dir = dump_folder.join(sub_folder.unwrap_or(""));
 
-    fs::create_dir_all(&input_dir).context(format!(
-        "Failed to create directory: {}",
-        input_dir.display()
-    ))?;
+    fs::create_dir_all(&input_dir)
+        .with_context(|| format!("Failed to create directory: {}", input_dir.display()))?;
 
     let input_path = input_dir.join(format!("{name}.bin"));
 
     // Only write if it doesn't exist (avoid duplicate writes across zkVMs)
     if !input_path.exists() {
         fs::write(&input_path, input)
-            .context(format!("Failed to write input to {}", input_path.display()))?;
+            .with_context(|| format!("Failed to write input to {}", input_path.display()))?;
         info!("Dumped input to {}", input_path.display());
     }
 

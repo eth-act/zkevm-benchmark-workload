@@ -34,6 +34,14 @@ async fn main() -> Result<()> {
     );
 
     let bin_path = cli.bin_path.as_deref();
+    let config_base = RunConfig {
+        output_folder: cli.output_folder,
+        sub_folder: None,
+        action,
+        force_rerun: cli.force_rerun,
+        dump_inputs_folder: cli.dump_inputs,
+    };
+
     match cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
@@ -52,13 +60,12 @@ async fn main() -> Result<()> {
                 get_el_zkvm_instances(execution_client.into(), &cli.zkvms, resource, bin_path)
                     .await
                     .context("Failed to get EL zkvm instances")?;
+
             let config = RunConfig {
-                output_folder: cli.output_folder,
                 sub_folder: Some(el.as_ref().to_lowercase()),
-                action,
-                force_rerun: cli.force_rerun,
-                dump_inputs_folder: cli.dump_inputs.clone(),
+                ..config_base
             };
+
             for zkvm in zkvms {
                 run_benchmark(&zkvm, &config, &guest_io)?;
             }
@@ -67,16 +74,12 @@ async fn main() -> Result<()> {
             info!("Running empty-program benchmarks");
             let guest_io = empty_program::empty_program_input()
                 .context("Failed to create empty program input")?;
-            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource, bin_path).await?;
-            let config = RunConfig {
-                output_folder: cli.output_folder,
-                sub_folder: None,
-                action,
-                force_rerun: cli.force_rerun,
-                dump_inputs_folder: cli.dump_inputs.clone(),
-            };
+            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource, bin_path)
+                .await
+                .context("Failed to get guest zkvm instances")?;
+
             for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, [&guest_io])?;
+                run_benchmark(&zkvm, &config_base, [&guest_io])?;
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -100,15 +103,9 @@ async fn main() -> Result<()> {
                 get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource, bin_path)
                     .await
                     .context("Failed to get block encoding length zkvm instances")?;
-            let config = RunConfig {
-                output_folder: cli.output_folder,
-                sub_folder: None,
-                action,
-                force_rerun: cli.force_rerun,
-                dump_inputs_folder: cli.dump_inputs.clone(),
-            };
+
             for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, &guest_io)?;
+                run_benchmark(&zkvm, &config_base, &guest_io)?;
             }
         }
     }

@@ -1,12 +1,10 @@
 //! CLI definitions for the zkVM benchmarker
 
-use std::{path::PathBuf, str::FromStr};
-
-use anyhow::Result;
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResourceType;
+use std::path::PathBuf;
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -109,12 +107,12 @@ impl From<ExecutionClient> for zkboost_ethereum_el_types::ElKind {
 
 impl ExecutionClient {
     /// Get the guest relative path for the execution client
-    pub fn guest_rel_path(&self) -> Result<PathBuf> {
+    pub fn guest_rel_path(&self) -> PathBuf {
         let path = match self {
             Self::Reth => "stateless-validator/reth",
             Self::Ethrex => "stateless-validator/ethrex",
         };
-        Ok(PathBuf::from_str(path).unwrap())
+        PathBuf::from(path)
     }
 }
 
