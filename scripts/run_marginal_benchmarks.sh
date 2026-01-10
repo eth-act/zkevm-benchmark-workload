@@ -99,6 +99,22 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+# Timing utilities
+format_duration() {
+    local seconds=$1
+    local hours=$((seconds / 3600))
+    local minutes=$(((seconds % 3600) / 60))
+    local secs=$((seconds % 60))
+
+    if [ $hours -gt 0 ]; then
+        printf "%dh %dm %ds" $hours $minutes $secs
+    elif [ $minutes -gt 0 ]; then
+        printf "%dm %ds" $minutes $secs
+    else
+        printf "%ds" $secs
+    fi
+}
+
 # Parse command line arguments
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -181,11 +197,13 @@ ZKEVM_FIXTURES="$INPUT_PARENT/zkevm-fixtures"
 if [[ -d "$ZKEVM_FIXTURES" ]]; then
     log_info "Found existing zkevm-fixtures at: $ZKEVM_FIXTURES"
     log_info "Skipping witness generation (delete $ZKEVM_FIXTURES to regenerate)"
+    WITNESS_GEN_TIME=0
 else
     log_info "Generating witnesses from EEST fixtures..."
     log_info "Input (EEST): $INPUT_FOLDER"
     log_info "Output (zkEVM): $ZKEVM_FIXTURES"
 
+    WITNESS_START=$(date +%s)
     cargo run --release -p witness-generator-cli -- \
         --output-folder "$ZKEVM_FIXTURES" \
         tests \
@@ -196,7 +214,9 @@ else
         exit 1
     fi
 
-    log_info "Witness generation complete"
+    WITNESS_END=$(date +%s)
+    WITNESS_GEN_TIME=$((WITNESS_END - WITNESS_START))
+    log_info "Witness generation complete ($(format_duration $WITNESS_GEN_TIME))"
 fi
 
 # Use the converted fixtures for benchmarking
@@ -223,6 +243,8 @@ cat > "$METADATA_FILE" << EOF
 }
 EOF
 
+SCRIPT_START=$(date +%s)
+
 log_info "Starting benchmark run"
 log_info "ZKVMS: $ZKVMS"
 log_info "Actions: $ACTIONS"
@@ -230,6 +252,7 @@ log_info "Output folder: $OUTPUT_FOLDER"
 log_info "Input folder: $INPUT_FOLDER"
 
 # Run execute action once (deterministic, no need to sample)
+EXECUTE_TIME=0
 if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
     EXECUTE_DIR="$OUTPUT_FOLDER/execute"
     mkdir -p "$EXECUTE_DIR"
@@ -238,6 +261,7 @@ if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
     log_info "Running execution (deterministic, run once)"
     log_info "=========================================="
 
+    EXECUTE_START=$(date +%s)
     cargo run --release -p ere-hosts -- \
         --zkvms "$ZKVMS" \
         --action execute \
@@ -247,10 +271,14 @@ if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
         --input-folder "$INPUT_FOLDER" \
         --execution-client "$EXECUTION_CLIENT"
 
-    log_info "Execution complete"
+    EXECUTE_END=$(date +%s)
+    EXECUTE_TIME=$((EXECUTE_END - EXECUTE_START))
+    log_info "Execution complete ($(format_duration $EXECUTE_TIME))"
 fi
 
 # Run prove action with sampling (for statistical analysis)
+PROVE_TIMES=()
+TOTAL_PROVE_TIME=0
 if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
     log_info "=========================================="
     log_info "Running proving with $NUM_SAMPLES samples"
@@ -262,6 +290,7 @@ if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
 
         log_info "Running prove sample $sample of $NUM_SAMPLES..."
 
+        PROVE_START=$(date +%s)
         cargo run --release -p ere-hosts -- \
             --zkvms "$ZKVMS" \
             --action prove \
@@ -271,14 +300,33 @@ if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
             --input-folder "$INPUT_FOLDER" \
             --execution-client "$EXECUTION_CLIENT"
 
-        log_info "Prove sample $sample complete"
+        PROVE_END=$(date +%s)
+        PROVE_TIME=$((PROVE_END - PROVE_START))
+        PROVE_TIMES+=($PROVE_TIME)
+        TOTAL_PROVE_TIME=$((TOTAL_PROVE_TIME + PROVE_TIME))
+        log_info "Prove sample $sample complete ($(format_duration $PROVE_TIME))"
     done
 
-    log_info "All prove samples complete"
+    log_info "All prove samples complete (total: $(format_duration $TOTAL_PROVE_TIME))"
 fi
 
-# Update metadata with end time
+# Calculate total time
+SCRIPT_END=$(date +%s)
+TOTAL_TIME=$((SCRIPT_END - SCRIPT_START))
+
+# Update metadata with end time and timing info
 END_TIME=$(date -Iseconds)
+
+# Build prove_times array for JSON
+PROVE_TIMES_JSON="["
+for i in "${!PROVE_TIMES[@]}"; do
+    if [ $i -gt 0 ]; then
+        PROVE_TIMES_JSON+=","
+    fi
+    PROVE_TIMES_JSON+="${PROVE_TIMES[$i]}"
+done
+PROVE_TIMES_JSON+="]"
+
 python3 - << EOF
 import json
 
@@ -287,6 +335,13 @@ with open("$METADATA_FILE", "r") as f:
 
 data["end_time"] = "$END_TIME"
 data["status"] = "complete"
+data["timing"] = {
+    "witness_generation_seconds": $WITNESS_GEN_TIME,
+    "execution_seconds": $EXECUTE_TIME,
+    "proving_samples_seconds": $PROVE_TIMES_JSON,
+    "total_proving_seconds": $TOTAL_PROVE_TIME,
+    "total_runtime_seconds": $TOTAL_TIME
+}
 
 with open("$METADATA_FILE", "w") as f:
     json.dump(data, f, indent=2)
@@ -294,13 +349,41 @@ EOF
 
 log_info "=========================================="
 log_info "Benchmark run complete!"
+log_info ""
+
+# Timing summary
+log_info "Timing Summary:"
+if [[ $WITNESS_GEN_TIME -gt 0 ]]; then
+    log_info "  Witness generation: $(format_duration $WITNESS_GEN_TIME)"
+fi
 if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
-    log_info "Execution: $OUTPUT_FOLDER/execute"
+    log_info "  Execution:          $(format_duration $EXECUTE_TIME)"
 fi
 if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
-    log_info "Proving: $NUM_SAMPLES samples in $OUTPUT_FOLDER/prove"
+    log_info "  Proving ($NUM_SAMPLES samples):"
+    for i in "${!PROVE_TIMES[@]}"; do
+        sample_num=$((i + 1))
+        log_info "    Sample $sample_num:        $(format_duration ${PROVE_TIMES[$i]})"
+    done
+    if [[ $NUM_SAMPLES -gt 1 ]]; then
+        AVG_PROVE_TIME=$((TOTAL_PROVE_TIME / NUM_SAMPLES))
+        log_info "    Average:          $(format_duration $AVG_PROVE_TIME)"
+        log_info "    Total:            $(format_duration $TOTAL_PROVE_TIME)"
+    fi
 fi
-log_info "Metadata: $METADATA_FILE"
+log_info ""
+log_info "  Total runtime:      $(format_duration $TOTAL_TIME)"
+log_info ""
+
+# Output locations
+log_info "Output Locations:"
+if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
+    log_info "  Execution: $OUTPUT_FOLDER/execute"
+fi
+if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
+    log_info "  Proving:   $OUTPUT_FOLDER/prove"
+fi
+log_info "  Metadata:  $METADATA_FILE"
 log_info "=========================================="
 
 
