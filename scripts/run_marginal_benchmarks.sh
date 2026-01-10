@@ -1,9 +1,10 @@
 #!/bin/bash
 #
-# run_marginal_benchmarks.sh - Multi-sample benchmark runner
+# run_marginal_benchmarks.sh - Multi-sample benchmark runner with automatic witness generation
 #
-# This script wraps the ere-hosts cargo command to run benchmarks multiple times,
-# enabling statistical analysis across samples.
+# This script:
+# 1. Automatically converts EEST fixtures to StatelessValidationFixture format (if needed)
+# 2. Runs benchmarks multiple times for statistical analysis
 #
 # Usage:
 #   ./run_marginal_benchmarks.sh \
@@ -12,7 +13,7 @@
 #     --execute-resource cpu \
 #     --prove-resource cluster \
 #     --output-folder /path/to/output \
-#     --input-folder /path/to/input \
+#     --input-folder /path/to/eest-fixtures \
 #     --execution-client reth \
 #     --guest stateless-validator \
 #     --num-samples 3
@@ -42,7 +43,7 @@ Run marginal benchmarks with multiple samples for statistical analysis.
 Required options:
   --zkvms <vm>              ZK VM to use (e.g., sp1, risc0)
   --output-folder <path>    Base output folder for results
-  --input-folder <path>     Input fixtures folder
+  --input-folder <path>     Input fixtures folder (EEST format)
 
 Optional options:
   --actions <actions>       Actions to run: "execute", "prove", or "both" (default: both)
@@ -60,10 +61,15 @@ Example:
     --execute-resource cpu \\
     --prove-resource cluster \\
     --output-folder /root/lin/marginal-run/results/sp1 \\
-    --input-folder /root/lin/marginal-run/zkevm-fixtures/ \\
+    --input-folder /root/lin/marginal-run/fixtures \\
     --execution-client reth \\
     --guest stateless-validator \\
     --num-samples 3
+
+Notes:
+  - The script automatically generates witnesses from EEST fixtures
+  - Witnesses are cached in <input-folder>/../zkevm-fixtures
+  - Delete the zkevm-fixtures folder to force regeneration
 
 Output structure:
   <output-folder>/
@@ -167,6 +173,35 @@ case "$ACTIONS" in
         ;;
 esac
 
+# Convert EEST fixtures to StatelessValidationFixture format if needed
+INPUT_PARENT=$(dirname "$INPUT_FOLDER")
+ZKEVM_FIXTURES="$INPUT_PARENT/zkevm-fixtures"
+
+if [[ -d "$ZKEVM_FIXTURES" ]]; then
+    log_info "Found existing zkevm-fixtures at: $ZKEVM_FIXTURES"
+    log_info "Skipping witness generation (delete $ZKEVM_FIXTURES to regenerate)"
+else
+    log_info "Generating witnesses from EEST fixtures..."
+    log_info "Input (EEST): $INPUT_FOLDER"
+    log_info "Output (zkEVM): $ZKEVM_FIXTURES"
+
+    cargo run --release -p witness-generator-cli -- \
+        --output-folder "$ZKEVM_FIXTURES" \
+        tests \
+        --eest-fixtures-path "$INPUT_FOLDER"
+
+    if [[ $? -ne 0 ]]; then
+        log_error "Witness generation failed"
+        exit 1
+    fi
+
+    log_info "Witness generation complete"
+fi
+
+# Use the converted fixtures for benchmarking
+INPUT_FOLDER="$ZKEVM_FIXTURES"
+log_info "Using zkEVM fixtures: $INPUT_FOLDER"
+
 # Create output folder
 mkdir -p "$OUTPUT_FOLDER"
 
@@ -182,7 +217,7 @@ cat > "$METADATA_FILE" << EOF
     "execution_client": "$EXECUTION_CLIENT",
     "guest": "$GUEST",
     "num_samples": $NUM_SAMPLES,
-    "input_folder": "$INPUT_FOLDER",
+    "zkevm_fixtures_folder": "$INPUT_FOLDER",
     "output_folder": "$OUTPUT_FOLDER"
 }
 EOF
