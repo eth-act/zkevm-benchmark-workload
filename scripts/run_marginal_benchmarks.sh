@@ -51,7 +51,8 @@ Optional options:
   --prove-resource <r>      Resource for prove mode (default: cluster)
   --execution-client <c>    Execution client (default: reth)
   --guest <guest>           Guest program (default: stateless-validator)
-  --num-samples <n>         Number of sample runs (default: 3)
+  --num-samples <n>         Number of proving samples for statistics (default: 3)
+                            Note: execution always runs once (deterministic)
   --help                    Show this help message
 
 Example:
@@ -70,16 +71,16 @@ Notes:
   - The script automatically generates witnesses from EEST fixtures
   - Witnesses are cached in <input-folder>/../zkevm-fixtures
   - Delete the zkevm-fixtures folder to force regeneration
+  - Execution runs once (deterministic, no sampling needed)
+  - Proving runs N times for statistical analysis
 
 Output structure:
   <output-folder>/
-  ├── sample-1/
-  │   ├── execute/
-  │   └── prove/
-  ├── sample-2/
-  │   └── ...
-  ├── sample-3/
-  │   └── ...
+  ├── execute/              # Execution results (run once)
+  ├── prove/                # Proving results (sampled)
+  │   ├── sample-1/
+  │   ├── sample-2/
+  │   └── sample-N/
   └── run-metadata.json
 
 EOF
@@ -222,47 +223,45 @@ cat > "$METADATA_FILE" << EOF
 }
 EOF
 
-log_info "Starting benchmark run with $NUM_SAMPLES samples"
+log_info "Starting benchmark run"
 log_info "ZKVMS: $ZKVMS"
 log_info "Actions: $ACTIONS"
 log_info "Output folder: $OUTPUT_FOLDER"
 log_info "Input folder: $INPUT_FOLDER"
 
-# Run samples
-for sample in $(seq 1 "$NUM_SAMPLES"); do
-    SAMPLE_DIR="$OUTPUT_FOLDER/sample-$sample"
-    mkdir -p "$SAMPLE_DIR"
-    
+# Run execute action once (deterministic, no need to sample)
+if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
+    EXECUTE_DIR="$OUTPUT_FOLDER/execute"
+    mkdir -p "$EXECUTE_DIR"
+
     log_info "=========================================="
-    log_info "Starting sample $sample of $NUM_SAMPLES"
+    log_info "Running execution (deterministic, run once)"
     log_info "=========================================="
-    
-    # Run execute action
-    if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
-        EXECUTE_DIR="$SAMPLE_DIR/execute"
-        mkdir -p "$EXECUTE_DIR"
-        
-        log_info "Running execute for sample $sample..."
-        
-        cargo run --release -p ere-hosts -- \
-            --zkvms "$ZKVMS" \
-            --action execute \
-            --resource "$EXECUTE_RESOURCE" \
-            --output-folder "$EXECUTE_DIR" \
-            "$GUEST" \
-            --input-folder "$INPUT_FOLDER" \
-            --execution-client "$EXECUTION_CLIENT"
-        
-        log_info "Execute complete for sample $sample"
-    fi
-    
-    # Run prove action
-    if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
-        PROVE_DIR="$SAMPLE_DIR/prove"
+
+    cargo run --release -p ere-hosts -- \
+        --zkvms "$ZKVMS" \
+        --action execute \
+        --resource "$EXECUTE_RESOURCE" \
+        --output-folder "$EXECUTE_DIR" \
+        "$GUEST" \
+        --input-folder "$INPUT_FOLDER" \
+        --execution-client "$EXECUTION_CLIENT"
+
+    log_info "Execution complete"
+fi
+
+# Run prove action with sampling (for statistical analysis)
+if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
+    log_info "=========================================="
+    log_info "Running proving with $NUM_SAMPLES samples"
+    log_info "=========================================="
+
+    for sample in $(seq 1 "$NUM_SAMPLES"); do
+        PROVE_DIR="$OUTPUT_FOLDER/prove/sample-$sample"
         mkdir -p "$PROVE_DIR"
-        
-        log_info "Running prove for sample $sample..."
-        
+
+        log_info "Running prove sample $sample of $NUM_SAMPLES..."
+
         cargo run --release -p ere-hosts -- \
             --zkvms "$ZKVMS" \
             --action prove \
@@ -271,12 +270,12 @@ for sample in $(seq 1 "$NUM_SAMPLES"); do
             "$GUEST" \
             --input-folder "$INPUT_FOLDER" \
             --execution-client "$EXECUTION_CLIENT"
-        
-        log_info "Prove complete for sample $sample"
-    fi
-    
-    log_info "Sample $sample complete"
-done
+
+        log_info "Prove sample $sample complete"
+    done
+
+    log_info "All prove samples complete"
+fi
 
 # Update metadata with end time
 END_TIME=$(date -Iseconds)
@@ -294,8 +293,13 @@ with open("$METADATA_FILE", "w") as f:
 EOF
 
 log_info "=========================================="
-log_info "All $NUM_SAMPLES samples complete!"
-log_info "Results saved to: $OUTPUT_FOLDER"
+log_info "Benchmark run complete!"
+if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
+    log_info "Execution: $OUTPUT_FOLDER/execute"
+fi
+if [[ "$ACTIONS" == "prove" || "$ACTIONS" == "both" ]]; then
+    log_info "Proving: $NUM_SAMPLES samples in $OUTPUT_FOLDER/prove"
+fi
 log_info "Metadata: $METADATA_FILE"
 log_info "=========================================="
 

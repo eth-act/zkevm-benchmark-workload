@@ -4,6 +4,22 @@ Generate ZK Gas Benchmark Report.
 
 Analyzes benchmark results from execution mode (zk cycles) and/or proving mode (proving time),
 performs regression analysis against gas usage, and generates a comprehensive markdown report.
+
+Expected Directory Structure (NEW - 2026+):
+  <base-dir>/
+    execute/         # Execution results (run once, deterministic, no samples)
+    prove/           # Proving results (sampled for statistics)
+      sample-1/
+      sample-2/
+      sample-N/
+
+Usage:
+  python3 generate_zk_gas_report.py \
+    --execution-input <base-dir>/execute \
+    --proving-input <base-dir>/prove \
+    --output reports/
+
+Note: Also supports legacy structure with sample-*/execute/ and sample-*/prove/
 """
 
 import argparse
@@ -397,46 +413,68 @@ def load_json_results(input_dirs: list[Path], mode: str, sample_id: int = 1) -> 
 def load_multi_sample_results(base_dir: Path, mode: str) -> tuple[pd.DataFrame, int]:
     """
     Load results from multiple sample directories.
-    
-    Detects sample-N subdirectories and pools all results together.
-    
+
+    Supports two directory structures:
+    1. NEW (2026+): base_dir/execute/ (no samples) and base_dir/prove/sample-*/
+    2. OLD: base_dir/sample-*/execute/ and base_dir/sample-*/prove/
+
     Args:
         base_dir: Base directory that may contain sample-N subdirectories
         mode: "execution" or "proving"
-    
+
     Returns:
         Tuple of (pooled DataFrame, number of samples)
     """
-    sample_dirs = detect_sample_dirs(base_dir)
-    
     all_dfs = []
-    for i, sample_dir in enumerate(sample_dirs, 1):
-        # Determine the actual directory structure
-        # Could be: sample_dir/execute/ or sample_dir/prove/ or sample_dir directly
-        if mode == "execution":
-            possible_dirs = [
-                sample_dir / "execute",
-                sample_dir,
-            ]
-        else:  # proving
-            possible_dirs = [
-                sample_dir / "prove",
-                sample_dir,
-            ]
-        
-        for check_dir in possible_dirs:
-            if check_dir.exists() and (check_dir / "reth").exists():
-                df = load_json_results([check_dir], mode, sample_id=i)
-                if not df.empty:
-                    all_dfs.append(df)
-                break
-    
+
+    if mode == "execution":
+        # NEW structure: execution runs once, no samples
+        # Look directly in base_dir (which should be the execute/ folder)
+        if base_dir.exists() and (base_dir / "reth").exists():
+            df = load_json_results([base_dir], mode, sample_id=1)
+            if not df.empty:
+                all_dfs.append(df)
+                return pd.concat(all_dfs, ignore_index=True), 1
+
+        # OLD structure: sample-*/execute/
+        sample_dirs = detect_sample_dirs(base_dir)
+        for i, sample_dir in enumerate(sample_dirs, 1):
+            possible_dirs = [sample_dir / "execute", sample_dir]
+            for check_dir in possible_dirs:
+                if check_dir.exists() and (check_dir / "reth").exists():
+                    df = load_json_results([check_dir], mode, sample_id=i)
+                    if not df.empty:
+                        all_dfs.append(df)
+                    break
+
+    else:  # proving
+        # NEW structure: prove/sample-*/ (samples inside prove dir)
+        sample_dirs = sorted(base_dir.glob("sample-*/"))
+        if sample_dirs:
+            # NEW structure detected
+            for i, sample_dir in enumerate(sample_dirs, 1):
+                if sample_dir.exists() and (sample_dir / "reth").exists():
+                    df = load_json_results([sample_dir], mode, sample_id=i)
+                    if not df.empty:
+                        all_dfs.append(df)
+        else:
+            # OLD structure: sample-*/prove/ or base_dir directly
+            sample_dirs = detect_sample_dirs(base_dir)
+            for i, sample_dir in enumerate(sample_dirs, 1):
+                possible_dirs = [sample_dir / "prove", sample_dir]
+                for check_dir in possible_dirs:
+                    if check_dir.exists() and (check_dir / "reth").exists():
+                        df = load_json_results([check_dir], mode, sample_id=i)
+                        if not df.empty:
+                            all_dfs.append(df)
+                        break
+
     if not all_dfs:
         return pd.DataFrame(), 0
-    
+
     pooled_df = pd.concat(all_dfs, ignore_index=True)
-    num_samples = len(sample_dirs)
-    
+    num_samples = len(all_dfs)
+
     return pooled_df, num_samples
 
 
@@ -2013,20 +2051,35 @@ def main():
     parser = argparse.ArgumentParser(
         description="Generate ZK Gas Benchmark Report",
         formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Directory Structure (NEW - 2026+):
+  <base-dir>/
+    execute/         # Execution results (run once, no samples)
+    prove/           # Proving results (sampled)
+      sample-1/
+      sample-2/
+      sample-N/
+
+Usage:
+  python3 generate_zk_gas_report.py \\
+    --execution-input <base-dir>/execute \\
+    --proving-input <base-dir>/prove \\
+    --output reports/
+        """,
     )
     parser.add_argument(
         "--proving-input",
         nargs="+",
         type=Path,
         default=[],
-        help="Input directories with proving mode results (has proving time)",
+        help="Path to prove/ directory containing sample-*/ subdirs",
     )
     parser.add_argument(
         "--execution-input",
         nargs="+",
         type=Path,
         default=[],
-        help="Input directories with execution mode results (has zk cycles)",
+        help="Path to execute/ directory (no samples)",
     )
     parser.add_argument(
         "--output",
