@@ -194,7 +194,7 @@ esac
 INPUT_PARENT=$(dirname "$INPUT_FOLDER")
 ZKEVM_FIXTURES="$INPUT_PARENT/zkevm-fixtures"
 
-if [[ -d "$ZKEVM_FIXTURES" ]]; then
+if [[ -d "$ZKEVM_FIXTURES" && -n "$(ls -A "$ZKEVM_FIXTURES" 2>/dev/null)" ]]; then
     log_info "Found existing zkevm-fixtures at: $ZKEVM_FIXTURES"
     log_info "Skipping witness generation (delete $ZKEVM_FIXTURES to regenerate)"
     WITNESS_GEN_TIME=0
@@ -204,7 +204,7 @@ else
     log_info "Output (zkEVM): $ZKEVM_FIXTURES"
 
     WITNESS_START=$(date +%s)
-    cargo run --release -p witness-generator-cli -- \
+    RAYON_NUM_THREADS=4 cargo run --release -p witness-generator-cli -- \
         --output-folder "$ZKEVM_FIXTURES" \
         tests \
         --eest-fixtures-path "$INPUT_FOLDER"
