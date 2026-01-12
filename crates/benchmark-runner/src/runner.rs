@@ -5,7 +5,7 @@ use ere_dockerized::{zkVMKind, DockerizedzkVM, SerializedProgram};
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
-use std::{env, fs};
+use std::{env, fs, time};
 use tracing::info;
 use zkboost_ethereum_el_config::program::download_guest_program;
 use zkboost_ethereum_el_types::{ElKind, PackageVersion};
@@ -119,8 +119,12 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
                 Ok(Ok((public_values, proof, report))) => {
                     verify_public_output(&io, &public_values)
                         .context("Failed to verify public output from proof")?;
+                    let start = time::Instant::now();
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
+                    let verif_duration = start.elapsed();
+                    info!("Proof verified in {} ms", verif_duration.as_millis());
+
                     verify_public_output(&io, &verif_public_values)
                         .context("Failed to verify public output from proof verification")?;
 
