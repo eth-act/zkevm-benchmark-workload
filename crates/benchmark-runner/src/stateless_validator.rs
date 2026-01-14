@@ -3,16 +3,19 @@
 use crate::guest_programs::GenericGuestFixture;
 use crate::guest_programs::GuestFixture;
 use anyhow::{Context, Result};
+use ere_guests_guest::Guest;
+use ere_guests_integration_tests::NoopPlatform;
 use ere_guests_stateless_validator_ethrex::guest::{
     StatelessValidatorEthrexGuest, StatelessValidatorEthrexInput,
 };
 use ere_guests_stateless_validator_reth::guest::{
-    StatelessValidatorOutput, StatelessValidatorRethGuest, StatelessValidatorRethInput,
+    StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
 use strum::{AsRefStr, EnumString};
+use tracing::info;
 use walkdir::WalkDir;
 use witness_generator::StatelessValidationFixture;
 
@@ -54,11 +57,7 @@ pub fn ethrex_inputs_from_fixture(
         .map(|bw| {
             let input = StatelessValidatorEthrexInput::new(&bw.stateless_input)
                 .context("Failed to create Ethrex stateless validator input")?;
-            let output = StatelessValidatorOutput::new(
-                bw.stateless_input.block.hash_slow(),
-                bw.stateless_input.block.parent_hash,
-                bw.success,
-            );
+            let output = StatelessValidatorEthrexGuest::compute::<NoopPlatform>(input.clone());
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
@@ -84,13 +83,14 @@ pub fn reth_inputs_from_fixture(
     fixtures
         .iter()
         .map(|bw| {
-            let input = StatelessValidatorRethInput::new(&bw.stateless_input)
-                .context("Failed to create Reth stateless validator input")?;
-            let output = StatelessValidatorOutput::new(
-                bw.stateless_input.block.hash_slow(),
-                bw.stateless_input.block.parent_hash,
-                bw.success,
+            info!(
+                "Preparing Reth stateless validator input for fixture {}",
+                bw.name
             );
+            let input = StatelessValidatorRethInput::new(&bw.stateless_input, bw.success)
+                .context("Failed to create Reth stateless validator input {}")?;
+
+            let output = StatelessValidatorRethGuest::compute::<NoopPlatform>(input.clone());
             let metadata = BlockMetadata {
                 block_used_gas: bw.stateless_input.block.gas_used,
             };
