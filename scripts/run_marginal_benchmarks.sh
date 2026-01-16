@@ -1,10 +1,8 @@
 #!/bin/bash
 #
-# run_marginal_benchmarks.sh - Multi-sample benchmark runner with automatic witness generation
+# run_marginal_benchmarks.sh - Multi-sample benchmark runner
 #
-# This script:
-# 1. Automatically converts EEST fixtures to StatelessValidationFixture format (if needed)
-# 2. Runs benchmarks multiple times for statistical analysis
+# This script runs benchmarks multiple times for statistical analysis.
 #
 # Usage:
 #   ./run_marginal_benchmarks.sh \
@@ -13,7 +11,7 @@
 #     --execute-resource cpu \
 #     --prove-resource cluster \
 #     --output-folder /path/to/output \
-#     --input-folder /path/to/eest-fixtures \
+#     --input-folder /path/to/zkevm-fixtures \
 #     --execution-client reth \
 #     --guest stateless-validator \
 #     --num-samples 3
@@ -43,7 +41,7 @@ Run marginal benchmarks with multiple samples for statistical analysis.
 Required options:
   --zkvms <vm>              ZK VM to use (e.g., sp1, risc0)
   --output-folder <path>    Base output folder for results
-  --input-folder <path>     Input fixtures folder (EEST format)
+  --input-folder <path>     Input fixtures folder (zkevm-fixtures format)
 
 Optional options:
   --actions <actions>       Actions to run: "execute", "prove", or "both" (default: both)
@@ -68,9 +66,7 @@ Example:
     --num-samples 3
 
 Notes:
-  - The script automatically generates witnesses from EEST fixtures
-  - Witnesses are cached in <input-folder>/../zkevm-fixtures
-  - Delete the zkevm-fixtures folder to force regeneration
+  - Input folder should contain pre-generated zkevm-fixtures
   - Execution runs once (deterministic, no sampling needed)
   - Proving runs N times for statistical analysis
 
@@ -190,37 +186,12 @@ case "$ACTIONS" in
         ;;
 esac
 
-# Convert EEST fixtures to StatelessValidationFixture format if needed
-INPUT_PARENT=$(dirname "$INPUT_FOLDER")
-ZKEVM_FIXTURES="$INPUT_PARENT/zkevm-fixtures"
-
-if [[ -d "$ZKEVM_FIXTURES" && -n "$(ls -A "$ZKEVM_FIXTURES" 2>/dev/null)" ]]; then
-    log_info "Found existing zkevm-fixtures at: $ZKEVM_FIXTURES"
-    log_info "Skipping witness generation (delete $ZKEVM_FIXTURES to regenerate)"
-    WITNESS_GEN_TIME=0
-else
-    log_info "Generating witnesses from EEST fixtures..."
-    log_info "Input (EEST): $INPUT_FOLDER"
-    log_info "Output (zkEVM): $ZKEVM_FIXTURES"
-
-    WITNESS_START=$(date +%s)
-    RAYON_NUM_THREADS=4 cargo run --release -p witness-generator-cli -- \
-        --output-folder "$ZKEVM_FIXTURES" \
-        tests \
-        --eest-fixtures-path "$INPUT_FOLDER"
-
-    if [[ $? -ne 0 ]]; then
-        log_error "Witness generation failed"
-        exit 1
-    fi
-
-    WITNESS_END=$(date +%s)
-    WITNESS_GEN_TIME=$((WITNESS_END - WITNESS_START))
-    log_info "Witness generation complete ($(format_duration $WITNESS_GEN_TIME))"
+# Validate input folder exists
+if [[ ! -d "$INPUT_FOLDER" ]]; then
+    log_error "Input folder does not exist: $INPUT_FOLDER"
+    exit 1
 fi
 
-# Use the converted fixtures for benchmarking
-INPUT_FOLDER="$ZKEVM_FIXTURES"
 log_info "Using zkEVM fixtures: $INPUT_FOLDER"
 
 # Create output folder
@@ -336,7 +307,6 @@ with open("$METADATA_FILE", "r") as f:
 data["end_time"] = "$END_TIME"
 data["status"] = "complete"
 data["timing"] = {
-    "witness_generation_seconds": $WITNESS_GEN_TIME,
     "execution_seconds": $EXECUTE_TIME,
     "proving_samples_seconds": $PROVE_TIMES_JSON,
     "total_proving_seconds": $TOTAL_PROVE_TIME,
@@ -353,9 +323,6 @@ log_info ""
 
 # Timing summary
 log_info "Timing Summary:"
-if [[ $WITNESS_GEN_TIME -gt 0 ]]; then
-    log_info "  Witness generation: $(format_duration $WITNESS_GEN_TIME)"
-fi
 if [[ "$ACTIONS" == "execute" || "$ACTIONS" == "both" ]]; then
     log_info "  Execution:          $(format_duration $EXECUTE_TIME)"
 fi
