@@ -1030,8 +1030,8 @@ def generate_report(
         table_lines = []
         table_lines.append("### Regression Results")
         table_lines.append("")
-        table_lines.append("| Opcode | Samples | Pts | Outliers | Max Ops | Max Gas | Total Time | % Total | Time/Gas (R²) | Cycles/Gas (R²) |")
-        table_lines.append("|--------|---------|-----|----------|---------|---------|------------|---------|---------------|-----------------|")
+        table_lines.append("| Opcode | Samples | Pts | Outliers | Max Ops | Max Gas | Max ZK Cycles | Total Time | % Total | Time/Gas (R²) | Cycles/Gas (R²) |")
+        table_lines.append("|--------|---------|-----|----------|---------|---------|---------------|------------|---------|---------------|-----------------|")
         
         # Prepare data with R² quality flag
         valid_reg = regression_df.dropna(subset=["gas_proving_slope"]).copy()
@@ -1085,6 +1085,13 @@ def generate_report(
             else:
                 max_gas_str = "N/A"
             
+            # Max ZK Cycles
+            max_zkcycles = row.get("max_zkcycles")
+            if pd.notna(max_zkcycles):
+                max_zkcycles_str = format_number(int(max_zkcycles))
+            else:
+                max_zkcycles_str = "N/A"
+            
             # Total Proving Time for this opcode
             total_time = opcode_times.get(opcode, 0)
             total_time_str = format_time_hms(total_time)
@@ -1117,7 +1124,7 @@ def generate_report(
             else:
                 cycles_gas_str = "N/A"
             
-            return f"| {opcode} | {samples_str} | {pts_str} | {outliers_str} | {max_ops_str} | {max_gas_str} | {total_time_str} | {pct_str} | {time_gas_str} | {cycles_gas_str} |"
+            return f"| {opcode} | {samples_str} | {pts_str} | {outliers_str} | {max_ops_str} | {max_gas_str} | {max_zkcycles_str} | {total_time_str} | {pct_str} | {time_gas_str} | {cycles_gas_str} |"
         
         # Add good R² rows first
         for _, row in good_r2.iterrows():
