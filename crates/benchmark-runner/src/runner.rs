@@ -16,7 +16,7 @@ use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, Pro
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
 /// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.1.0";
+const DEFAULT_GUEST_VERSION: &str = "v0.4.0";
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]

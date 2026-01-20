@@ -113,10 +113,11 @@ zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev =
 zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "91c5628b6318725d91f9039c552169ba02802830", package = "guest" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "integration-tests" }
 
 ef-tests = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
