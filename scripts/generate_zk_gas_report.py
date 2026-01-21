@@ -512,32 +512,29 @@ def filter_duplicates_prefer_fixed(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def merge_execution_and_proving(exec_df: pd.DataFrame, prove_df: pd.DataFrame) -> pd.DataFrame:
-    """Merge execution and proving results by test name and sample."""
+    """Merge execution and proving results by test name.
+
+    Execution data is deterministic (same zk_cycles for all runs), so we broadcast it
+    to all proving samples. Proving data is sampled (different proving_time_s per run).
+    """
     if exec_df.empty:
         return prove_df
     if prove_df.empty:
         return exec_df
-    
-    # Determine columns to merge on
+
+    # Drop sample column from execution data since it's deterministic (not meaningful)
     exec_cols = ["name", "opcode", "op_count", "gas_used", "zk_cycles"]
     prove_cols = ["name", "proving_time_s"]
-    
-    # Include sample column if present
-    if "sample" in exec_df.columns:
-        exec_cols.append("sample")
-    if "sample" in prove_df.columns and "sample" not in exec_cols:
-        prove_cols.append("sample")
-    
-    # Merge on name (and sample if both have it)
-    merge_on = ["name"]
-    if "sample" in exec_df.columns and "sample" in prove_df.columns:
-        merge_on.append("sample")
+
+    # Keep sample column only from proving data
+    if "sample" in prove_df.columns:
         prove_cols = ["name", "sample", "proving_time_s"]
-    
+
+    # Merge on name only - this broadcasts execution data to all proving samples
     merged = pd.merge(
         exec_df[[c for c in exec_cols if c in exec_df.columns]],
         prove_df[[c for c in prove_cols if c in prove_df.columns]],
-        on=merge_on,
+        on="name",
         how="outer"
     )
     
@@ -572,12 +569,19 @@ def perform_regression(x: np.ndarray, y: np.ndarray) -> dict:
     
     try:
         slope, intercept, r_value, p_value, std_err = stats.linregress(x_clean, y_clean)
+
+        # Compute RMSE (residual standard error) - typical deviation from fitted line
+        y_pred = slope * x_clean + intercept
+        residuals = y_clean - y_pred
+        rmse = np.sqrt(np.mean(residuals ** 2))
+
         return {
             "slope": slope,
             "intercept": intercept,
             "r_squared": r_value ** 2,
             "p_value": p_value,
-            "std_err": std_err,
+            "std_err": std_err,  # Standard error of slope (for confidence intervals)
+            "rmse": rmse,  # Root mean squared error (typical prediction error)
             "n_points": len(x_clean),
         }
     except Exception:
@@ -657,7 +661,8 @@ def compute_regressions(df: pd.DataFrame, remove_outliers: bool = True, outlier_
                 result["gas_zkcycles_slope"] = reg["slope"]
                 result["gas_zkcycles_r2"] = reg["r_squared"]
                 result["gas_zkcycles_std_err"] = reg["std_err"]
-        
+                result["gas_zkcycles_rmse"] = reg["rmse"]
+
         # Gas <> Proving Time regression (with outliers removed)
         if proving_time_clean is not None and not np.all(np.isnan(proving_time_clean)):
             reg = perform_regression(gas_clean_proving, proving_time_clean)
@@ -665,9 +670,10 @@ def compute_regressions(df: pd.DataFrame, remove_outliers: bool = True, outlier_
                 result["gas_proving_slope"] = reg["slope"]
                 result["gas_proving_r2"] = reg["r_squared"]
                 result["gas_proving_std_err"] = reg["std_err"]
-        
+                result["gas_proving_rmse"] = reg["rmse"]
+
         # ZK Cycles <> Proving Time regression (with outliers removed from both)
-        if (zk_cycles is not None and proving_time is not None and 
+        if (zk_cycles is not None and proving_time is not None and
             not np.all(np.isnan(zk_cycles)) and not np.all(np.isnan(proving_time))):
             # For this regression, remove outliers in proving_time
             if remove_outliers:
@@ -682,6 +688,7 @@ def compute_regressions(df: pd.DataFrame, remove_outliers: bool = True, outlier_
                 result["zkcycles_proving_slope"] = reg["slope"]
                 result["zkcycles_proving_r2"] = reg["r_squared"]
                 result["zkcycles_proving_std_err"] = reg["std_err"]
+                result["zkcycles_proving_rmse"] = reg["rmse"]
         
         results.append(result)
     
@@ -705,45 +712,73 @@ def create_regression_plot(
 ) -> Optional[plt.Figure]:
     """
     Create a regression plot for a single opcode.
-    
+
     If remove_outliers is True, outliers are detected and shown as red X markers
     but excluded from the regression line calculation.
+
+    Points are colored by sample number for multi-sample runs.
     """
     opcode_df = df[df["opcode"] == opcode].copy()
-    
+
     x = opcode_df[x_col].values.astype(float)
     y = opcode_df[y_col].values.astype(float)
-    
+
+    # Get sample IDs if available
+    if "sample" in opcode_df.columns:
+        samples = opcode_df["sample"].values
+    else:
+        samples = np.ones(len(x), dtype=int)
+
     # Remove NaN
     mask = ~(np.isnan(x) | np.isnan(y))
     x = x[mask]
     y = y[mask]
-    
+    samples = samples[mask]
+
     if len(x) < 2:
         return None
-    
+
     fig, ax = plt.subplots(figsize=(8, 5))
-    
+
     # Detect outliers in y values
     if remove_outliers:
         outlier_mask = detect_outliers_mad(y, outlier_threshold)
         x_clean = x[~outlier_mask]
         y_clean = y[~outlier_mask]
+        samples_clean = samples[~outlier_mask]
         x_outlier = x[outlier_mask]
         y_outlier = y[outlier_mask]
+        samples_outlier = samples[outlier_mask]
     else:
-        x_clean, y_clean = x, y
-        x_outlier, y_outlier = np.array([]), np.array([])
-    
-    # Scatter plot - clean points
-    ax.scatter(x_clean, y_clean, alpha=0.7, edgecolors='black', linewidth=0.5,
-               label=f'Data ({len(x_clean)} pts)', zorder=2)
-    
+        x_clean, y_clean, samples_clean = x, y, samples
+        x_outlier, y_outlier, samples_outlier = np.array([]), np.array([]), np.array([])
+
+    # Define colors for different samples
+    unique_samples = np.unique(np.concatenate([samples_clean, samples_outlier]))
+    num_samples = len(unique_samples)
+    # Use tab10 colormap for up to 10 samples
+    if num_samples <= 10:
+        colors = plt.cm.tab10(np.linspace(0, 1, 10))
+    else:
+        colors = plt.cm.tab20(np.linspace(0, 1, 20))
+
+    # Map sample IDs to colors
+    sample_color_map = {sample_id: colors[i % len(colors)] for i, sample_id in enumerate(unique_samples)}
+
+    # Scatter plot - clean points colored by sample
+    for sample_id in unique_samples:
+        sample_mask = samples_clean == sample_id
+        if np.any(sample_mask):
+            ax.scatter(x_clean[sample_mask], y_clean[sample_mask],
+                      c=[sample_color_map[sample_id]], alpha=0.7,
+                      edgecolors='black', linewidth=0.5,
+                      label=f'Sample {sample_id}', zorder=2)
+
     # Scatter plot - outliers as red X
     if len(x_outlier) > 0:
         ax.scatter(x_outlier, y_outlier, c='red', marker='x', s=100, linewidths=2,
                    label=f'Outliers ({len(x_outlier)} removed)', zorder=3)
-    
+
     # Regression line (on clean data only)
     reg = perform_regression(x_clean, y_clean)
     if reg and len(x_clean) >= 2:
@@ -751,13 +786,13 @@ def create_regression_plot(
         y_line = reg["slope"] * x_line + reg["intercept"]
         ax.plot(x_line, y_line, 'g-', linewidth=2, zorder=1,
                 label=f'Fit: y = {reg["slope"]:.4g}x + {reg["intercept"]:.4g}\nR² = {reg["r_squared"]:.4f}')
-    
+
     ax.legend(loc='best')
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
     ax.set_title(f"{title}\n{opcode}")
     ax.grid(True, alpha=0.3)
-    
+
     plt.tight_layout()
     return fig
 
@@ -1280,14 +1315,16 @@ def generate_report(
     if has_proving:
         appendix_detailed_lines.append("### Gas ↔ Proving Time")
         appendix_detailed_lines.append("")
-        appendix_detailed_lines.append("| Opcode | Time/Gas | R² | Std Error |")
-        appendix_detailed_lines.append("|--------|----------|-----|-----------|")
+        appendix_detailed_lines.append("| Opcode | Time/Gas | R² | Std Err (Slope) | RMSE |")
+        appendix_detailed_lines.append("|--------|----------|-----|-----------------|------|")
         sorted_df = sort_by_slope_with_r2_threshold(regression_df, "gas_proving_slope", "gas_proving_r2")
         for _, row in sorted_df.iterrows():
             time_per_gas = format_time(row['gas_proving_slope'])
+            std_err = format_time(row['gas_proving_std_err']) if pd.notna(row.get('gas_proving_std_err')) else "N/A"
+            rmse = format_time(row['gas_proving_rmse']) if pd.notna(row.get('gas_proving_rmse')) else "N/A"
             appendix_detailed_lines.append(
                 f"| {row['opcode']} | {time_per_gas}/gas | "
-                f"{format_r2(row['gas_proving_r2'])} | {format_time(row['gas_proving_std_err'])} |"
+                f"{format_r2(row['gas_proving_r2'])} | {std_err} | {rmse} |"
             )
         appendix_detailed_lines.append("")
     
@@ -1295,27 +1332,31 @@ def generate_report(
     if has_zkcycles:
         appendix_detailed_lines.append("### Gas ↔ ZK Cycles")
         appendix_detailed_lines.append("")
-        appendix_detailed_lines.append("| Opcode | Cycles/Gas | R² | Std Error |")
-        appendix_detailed_lines.append("|--------|------------|-----|-----------|")
+        appendix_detailed_lines.append("| Opcode | Cycles/Gas | R² | Std Err (Slope) | RMSE |")
+        appendix_detailed_lines.append("|--------|------------|-----|-----------------|------|")
         sorted_df = sort_by_slope_with_r2_threshold(regression_df, "gas_zkcycles_slope", "gas_zkcycles_r2")
         for _, row in sorted_df.iterrows():
+            std_err = format_number(row['gas_zkcycles_std_err']) if pd.notna(row.get('gas_zkcycles_std_err')) else "N/A"
+            rmse = format_number(row['gas_zkcycles_rmse']) if pd.notna(row.get('gas_zkcycles_rmse')) else "N/A"
             appendix_detailed_lines.append(
                 f"| {row['opcode']} | {format_number(row['gas_zkcycles_slope'])} | "
-                f"{format_r2(row['gas_zkcycles_r2'])} | {format_number(row['gas_zkcycles_std_err'])} |"
+                f"{format_r2(row['gas_zkcycles_r2'])} | {std_err} | {rmse} |"
             )
         appendix_detailed_lines.append("")
     
     if has_both:
         appendix_detailed_lines.append("### ZK Cycles ↔ Proving Time")
         appendix_detailed_lines.append("")
-        appendix_detailed_lines.append("| Opcode | Time/Cycle | R² | Std Error |")
-        appendix_detailed_lines.append("|--------|------------|-----|-----------|")
+        appendix_detailed_lines.append("| Opcode | Time/Cycle | R² | Std Err (Slope) | RMSE |")
+        appendix_detailed_lines.append("|--------|------------|-----|-----------------|------|")
         sorted_df = sort_by_slope_with_r2_threshold(regression_df, "zkcycles_proving_slope", "zkcycles_proving_r2")
         for _, row in sorted_df.iterrows():
             time_per_cycle = format_time(row['zkcycles_proving_slope'])
+            std_err = format_time(row['zkcycles_proving_std_err']) if pd.notna(row.get('zkcycles_proving_std_err')) else "N/A"
+            rmse = format_time(row['zkcycles_proving_rmse']) if pd.notna(row.get('zkcycles_proving_rmse')) else "N/A"
             appendix_detailed_lines.append(
                 f"| {row['opcode']} | {time_per_cycle}/cycle | "
-                f"{format_r2(row['zkcycles_proving_r2'])} | {format_time(row['zkcycles_proving_std_err'])} |"
+                f"{format_r2(row['zkcycles_proving_r2'])} | {std_err} | {rmse} |"
             )
         appendix_detailed_lines.append("")
         
