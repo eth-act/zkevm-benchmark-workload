@@ -410,7 +410,9 @@ def load_json_results(input_dirs: list[Path], mode: str, sample_id: int = 1) -> 
     return pd.DataFrame(records)
 
 
-def load_multi_sample_results(base_dir: Path, mode: str) -> tuple[pd.DataFrame, int]:
+def load_multi_sample_results(
+    base_dir: Path, mode: str, exclude_samples: list[int] | None = None
+) -> tuple[pd.DataFrame, int]:
     """
     Load results from multiple sample directories.
 
@@ -421,6 +423,7 @@ def load_multi_sample_results(base_dir: Path, mode: str) -> tuple[pd.DataFrame, 
     Args:
         base_dir: Base directory that may contain sample-N subdirectories
         mode: "execution" or "proving"
+        exclude_samples: If provided, exclude samples with these numbers (1-indexed)
 
     Returns:
         Tuple of (pooled DataFrame, number of samples)
@@ -453,6 +456,9 @@ def load_multi_sample_results(base_dir: Path, mode: str) -> tuple[pd.DataFrame, 
         if sample_dirs:
             # NEW structure detected
             for i, sample_dir in enumerate(sample_dirs, 1):
+                # Skip excluded samples
+                if exclude_samples is not None and i in exclude_samples:
+                    continue
                 if sample_dir.exists() and (sample_dir / "reth").exists():
                     df = load_json_results([sample_dir], mode, sample_id=i)
                     if not df.empty:
@@ -461,6 +467,9 @@ def load_multi_sample_results(base_dir: Path, mode: str) -> tuple[pd.DataFrame, 
             # OLD structure: sample-*/prove/ or base_dir directly
             sample_dirs = detect_sample_dirs(base_dir)
             for i, sample_dir in enumerate(sample_dirs, 1):
+                # Skip excluded samples
+                if exclude_samples is not None and i in exclude_samples:
+                    continue
                 possible_dirs = [sample_dir / "prove", sample_dir]
                 for check_dir in possible_dirs:
                     if check_dir.exists() and (check_dir / "reth").exists():
@@ -2146,6 +2155,13 @@ Usage:
         action="store_true",
         help="Inline images in markdown (base64). If not set, creates plots/ directory.",
     )
+    parser.add_argument(
+        "--exclude-samples",
+        nargs="+",
+        type=int,
+        default=None,
+        help="Exclude specific sample numbers (e.g., --exclude-samples 1 to exclude sample 1)",
+    )
     
     args = parser.parse_args()
     
@@ -2171,12 +2187,16 @@ Usage:
     hardware_info = load_hardware_info(all_inputs)
     
     # Load data with multi-sample support
+    exclude_samples = args.exclude_samples  # None means include all samples
+    if exclude_samples:
+        print(f"Excluding samples: {exclude_samples}", file=sys.stderr)
+    
     print("Loading execution results...", file=sys.stderr)
     exec_df = pd.DataFrame()
     total_exec_samples = 0
     if args.execution_input:
         for input_dir in args.execution_input:
-            df_part, n_samples = load_multi_sample_results(input_dir, "execution")
+            df_part, n_samples = load_multi_sample_results(input_dir, "execution", exclude_samples)
             if not df_part.empty:
                 exec_df = pd.concat([exec_df, df_part], ignore_index=True)
                 total_exec_samples = max(total_exec_samples, n_samples)
@@ -2187,7 +2207,7 @@ Usage:
     total_prove_samples = 0
     if args.proving_input:
         for input_dir in args.proving_input:
-            df_part, n_samples = load_multi_sample_results(input_dir, "proving")
+            df_part, n_samples = load_multi_sample_results(input_dir, "proving", exclude_samples)
             if not df_part.empty:
                 prove_df = pd.concat([prove_df, df_part], ignore_index=True)
                 total_prove_samples = max(total_prove_samples, n_samples)
