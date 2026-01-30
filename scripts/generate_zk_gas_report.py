@@ -41,7 +41,7 @@ from scipy import stats
 
 
 # =============================================================================
-# Multi-Sample and Outlier Detection
+# Multi-Sample Support
 # =============================================================================
 
 def detect_sample_dirs(input_dir: Path) -> list[Path]:
@@ -56,100 +56,6 @@ def detect_sample_dirs(input_dir: Path) -> list[Path]:
         return sample_dirs
     # Backward compatible: single sample (no sample-N dirs)
     return [input_dir]
-
-
-def detect_outliers_mad(values: np.ndarray, threshold: float = 3.5) -> np.ndarray:
-    """
-    Detect outliers using Modified Z-Score with MAD (Median Absolute Deviation).
-    
-    This method is more robust than standard Z-score or IQR when there are 
-    multiple outliers (up to ~30% of data).
-    
-    Formula:
-        MAD = median(|x_i - median(x)|)
-        Modified_Z = 0.6745 * (x - median) / MAD
-    
-    Args:
-        values: Array of values to check for outliers
-        threshold: Modified Z-score threshold (default 3.5, standard for MAD)
-    
-    Returns:
-        Boolean array where True = outlier
-    
-    Reference:
-        Iglewicz, B. and Hoaglin, D.C. (1993). "How to Detect and Handle Outliers"
-    """
-    values = np.asarray(values, dtype=float)
-    
-    # Handle NaN values - they are not outliers, just missing
-    nan_mask = np.isnan(values)
-    if nan_mask.all():
-        return np.zeros(len(values), dtype=bool)
-    
-    valid_values = values[~nan_mask]
-    
-    if len(valid_values) < 3:
-        # Too few points to detect outliers
-        return np.zeros(len(values), dtype=bool)
-    
-    median = np.median(valid_values)
-    mad = np.median(np.abs(valid_values - median))
-    
-    if mad == 0:
-        # All values identical or nearly so - no outliers
-        return np.zeros(len(values), dtype=bool)
-    
-    # 0.6745 is the scaling factor to make MAD comparable to standard deviation
-    # for normally distributed data
-    modified_z = np.zeros(len(values))
-    modified_z[~nan_mask] = 0.6745 * (valid_values - median) / mad
-    
-    return np.abs(modified_z) > threshold
-
-
-def remove_outliers_per_opcode(
-    df: pd.DataFrame, 
-    y_col: str, 
-    threshold: float = 3.5
-) -> tuple[pd.DataFrame, pd.DataFrame, dict]:
-    """
-    Remove outliers from DataFrame, grouped by opcode.
-    
-    Args:
-        df: DataFrame with opcode column and values
-        y_col: Column name to check for outliers (e.g., 'proving_time_s')
-        threshold: Modified Z-score threshold
-    
-    Returns:
-        Tuple of (clean_df, outliers_df, stats_dict)
-        - clean_df: DataFrame with outliers removed
-        - outliers_df: DataFrame containing only the outliers
-        - stats_dict: Dict mapping opcode -> number of outliers removed
-    """
-    clean_rows = []
-    outlier_rows = []
-    outlier_stats = {}
-    
-    for opcode, group in df.groupby("opcode"):
-        if y_col not in group.columns or group[y_col].isna().all():
-            clean_rows.append(group)
-            outlier_stats[opcode] = 0
-            continue
-        
-        values = group[y_col].values
-        is_outlier = detect_outliers_mad(values, threshold)
-        
-        clean_rows.append(group[~is_outlier])
-        outliers = group[is_outlier]
-        if len(outliers) > 0:
-            outlier_rows.append(outliers)
-        
-        outlier_stats[opcode] = int(is_outlier.sum())
-    
-    clean_df = pd.concat(clean_rows, ignore_index=True) if clean_rows else pd.DataFrame()
-    outliers_df = pd.concat(outlier_rows, ignore_index=True) if outlier_rows else pd.DataFrame()
-    
-    return clean_df, outliers_df, outlier_stats
 
 
 # =============================================================================
@@ -597,14 +503,12 @@ def perform_regression(x: np.ndarray, y: np.ndarray) -> dict:
         return None
 
 
-def compute_regressions(df: pd.DataFrame, remove_outliers: bool = True, outlier_threshold: float = 3.5) -> pd.DataFrame:
+def compute_regressions(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute all regression types for each opcode.
     
     Args:
         df: DataFrame with opcode, gas_used, zk_cycles, proving_time_s columns
-        remove_outliers: If True, remove outliers before regression
-        outlier_threshold: Modified Z-score threshold for outlier detection
     
     Returns:
         DataFrame with regression results per opcode
@@ -638,61 +542,28 @@ def compute_regressions(df: pd.DataFrame, remove_outliers: bool = True, outlier_
         if gas_reg:
             result["gas_per_op"] = gas_reg["slope"]
         
-        # Outlier detection for proving time
-        n_outliers_proving = 0
-        proving_time_clean = proving_time
-        gas_clean_proving = gas
-        if remove_outliers and proving_time is not None and not np.all(np.isnan(proving_time)):
-            outlier_mask = detect_outliers_mad(proving_time, outlier_threshold)
-            n_outliers_proving = int(outlier_mask.sum())
-            if n_outliers_proving > 0:
-                # Keep only non-outliers for regression
-                proving_time_clean = proving_time[~outlier_mask]
-                gas_clean_proving = gas[~outlier_mask]
-        result["n_outliers_proving"] = n_outliers_proving
-        
-        # Outlier detection for zk_cycles
-        n_outliers_cycles = 0
-        zk_cycles_clean = zk_cycles
-        gas_clean_cycles = gas
-        if remove_outliers and zk_cycles is not None and not np.all(np.isnan(zk_cycles)):
-            outlier_mask = detect_outliers_mad(zk_cycles, outlier_threshold)
-            n_outliers_cycles = int(outlier_mask.sum())
-            if n_outliers_cycles > 0:
-                zk_cycles_clean = zk_cycles[~outlier_mask]
-                gas_clean_cycles = gas[~outlier_mask]
-        result["n_outliers_cycles"] = n_outliers_cycles
-        
-        # Gas <> ZK Cycles regression (with outliers removed)
-        if zk_cycles_clean is not None and not np.all(np.isnan(zk_cycles_clean)):
-            reg = perform_regression(gas_clean_cycles, zk_cycles_clean)
+        # Gas <> ZK Cycles regression
+        if zk_cycles is not None and not np.all(np.isnan(zk_cycles)):
+            reg = perform_regression(gas, zk_cycles)
             if reg:
                 result["gas_zkcycles_slope"] = reg["slope"]
                 result["gas_zkcycles_r2"] = reg["r_squared"]
                 result["gas_zkcycles_std_err"] = reg["std_err"]
                 result["gas_zkcycles_rmse"] = reg["rmse"]
 
-        # Gas <> Proving Time regression (with outliers removed)
-        if proving_time_clean is not None and not np.all(np.isnan(proving_time_clean)):
-            reg = perform_regression(gas_clean_proving, proving_time_clean)
+        # Gas <> Proving Time regression
+        if proving_time is not None and not np.all(np.isnan(proving_time)):
+            reg = perform_regression(gas, proving_time)
             if reg:
                 result["gas_proving_slope"] = reg["slope"]
                 result["gas_proving_r2"] = reg["r_squared"]
                 result["gas_proving_std_err"] = reg["std_err"]
                 result["gas_proving_rmse"] = reg["rmse"]
 
-        # ZK Cycles <> Proving Time regression (with outliers removed from both)
+        # ZK Cycles <> Proving Time regression
         if (zk_cycles is not None and proving_time is not None and
             not np.all(np.isnan(zk_cycles)) and not np.all(np.isnan(proving_time))):
-            # For this regression, remove outliers in proving_time
-            if remove_outliers:
-                outlier_mask = detect_outliers_mad(proving_time, outlier_threshold)
-                zk_clean = zk_cycles[~outlier_mask]
-                prove_clean = proving_time[~outlier_mask]
-            else:
-                zk_clean = zk_cycles
-                prove_clean = proving_time
-            reg = perform_regression(zk_clean, prove_clean)
+            reg = perform_regression(zk_cycles, proving_time)
             if reg:
                 result["zkcycles_proving_slope"] = reg["slope"]
                 result["zkcycles_proving_r2"] = reg["r_squared"]
@@ -716,14 +587,9 @@ def create_regression_plot(
     x_label: str,
     y_label: str,
     title: str,
-    remove_outliers: bool = True,
-    outlier_threshold: float = 3.5,
 ) -> Optional[plt.Figure]:
     """
     Create a regression plot for a single opcode.
-
-    If remove_outliers is True, outliers are detected and shown as red X markers
-    but excluded from the regression line calculation.
 
     Points are colored by sample number for multi-sample runs.
     """
@@ -749,21 +615,8 @@ def create_regression_plot(
 
     fig, ax = plt.subplots(figsize=(8, 5))
 
-    # Detect outliers in y values
-    if remove_outliers:
-        outlier_mask = detect_outliers_mad(y, outlier_threshold)
-        x_clean = x[~outlier_mask]
-        y_clean = y[~outlier_mask]
-        samples_clean = samples[~outlier_mask]
-        x_outlier = x[outlier_mask]
-        y_outlier = y[outlier_mask]
-        samples_outlier = samples[outlier_mask]
-    else:
-        x_clean, y_clean, samples_clean = x, y, samples
-        x_outlier, y_outlier, samples_outlier = np.array([]), np.array([]), np.array([])
-
     # Define colors for different samples
-    unique_samples = np.unique(np.concatenate([samples_clean, samples_outlier]))
+    unique_samples = np.unique(samples)
     num_samples = len(unique_samples)
     # Use tab10 colormap for up to 10 samples
     if num_samples <= 10:
@@ -774,23 +627,18 @@ def create_regression_plot(
     # Map sample IDs to colors
     sample_color_map = {sample_id: colors[i % len(colors)] for i, sample_id in enumerate(unique_samples)}
 
-    # Scatter plot - clean points colored by sample
+    # Scatter plot - points colored by sample
     for sample_id in unique_samples:
-        sample_mask = samples_clean == sample_id
+        sample_mask = samples == sample_id
         if np.any(sample_mask):
-            ax.scatter(x_clean[sample_mask], y_clean[sample_mask],
+            ax.scatter(x[sample_mask], y[sample_mask],
                       c=[sample_color_map[sample_id]], alpha=0.7,
                       edgecolors='black', linewidth=0.5,
                       label=f'Sample {sample_id}', zorder=2)
 
-    # Scatter plot - outliers as red X
-    if len(x_outlier) > 0:
-        ax.scatter(x_outlier, y_outlier, c='red', marker='x', s=100, linewidths=2,
-                   label=f'Outliers ({len(x_outlier)} removed)', zorder=3)
-
-    # Regression line (on clean data only)
-    reg = perform_regression(x_clean, y_clean)
-    if reg and len(x_clean) >= 2:
+    # Regression line
+    reg = perform_regression(x, y)
+    if reg and len(x) >= 2:
         x_line = np.linspace(x.min(), x.max(), 100)
         y_line = reg["slope"] * x_line + reg["intercept"]
         ax.plot(x_line, y_line, 'g-', linewidth=2, zorder=1,
@@ -1074,8 +922,8 @@ def generate_report(
         table_lines = []
         table_lines.append("### Regression Results")
         table_lines.append("")
-        table_lines.append("| Opcode | Samples | Pts | Outliers | Max Ops | Max Gas | Max ZK Cycles | Total Time | % Total | Time/Gas (R²) | Cycles/Gas (R²) |")
-        table_lines.append("|--------|---------|-----|----------|---------|---------|---------------|------------|---------|---------------|-----------------|")
+        table_lines.append("| Opcode | Samples | Pts | Max Ops | Max Gas | Max ZK Cycles | Total Time | % Total | Time/Gas (R²) | Cycles/Gas (R²) |")
+        table_lines.append("|--------|---------|-----|---------|---------|---------------|------------|---------|---------------|-----------------|")
         
         # Prepare data with R² quality flag
         valid_reg = regression_df.dropna(subset=["gas_proving_slope"]).copy()
@@ -1105,15 +953,6 @@ def generate_report(
             # Data points
             n_points = row.get("n_points", 0)
             pts_str = str(int(n_points)) if pd.notna(n_points) else "N/A"
-            
-            # Outliers removed (sum of proving + cycles outliers)
-            n_outliers_proving = row.get("n_outliers_proving", 0)
-            n_outliers_cycles = row.get("n_outliers_cycles", 0)
-            n_outliers = max(n_outliers_proving, n_outliers_cycles) if pd.notna(n_outliers_proving) and pd.notna(n_outliers_cycles) else 0
-            if n_outliers > 0:
-                outliers_str = f'<span style="color: #dc3545;">{int(n_outliers)}</span>'
-            else:
-                outliers_str = "0"
             
             # Max Op Count
             max_op_count = row.get("max_op_count")
@@ -1168,7 +1007,7 @@ def generate_report(
             else:
                 cycles_gas_str = "N/A"
             
-            return f"| {opcode} | {samples_str} | {pts_str} | {outliers_str} | {max_ops_str} | {max_gas_str} | {max_zkcycles_str} | {total_time_str} | {pct_str} | {time_gas_str} | {cycles_gas_str} |"
+            return f"| {opcode} | {samples_str} | {pts_str} | {max_ops_str} | {max_gas_str} | {max_zkcycles_str} | {total_time_str} | {pct_str} | {time_gas_str} | {cycles_gas_str} |"
         
         # Add good R² rows first
         for _, row in good_r2.iterrows():
@@ -1176,7 +1015,7 @@ def generate_report(
         
         # Separator between good and bad R²
         if len(good_r2) > 0 and len(bad_r2) > 0:
-            table_lines.append("|--------|---------|-----|----------|---------|---------|------------|---------|---------------|-----------------|")
+            table_lines.append("|--------|---------|-----|---------|---------|---------------|------------|---------|---------------|-----------------|")
         
         # Add bad R² rows
         for _, row in bad_r2.iterrows():
@@ -2226,9 +2065,9 @@ Usage:
         print("Error: No valid data loaded", file=sys.stderr)
         sys.exit(1)
     
-    # Compute regressions with outlier removal enabled
-    print("Computing regressions (with outlier detection)...", file=sys.stderr)
-    regression_df = compute_regressions(df, remove_outliers=True, outlier_threshold=3.5)
+    # Compute regressions
+    print("Computing regressions...", file=sys.stderr)
+    regression_df = compute_regressions(df)
     
     # Create output directory
     args.output.mkdir(parents=True, exist_ok=True)
