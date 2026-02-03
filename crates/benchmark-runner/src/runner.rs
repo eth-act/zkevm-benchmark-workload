@@ -16,7 +16,7 @@ use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, Pro
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
 
 /// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.4.0";
+const DEFAULT_GUEST_VERSION: &str = "v0.5.0";
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -209,7 +209,9 @@ async fn get_program_config(artifact_name: &str, path: Option<&Path>) -> Result<
         false,
     )
     .await?;
-    program.load().await
+
+    // TODO: simplify when zkboost use ere@v0.2.0
+    program.load().await.map(|bytes| SerializedProgram(bytes.0))
 }
 
 /// Dumps the raw input bytes to disk
