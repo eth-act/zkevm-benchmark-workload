@@ -104,31 +104,31 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-act/ere", rev = "ec75f8a26657ddbf7efc44cdb3167fff4f55fe27", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-io" }
 
 # zkboost
 zkboost-ethereum-el-config = { git = "https://github.com/eth-act/zkboost", rev = "9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2" }
 zkboost-ethereum-el-types = { git = "https://github.com/eth-act/zkboost", rev = "9a74b0e8b49bee1ff033ffd7e40151c9f5f470a2" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.4.0", package = "integration-tests" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.5.0", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.5.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.5.0", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.5.0", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.5.0", package = "integration-tests" }
 
-ef-tests = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-stateless = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", rev = "cfde951976bfa9100a6d9f806e06fb539ae25241" }
+ef-tests = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
+reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
+reth-stateless = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
+reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
 
 # alloy
-alloy-eips = { version = "1.1.2" }
-alloy-rpc-types-eth = "1.1.2"
-alloy-genesis = { version = "1.1.2", default-features = false }
+alloy-eips = { version = "1.4.3" }
+alloy-rpc-types-eth = "1.4.3"
+alloy-genesis = { version = "1.4.3", default-features = false }
 
 # misc
 clap = { version = "4.0", features = ["derive"] }
