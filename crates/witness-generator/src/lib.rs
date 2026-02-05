@@ -159,6 +159,15 @@ pub enum WGError {
     #[error("raw input path '{0}' is not a directory")]
     RawInputPathNotDirectory(String),
 
+    /// Required file missing from a raw input fixture subdirectory
+    #[error("missing required file '{file}' in fixture directory '{dir}'")]
+    RawInputMissingFile {
+        /// Name of the missing file
+        file: String,
+        /// Path to the fixture directory
+        dir: String,
+    },
+
     /// Failed to read a raw input file
     #[error("failed to read raw input file at {path}: {source}")]
     RawInputFileReadError {

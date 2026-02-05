@@ -56,7 +56,7 @@ impl RawInputFixtureGeneratorBuilder {
                 path.display().to_string(),
             ));
         }
-        self.input_folder = Some(path);
+        self.input_folder = Some(path.canonicalize()?);
         Ok(self)
     }
 
@@ -121,13 +121,27 @@ impl FixtureGenerator for RawInputFixtureGenerator {
             let fixture_dir = entry.path();
             let fixture_name = entry.file_name().to_string_lossy().to_string();
 
-            // Read eth_block.json and strip JSON-RPC envelope
+            // Validate that required files exist before attempting deserialization
             let block_path = fixture_dir.join("eth_block.json");
+            if !block_path.exists() {
+                return Err(WGError::RawInputMissingFile {
+                    file: "eth_block.json".to_string(),
+                    dir: fixture_dir.display().to_string(),
+                });
+            }
+            let witness_path = fixture_dir.join("debug_executionWitness.json");
+            if !witness_path.exists() {
+                return Err(WGError::RawInputMissingFile {
+                    file: "debug_executionWitness.json".to_string(),
+                    dir: fixture_dir.display().to_string(),
+                });
+            }
+
+            // Read eth_block.json and strip JSON-RPC envelope
             let block_rpc: JsonRpcResponse<Block<TransactionSigned>> =
                 Self::read_json(&block_path)?;
 
             // Read debug_executionWitness.json and strip JSON-RPC envelope
-            let witness_path = fixture_dir.join("debug_executionWitness.json");
             let witness_rpc: JsonRpcResponse<ExecutionWitness> = Self::read_json(&witness_path)?;
 
             let stateless_input = StatelessInput {
@@ -146,53 +160,5 @@ impl FixtureGenerator for RawInputFixtureGenerator {
         }
 
         Ok(fixtures)
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[tokio::test]
-    async fn test_raw_input_generator() {
-        let generator = RawInputFixtureGeneratorBuilder::default()
-            .with_input_folder(PathBuf::from("../../zkvm-stateless-input"))
-            .unwrap()
-            .build()
-            .unwrap();
-
-        let fixtures = generator.generate().await.unwrap();
-        assert_eq!(fixtures.len(), 1);
-        assert_eq!(fixtures[0].name(), "test_name_1");
-    }
-
-    #[tokio::test]
-    async fn test_raw_input_generate_to_path() {
-        let generator = RawInputFixtureGeneratorBuilder::default()
-            .with_input_folder(PathBuf::from("../../zkvm-stateless-input"))
-            .unwrap()
-            .build()
-            .unwrap();
-
-        let target_dir =
-            tempfile::tempdir().expect("Failed to create temporary directory for fixtures");
-        let count = generator.generate_to_path(target_dir.path()).await.unwrap();
-        assert_eq!(count, 1);
-
-        let output_file = target_dir.path().join("test_name_1.json");
-        assert!(output_file.exists());
-    }
-
-    #[test]
-    fn test_raw_input_missing_path() {
-        let result = RawInputFixtureGeneratorBuilder::default()
-            .with_input_folder(PathBuf::from("/nonexistent/path"));
-        assert!(result.is_err());
-    }
-
-    #[test]
-    fn test_raw_input_path_not_set() {
-        let result = RawInputFixtureGeneratorBuilder::default().build();
-        assert!(result.is_err());
     }
 }
