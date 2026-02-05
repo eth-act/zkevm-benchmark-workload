@@ -54,6 +54,10 @@ enum SourceCommand {
         /// Path to the input folder containing `chain_config.json` and fixture subdirectories
         #[arg(long)]
         input_folder: PathBuf,
+
+        /// Skip fixture directories that are missing required files instead of failing
+        #[arg(long, default_value_t = false)]
+        skip_incomplete_fixtures: bool,
     },
     /// Generate fixtures from an RPC endpoint
     Rpc {
@@ -131,10 +135,14 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
                 builder.build().context("Failed to build EEST generator")?,
             ))
         }
-        SourceCommand::RawInput { input_folder } => Ok(Box::new(
+        SourceCommand::RawInput {
+            input_folder,
+            skip_incomplete_fixtures,
+        } => Ok(Box::new(
             RawInputFixtureGeneratorBuilder::default()
                 .with_input_folder(input_folder)
                 .context("Invalid raw input folder")?
+                .with_skip_incomplete_fixtures(skip_incomplete_fixtures)
                 .build()
                 .context("Failed to build raw input generator")?,
         )),

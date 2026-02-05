@@ -25,7 +25,7 @@ use reth_ethereum_primitives::TransactionSigned;
 use reth_stateless::{ExecutionWitness, StatelessInput};
 use serde::Deserialize;
 use std::path::{Path, PathBuf};
-use tracing::info;
+use tracing::{info, warn};
 
 /// Generic JSON-RPC response envelope for deserializing local files that contain
 /// JSON-RPC formatted data (`{"jsonrpc":"2.0","id":...,"result":{...}}`).
@@ -39,6 +39,7 @@ struct JsonRpcResponse<T> {
 #[derive(Debug, Clone, Default)]
 pub struct RawInputFixtureGeneratorBuilder {
     input_folder: Option<PathBuf>,
+    skip_incomplete_fixtures: bool,
 }
 
 impl RawInputFixtureGeneratorBuilder {
@@ -60,6 +61,14 @@ impl RawInputFixtureGeneratorBuilder {
         Ok(self)
     }
 
+    /// When enabled, fixture subdirectories that are missing required files
+    /// (`eth_block.json` or `debug_executionWitness.json`) will be skipped with a
+    /// warning instead of causing the entire generation to fail.
+    pub fn with_skip_incomplete_fixtures(mut self, skip: bool) -> Self {
+        self.skip_incomplete_fixtures = skip;
+        self
+    }
+
     /// Builds the configured [`RawInputFixtureGenerator`].
     ///
     /// # Errors
@@ -67,7 +76,10 @@ impl RawInputFixtureGeneratorBuilder {
     /// Returns an error if the input folder was not set.
     pub fn build(self) -> Result<RawInputFixtureGenerator> {
         let input_folder = self.input_folder.ok_or(WGError::RawInputPathNotSet)?;
-        Ok(RawInputFixtureGenerator { input_folder })
+        Ok(RawInputFixtureGenerator {
+            input_folder,
+            skip_incomplete_fixtures: self.skip_incomplete_fixtures,
+        })
     }
 }
 
@@ -79,6 +91,7 @@ impl RawInputFixtureGeneratorBuilder {
 #[derive(Debug, Clone)]
 pub struct RawInputFixtureGenerator {
     input_folder: PathBuf,
+    skip_incomplete_fixtures: bool,
 }
 
 impl RawInputFixtureGenerator {
@@ -124,6 +137,10 @@ impl FixtureGenerator for RawInputFixtureGenerator {
             // Validate that required files exist before attempting deserialization
             let block_path = fixture_dir.join("eth_block.json");
             if !block_path.exists() {
+                if self.skip_incomplete_fixtures {
+                    warn!("Skipping fixture '{fixture_name}': missing 'eth_block.json'");
+                    continue;
+                }
                 return Err(WGError::RawInputMissingFile {
                     file: "eth_block.json".to_string(),
                     dir: fixture_dir.display().to_string(),
@@ -131,6 +148,12 @@ impl FixtureGenerator for RawInputFixtureGenerator {
             }
             let witness_path = fixture_dir.join("debug_executionWitness.json");
             if !witness_path.exists() {
+                if self.skip_incomplete_fixtures {
+                    warn!(
+                        "Skipping fixture '{fixture_name}': missing 'debug_executionWitness.json'"
+                    );
+                    continue;
+                }
                 return Err(WGError::RawInputMissingFile {
                     file: "debug_executionWitness.json".to_string(),
                     dir: fixture_dir.display().to_string(),
