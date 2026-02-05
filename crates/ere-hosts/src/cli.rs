@@ -96,15 +96,6 @@ pub enum ExecutionClient {
     Ethrex,
 }
 
-impl From<ExecutionClient> for zkboost_ethereum_el_types::ElKind {
-    fn from(client: ExecutionClient) -> Self {
-        match client {
-            ExecutionClient::Reth => Self::Reth,
-            ExecutionClient::Ethrex => Self::Ethrex,
-        }
-    }
-}
-
 impl ExecutionClient {
     /// Get the guest relative path for the execution client
     pub fn guest_rel_path(&self) -> PathBuf {

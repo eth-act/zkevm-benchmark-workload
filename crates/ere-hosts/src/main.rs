@@ -51,18 +51,18 @@ async fn main() -> Result<()> {
                 "Running stateless-validator benchmark for input folder: {}",
                 input_folder.display()
             );
-            let el = execution_client.into();
+            let el: stateless_validator::ExecutionClient = execution_client.into();
             let guest_io =
                 stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
                     .context("Failed to get stateless validator inputs")?;
 
-            let zkvms =
-                get_el_zkvm_instances(execution_client.into(), &cli.zkvms, resource, bin_path)
-                    .await
-                    .context("Failed to get EL zkvm instances")?;
+            let el_str = el.as_ref().to_lowercase();
+            let zkvms = get_el_zkvm_instances(&el_str, &cli.zkvms, resource, bin_path)
+                .await
+                .context("Failed to get EL zkvm instances")?;
 
             let config = RunConfig {
-                sub_folder: Some(el.as_ref().to_lowercase()),
+                sub_folder: Some(el_str),
                 ..config_base
             };
 
