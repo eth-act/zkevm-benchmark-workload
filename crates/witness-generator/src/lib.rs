@@ -1,9 +1,12 @@
 //! Library for generating stateless validation fixtures for zkEVM benchmarking.
 //!
-//! Produces JSON fixtures containing Ethereum block data and execution witnesses from two sources:
+//! Produces JSON fixtures containing Ethereum block data and execution witnesses from three
+//! sources:
 //!
 //! - **EEST Generator** ([`eest_generator`]): Converts Ethereum Execution Spec Tests into fixtures
 //! - **RPC Generator** ([`rpc_generator`]): Fetches blocks and witnesses from live Ethereum nodes
+//! - **Raw Input Generator** ([`raw_input_generator`]): Reads pre-collected block and witness
+//!   JSON-RPC response files from a local directory
 //!
 //! Core types: [`StatelessValidationFixture`] (block + witness), [`FixtureGenerator`].
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
@@ -16,6 +19,7 @@ use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
 pub mod eest_generator;
+pub mod raw_input_generator;
 pub mod rpc_generator;
 
 /// Error types for witness generation operations.
@@ -141,6 +145,36 @@ pub enum WGError {
         value: String,
         /// Underlying error
         source: http::header::InvalidHeaderValue,
+    },
+
+    /// Raw input path was not set in the builder
+    #[error("raw input path was not set")]
+    RawInputPathNotSet,
+
+    /// Raw input path does not exist
+    #[error("raw input path '{0}' does not exist")]
+    RawInputPathNotFound(String),
+
+    /// Raw input path is not a directory
+    #[error("raw input path '{0}' is not a directory")]
+    RawInputPathNotDirectory(String),
+
+    /// Failed to read a raw input file
+    #[error("failed to read raw input file at {path}: {source}")]
+    RawInputFileReadError {
+        /// Path to the file
+        path: String,
+        /// Underlying I/O error
+        source: std::io::Error,
+    },
+
+    /// Failed to deserialize a raw input file
+    #[error("failed to deserialize raw input file at {path}: {source}")]
+    RawInputDeserializationError {
+        /// Path to the file
+        path: String,
+        /// Underlying deserialization error
+        source: serde_json::Error,
     },
 
     /// Generic error for I/O, serialization, and other operations

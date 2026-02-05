@@ -11,6 +11,7 @@ use tracing_subscriber::EnvFilter;
 use witness_generator::{
     FixtureGenerator,
     eest_generator::EESTFixtureGeneratorBuilder,
+    raw_input_generator::RawInputFixtureGeneratorBuilder,
     rpc_generator::{RpcBlocksAndWitnessesBuilder, RpcFlatHeaderKeyValues},
 };
 
@@ -47,6 +48,12 @@ enum SourceCommand {
         /// Optional input folder for EEST files. If not provided, the tag rule will be used.
         #[arg(long, conflicts_with = "tag")]
         eest_fixtures_path: Option<PathBuf>,
+    },
+    /// Generate fixtures from raw stateless input files (JSON-RPC responses on disk)
+    RawInput {
+        /// Path to the input folder containing `chain_config.json` and fixture subdirectories
+        #[arg(long)]
+        input_folder: PathBuf,
     },
     /// Generate fixtures from an RPC endpoint
     Rpc {
@@ -124,6 +131,13 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
                 builder.build().context("Failed to build EEST generator")?,
             ))
         }
+        SourceCommand::RawInput { input_folder } => Ok(Box::new(
+            RawInputFixtureGeneratorBuilder::default()
+                .with_input_folder(input_folder)
+                .context("Invalid raw input folder")?
+                .build()
+                .context("Failed to build raw input generator")?,
+        )),
         SourceCommand::Rpc {
             last_n_blocks,
             block,
