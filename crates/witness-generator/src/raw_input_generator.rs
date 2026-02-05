@@ -64,7 +64,7 @@ impl RawInputFixtureGeneratorBuilder {
     /// When enabled, fixture subdirectories that are missing required files
     /// (`eth_block.json` or `debug_executionWitness.json`) will be skipped with a
     /// warning instead of causing the entire generation to fail.
-    pub fn with_skip_incomplete_fixtures(mut self, skip: bool) -> Self {
+    pub const fn with_skip_incomplete_fixtures(mut self, skip: bool) -> Self {
         self.skip_incomplete_fixtures = skip;
         self
     }
