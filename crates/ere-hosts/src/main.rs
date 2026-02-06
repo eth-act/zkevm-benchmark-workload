@@ -32,7 +32,10 @@ async fn main() -> Result<()> {
 
     if cli.zisk_profile {
         if !matches!(cli.action, cli::BenchmarkAction::Execute) {
-            bail!("--zisk-profile requires --action execute, but got {:?}", cli.action);
+            bail!(
+                "--zisk-profile requires --action execute, but got {:?}",
+                cli.action
+            );
         }
         if cli.zkvms.len() != 1 || cli.zkvms[0] != zkVMKind::Zisk {
             let zkvm_names: Vec<_> = cli.zkvms.iter().map(|z| z.as_str()).collect();
