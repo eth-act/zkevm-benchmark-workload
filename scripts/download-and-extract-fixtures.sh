@@ -3,7 +3,7 @@
 # download-and-extract-fixtures.sh
 #
 # Downloads execution spec test fixtures for zkevm.
-# By default, it fetches the benchmark@v0.0.6 release.
+# By default, it fetches the benchmark@v0.0.7 release.
 # You can optionally provide a tag as the first argument, or use 'latest' to explicitly fetch the latest release.
 # The second argument optionally sets the destination directory (default: ./zkevm-fixtures).
 #
@@ -11,7 +11,7 @@
 #   ./scripts/download-and-extract-fixtures.sh [TAG|latest] [DEST_DIR]
 #
 # Examples:
-#   # Download default release (benchmark@v0.0.6) to default directory
+#   # Download default release (benchmark@v0.0.7) to default directory
 #   ./scripts/download-and-extract-fixtures.sh
 #   # Download latest official release to default directory
 #   ./scripts/download-and-extract-fixtures.sh latest
@@ -27,7 +27,7 @@ set -euo pipefail
 
 REPO="ethereum/execution-spec-tests"
 ASSET_NAME="fixtures_benchmark.tar.gz"
-DEFAULT_TAG="benchmark%40v0.0.6"
+DEFAULT_TAG="benchmark%40v0.0.7"
 
 # Helper function to make authenticated GitHub API calls
 github_api_curl() {
