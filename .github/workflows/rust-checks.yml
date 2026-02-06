@@ -8,22 +8,7 @@ on:
 env:
   CARGO_TERM_COLOR: always
 
-jobs: 
-  download-fixtures-check:
-    name: Check bash scripts
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Download and Extract Fixtures
-        run: |
-          chmod +x ./scripts/download-and-extract-fixtures.sh
-          ./scripts/download-and-extract-fixtures.sh v5.1.0
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+jobs:
   lint-and-test:
     name: Lint and Test
     runs-on: ubuntu-latest
@@ -57,4 +42,5 @@ jobs:
         env:
           RPC_URL: ${{ secrets.RPC_URL }}
           RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
-        run: cargo test --release --workspace -- --no-capture
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: cargo test --release --workspace --all-features -- --no-capture

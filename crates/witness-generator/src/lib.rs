@@ -18,6 +18,7 @@ use reth_stateless::StatelessInput;
 use serde::{Deserialize, Serialize};
 use thiserror::Error;
 
+pub mod eest_downloader;
 pub mod eest_generator;
 pub mod raw_input_generator;
 pub mod rpc_generator;
@@ -44,7 +45,7 @@ pub enum WGError {
 
     /// Failed to download EEST fixtures
     #[error("failed to download EEST benchmark fixtures: {0}")]
-    DownloadScriptFailed(String),
+    DownloadFailed(String),
 
     /// Test suite path does not exist
     #[error("test suite path does not exist: {0}")]

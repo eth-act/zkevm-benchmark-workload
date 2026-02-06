@@ -4,10 +4,7 @@ use async_trait::async_trait;
 use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
 use reth_chainspec::{Chain, ChainSpec, blob_params_to_schedule, create_chain_config};
-use std::{
-    path::{Path, PathBuf},
-    process::Command,
-};
+use std::path::{Path, PathBuf};
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
@@ -59,7 +56,7 @@ impl EESTFixtureGeneratorBuilder {
     }
 
     /// Constructs the generator, downloading EEST fixtures if no local path was specified.
-    pub fn build(self) -> Result<EESTFixtureGenerator> {
+    pub async fn build(self) -> Result<EESTFixtureGenerator> {
         let input_folder = self.input_folder;
         let tag = self.tag;
         let include = self.include.unwrap_or_default();
@@ -70,18 +67,9 @@ impl EESTFixtureGeneratorBuilder {
         let (directory_path, delete_eest_folder) = if let Some(input_folder) = input_folder {
             (input_folder, false)
         } else {
-            let mut cmd = Command::new("./scripts/download-and-extract-fixtures.sh");
-            if let Some(tag) = tag {
-                cmd.arg(tag);
-            }
-            let output = cmd.output()?;
-
-            if !output.status.success() {
-                return Err(WGError::DownloadScriptFailed(
-                    String::from_utf8_lossy(&output.stderr).to_string(),
-                ));
-            }
-            (PathBuf::from(&Self::TEMP_EEST_FIXTURES_PATH), true)
+            let dest = PathBuf::from(Self::TEMP_EEST_FIXTURES_PATH);
+            crate::eest_downloader::download_and_extract(tag.as_deref(), &dest).await?;
+            (dest, true)
         };
 
         Ok(EESTFixtureGenerator {
