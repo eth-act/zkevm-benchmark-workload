@@ -147,3 +147,6 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 erased-serde = "0.4.8"
 auto_impl = "1.3.0"
 tempfile = "3.10"
+reqwest = { version = "0.12", default-features = false, features = ["rustls-tls-native-roots"] }
+flate2 = "1.1"
+tar = "0.4"

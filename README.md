@@ -44,13 +44,7 @@ This decoupling provides several benefits:
     cd zkevm-benchmark-workload
     ```
 
-2. **Fetch/Update Benchmark Fixtures:**
-
-    ```bash
-    ./scripts/download-and-extract-fixtures.sh
-    ```
-
-3. **Generate Benchmark Input Files (required for `stateless-validator` guest program):**
+2. **Generate Benchmark Input Files (required for `stateless-validator` guest program):**
 
     ```bash
     cargo run --release -- tests --include 10M- --include Prague

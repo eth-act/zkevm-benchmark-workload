@@ -121,7 +121,10 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
             }
 
             Ok(Box::new(
-                builder.build().context("Failed to build EEST generator")?,
+                builder
+                    .build()
+                    .await
+                    .context("Failed to build EEST generator")?,
             ))
         }
         SourceCommand::Rpc {
