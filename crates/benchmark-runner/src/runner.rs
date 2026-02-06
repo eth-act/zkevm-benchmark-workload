@@ -2,13 +2,12 @@
 
 use anyhow::{anyhow, Context, Result};
 use ere_dockerized::{zkVMKind, DockerizedzkVM, SerializedProgram};
+use ere_guests_downloader::Downloader;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
-use std::{env, fs};
 use tracing::info;
-use zkboost_ethereum_el_config::program::download_guest_program;
-use zkboost_ethereum_el_types::{ElKind, PackageVersion};
 
 use ere_zkvm_interface::{zkVM, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -164,12 +163,12 @@ fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
 
 /// Creates the requested EL/zkVMs ere instances.
 pub async fn get_el_zkvm_instances(
-    el: ElKind,
+    el: &str,
     zkvms: &[zkVMKind],
     resource: ProverResourceType,
     bin_path: Option<&Path>,
 ) -> Result<Vec<DockerizedzkVM>> {
-    let artifact_name_prefix = format!("stateless-validator-{}", el.as_str());
+    let artifact_name_prefix = format!("stateless-validator-{el}");
     get_guest_zkvm_instances(&artifact_name_prefix, zkvms, resource, bin_path).await
 }
 
@@ -183,7 +182,7 @@ pub async fn get_guest_zkvm_instances(
     let mut instances = Vec::new();
     for zkvm in zkvms {
         let artifact_name = format!("{}-{}", artifact_name_prefix, zkvm.as_str());
-        let program = get_program_config(&artifact_name, bin_path).await?;
+        let program = load_program(&artifact_name, bin_path).await?;
         let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
             .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
         instances.push(zkvm);
@@ -191,27 +190,22 @@ pub async fn get_guest_zkvm_instances(
     Ok(instances)
 }
 
-async fn get_program_config(artifact_name: &str, path: Option<&Path>) -> Result<SerializedProgram> {
-    if let Some(path) = path {
+async fn load_program(artifact_name: &str, bin_path: Option<&Path>) -> Result<SerializedProgram> {
+    if let Some(path) = bin_path {
         let bytes = fs::read(path.join(artifact_name))
             .with_context(|| format!("Failed to read program from path: {}", path.display()))?;
         return Ok(SerializedProgram(bytes));
     }
 
-    let output_dir =
-        tempfile::tempdir().context("Failed to create temporary directory for zkVM programs")?;
-    let gh_token = env::var("GITHUB_TOKEN").ok();
-    let program = download_guest_program(
-        artifact_name,
-        PackageVersion::Tag(DEFAULT_GUEST_VERSION),
-        gh_token.as_deref(),
-        &output_dir,
-        false,
-    )
-    .await?;
+    let downloader = Downloader::from_tag(DEFAULT_GUEST_VERSION)
+        .await
+        .context("Failed to create guest program downloader")?;
+    let compiled = downloader
+        .download(artifact_name)
+        .await
+        .with_context(|| format!("Failed to download guest program: {artifact_name}"))?;
 
-    // TODO: simplify when zkboost use ere@v0.2.0
-    program.load().await.map(|bytes| SerializedProgram(bytes.0))
+    Ok(SerializedProgram(compiled.program))
 }
 
 /// Dumps the raw input bytes to disk
