@@ -119,14 +119,17 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
                 Ok(Ok((public_values, proof, report))) => {
                     verify_public_output(&io, &public_values)
                         .context("Failed to verify public output from proof")?;
+                    let verify_start = std::time::Instant::now();
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
+                    let verification_time_ms = verify_start.elapsed().as_millis();
                     verify_public_output(&io, &verif_public_values)
                         .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
                         proof_size: proof.as_bytes().len(),
                         proving_time_ms: report.proving_time.as_millis(),
+                        verification_time_ms,
                     }
                 }
                 Ok(Err(e)) => ProvingMetrics::Crashed(CrashInfo {

@@ -128,6 +128,8 @@ pub enum ProvingMetrics {
         proof_size: usize,
         /// Proving time in milliseconds.
         proving_time_ms: u128,
+        /// Verification time in milliseconds.
+        verification_time_ms: u128,
     },
     /// Metrics for a crashed proving workload.
     Crashed(CrashInfo),
@@ -259,6 +261,7 @@ mod tests {
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 256,
                     proving_time_ms: 2_000,
+                    verification_time_ms: 200,
                 }),
             },
             BenchmarkRun {
@@ -271,6 +274,7 @@ mod tests {
                 proving: Some(ProvingMetrics::Success {
                     proof_size: 512,
                     proving_time_ms: 5_000,
+                    verification_time_ms: 500,
                 }),
             },
         ]
@@ -343,6 +347,7 @@ mod tests {
             proving: Some(ProvingMetrics::Success {
                 proof_size: 128,
                 proving_time_ms: 1500,
+                verification_time_ms: 150,
             }),
         };
         let json = BenchmarkRun::to_json(std::slice::from_ref(&bench)).expect("serialize mixed");
