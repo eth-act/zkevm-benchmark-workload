@@ -53,11 +53,9 @@ async fn main() -> Result<()> {
         resource, action
     );
 
-    let zisk_profile_config = if cli.zisk_profile {
-        Some(ProfileConfig::new(cli.zisk_profile_output.clone())?)
-    } else {
-        None
-    };
+    let zisk_profile_config = cli
+        .zisk_profile
+        .then(|| ProfileConfig::new(cli.zisk_profile_output.clone()));
 
     let bin_path = cli.bin_path.as_deref();
     let config_base = RunConfig {

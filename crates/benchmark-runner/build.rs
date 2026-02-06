@@ -32,6 +32,7 @@ fn main() {
 
     let reth_version = find_el_version(packages, "stateless-validator-reth", RETH_DEP_PREFIX);
     let ethrex_version = find_el_version(packages, "stateless-validator-ethrex", ETHREX_DEP_PREFIX);
+    let ere_tag = find_ere_tag(packages);
 
     println!(
         "cargo:rustc-env=RETH_EL_VERSION={}",
@@ -44,6 +45,13 @@ fn main() {
         "cargo:rustc-env=ETHREX_EL_VERSION={}",
         ethrex_version.unwrap_or_else(|| {
             println!("cargo:warning=Could not determine ethrex version from Cargo.lock");
+            "unknown".to_string()
+        })
+    );
+    println!(
+        "cargo:rustc-env=ERE_TAG={}",
+        ere_tag.unwrap_or_else(|| {
+            println!("cargo:warning=Could not determine ERE tag from Cargo.lock");
             "unknown".to_string()
         })
     );
@@ -97,4 +105,14 @@ fn extract_tag_from_source(source: &str) -> Option<String> {
 fn extract_short_hash_from_source(source: &str) -> Option<String> {
     let hash = source.split('#').nth(1)?;
     Some(hash[..7.min(hash.len())].to_string())
+}
+
+/// Finds the ERE tag (short commit hash) from the `ere-platform-trait` package source.
+fn find_ere_tag(packages: &[toml::Value]) -> Option<String> {
+    let pkg = packages
+        .iter()
+        .find(|p| p.get("name").and_then(|n| n.as_str()) == Some("ere-platform-trait"))?;
+
+    let source = pkg.get("source").and_then(|s| s.as_str())?;
+    extract_short_hash_from_source(source)
 }

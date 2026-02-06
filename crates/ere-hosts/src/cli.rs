@@ -47,7 +47,7 @@ pub struct Cli {
     pub bin_path: Option<PathBuf>,
 
     /// Enable Zisk profiling (requires --zkvms zisk, --action execute)
-    #[arg(long, default_value_t = false)]
+    #[arg(long)]
     pub zisk_profile: bool,
 
     /// Output folder for Zisk profile results

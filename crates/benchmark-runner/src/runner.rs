@@ -71,19 +71,16 @@ pub fn run_benchmark(
 ) -> Result<()> {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
 
-    let zisk_elf = config
-        .zisk_profile_config
-        .is_some()
-        .then_some(instance.elf.as_slice());
     let zkvm = &instance.zkvm;
+    let elf = &instance.elf;
     match config.action {
         Action::Execute => inputs
             .into_par_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, zisk_elf))?,
+            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
 
         Action::Prove => inputs
             .into_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, zisk_elf))?,
+            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
     }
 
     Ok(())
@@ -94,7 +91,7 @@ fn process_input(
     zkvm: &DockerizedzkVM,
     io: impl GuestFixture,
     config: &RunConfig,
-    zisk_elf: Option<&[u8]>,
+    elf: &[u8],
 ) -> Result<()> {
     let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
@@ -123,7 +120,7 @@ fn process_input(
     let (execution, proving) = match config.action {
         Action::Execute => {
             // Run Zisk profiling if configured
-            if let (Some(profile_config), Some(elf)) = (&config.zisk_profile_config, zisk_elf) {
+            if let Some(profile_config) = &config.zisk_profile_config {
                 run_profiling(
                     profile_config,
                     elf,
