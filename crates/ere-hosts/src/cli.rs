@@ -45,6 +45,14 @@ pub struct Cli {
     /// from the latest ere-guests release.
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
+
+    /// Enable Zisk profiling (requires --zkvms zisk, --action execute)
+    #[arg(long, default_value_t = false)]
+    pub zisk_profile: bool,
+
+    /// Output folder for Zisk profile results
+    #[arg(long, default_value = "zisk-profiles")]
+    pub zisk_profile_output: PathBuf,
 }
 
 /// Subcommands for different guest programs
