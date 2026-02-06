@@ -4,11 +4,12 @@ This crate provides a standalone binary for generating execution witnesses for E
 
 ## Overview
 
-The witness generator CLI is a command-line interface that processes standard Ethereum test suites (specifically blockchain tests found in `zkevm-fixtures`) or RPC endpoints and produces execution witnesses as individual fixture files for use by the benchmark runner.
+The witness generator CLI is a command-line interface that processes standard Ethereum test suites (specifically blockchain tests found in `zkevm-fixtures`), RPC endpoints, or pre-collected raw input files and produces execution witnesses as individual fixture files for use by the benchmark runner.
 
 The binary provides different data sources:
 - **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path.
 - **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks.
+- **Raw Input**: Reads pre-collected JSON-RPC response files (`eth_block.json` and `debug_executionWitness.json`) from a local directory structure, along with a shared `chain_config.json`.
 
 Each test case generates an individual JSON fixture file that can be consumed by the `ere-hosts` benchmark runner.
 
@@ -52,6 +53,9 @@ cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_K
 # Listen for new blocks continuously
 cargo run -- rpc --follow --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
+# Generate from pre-collected raw input files
+cargo run -- raw-input --input-folder /path/to/raw/inputs
+
 # Custom output folder
 cargo run -- --output-folder my-fixtures tests
 ```
@@ -91,6 +95,7 @@ When using `--follow`, the generator will:
 |--------|-------------|---------|
 | `tests` | Generate from EEST fixtures | `cargo run -- tests` |
 | `rpc` | Generate from RPC endpoint | `cargo run -- rpc --rpc-url <url>` |
+| `raw-input` | Generate from raw input files | `cargo run -- raw-input --input-folder ./inputs` |
 | `--tag` | Specify EEST release tag | `--tag v0.1.0` |
 | `--eest-fixtures-path` | Use local EEST fixtures | `--eest-fixtures-path ./fixtures` |
 | `--include` | Include tests matching pattern | `--include "Prague"` |

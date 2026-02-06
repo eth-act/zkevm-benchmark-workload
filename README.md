@@ -9,7 +9,7 @@ This workspace contains code for benchmarking guest programs within different zk
 ## Workspace Structure
 
 - **`crates/metrics`**: Defines common data structures (`BenchmarkRun<Metadata>`) for storing and serializing benchmark results with generic metadata support.
-- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures or RPC endpoints.
+- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures, RPC endpoints, or pre-collected raw input files.
 - **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder.
 - **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
 - **`crates/benchmark-runner`**: Provides a unified framework for running benchmarks across different zkVM implementations, including guest program input generation and execution orchestration.
@@ -21,7 +21,7 @@ Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth
 
 The benchmarking process is decoupled into two distinct phases:
 
-1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum benchmark fixtures (EEST) or RPC data to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
+1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum benchmark fixtures (EEST), RPC data, or raw input files to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
 2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
 
 This decoupling provides several benefits:
@@ -63,6 +63,9 @@ This decoupling provides several benefits:
 
     # Or listen for new blocks continuously
     cargo run --release -- rpc --follow --rpc-url <your-rpc-url>
+
+    # Or generate from pre-collected raw input files
+    cargo run --release -- raw-input --input-folder /path/to/raw/inputs
     ```
 
     This creates individual `.json` files in the `zkevm-fixtures-input/` directory that will be consumed by the benchmark runner.
