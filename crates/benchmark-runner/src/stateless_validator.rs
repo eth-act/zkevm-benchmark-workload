@@ -36,6 +36,17 @@ pub struct BlockMetadata {
     pub block_used_gas: u64,
 }
 
+impl ExecutionClient {
+    /// Returns the version string of the execution client (tag or short commit hash),
+    /// extracted from the resolved `Cargo.lock` at build time.
+    pub const fn version(&self) -> &'static str {
+        match self {
+            Self::Reth => env!("RETH_EL_VERSION"),
+            Self::Ethrex => env!("ETHREX_EL_VERSION"),
+        }
+    }
+}
+
 /// Prepares the inputs for the stateless validator guest program based on the mode.
 pub fn stateless_validator_inputs(
     input_folder: &Path,

@@ -1423,6 +1423,7 @@ dependencies = [
  "stateless-validator-ethrex",
  "stateless-validator-reth",
  "strum 0.26.3",
+ "toml",
  "tracing",
  "walkdir",
  "witness-generator",
