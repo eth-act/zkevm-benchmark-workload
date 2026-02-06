@@ -24,6 +24,7 @@ Both `ExecutionMetrics` and `ProvingMetrics` can be either:
 `ProvingMetrics::Success` stores:
 - `proof_size`: The size of the generated proof in bytes.
 - `proving_time_ms`: The time taken to generate the proof in milliseconds.
+- `verification_time_ms`: The time taken to verify the proof in milliseconds.
 
 `HardwareInfo` is a separate utility struct that automatically detects and stores:
 - `cpu_model`: The CPU model name.
@@ -58,7 +59,7 @@ use std::collections::HashMap;
 use std::iter::FromIterator;
 use std::env::temp_dir;
 use std::time::Duration;
-use serde::{Serialize, Deserialize};
+use serde_derive::{Serialize, Deserialize};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct Metadata {
@@ -94,6 +95,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             proving: Some(ProvingMetrics::Success {
                 proof_size: 256,
                 proving_time_ms: 2_000,
+                verification_time_ms: 200,
             }),
         },
         // ... other workloads
