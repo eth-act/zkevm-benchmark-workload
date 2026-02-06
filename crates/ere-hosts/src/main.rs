@@ -56,8 +56,9 @@ async fn main() -> Result<()> {
                 stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
                     .context("Failed to get stateless validator inputs")?;
 
-            let el_str = el.as_ref().to_lowercase();
-            let zkvms = get_el_zkvm_instances(&el_str, &cli.zkvms, resource, bin_path)
+            let el_name = el.as_ref().to_lowercase();
+            let el_str = format!("{}-{}", el_name, el.version());
+            let zkvms = get_el_zkvm_instances(&el_name, &cli.zkvms, resource, bin_path)
                 .await
                 .context("Failed to get EL zkvm instances")?;
 
