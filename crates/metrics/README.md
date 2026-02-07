@@ -11,6 +11,7 @@ The core data structure is `BenchmarkRun<Metadata>`, which stores:
 - `metadata`: Generic metadata of type `M` containing benchmark-specific information (e.g., block gas usage, loop counts).
 - `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
 - `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
+- `verification`: Optional standalone verification metrics (`Option<VerificationMetrics>`).
 
 Both `ExecutionMetrics` and `ProvingMetrics` can be either:
 - `Success { ... }`: Contains metrics from successful runs
@@ -84,6 +85,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 execution_duration: Duration::from_millis(300),
             }),
             proving: None,
+            verification: None,
         },
         BenchmarkRun {
             name: "proving workload".into(),
@@ -97,6 +99,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 proving_time_ms: 2_000,
                 verification_time_ms: 200,
             }),
+            verification: None,
         },
         // ... other workloads
     ];

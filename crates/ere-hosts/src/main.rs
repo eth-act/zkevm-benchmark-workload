@@ -7,7 +7,7 @@ use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{
         Action, ProfileConfig, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances,
-        run_benchmark,
+        run_benchmark, run_verify_from_disk,
     },
     stateless_validator::{self},
 };
@@ -57,6 +57,12 @@ async fn main() -> Result<()> {
         .zisk_profile
         .then(|| ProfileConfig::new(cli.zisk_profile_output.clone()));
 
+    // Validate: --save-proofs is only valid with --action prove
+    if cli.save_proofs.is_some() && !matches!(action, Action::Prove) {
+        anyhow::bail!("--save-proofs is only valid with --action prove");
+    }
+
+    let proofs_folder = cli.proofs_folder;
     let bin_path = cli.bin_path.as_deref();
     let config_base = RunConfig {
         output_folder: cli.output_folder,
@@ -65,6 +71,7 @@ async fn main() -> Result<()> {
         force_rerun: cli.force_rerun,
         dump_inputs_folder: cli.dump_inputs,
         zisk_profile_config,
+        save_proofs_folder: cli.save_proofs,
     };
 
     match cli.guest_program {
@@ -77,9 +84,6 @@ async fn main() -> Result<()> {
                 input_folder.display()
             );
             let el: stateless_validator::ExecutionClient = execution_client.into();
-            let guest_io =
-                stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
-                    .context("Failed to get stateless validator inputs")?;
 
             let el_name = el.as_ref().to_lowercase();
             let el_str = format!("{}-{}", el_name, el.version());
@@ -92,20 +96,42 @@ async fn main() -> Result<()> {
                 ..config_base
             };
 
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config, &guest_io)?;
+            match action {
+                Action::Verify => {
+                    for zkvm in &zkvms {
+                        run_verify_from_disk(zkvm, &config, &proofs_folder)?;
+                    }
+                }
+                _ => {
+                    let guest_io =
+                        stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
+                            .context("Failed to get stateless validator inputs")?;
+
+                    for zkvm in &zkvms {
+                        run_benchmark(zkvm, &config, &guest_io)?;
+                    }
+                }
             }
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let guest_io = empty_program::empty_program_input()
-                .context("Failed to create empty program input")?;
             let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource, bin_path)
                 .await
                 .context("Failed to get guest zkvm instances")?;
 
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config_base, [&guest_io])?;
+            match action {
+                Action::Verify => {
+                    for zkvm in &zkvms {
+                        run_verify_from_disk(zkvm, &config_base, &proofs_folder)?;
+                    }
+                }
+                _ => {
+                    let guest_io = empty_program::empty_program_input()
+                        .context("Failed to create empty program input")?;
+                    for zkvm in zkvms {
+                        run_benchmark(&zkvm, &config_base, [&guest_io])?;
+                    }
+                }
             }
         }
         GuestProgramCommand::BlockEncodingLength {
@@ -119,19 +145,28 @@ async fn main() -> Result<()> {
                 input_folder.display(),
                 loop_count
             );
-            let guest_io = block_encoding_length_program::block_encoding_length_inputs(
-                input_folder.as_path(),
-                loop_count,
-                format.into(),
-            )
-            .context("Failed to get block encoding length inputs")?;
             let zkvms =
                 get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource, bin_path)
                     .await
                     .context("Failed to get block encoding length zkvm instances")?;
 
-            for zkvm in zkvms {
-                run_benchmark(&zkvm, &config_base, &guest_io)?;
+            match action {
+                Action::Verify => {
+                    for zkvm in &zkvms {
+                        run_verify_from_disk(zkvm, &config_base, &proofs_folder)?;
+                    }
+                }
+                _ => {
+                    let guest_io = block_encoding_length_program::block_encoding_length_inputs(
+                        input_folder.as_path(),
+                        loop_count,
+                        format.into(),
+                    )
+                    .context("Failed to get block encoding length inputs")?;
+                    for zkvm in zkvms {
+                        run_benchmark(&zkvm, &config_base, &guest_io)?;
+                    }
+                }
             }
         }
     }

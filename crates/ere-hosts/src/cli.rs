@@ -41,6 +41,14 @@ pub struct Cli {
     #[arg(long)]
     pub dump_inputs: Option<PathBuf>,
 
+    /// Save generated proofs to the specified folder (only valid with --action prove)
+    #[arg(long)]
+    pub save_proofs: Option<PathBuf>,
+
+    /// Folder containing saved proofs (used with --action verify)
+    #[arg(long, default_value = "zkevm-fixtures-proofs")]
+    pub proofs_folder: PathBuf,
+
     /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
     /// from the latest ere-guests release.
     #[arg(long)]
@@ -131,6 +139,8 @@ pub enum BenchmarkAction {
     Execute,
     /// Create a zkVM proof
     Prove,
+    /// Verify proofs loaded from disk
+    Verify,
 }
 
 impl From<Resource> for ProverResourceType {
@@ -147,6 +157,7 @@ impl From<BenchmarkAction> for Action {
         match action {
             BenchmarkAction::Execute => Self::Execute,
             BenchmarkAction::Prove => Self::Prove,
+            BenchmarkAction::Verify => Self::Verify,
         }
     }
 }
