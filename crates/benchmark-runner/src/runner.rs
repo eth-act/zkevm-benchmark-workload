@@ -13,9 +13,29 @@ use ere_zkvm_interface::{zkVM, ProofKind, ProverResourceType};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
+use crate::zisk_profiling::run_profiling;
+
+pub use crate::zisk_profiling::ProfileConfig;
 
 /// Default version tag for guest programs
 const DEFAULT_GUEST_VERSION: &str = "v0.5.0";
+
+/// A zkVM instance bundled with ELF bytes (used for profiling).
+pub struct ZkVMInstance {
+    /// The dockerized zkVM instance
+    pub zkvm: DockerizedzkVM,
+    /// Raw ELF bytes of the guest program
+    pub elf: Vec<u8>,
+}
+
+impl std::fmt::Debug for ZkVMInstance {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_struct("ZkVMInstance")
+            .field("zkvm", &self.zkvm.name())
+            .field("elf_len", &self.elf.len())
+            .finish()
+    }
+}
 
 /// Holds the configuration for running benchmarks
 #[derive(Debug, Clone)]
@@ -30,6 +50,8 @@ pub struct RunConfig {
     pub force_rerun: bool,
     /// Optional folder to dump input files
     pub dump_inputs_folder: Option<PathBuf>,
+    /// Optional Zisk profiling configuration
+    pub zisk_profile_config: Option<ProfileConfig>,
 }
 
 /// Action specifies whether we should prove or execute
@@ -43,26 +65,34 @@ pub enum Action {
 
 /// Executes benchmarks for a given guest program type and zkVM
 pub fn run_benchmark(
-    ere_zkvm: &DockerizedzkVM,
+    instance: &ZkVMInstance,
     config: &RunConfig,
     inputs: impl IntoParallelIterator<Item: GuestFixture> + IntoIterator<Item: GuestFixture>,
 ) -> Result<()> {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
+
+    let zkvm = &instance.zkvm;
+    let elf = &instance.elf;
     match config.action {
         Action::Execute => inputs
             .into_par_iter()
-            .try_for_each(|input| process_input(ere_zkvm, input, config))?,
+            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
 
         Action::Prove => inputs
             .into_iter()
-            .try_for_each(|input| process_input(ere_zkvm, input, config))?,
+            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
     }
 
     Ok(())
 }
 
 /// Processes a single input through the zkVM
-fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfig) -> Result<()> {
+fn process_input(
+    zkvm: &DockerizedzkVM,
+    io: impl GuestFixture,
+    config: &RunConfig,
+    elf: &[u8],
+) -> Result<()> {
     let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
     let out_path = config
         .output_folder
@@ -89,6 +119,17 @@ fn process_input(zkvm: &DockerizedzkVM, io: impl GuestFixture, config: &RunConfi
     info!("Running {}", io.name());
     let (execution, proving) = match config.action {
         Action::Execute => {
+            // Run Zisk profiling if configured
+            if let Some(profile_config) = &config.zisk_profile_config {
+                run_profiling(
+                    profile_config,
+                    elf,
+                    input.stdin(),
+                    &io.name(),
+                    config.sub_folder.as_deref(),
+                )?;
+            }
+
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
@@ -170,45 +211,50 @@ pub async fn get_el_zkvm_instances(
     zkvms: &[zkVMKind],
     resource: ProverResourceType,
     bin_path: Option<&Path>,
-) -> Result<Vec<DockerizedzkVM>> {
-    let artifact_name_prefix = format!("stateless-validator-{el}");
-    get_guest_zkvm_instances(&artifact_name_prefix, zkvms, resource, bin_path).await
+) -> Result<Vec<ZkVMInstance>> {
+    let guest_name_prefix = format!("stateless-validator-{el}");
+    get_guest_zkvm_instances(&guest_name_prefix, zkvms, resource, bin_path).await
 }
 
 /// Creates the requested guest program zkVMs ere instances.
 pub async fn get_guest_zkvm_instances(
-    artifact_name_prefix: &str,
+    guest_name_prefix: &str,
     zkvms: &[zkVMKind],
     resource: ProverResourceType,
     bin_path: Option<&Path>,
-) -> Result<Vec<DockerizedzkVM>> {
+) -> Result<Vec<ZkVMInstance>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
-        let artifact_name = format!("{}-{}", artifact_name_prefix, zkvm.as_str());
-        let program = load_program(&artifact_name, bin_path).await?;
+        let guest_name = format!("{}-{}", guest_name_prefix, zkvm.as_str());
+        let (program, elf) = load_program(&guest_name, bin_path).await?;
         let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
             .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
-        instances.push(zkvm);
+        instances.push(ZkVMInstance { zkvm, elf });
     }
     Ok(instances)
 }
 
-async fn load_program(artifact_name: &str, bin_path: Option<&Path>) -> Result<SerializedProgram> {
+async fn load_program(
+    guest_name: &str,
+    bin_path: Option<&Path>,
+) -> Result<(SerializedProgram, Vec<u8>)> {
     if let Some(path) = bin_path {
-        let bytes = fs::read(path.join(artifact_name))
+        let bytes = fs::read(path.join(guest_name))
             .with_context(|| format!("Failed to read program from path: {}", path.display()))?;
-        return Ok(SerializedProgram(bytes));
+        let elf = fs::read(path.join(format!("{guest_name}.elf")))
+            .with_context(|| format!("Failed to read ELF from path: {}", path.display()))?;
+        return Ok((SerializedProgram(bytes), elf));
     }
 
     let downloader = Downloader::from_tag(DEFAULT_GUEST_VERSION)
         .await
         .context("Failed to create guest program downloader")?;
     let compiled = downloader
-        .download(artifact_name)
+        .download(guest_name)
         .await
-        .with_context(|| format!("Failed to download guest program: {artifact_name}"))?;
+        .with_context(|| format!("Failed to download guest program: {guest_name}"))?;
 
-    Ok(SerializedProgram(compiled.program))
+    Ok((SerializedProgram(compiled.program), compiled.elf))
 }
 
 /// Dumps the raw input bytes to disk

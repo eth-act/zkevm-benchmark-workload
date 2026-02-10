@@ -2,12 +2,16 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use anyhow::{Context, Result};
+use anyhow::{Context, Result, bail};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
-    runner::{Action, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances, run_benchmark},
+    runner::{
+        Action, ProfileConfig, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances,
+        run_benchmark,
+    },
     stateless_validator::{self},
 };
+use ere_dockerized::zkVMKind;
 
 use clap::Parser;
 use ere_zkvm_interface::ProverResourceType;
@@ -26,12 +30,32 @@ async fn main() -> Result<()> {
 
     let cli = Cli::parse();
 
+    if cli.zisk_profile {
+        if !matches!(cli.action, cli::BenchmarkAction::Execute) {
+            bail!(
+                "--zisk-profile requires --action execute, but got {:?}",
+                cli.action
+            );
+        }
+        if cli.zkvms.len() != 1 || cli.zkvms[0] != zkVMKind::Zisk {
+            let zkvm_names: Vec<_> = cli.zkvms.iter().map(|z| z.as_str()).collect();
+            bail!(
+                "--zisk-profile requires --zkvms zisk only, but got: {}",
+                zkvm_names.join(", ")
+            );
+        }
+    }
+
     let resource: ProverResourceType = cli.resource.into();
     let action: Action = cli.action.into();
     info!(
         "Running benchmarks with resource={:?} and action={:?}",
         resource, action
     );
+
+    let zisk_profile_config = cli
+        .zisk_profile
+        .then(|| ProfileConfig::new(cli.zisk_profile_output.clone()));
 
     let bin_path = cli.bin_path.as_deref();
     let config_base = RunConfig {
@@ -40,6 +64,7 @@ async fn main() -> Result<()> {
         action,
         force_rerun: cli.force_rerun,
         dump_inputs_folder: cli.dump_inputs,
+        zisk_profile_config,
     };
 
     match cli.guest_program {

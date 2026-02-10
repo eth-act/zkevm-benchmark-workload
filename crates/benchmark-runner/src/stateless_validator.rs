@@ -11,6 +11,7 @@ use ere_guests_stateless_validator_ethrex::guest::{
 use ere_guests_stateless_validator_reth::guest::{
     StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
+use rayon::iter::IntoParallelRefIterator;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use serde::{Deserialize, Serialize};
 use std::path::Path;
@@ -92,7 +93,7 @@ pub fn reth_inputs_from_fixture(
     fixtures: &[StatelessValidationFixture],
 ) -> Result<Vec<Box<dyn GuestFixture>>> {
     fixtures
-        .iter()
+        .par_iter()
         .map(|bw| {
             info!(
                 "Preparing Reth stateless validator input for fixture {}",
