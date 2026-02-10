@@ -7,9 +7,10 @@ use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{
         Action, ProfileConfig, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances,
-        run_benchmark, run_verify_from_disk,
+        run_benchmark,
     },
     stateless_validator::{self},
+    verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
 };
 use ere_dockerized::zkVMKind;
 
@@ -62,7 +63,20 @@ async fn main() -> Result<()> {
         anyhow::bail!("--save-proofs is only valid with --action prove");
     }
 
-    let proofs_folder = cli.proofs_folder;
+    // Validate: --proofs-url is only valid with --action verify
+    if cli.proofs_url.is_some() && !matches!(action, Action::Verify) {
+        anyhow::bail!("--proofs-url is only valid with --action verify");
+    }
+
+    // Resolve proofs source: download from URL or use local folder.
+    // _proofs_tmpdir must live until verification completes (drop = cleanup).
+    let (_proofs_tmpdir, proofs_folder) = if let Some(ref url) = cli.proofs_url {
+        let tmp = download_and_extract_proofs(url).await?;
+        let resolved = resolve_extracted_root(tmp.path())?;
+        (Some(tmp), resolved)
+    } else {
+        (None, cli.proofs_folder)
+    };
     let bin_path = cli.bin_path.as_deref();
     let config_base = RunConfig {
         output_folder: cli.output_folder,
@@ -94,8 +108,8 @@ async fn main() -> Result<()> {
 
             match action {
                 Action::Verify => {
-                    for zkvm in &zkvms {
-                        run_verify_from_disk(zkvm, &config, &proofs_folder)?;
+                    for instance in &zkvms {
+                        run_verify_from_disk(&instance.zkvm, &config, &proofs_folder)?;
                     }
                 }
                 _ => {
@@ -121,8 +135,8 @@ async fn main() -> Result<()> {
 
             match action {
                 Action::Verify => {
-                    for zkvm in &zkvms {
-                        run_verify_from_disk(zkvm, &config_base, &proofs_folder)?;
+                    for instance in &zkvms {
+                        run_verify_from_disk(&instance.zkvm, &config_base, &proofs_folder)?;
                     }
                 }
                 _ => {
@@ -152,8 +166,8 @@ async fn main() -> Result<()> {
 
             match action {
                 Action::Verify => {
-                    for zkvm in &zkvms {
-                        run_verify_from_disk(zkvm, &config_base, &proofs_folder)?;
+                    for instance in &zkvms {
+                        run_verify_from_disk(&instance.zkvm, &config_base, &proofs_folder)?;
                     }
                 }
                 _ => {

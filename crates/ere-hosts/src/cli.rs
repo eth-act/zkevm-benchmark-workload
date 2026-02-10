@@ -46,8 +46,16 @@ pub struct Cli {
     pub save_proofs: Option<PathBuf>,
 
     /// Folder containing saved proofs (used with --action verify)
-    #[arg(long, default_value = "zkevm-fixtures-proofs")]
+    #[arg(
+        long,
+        default_value = "zkevm-fixtures-proofs",
+        conflicts_with = "proofs_url"
+    )]
     pub proofs_folder: PathBuf,
+
+    /// URL to a .tar.gz archive containing proofs (used with --action verify).
+    #[arg(long, conflicts_with = "proofs_folder")]
+    pub proofs_url: Option<String>,
 
     /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
     /// from the latest ere-guests release.
