@@ -79,10 +79,6 @@ async fn main() -> Result<()> {
             input_folder,
             execution_client,
         } => {
-            info!(
-                "Running stateless-validator benchmark for input folder: {}",
-                input_folder.display()
-            );
             let el: stateless_validator::ExecutionClient = execution_client.into();
 
             let el_name = el.as_ref().to_lowercase();
@@ -103,6 +99,10 @@ async fn main() -> Result<()> {
                     }
                 }
                 _ => {
+                    info!(
+                        "Running stateless-validator benchmark for input folder: {}",
+                        input_folder.display()
+                    );
                     let guest_io =
                         stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
                             .context("Failed to get stateless validator inputs")?;
