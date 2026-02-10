@@ -350,15 +350,31 @@ pub fn run_verify_from_disk(
         return Ok(());
     }
 
-    for entry in walkdir::WalkDir::new(&proof_dir)
+    let proof_entries: Vec<_> = walkdir::WalkDir::new(&proof_dir)
         .min_depth(1)
         .max_depth(1)
+        .sort_by_file_name()
         .into_iter()
         .filter_map(|e| e.ok())
         .filter(|e| {
             e.file_type().is_file() && e.path().extension().is_some_and(|ext| ext == "proof")
         })
-    {
+        .collect();
+
+    // Warmup pass: verify the first proof to warm up the zkVM setup (if any).
+    if let Some(first) = proof_entries.first() {
+        info!(
+            "Warmup: verifying {} (result will be discarded)",
+            first.path().display()
+        );
+        let proof_bytes = fs::read(first.path())
+            .with_context(|| format!("Failed to read proof from {}", first.path().display()))?;
+        let proof = ere_zkvm_interface::Proof::new(ProofKind::Compressed, proof_bytes);
+        let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| ere_zkvm.verify(&proof)));
+        info!("Warmup complete");
+    }
+
+    for entry in &proof_entries {
         let fixture_name = entry
             .path()
             .file_stem()
