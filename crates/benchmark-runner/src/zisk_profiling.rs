@@ -18,7 +18,7 @@ pub struct ProfileConfig {
 
 impl ProfileConfig {
     /// Creates a new `ProfileConfig`, using the build-time ERE tag or an explicit override.
-    pub fn new(output_folder: PathBuf) -> Self {
+    pub const fn new(output_folder: PathBuf) -> Self {
         Self { output_folder }
     }
 }
