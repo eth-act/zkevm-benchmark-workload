@@ -146,7 +146,7 @@ def parse_profile(filepath: Path, verbose: bool = False) -> Optional[ProfileData
                 parts = line.split()
                 if len(parts) >= 11 and not parts[0].startswith("-"):
                     try:
-                        name = parts[0]
+                        name = parts[0].lower()
                         # parts[1] = INDEX, parts[2] = COUNT, parts[3] = STEPS, parts[4] = STEPS%
                         # parts[5] = TOTAL COST, parts[6] = %, parts[7] = MAIN COST, parts[8] = OPCODE COST
                         # parts[9] = PRECOMPILE COST, parts[10] = MEMORY COST
@@ -186,11 +186,24 @@ def compute_statistics(values: List[float]) -> Dict[str, float]:
             "std_dev": 0,
         }
 
+    sorted_vals = sorted(values)
+
+    def _percentile(sv: list, pct: float) -> float:
+        if len(sv) < 2:
+            return sv[0]
+        rank = pct * (len(sv) - 1)
+        lo = int(rank)
+        hi = min(lo + 1, len(sv) - 1)
+        frac = rank - lo
+        return sv[lo] + frac * (sv[hi] - sv[lo])
+
     result = {
         "count": len(values),
         "sum": sum(values),
         "mean": statistics.mean(values),
         "median": statistics.median(values),
+        "p5": _percentile(sorted_vals, 0.05),
+        "p95": _percentile(sorted_vals, 0.95),
         "min": min(values),
         "max": max(values),
         "std_dev": statistics.stdev(values) if len(values) > 1 else 0,
@@ -283,7 +296,9 @@ def aggregate_profiles(profiles: List[ProfileData]) -> Dict:
     return result
 
 
-def generate_markdown_report(aggregated: Dict, directory: str) -> str:
+def generate_markdown_report(
+    aggregated: Dict, directory: str, ignore_zones: Optional[set] = None
+) -> str:
     """Generate a Markdown report from aggregated data."""
     lines = []
 
@@ -308,9 +323,14 @@ def generate_markdown_report(aggregated: Dict, directory: str) -> str:
     )
     lines.append("|-------|----------|-------|--------|-----|-----|---------|")
 
-    # Sort by average cost descending
+    # Sort by average cost descending, filtering ignored zones
+    mark_ids = aggregated["mark_ids"]
+    if ignore_zones:
+        mark_ids = {
+            k: v for k, v in mark_ids.items() if k.lower() not in ignore_zones
+        }
     sorted_mark_ids = sorted(
-        aggregated["mark_ids"].items(),
+        mark_ids.items(),
         key=lambda x: x[1]["total_cost"]["mean"],
         reverse=True,
     )
@@ -399,6 +419,108 @@ def generate_markdown_report(aggregated: Dict, directory: str) -> str:
     return "\n".join(lines)
 
 
+def generate_scope_plot(
+    aggregated: Dict, output_path: str, ignore_zones: Optional[set] = None
+) -> None:
+    """Generate a per-scope cost variability plot (two subplots).
+
+    Top: mean cost per scope with min/max whiskers and median marker.
+    Bottom: coefficient of variation (std_dev/mean) per scope.
+    """
+    try:
+        import matplotlib.pyplot as plt
+        import numpy as np
+    except ImportError:
+        print(
+            "Error: matplotlib and numpy are required for plot generation.\n"
+            "Install with: pip install matplotlib numpy",
+            file=sys.stderr,
+        )
+        sys.exit(1)
+
+    mark_ids = aggregated.get("mark_ids", {})
+    if ignore_zones:
+        mark_ids = {
+            k: v for k, v in mark_ids.items() if k.lower() not in ignore_zones
+        }
+    if not mark_ids:
+        print("Warning: No MARK_ID data to plot.", file=sys.stderr)
+        return
+
+    # Sort by mean total_cost descending
+    sorted_items = sorted(
+        mark_ids.items(),
+        key=lambda x: x[1]["total_cost"]["mean"],
+        reverse=True,
+    )
+
+    names = [name for name, _ in sorted_items]
+    means = [d["total_cost"]["mean"] for _, d in sorted_items]
+    medians = [d["total_cost"]["median"] for _, d in sorted_items]
+    p5s = [d["total_cost"]["p5"] for _, d in sorted_items]
+    p95s = [d["total_cost"]["p95"] for _, d in sorted_items]
+    mins = [d["total_cost"]["min"] for _, d in sorted_items]
+    maxs = [d["total_cost"]["max"] for _, d in sorted_items]
+    # Reverse so highest-cost scope is at the top of the horizontal bar chart
+    names = names[::-1]
+    means = means[::-1]
+    medians = medians[::-1]
+    p5s = p5s[::-1]
+    p95s = p95s[::-1]
+    mins = mins[::-1]
+    maxs = maxs[::-1]
+
+    y_pos = np.arange(len(names))
+
+    # Asymmetric error bars: left = mean - min, right = max - mean
+    xerr_low = [m - lo for m, lo in zip(means, mins)]
+    xerr_high = [hi - m for hi, m in zip(maxs, means)]
+
+    fig, ax_top = plt.subplots(
+        figsize=(12, max(6, len(names) * 0.45)),
+    )
+
+    # ── Mean cost with min/max whiskers + median marker ──
+    ax_top.barh(
+        y_pos, means,
+        color="#b0c4de", alpha=0.7, edgecolor="#8faabe", label="Mean",
+    )
+    ax_top.errorbar(
+        means, y_pos,
+        xerr=[xerr_low, xerr_high],
+        fmt="none", ecolor="#555555", elinewidth=1.0, capsize=4,
+        label="Min–Max range",
+    )
+    ax_top.scatter(
+        medians, y_pos,
+        marker="D", color="#d62728", zorder=5, s=50, edgecolors="white",
+        linewidths=0.8, label="Median",
+    )
+    ax_top.scatter(
+        p5s, y_pos,
+        marker="<", color="#1a9850", zorder=5, s=45, edgecolors="white",
+        linewidths=0.8, label="P5",
+    )
+    ax_top.scatter(
+        p95s, y_pos,
+        marker=">", color="#7b2d8e", zorder=5, s=45, edgecolors="white",
+        linewidths=0.8, label="P95",
+    )
+
+    ax_top.set_yticks(y_pos)
+    ax_top.set_yticklabels(names, fontsize=9)
+    ax_top.set_xscale("log")
+    ax_top.set_xlabel("Cost (log scale)")
+    ax_top.set_title("Per-Scope Cost: Mean with Min/Max Range, P5/P95")
+    ax_top.legend(loc="lower right", fontsize=8)
+    ax_top.grid(axis="x", alpha=0.3)
+
+    plt.tight_layout()
+    fig.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close(fig)
+    print(f"Plot saved to {output_path}", file=sys.stderr)
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Analyze Zisk profiling outputs and generate an aggregate summary.",
@@ -421,6 +543,21 @@ def main():
         "-v",
         action="store_true",
         help="Show verbose output during parsing",
+    )
+    parser.add_argument(
+        "--plot",
+        nargs="?",
+        const="",
+        default=None,
+        help="Generate a per-scope variability plot (PNG). "
+        "Optionally provide output path; defaults to <directory>/scope_variability.png",
+    )
+    parser.add_argument(
+        "--ignore-zones",
+        type=str,
+        default=None,
+        help="Comma-separated list of zone names to exclude from report and plot (case-insensitive). "
+        "Example: --ignore-zones stf,pre_state_validation",
     )
 
     args = parser.parse_args()
@@ -458,9 +595,14 @@ def main():
     if args.verbose:
         print(f"Successfully parsed {len(profiles)} profiles", file=sys.stderr)
 
+    # Parse ignore zones
+    ignore_zones = set()
+    if args.ignore_zones:
+        ignore_zones = {z.strip().lower() for z in args.ignore_zones.split(",")}
+
     # Aggregate and generate report
     aggregated = aggregate_profiles(profiles)
-    report = generate_markdown_report(aggregated, str(directory))
+    report = generate_markdown_report(aggregated, str(directory), ignore_zones=ignore_zones)
 
     # Output
     if args.output:
@@ -469,6 +611,11 @@ def main():
         print(f"Report written to {output_path}", file=sys.stderr)
     else:
         print(report)
+
+    # Plot
+    if args.plot is not None:
+        plot_path = args.plot if args.plot else str(directory / "scope_variability.png")
+        generate_scope_plot(aggregated, plot_path, ignore_zones=ignore_zones)
 
 
 if __name__ == "__main__":
