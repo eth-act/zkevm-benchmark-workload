@@ -7,7 +7,7 @@ use std::{env, fs};
 use tracing::info;
 
 /// ERE commit hash extracted from `Cargo.lock` at build time.
-const DEFAULT_ERE_TAG: &str = env!("ERE_TAG");
+const DEFAULT_ERE_TAG: &str = ere_dockerized::DOCKER_IMAGE_TAG;
 
 /// Configuration for Zisk profiling.
 #[derive(Debug, Clone)]
@@ -17,7 +17,7 @@ pub struct ProfileConfig {
 }
 
 impl ProfileConfig {
-    /// Creates a new `ProfileConfig`, using the build-time ERE tag or an explicit override.
+    /// Creates a new `ProfileConfig`.
     pub const fn new(output_folder: PathBuf) -> Self {
         Self { output_folder }
     }
