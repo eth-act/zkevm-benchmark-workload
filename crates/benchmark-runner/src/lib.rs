@@ -10,3 +10,4 @@ pub mod stateless_validator;
 pub mod zisk_profiling;
 
 pub mod runner;
+pub mod verification;

@@ -52,6 +52,8 @@ pub struct RunConfig {
     pub dump_inputs_folder: Option<PathBuf>,
     /// Optional Zisk profiling configuration
     pub zisk_profile_config: Option<ProfileConfig>,
+    /// Optional folder to save proof artifacts for later verification
+    pub save_proofs_folder: Option<PathBuf>,
 }
 
 /// Action specifies whether we should prove or execute
@@ -61,6 +63,8 @@ pub enum Action {
     Prove,
     /// Only execute the zkVM without proving
     Execute,
+    /// Verify proofs loaded from disk
+    Verify,
 }
 
 /// Executes benchmarks for a given guest program type and zkVM
@@ -81,6 +85,12 @@ pub fn run_benchmark(
         Action::Prove => inputs
             .into_iter()
             .try_for_each(|input| process_input(zkvm, input, config, elf))?,
+
+        Action::Verify => {
+            return Err(anyhow!(
+                "run_benchmark should not be called with Action::Verify, use run_verify_from_disk"
+            ))
+        }
     }
 
     Ok(())
@@ -159,6 +169,18 @@ fn process_input(
                 Ok(Ok((public_values, proof, report))) => {
                     verify_public_output(&io, &public_values)
                         .context("Failed to verify public output from proof")?;
+
+                    // Save proof to disk if requested
+                    if let Some(ref proofs_folder) = config.save_proofs_folder {
+                        save_proof(
+                            &proof,
+                            &io.name(),
+                            &zkvm_name,
+                            proofs_folder,
+                            config.sub_folder.as_deref(),
+                        )?;
+                    }
+
                     let verify_start = std::time::Instant::now();
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
@@ -181,6 +203,11 @@ fn process_input(
             };
             (None, Some(proving))
         }
+        Action::Verify => {
+            return Err(anyhow!(
+                "process_input should not be called with Action::Verify, use run_verify_from_disk"
+            ))
+        }
     };
 
     let report = BenchmarkRun {
@@ -189,6 +216,7 @@ fn process_input(
         metadata: io.metadata(),
         execution,
         proving,
+        verification: None,
     };
 
     info!("Saving report {}", io.name());
@@ -197,7 +225,7 @@ fn process_input(
     Ok(())
 }
 
-fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
+pub(crate) fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
     panic_info
         .downcast_ref::<&str>()
         .map(|s| s.to_string())
@@ -277,6 +305,27 @@ fn dump_input(
             .with_context(|| format!("Failed to write input to {}", input_path.display()))?;
         info!("Dumped input to {}", input_path.display());
     }
+
+    Ok(())
+}
+
+/// Saves a proof's raw bytes to disk
+fn save_proof(
+    proof: &ere_zkvm_interface::Proof,
+    name: &str,
+    zkvm_name: &str,
+    proofs_folder: &Path,
+    sub_folder: Option<&str>,
+) -> Result<()> {
+    let proof_dir = proofs_folder.join(sub_folder.unwrap_or("")).join(zkvm_name);
+
+    fs::create_dir_all(&proof_dir)
+        .with_context(|| format!("Failed to create directory: {}", proof_dir.display()))?;
+
+    let proof_path = proof_dir.join(format!("{name}.proof"));
+    fs::write(&proof_path, proof.as_bytes())
+        .with_context(|| format!("Failed to write proof to {}", proof_path.display()))?;
+    info!("Saved proof to {}", proof_path.display());
 
     Ok(())
 }

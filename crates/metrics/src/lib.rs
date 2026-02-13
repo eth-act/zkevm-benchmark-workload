@@ -23,6 +23,10 @@ pub struct BenchmarkRun<Metadata> {
     /// Proving metrics for the benchmark run.
     #[serde(skip_serializing_if = "Option::is_none")]
     pub proving: Option<ProvingMetrics>,
+    /// Standalone verification metrics for the benchmark run.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(default)]
+    pub verification: Option<VerificationMetrics>,
 }
 
 /// Hardware specs of the benchmark runner.
@@ -135,6 +139,21 @@ pub enum ProvingMetrics {
     Crashed(CrashInfo),
 }
 
+/// Metrics for standalone verification workloads, either successful or crashed.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum VerificationMetrics {
+    /// Metrics for a successful verification workload.
+    Success {
+        /// Proof size in bytes.
+        proof_size: usize,
+        /// Verification time in milliseconds.
+        verification_time_ms: u128,
+    },
+    /// Metrics for a crashed verification workload.
+    Crashed(CrashInfo),
+}
+
 /// Errors that can occur during metrics processing.
 #[derive(Error, Debug)]
 pub enum MetricsError {
@@ -242,6 +261,7 @@ mod tests {
                     execution_duration: Duration::from_millis(150),
                 }),
                 proving: None,
+                verification: None,
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
@@ -263,6 +283,7 @@ mod tests {
                     proving_time_ms: 2_000,
                     verification_time_ms: 200,
                 }),
+                verification: None,
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
@@ -276,6 +297,7 @@ mod tests {
                     proving_time_ms: 5_000,
                     verification_time_ms: 500,
                 }),
+                verification: None,
             },
         ]
     }
@@ -322,6 +344,7 @@ mod tests {
                 execution_duration: Duration::from_millis(150),
             }),
             proving: None,
+            verification: None,
         };
 
         assert_eq!(benchmark_run.name, "test_benchmark");
@@ -349,6 +372,7 @@ mod tests {
                 proving_time_ms: 1500,
                 verification_time_ms: 150,
             }),
+            verification: None,
         };
         let json = BenchmarkRun::to_json(std::slice::from_ref(&bench)).expect("serialize mixed");
         let parsed = BenchmarkRun::from_json(&json).expect("deserialize mixed");

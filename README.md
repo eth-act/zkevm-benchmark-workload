@@ -123,6 +123,51 @@ cargo run --release -- --zkvms sp1 --dump-inputs debug-inputs stateless-validato
 
 Note: Input files are zkVM-independent (the same input is used across all zkVMs), so they're only written once even when benchmarking multiple zkVMs.
 
+### Proof Generation & Verification
+
+The benchmark runner supports a decoupled prove/verify workflow using the `--action` flag. This allows generating proofs on one machine and verifying them on another.
+
+**Actions:**
+- `--action execute` (default): Only execute the zkVM, no proof generation.
+- `--action prove`: Execute and generate a zkVM proof, with optional proof persistence via `--save-proofs`.
+- `--action verify`: Verify pre-generated proofs loaded from disk or a remote URL.
+
+**Step 1: Generate and save proofs**
+
+```bash
+cd crates/ere-hosts
+
+# Prove and save proof artifacts to a folder
+cargo run --release -- --zkvms sp1 --action prove --save-proofs my-proofs \
+    stateless-validator --execution-client reth
+```
+
+This creates proof files in the following structure:
+```
+my-proofs/
+└── reth-v1.10.2/
+    └── sp1-v4.0.0/
+        ├── fixture1.proof
+        └── fixture2.proof
+```
+
+**Step 2: Verify proofs**
+
+From a local folder:
+```bash
+cargo run --release -- --zkvms sp1 --action verify --proofs-folder my-proofs \
+    stateless-validator --execution-client reth
+```
+
+From a remote `.tar.gz` archive (e.g., hosted on GitHub releases or S3):
+```bash
+cargo run --release -- --zkvms sp1 --action verify \
+    --proofs-url https://example.com/proofs.tar.gz \
+    stateless-validator --execution-client reth
+```
+
+When using `--proofs-url`, the archive is downloaded and extracted to a temporary directory that is cleaned up after verification completes. The `.tar.gz` should contain the same folder structure as `--save-proofs` produces.
+
 ## License
 
 Licensed under either of
