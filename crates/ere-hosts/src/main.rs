@@ -86,6 +86,7 @@ async fn main() -> Result<()> {
         dump_inputs_folder: cli.dump_inputs,
         zisk_profile_config,
         save_proofs_folder: cli.save_proofs,
+        warmup_rounds: cli.warmup_rounds,
     };
 
     match cli.guest_program {

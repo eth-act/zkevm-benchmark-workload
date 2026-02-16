@@ -40,17 +40,21 @@ pub fn run_verify_from_disk(
         })
         .collect();
 
-    // Warmup pass: verify the first proof to warm up the zkVM setup (if any).
-    if let Some(first) = proof_entries.first() {
+    // Warmup passes: run full verification rounds to warm up the zkVM.
+    for round in 1..=config.warmup_rounds {
         info!(
-            "Warmup: verifying {} (result will be discarded)",
-            first.path().display()
+            "Warmup round {}/{}: verifying all proofs (results will be discarded)",
+            round, config.warmup_rounds
         );
-        let proof_bytes = fs::read(first.path())
-            .with_context(|| format!("Failed to read proof from {}", first.path().display()))?;
-        let proof = ere_zkvm_interface::Proof::new(ProofKind::Compressed, proof_bytes);
-        let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.verify(&proof)));
-        info!("Warmup complete");
+        for entry in &proof_entries {
+            let proof_bytes = fs::read(entry.path())
+                .with_context(|| format!("Failed to read proof from {}", entry.path().display()))?;
+            let proof = ere_zkvm_interface::Proof::new(ProofKind::Compressed, proof_bytes);
+            let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.verify(&proof)));
+        }
+    }
+    if config.warmup_rounds > 0 {
+        info!("Warmup complete ({} rounds)", config.warmup_rounds);
     }
 
     for entry in &proof_entries {

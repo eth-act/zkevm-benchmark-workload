@@ -54,6 +54,8 @@ pub struct RunConfig {
     pub zisk_profile_config: Option<ProfileConfig>,
     /// Optional folder to save proof artifacts for later verification
     pub save_proofs_folder: Option<PathBuf>,
+    /// Number of full warmup passes before measured verification
+    pub warmup_rounds: u32,
 }
 
 /// Action specifies whether we should prove or execute

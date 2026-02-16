@@ -62,6 +62,10 @@ pub struct Cli {
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
 
+    /// Number of full warmup passes before measured verification (used with --action verify)
+    #[arg(long, default_value_t = 3)]
+    pub warmup_rounds: u32,
+
     /// Enable Zisk profiling (requires --zkvms zisk, --action execute)
     #[arg(long)]
     pub zisk_profile: bool,
