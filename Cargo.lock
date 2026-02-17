@@ -1555,7 +1555,7 @@ dependencies = [
 [[package]]
 name = "block-encoding-length"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -2634,7 +2634,7 @@ dependencies = [
 [[package]]
 name = "downloader"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -2860,16 +2860,16 @@ dependencies = [
 
 [[package]]
 name = "ere-build-utils"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "cargo_metadata 0.19.2",
 ]
 
 [[package]]
 name = "ere-common"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "ere-build-utils",
  "serde",
@@ -2878,8 +2878,8 @@ dependencies = [
 
 [[package]]
 name = "ere-dockerized"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "anyhow",
  "ere-common",
@@ -2909,8 +2909,8 @@ dependencies = [
 
 [[package]]
 name = "ere-io"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "bincode 2.0.1",
  "rkyv",
@@ -2919,16 +2919,16 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-trait"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "digest 0.10.7",
 ]
 
 [[package]]
 name = "ere-server"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
@@ -2942,8 +2942,8 @@ dependencies = [
 
 [[package]]
 name = "ere-zkvm-interface"
-version = "0.2.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.2.0#a274f17c4a1a8843ccdb8febcf0ec56afb457745"
+version = "0.3.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.3.0#ffc0e230cf4387fb22eb755f0fb323b38294520f"
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -2951,7 +2951,6 @@ dependencies = [
  "clap",
  "indexmap 2.12.1",
  "serde",
- "serde-untagged",
  "strum 0.27.2",
  "thiserror 2.0.17",
 ]
@@ -3792,7 +3791,7 @@ dependencies = [
 [[package]]
 name = "guest"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "ere-io",
  "ere-platform-trait",
@@ -4452,7 +4451,7 @@ dependencies = [
 [[package]]
 name = "integration-tests"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "alloy-primitives",
  "ere-dockerized",
@@ -9147,18 +9146,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "serde-untagged"
-version = "0.1.9"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f9faf48a4a2d2693be24c6289dbe26552776eb7737074e6722891fadbe6c5058"
-dependencies = [
- "erased-serde",
- "serde",
- "serde_core",
- "typeid",
-]
-
-[[package]]
 name = "serde_arrays"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -9577,7 +9564,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stateless-validator-common"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9597,7 +9584,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-ethrex"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9622,7 +9609,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-reth"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=885398bc1478e777096a8456bc925b2ab28a8d0f#885398bc1478e777096a8456bc925b2ab28a8d0f"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.6.0#64c94bb3da631101a6cb2f276c89392cb7c3426f"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",

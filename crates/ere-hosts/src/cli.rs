@@ -3,7 +3,7 @@
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
-use ere_zkvm_interface::ProverResourceType;
+use ere_zkvm_interface::ProverResource;
 use std::path::PathBuf;
 
 /// Command line interface for the zkVM benchmarker
@@ -151,7 +151,7 @@ pub enum BenchmarkAction {
     Verify,
 }
 
-impl From<Resource> for ProverResourceType {
+impl From<Resource> for ProverResource {
     fn from(resource: Resource) -> Self {
         match resource {
             Resource::Cpu => Self::Cpu,
