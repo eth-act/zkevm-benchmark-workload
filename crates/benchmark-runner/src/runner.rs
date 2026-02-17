@@ -9,7 +9,7 @@ use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
 use tracing::info;
 
-use ere_zkvm_interface::{zkVM, ProofKind, ProverResourceType};
+use ere_zkvm_interface::{zkVM, ProofKind, ProverResource};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::{GuestFixture, OutputVerifierResult};
@@ -18,7 +18,7 @@ use crate::zisk_profiling::run_profiling;
 pub use crate::zisk_profiling::ProfileConfig;
 
 /// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.5.0";
+const DEFAULT_GUEST_VERSION: &str = "v0.6.0";
 
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub struct ZkVMInstance {
@@ -237,7 +237,7 @@ pub(crate) fn get_panic_msg(panic_info: Box<dyn Any + Send>) -> String {
 pub async fn get_el_zkvm_instances(
     el: &str,
     zkvms: &[zkVMKind],
-    resource: ProverResourceType,
+    resource: ProverResource,
     bin_path: Option<&Path>,
 ) -> Result<Vec<ZkVMInstance>> {
     let guest_name_prefix = format!("stateless-validator-{el}");
@@ -248,7 +248,7 @@ pub async fn get_el_zkvm_instances(
 pub async fn get_guest_zkvm_instances(
     guest_name_prefix: &str,
     zkvms: &[zkVMKind],
-    resource: ProverResourceType,
+    resource: ProverResource,
     bin_path: Option<&Path>,
 ) -> Result<Vec<ZkVMInstance>> {
     let mut instances = Vec::new();

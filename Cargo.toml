@@ -104,17 +104,17 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-act/ere", tag = "v0.2.0", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/eth-act/ere", tag = "v0.3.0", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.3.0", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-act/ere", tag = "v0.3.0", package = "ere-io" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "885398bc1478e777096a8456bc925b2ab28a8d0f", package = "downloader" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.6.0", package = "downloader" }
 
 ef-tests = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.10.2" }

@@ -15,7 +15,7 @@ use benchmark_runner::{
 use ere_dockerized::zkVMKind;
 
 use clap::Parser;
-use ere_zkvm_interface::ProverResourceType;
+use ere_zkvm_interface::ProverResource;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -47,7 +47,7 @@ async fn main() -> Result<()> {
         }
     }
 
-    let resource: ProverResourceType = cli.resource.into();
+    let resource: ProverResource = cli.resource.into();
     let action: Action = cli.action.into();
     info!(
         "Running benchmarks with resource={:?} and action={:?}",
