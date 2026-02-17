@@ -507,6 +507,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore = "requires external RPC service (set RPC_URL)"]
     async fn test_last_n_blocks() {
         if std::env::var("RPC_URL").is_err() {
             eprintln!("skipping test: set RPC_URL to run this test");
@@ -545,6 +546,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore = "requires external RPC service (set RPC_URL)"]
     async fn test_concrete_block_num() {
         if std::env::var("RPC_URL").is_err() {
             eprintln!("skipping test: set RPC_URL to run this test");
@@ -609,6 +611,7 @@ mod test {
     }
 
     #[tokio::test]
+    #[ignore = "requires external RPC service (set RPC_URL)"]
     async fn test_live_blocks() {
         if std::env::var("RPC_URL").is_err() {
             eprintln!("skipping test: set RPC_URL to run this test");
