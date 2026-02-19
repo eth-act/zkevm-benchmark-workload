@@ -3,13 +3,13 @@
 use async_trait::async_trait;
 use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
 use rayon::prelude::*;
-use reth_chainspec::{Chain, ChainSpec, blob_params_to_schedule, create_chain_config};
+use reth_chainspec::{Chain, blob_params_to_schedule, create_chain_config};
 use std::path::{Path, PathBuf};
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
-use reth_stateless::StatelessInput;
+use stateless::StatelessInput;
 
 /// Witness generator that produces `BlockAndWitness` fixtures for execution-spec-test fixtures.
 #[derive(Debug, Clone, Default)]
@@ -156,7 +156,7 @@ impl FixtureGenerator for EESTFixtureGenerator {
 }
 
 fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
-    let spec: ChainSpec = case.network.into();
+    let spec = case.network.to_chain_spec();
     let chain_config = create_chain_config(
         Some(Chain::mainnet()),
         &spec.hardforks,

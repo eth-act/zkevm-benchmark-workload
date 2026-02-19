@@ -6,7 +6,7 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
-reth-stateless.workspace = true
+stateless.workspace = true
 reth-chainspec.workspace = true
 reth-rpc-api = { workspace = true, features = ["client"] }
 reth-ethereum-primitives = { workspace = true, features = [

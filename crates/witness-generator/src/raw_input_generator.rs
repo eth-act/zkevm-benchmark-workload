@@ -22,8 +22,8 @@ use alloy_genesis::ChainConfig;
 use alloy_rpc_types_eth::Block;
 use async_trait::async_trait;
 use reth_ethereum_primitives::TransactionSigned;
-use reth_stateless::{ExecutionWitness, StatelessInput};
 use serde::Deserialize;
+use stateless::{ExecutionWitness, StatelessInput};
 use std::path::{Path, PathBuf};
 use tracing::{info, warn};
 
