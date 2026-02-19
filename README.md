@@ -47,7 +47,7 @@ This decoupling provides several benefits:
 2. **Generate Benchmark Input Files (required for `stateless-validator` guest program):**
 
     ```bash
-    cargo run --release -- tests --include 10M- --include Prague
+    cargo run --release -- tests --include 10M --include Prague
 
     # Or generate from local EEST fixtures
     cargo run --release -- tests --eest-fixtures-path /path/to/local/eest/fixtures
