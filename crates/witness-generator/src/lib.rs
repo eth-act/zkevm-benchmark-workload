@@ -14,8 +14,8 @@
 use std::{fs, path::Path};
 
 use async_trait::async_trait;
-use reth_stateless::StatelessInput;
 use serde::{Deserialize, Serialize};
+use stateless::StatelessInput;
 use thiserror::Error;
 
 pub mod eest_downloader;
