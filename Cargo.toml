@@ -109,18 +109,18 @@ ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.3.0", packa
 ere-io = { git = "https://github.com/eth-act/ere", tag = "v0.3.0", package = "ere-io" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "40006b91edcf0b73f021988f982aea0bbec5039a", package = "downloader" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "44ecb43d11c3b23bbb525777b5a35e26063cb504", package = "downloader" }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
 reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
 reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
-ef-tests = { git = "https://github.com/paradigmxyz/stateless", rev = "68cd8e73682d21fed69670fc7eabe25e55c5cdbe" }
-stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "68cd8e73682d21fed69670fc7eabe25e55c5cdbe", default-features = false }
+ef-tests = { git = "https://github.com/paradigmxyz/stateless", rev = "ed189a51931e8589102f3139d48fdbb3bbe4c1f7" }
+stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "ed189a51931e8589102f3139d48fdbb3bbe4c1f7", default-features = false }
 
 # alloy
 alloy-eips = { version = "1.5" }
@@ -157,3 +157,4 @@ toml = "0.8"
 [patch."https://github.com/paradigmxyz/stateless"]
 stateless = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
 ef-tests = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
+tries = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
