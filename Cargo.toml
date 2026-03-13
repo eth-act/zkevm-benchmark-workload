@@ -153,3 +153,7 @@ reqwest = { version = "0.12", default-features = false, features = [
 flate2 = "1.1"
 tar = "0.4"
 toml = "0.8"
+
+[patch."https://github.com/paradigmxyz/stateless"]
+stateless = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
+ef-tests = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
