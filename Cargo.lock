@@ -1600,7 +1600,7 @@ dependencies = [
 [[package]]
 name = "block-encoding-length"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -2695,7 +2695,7 @@ dependencies = [
 [[package]]
 name = "downloader"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "anyhow",
  "reqwest",
@@ -3901,7 +3901,7 @@ dependencies = [
 [[package]]
 name = "guest"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "ere-io",
  "ere-platform-trait",
@@ -4590,7 +4590,7 @@ dependencies = [
 [[package]]
 name = "integration-tests"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "alloy-primitives",
  "ere-dockerized",
@@ -9870,7 +9870,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-common"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "alloy-eips",
  "alloy-primitives",
@@ -9890,7 +9890,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-ethrex"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
@@ -9915,7 +9915,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-reth"
 version = "0.5.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=44ecb43d11c3b23bbb525777b5a35e26063cb504#44ecb43d11c3b23bbb525777b5a35e26063cb504"
+source = "git+https://github.com/eth-act/ere-guests?rev=8f3dfa2a82757b214b9c7f09c733378b3958e7a3#8f3dfa2a82757b214b9c7f09c733378b3958e7a3"
 dependencies = [
  "alloy-consensus",
  "alloy-eips",
