@@ -1,5 +1,5 @@
 # Build the witness-generator
-FROM rust:1.91 AS builder
+FROM rust:1.91-bookworm AS builder
 RUN apt-get update && apt-get install -y build-essential libclang-dev
 WORKDIR /usr/src/zkevm-benchmark-workload
 COPY . .
