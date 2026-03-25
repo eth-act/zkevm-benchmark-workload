@@ -5,8 +5,8 @@
 //!
 //! - **EEST Generator** ([`eest_generator`]): Converts Ethereum Execution Spec Tests into fixtures
 //! - **RPC Generator** ([`rpc_generator`]): Fetches blocks and witnesses from live Ethereum nodes
-//! - **Raw Input Generator** ([`raw_input_generator`]): Reads pre-collected block and witness
-//!   JSON-RPC response files from a local directory
+//! - **Raw Input Generator** ([`raw_input_generator`]): Downloads pre-collected block and witness
+//!   JSON-RPC response files from URLs listed in `raw_input_parts.txt`
 //!
 //! Core types: [`StatelessValidationFixture`] (block + witness), [`FixtureGenerator`].
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
@@ -160,15 +160,6 @@ pub enum WGError {
     #[error("raw input path '{0}' is not a directory")]
     RawInputPathNotDirectory(String),
 
-    /// Required file missing from a raw input fixture subdirectory
-    #[error("missing required file '{file}' in fixture directory '{dir}'")]
-    RawInputMissingFile {
-        /// Name of the missing file
-        file: String,
-        /// Path to the fixture directory
-        dir: String,
-    },
-
     /// Failed to read a raw input file
     #[error("failed to read raw input file at {path}: {source}")]
     RawInputFileReadError {
@@ -185,6 +176,38 @@ pub enum WGError {
         path: String,
         /// Underlying deserialization error
         source: serde_json::Error,
+    },
+
+    /// Failed to download a raw input file from URL
+    #[error("failed to download raw input file from {url}: {source}")]
+    RawInputUrlDownloadError {
+        /// The URL that failed
+        url: String,
+        /// Underlying HTTP error
+        #[source]
+        source: Box<dyn std::error::Error + Send + Sync>,
+    },
+
+    /// Invalid URL pair in `raw_input_parts.txt`
+    #[error(
+        "invalid URL pair at line {line}: expected eth_block.json and debug_executionWitness.json URLs"
+    )]
+    RawInputInvalidUrlPair {
+        /// Line number where the error occurred
+        line: usize,
+    },
+
+    /// Raw input generation completed with some fixture failures.
+    #[error(
+        "raw input generation completed with {ready} ready fixtures and {failed} failures:\n{details}"
+    )]
+    RawInputBatchFailed {
+        /// Number of fixtures that are ready on disk at the end of the run.
+        ready: usize,
+        /// Number of fixtures that failed during this run.
+        failed: usize,
+        /// Human-readable failure summary.
+        details: String,
     },
 
     /// Generic error for I/O, serialization, and other operations
