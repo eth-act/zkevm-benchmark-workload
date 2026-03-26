@@ -18,7 +18,7 @@ use crate::zisk_profiling::run_profiling;
 pub use crate::zisk_profiling::ProfileConfig;
 
 /// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.6.0";
+const DEFAULT_GUEST_VERSION: &str = "v0.7.0";
 
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub struct ZkVMInstance {
