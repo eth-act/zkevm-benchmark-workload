@@ -40,7 +40,7 @@ pub fn run_profiling(
 
     let input_path = temp_path.join("input.bin");
     let elf_path = temp_path.join("program.elf");
-    fs::write(&input_path, stdin)
+    fs::write(&input_path, length_prefixed_and_padded(stdin))
         .with_context(|| format!("Failed to write input.bin to {}", input_path.display()))?;
     fs::write(&elf_path, elf)
         .with_context(|| format!("Failed to write program.elf to {}", elf_path.display()))?;
@@ -94,4 +94,14 @@ pub fn run_profiling(
     info!("Saved Zisk profile to {}", profile_path.display());
 
     Ok(())
+}
+
+/// Mirrors `ere-zisk` input preparation for direct `ziskemu` execution.
+fn length_prefixed_and_padded(data: &[u8]) -> Vec<u8> {
+    let len = (8 + data.len()).next_multiple_of(8);
+    let mut buf = Vec::with_capacity(len);
+    buf.extend_from_slice(&(data.len() as u64).to_le_bytes());
+    buf.extend_from_slice(data);
+    buf.resize(len, 0);
+    buf
 }

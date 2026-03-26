@@ -12,13 +12,13 @@ use tracing::info;
 use ere_zkvm_interface::{zkVM, ProofKind, ProverResource};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
-use crate::guest_programs::{GuestFixture, OutputVerifierResult};
+use crate::guest_programs::GuestFixture;
 use crate::zisk_profiling::run_profiling;
 
 pub use crate::zisk_profiling::ProfileConfig;
 
 /// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.6.0";
+const DEFAULT_GUEST_VERSION: &str = "v0.7.0";
 
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub struct ZkVMInstance {
@@ -89,7 +89,7 @@ pub fn run_benchmark(
         Action::Verify => {
             return Err(anyhow!(
                 "run_benchmark should not be called with Action::Verify, use run_verify_from_disk"
-            ))
+            ));
         }
     }
 
@@ -143,7 +143,7 @@ fn process_input(
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(&io, &public_values)
+                    verify_public_output(zkvm.zkvm_kind(), &io, &public_values)
                         .context("Failed to verify public output from execution")?;
 
                     ExecutionMetrics::Success {
@@ -167,7 +167,7 @@ fn process_input(
             }));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(&io, &public_values)
+                    verify_public_output(zkvm.zkvm_kind(), &io, &public_values)
                         .context("Failed to verify public output from proof")?;
 
                     // Save proof to disk if requested
@@ -185,7 +185,7 @@ fn process_input(
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
                     let verification_time_ms = verify_start.elapsed().as_millis();
-                    verify_public_output(&io, &verif_public_values)
+                    verify_public_output(zkvm.zkvm_kind(), &io, &verif_public_values)
                         .context("Failed to verify public output from proof verification")?;
 
                     ProvingMetrics::Success {
@@ -206,7 +206,7 @@ fn process_input(
         Action::Verify => {
             return Err(anyhow!(
                 "process_input should not be called with Action::Verify, use run_verify_from_disk"
-            ))
+            ));
         }
     };
 
@@ -330,11 +330,37 @@ fn save_proof(
     Ok(())
 }
 
-fn verify_public_output(io: &impl GuestFixture, public_values: &[u8]) -> Result<()> {
-    match io.verify_public_values(public_values)? {
-        OutputVerifierResult::Match => Ok(()),
-        OutputVerifierResult::Mismatch(msg) => {
-            Err(anyhow!("Output mismatch for {}: {msg}", io.name()))
-        }
+fn verify_public_output(
+    zkvm_kind: zkVMKind,
+    io: &impl GuestFixture,
+    public_values: &[u8],
+) -> Result<()> {
+    let expected_public_values =
+        normalize_expected_public_values(zkvm_kind, io.expected_public_values()?);
+
+    if expected_public_values == public_values {
+        Ok(())
+    } else {
+        Err(anyhow!(
+            "Output mismatch for {}: Public values mismatch: expected {expected_public_values:?}, got {public_values:?}",
+            io.name()
+        ))
     }
+}
+
+fn normalize_expected_public_values(
+    zkvm_kind: zkVMKind,
+    mut expected_public_values: Vec<u8>,
+) -> Vec<u8> {
+    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
+        && expected_public_values.len() < 32
+    {
+        expected_public_values.resize(32, 0);
+    }
+
+    if matches!(zkvm_kind, zkVMKind::Zisk) && expected_public_values.len() < 256 {
+        expected_public_values.resize(256, 0);
+    }
+
+    expected_public_values
 }
