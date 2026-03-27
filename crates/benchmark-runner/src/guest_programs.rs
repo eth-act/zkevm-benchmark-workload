@@ -1,6 +1,6 @@
 //! Guest program input generation and metadata types
 
-use ere_io::Io;
+use ere_guests_guest::Io;
 use ere_zkvm_interface::zkvm::Input;
 use serde::Serialize;
 use sha2::{Digest, Sha256};

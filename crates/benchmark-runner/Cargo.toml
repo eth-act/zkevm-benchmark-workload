@@ -8,7 +8,6 @@ witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
-ere-io.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
