@@ -154,6 +154,12 @@ flate2 = "1.1"
 tar = "0.4"
 toml = "0.8"
 
+[patch."https://github.com/eth-act/ere"]
+ere-zkvm-interface = { git = "https://github.com/eth-act//ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-act//ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-act//ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-io" }
+
+
 [patch."https://github.com/paradigmxyz/stateless"]
 stateless = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
 ef-tests = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
