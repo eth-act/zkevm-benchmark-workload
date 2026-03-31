@@ -104,9 +104,9 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-act/ere", rev = "e0a0553d6dbd9705756f0502de914109d1682847", package = "ere-io" }
+ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-zkvm-interface" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-dockerized" }
+ere-io = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-io" }
 
 # ere-guests
 ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.7.0", package = "block-encoding-length" }
@@ -147,6 +147,7 @@ tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 erased-serde = "0.4.8"
 auto_impl = "1.3.0"
 tempfile = "3.10"
+humantime = "2.1"
 reqwest = { version = "0.12", default-features = false, features = [
     "rustls-tls-native-roots",
 ] }

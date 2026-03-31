@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResource;
 use std::path::PathBuf;
+use std::time::Duration;
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -61,6 +62,10 @@ pub struct Cli {
     /// from the latest ere-guests release.
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
+
+    /// Timeout for the selected action only, for example `15m`, `5m`, or `2s`.
+    #[arg(long, value_name = "DURATION", value_parser = parse_duration)]
+    pub timeout: Option<Duration>,
 
     /// Enable Zisk profiling (requires --zkvms zisk, --action execute)
     #[arg(long)]
@@ -151,6 +156,10 @@ pub enum BenchmarkAction {
     Verify,
 }
 
+fn parse_duration(value: &str) -> Result<Duration, String> {
+    humantime::parse_duration(value).map_err(|err| err.to_string())
+}
+
 impl From<Resource> for ProverResource {
     fn from(resource: Resource) -> Self {
         match resource {
@@ -185,5 +194,79 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{BenchmarkAction, Cli};
+    use clap::Parser;
+    use std::time::Duration;
+
+    #[test]
+    fn parses_human_readable_timeouts() {
+        let fifteen_minutes = Cli::try_parse_from([
+            "zkvm-benchmarker",
+            "--zkvms",
+            "sp1",
+            "--timeout",
+            "15m",
+            "empty-program",
+        ])
+        .unwrap();
+        assert_eq!(fifteen_minutes.timeout, Some(Duration::from_secs(15 * 60)));
+
+        let five_minutes = Cli::try_parse_from([
+            "zkvm-benchmarker",
+            "--zkvms",
+            "sp1",
+            "--timeout",
+            "5m",
+            "empty-program",
+        ])
+        .unwrap();
+        assert_eq!(five_minutes.timeout, Some(Duration::from_secs(5 * 60)));
+
+        let two_seconds = Cli::try_parse_from([
+            "zkvm-benchmarker",
+            "--zkvms",
+            "sp1",
+            "--timeout",
+            "2s",
+            "empty-program",
+        ])
+        .unwrap();
+        assert_eq!(two_seconds.timeout, Some(Duration::from_secs(2)));
+    }
+
+    #[test]
+    fn rejects_invalid_timeout_values() {
+        let error = Cli::try_parse_from([
+            "zkvm-benchmarker",
+            "--zkvms",
+            "sp1",
+            "--timeout",
+            "not-a-duration",
+            "empty-program",
+        ])
+        .unwrap_err();
+
+        assert_eq!(error.kind(), clap::error::ErrorKind::ValueValidation);
+    }
+
+    #[test]
+    fn timeout_without_action_uses_execute_default() {
+        let cli = Cli::try_parse_from([
+            "zkvm-benchmarker",
+            "--zkvms",
+            "sp1",
+            "--timeout",
+            "5m",
+            "empty-program",
+        ])
+        .unwrap();
+
+        assert!(matches!(cli.action, BenchmarkAction::Execute));
+        assert_eq!(cli.timeout, Some(Duration::from_secs(5 * 60)));
     }
 }
