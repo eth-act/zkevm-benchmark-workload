@@ -1435,8 +1435,8 @@ dependencies = [
  "auto_impl",
  "block-encoding-length",
  "downloader",
- "ere-dockerized 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
+ "ere-dockerized 0.6.1",
+ "ere-zkvm-interface 0.6.1",
  "flate2",
  "guest",
  "integration-tests",
@@ -1606,7 +1606,7 @@ dependencies = [
  "alloy-primitives",
  "anyhow",
  "ere-io",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-zkvm-interface 0.6.0",
  "guest",
  "libssz",
  "libssz-derive",
@@ -2937,8 +2937,8 @@ dependencies = [
 
 [[package]]
 name = "ere-build-utils"
-version = "0.6.0"
-source = "git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847#e0a0553d6dbd9705756f0502de914109d1682847"
+version = "0.6.1"
+source = "git+https://github.com/eth-act/ere?rev=3914a12f18b5f27807114048ae4829f3e999806b#3914a12f18b5f27807114048ae4829f3e999806b"
 dependencies = [
  "cargo_metadata 0.19.2",
 ]
@@ -2948,17 +2948,17 @@ name = "ere-common"
 version = "0.6.0"
 source = "git+https://github.com/eth-act/ere?tag=v0.6.0#12d266ed44845bf092798fc70c08e69294ef8e7d"
 dependencies = [
- "ere-build-utils 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-build-utils 0.6.0",
  "serde",
  "strum 0.27.2",
 ]
 
 [[package]]
 name = "ere-common"
-version = "0.6.0"
-source = "git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847#e0a0553d6dbd9705756f0502de914109d1682847"
+version = "0.6.1"
+source = "git+https://github.com/eth-act/ere?rev=3914a12f18b5f27807114048ae4829f3e999806b#3914a12f18b5f27807114048ae4829f3e999806b"
 dependencies = [
- "ere-build-utils 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
+ "ere-build-utils 0.6.1",
  "serde",
  "strum 0.27.2",
 ]
@@ -2969,9 +2969,9 @@ version = "0.6.0"
 source = "git+https://github.com/eth-act/ere?tag=v0.6.0#12d266ed44845bf092798fc70c08e69294ef8e7d"
 dependencies = [
  "anyhow",
- "ere-common 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
- "ere-server 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-common 0.6.0",
+ "ere-server 0.6.0",
+ "ere-zkvm-interface 0.6.0",
  "serde",
  "tempfile",
  "thiserror 2.0.18",
@@ -2981,13 +2981,13 @@ dependencies = [
 
 [[package]]
 name = "ere-dockerized"
-version = "0.6.0"
-source = "git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847#e0a0553d6dbd9705756f0502de914109d1682847"
+version = "0.6.1"
+source = "git+https://github.com/eth-act/ere?rev=3914a12f18b5f27807114048ae4829f3e999806b#3914a12f18b5f27807114048ae4829f3e999806b"
 dependencies = [
  "anyhow",
- "ere-common 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
- "ere-server 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
+ "ere-common 0.6.1",
+ "ere-server 0.6.1",
+ "ere-zkvm-interface 0.6.1",
  "serde",
  "tempfile",
  "thiserror 2.0.18",
@@ -3003,8 +3003,9 @@ dependencies = [
  "benchmark-runner",
  "block-encoding-length",
  "clap",
- "ere-dockerized 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
+ "ere-dockerized 0.6.1",
+ "ere-zkvm-interface 0.6.1",
+ "humantime",
  "tokio",
  "tracing",
  "tracing-subscriber 0.3.23",
@@ -3035,7 +3036,7 @@ source = "git+https://github.com/eth-act/ere?tag=v0.6.0#12d266ed44845bf092798fc7
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-zkvm-interface 0.6.0",
  "prost",
  "serde",
  "thiserror 2.0.18",
@@ -3045,12 +3046,12 @@ dependencies = [
 
 [[package]]
 name = "ere-server"
-version = "0.6.0"
-source = "git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847#e0a0553d6dbd9705756f0502de914109d1682847"
+version = "0.6.1"
+source = "git+https://github.com/eth-act/ere?rev=3914a12f18b5f27807114048ae4829f3e999806b#3914a12f18b5f27807114048ae4829f3e999806b"
 dependencies = [
  "anyhow",
  "bincode 2.0.1",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847)",
+ "ere-zkvm-interface 0.6.1",
  "prost",
  "serde",
  "thiserror 2.0.18",
@@ -3076,8 +3077,8 @@ dependencies = [
 
 [[package]]
 name = "ere-zkvm-interface"
-version = "0.6.0"
-source = "git+https://github.com/eth-act/ere?rev=e0a0553d6dbd9705756f0502de914109d1682847#e0a0553d6dbd9705756f0502de914109d1682847"
+version = "0.6.1"
+source = "git+https://github.com/eth-act/ere?rev=3914a12f18b5f27807114048ae4829f3e999806b#3914a12f18b5f27807114048ae4829f3e999806b"
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -4665,9 +4666,9 @@ version = "0.5.0"
 source = "git+https://github.com/eth-act/ere-guests?tag=v0.7.0#54ace88046f60bb13342289229cf7ee6f0292002"
 dependencies = [
  "alloy-primitives",
- "ere-dockerized 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-dockerized 0.6.0",
  "ere-io",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-zkvm-interface 0.6.0",
  "flate2",
  "guest",
  "rayon",
@@ -9945,7 +9946,7 @@ dependencies = [
  "anyhow",
  "bytes",
  "ere-io",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-zkvm-interface 0.6.0",
  "ethrex-common",
  "ethrex-crypto",
  "ethrex-guest-program",
@@ -9973,7 +9974,7 @@ dependencies = [
  "alloy-rpc-types-engine",
  "anyhow",
  "ere-io",
- "ere-zkvm-interface 0.6.0 (git+https://github.com/eth-act/ere?tag=v0.6.0)",
+ "ere-zkvm-interface 0.6.0",
  "guest",
  "once_cell",
  "reth-chainspec",

@@ -12,16 +12,21 @@ use benchmark_runner::{
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
 };
-use ere_dockerized::zkVMKind;
+use ere_dockerized::{DockerizedzkVMConfig, zkVMKind};
 
 use clap::Parser;
 use ere_zkvm_interface::ProverResource;
+use std::time::Duration;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
 use crate::cli::{Cli, GuestProgramCommand};
 
 pub mod cli;
+
+const DEFAULT_EXECUTE_TIMEOUT: Duration = Duration::from_secs(5 * 60);
+const DEFAULT_PROVE_TIMEOUT: Duration = Duration::from_secs(15 * 60);
+const DEFAULT_VERIFY_TIMEOUT: Duration = Duration::from_secs(2);
 
 #[tokio::main]
 async fn main() -> Result<()> {
@@ -49,6 +54,7 @@ async fn main() -> Result<()> {
 
     let resource: ProverResource = cli.resource.into();
     let action: Action = cli.action.into();
+    let zkvm_config = build_zkvm_config(action, cli.timeout);
     info!(
         "Running benchmarks with resource={:?} and action={:?}",
         resource, action
@@ -97,9 +103,15 @@ async fn main() -> Result<()> {
 
             let el_name = el.as_ref().to_lowercase();
             let el_str = format!("{}-{}", el_name, el.version());
-            let zkvms = get_el_zkvm_instances(&el_name, &cli.zkvms, resource, bin_path)
-                .await
-                .context("Failed to get EL zkvm instances")?;
+            let zkvms = get_el_zkvm_instances(
+                &el_name,
+                &cli.zkvms,
+                resource,
+                zkvm_config.clone(),
+                bin_path,
+            )
+            .await
+            .context("Failed to get EL zkvm instances")?;
 
             let config = RunConfig {
                 sub_folder: Some(el_str),
@@ -129,9 +141,15 @@ async fn main() -> Result<()> {
         }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
-            let zkvms = get_guest_zkvm_instances("empty", &cli.zkvms, resource, bin_path)
-                .await
-                .context("Failed to get guest zkvm instances")?;
+            let zkvms = get_guest_zkvm_instances(
+                "empty",
+                &cli.zkvms,
+                resource,
+                zkvm_config.clone(),
+                bin_path,
+            )
+            .await
+            .context("Failed to get guest zkvm instances")?;
 
             match action {
                 Action::Verify => {
@@ -159,10 +177,15 @@ async fn main() -> Result<()> {
                 input_folder.display(),
                 loop_count
             );
-            let zkvms =
-                get_guest_zkvm_instances("block-encoding-length", &cli.zkvms, resource, bin_path)
-                    .await
-                    .context("Failed to get block encoding length zkvm instances")?;
+            let zkvms = get_guest_zkvm_instances(
+                "block-encoding-length",
+                &cli.zkvms,
+                resource,
+                zkvm_config.clone(),
+                bin_path,
+            )
+            .await
+            .context("Failed to get block encoding length zkvm instances")?;
 
             match action {
                 Action::Verify => {
@@ -186,4 +209,25 @@ async fn main() -> Result<()> {
     }
 
     Ok(())
+}
+
+const fn build_zkvm_config(
+    action: Action,
+    timeout_override: Option<Duration>,
+) -> DockerizedzkVMConfig {
+    let mut config = DockerizedzkVMConfig {
+        execute_timeout: Some(DEFAULT_EXECUTE_TIMEOUT),
+        prove_timeout: Some(DEFAULT_PROVE_TIMEOUT),
+        verify_timeout: Some(DEFAULT_VERIFY_TIMEOUT),
+    };
+
+    if let Some(timeout) = timeout_override {
+        match action {
+            Action::Execute => config.execute_timeout = Some(timeout),
+            Action::Prove => config.prove_timeout = Some(timeout),
+            Action::Verify => config.verify_timeout = Some(timeout),
+        }
+    }
+
+    config
 }

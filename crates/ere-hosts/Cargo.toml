@@ -18,6 +18,7 @@ ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
 
 anyhow.workspace = true
 clap.workspace = true
+humantime.workspace = true
 tracing.workspace = true
 tracing-subscriber.workspace = true
 tokio.workspace = true

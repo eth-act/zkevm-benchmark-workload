@@ -1,7 +1,7 @@
 //! Runner for benchmark tests
 
 use anyhow::{anyhow, Context, Result};
-use ere_dockerized::{zkVMKind, DockerizedzkVM, SerializedProgram};
+use ere_dockerized::{zkVMKind, DockerizedzkVM, DockerizedzkVMConfig, SerializedProgram};
 use ere_guests_downloader::Downloader;
 use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::fs;
@@ -238,10 +238,11 @@ pub async fn get_el_zkvm_instances(
     el: &str,
     zkvms: &[zkVMKind],
     resource: ProverResource,
+    zkvm_config: DockerizedzkVMConfig,
     bin_path: Option<&Path>,
 ) -> Result<Vec<ZkVMInstance>> {
     let guest_name_prefix = format!("stateless-validator-{el}");
-    get_guest_zkvm_instances(&guest_name_prefix, zkvms, resource, bin_path).await
+    get_guest_zkvm_instances(&guest_name_prefix, zkvms, resource, zkvm_config, bin_path).await
 }
 
 /// Creates the requested guest program zkVMs ere instances.
@@ -249,13 +250,14 @@ pub async fn get_guest_zkvm_instances(
     guest_name_prefix: &str,
     zkvms: &[zkVMKind],
     resource: ProverResource,
+    zkvm_config: DockerizedzkVMConfig,
     bin_path: Option<&Path>,
 ) -> Result<Vec<ZkVMInstance>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
         let guest_name = format!("{}-{}", guest_name_prefix, zkvm.as_str());
         let (program, elf) = load_program(&guest_name, bin_path).await?;
-        let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone())
+        let zkvm = DockerizedzkVM::new(*zkvm, program, resource.clone(), zkvm_config.clone())
             .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
         instances.push(ZkVMInstance { zkvm, elf });
     }

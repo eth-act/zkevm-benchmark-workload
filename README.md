@@ -78,19 +78,22 @@ This decoupling provides several benefits:
     cargo run --release -- --zkvms sp1 stateless-validator --execution-client ethrex
 
     # Run empty program benchmarks (for measuring zkVM overhead)
-    cargo run --release -- empty-program
+    cargo run --release -- --zkvms sp1 empty-program
 
     # Run block encoding length benchmarks
-    cargo run --release -- block-encoding-length --loop-count 100 --format rlp
+    cargo run --release -- --zkvms sp1 block-encoding-length --loop-count 100 --format rlp
     
     # Run block encoding length benchmarks (with SSZ encoding format)
-    cargo run --release -- block-encoding-length --loop-count 100 --format ssz
+    cargo run --release -- --zkvms sp1 block-encoding-length --loop-count 100 --format ssz
     
     # Use custom input folder for stateless validator benchmarks
-    cargo run --release -- stateless-validator --execution-client reth --input-folder my-fixtures
+    cargo run --release -- --zkvms sp1 stateless-validator --execution-client reth --input-folder my-fixtures
 
     # Dump raw input files used in benchmarks (opt-in)
     cargo run --release -- --zkvms sp1 --dump-inputs my-inputs stateless-validator --execution-client reth
+
+    # Override the timeout for the selected action only
+    cargo run --release -- --zkvms sp1 --timeout 90s empty-program
     ```
 
     See the respective README files in each crate for detailed usage instructions.
@@ -132,6 +135,12 @@ The benchmark runner supports a decoupled prove/verify workflow using the `--act
 - `--action prove`: Execute and generate a zkVM proof, with optional proof persistence via `--save-proofs`.
 - `--action verify`: Verify pre-generated proofs loaded from disk or a remote URL.
 
+**Timeouts:**
+- Default timeouts are action-scoped: `execute=5m`, `prove=15m`, `verify=2s`.
+- Use `--timeout <duration>` to override only the timeout for the selected `--action`.
+- Duration values are human-readable, for example `90s`, `5m`, or `20m`.
+- With `--action prove`, the override applies to proof generation only; the follow-up proof verification still uses the verify timeout.
+
 **Step 1: Generate and save proofs**
 
 ```bash
@@ -156,6 +165,13 @@ my-proofs/
 From a local folder:
 ```bash
 cargo run --release -- --zkvms sp1 --action verify --proofs-folder my-proofs \
+    stateless-validator --execution-client reth
+```
+
+To override verification timeout for a slow verifier:
+```bash
+cargo run --release -- --zkvms sp1 --action verify --timeout 10s \
+    --proofs-folder my-proofs \
     stateless-validator --execution-client reth
 ```
 

@@ -314,6 +314,9 @@ def generate_markdown_report(
     total_cost_stats = compute_statistics(aggregated["total_costs"])
     lines.append(f"- **Total cost (sum):** {format_number(total_cost_stats['sum'])}")
     lines.append(f"- **Avg cost per profile:** {format_number(total_cost_stats['mean'])}")
+    lines.append(f"- **Median cost:** {format_number(total_cost_stats['median'])}")
+    lines.append(f"- **Cost range:** {format_number(total_cost_stats['min'])} – {format_number(total_cost_stats['max'])}")
+    lines.append(f"- **Std dev:** {format_number(total_cost_stats['std_dev'])}")
     lines.append("")
 
     # MARK_ID Summary (primary focus)

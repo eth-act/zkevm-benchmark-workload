@@ -5,6 +5,7 @@ use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::zkVMKind;
 use ere_zkvm_interface::ProverResource;
 use std::path::PathBuf;
+use std::time::Duration;
 
 /// Command line interface for the zkVM benchmarker
 #[derive(Parser)]
@@ -61,6 +62,10 @@ pub struct Cli {
     /// from the latest ere-guests release.
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
+
+    /// Timeout for the selected action only, for example `15m`, `5m`, or `2s`.
+    #[arg(long, value_name = "DURATION", value_parser = parse_duration)]
+    pub timeout: Option<Duration>,
 
     /// Enable Zisk profiling (requires --zkvms zisk, --action execute)
     #[arg(long)]
@@ -149,6 +154,10 @@ pub enum BenchmarkAction {
     Prove,
     /// Verify proofs loaded from disk
     Verify,
+}
+
+fn parse_duration(value: &str) -> Result<Duration, String> {
+    humantime::parse_duration(value).map_err(|err| err.to_string())
 }
 
 impl From<Resource> for ProverResource {
