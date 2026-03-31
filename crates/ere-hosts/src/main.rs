@@ -211,7 +211,10 @@ async fn main() -> Result<()> {
     Ok(())
 }
 
-fn build_zkvm_config(action: Action, timeout_override: Option<Duration>) -> DockerizedzkVMConfig {
+const fn build_zkvm_config(
+    action: Action,
+    timeout_override: Option<Duration>,
+) -> DockerizedzkVMConfig {
     let mut config = DockerizedzkVMConfig {
         execute_timeout: Some(DEFAULT_EXECUTE_TIMEOUT),
         prove_timeout: Some(DEFAULT_PROVE_TIMEOUT),
