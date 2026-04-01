@@ -7,13 +7,13 @@ use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
-use tracing::info;
+use tracing::{info, warn};
 
 use ere_zkvm_interface::{zkVM, ProofKind, ProverResource};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::GuestFixture;
-use crate::zisk_profiling::run_profiling;
+use crate::zisk_profiling::{run_profiling, ProfileOutcome};
 
 pub use crate::zisk_profiling::ProfileConfig;
 
@@ -132,13 +132,20 @@ fn process_input(
         Action::Execute => {
             // Run Zisk profiling if configured
             if let Some(profile_config) = &config.zisk_profile_config {
-                run_profiling(
+                let outcome = run_profiling(
                     profile_config,
                     elf,
                     input.stdin(),
                     &io.name(),
                     config.sub_folder.as_deref(),
-                )?;
+                );
+                if let ProfileOutcome::Failed(message) = outcome {
+                    warn!(
+                        "Zisk profiling failed for {} but benchmark execution will continue: {}",
+                        io.name(),
+                        message
+                    );
+                }
             }
 
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
