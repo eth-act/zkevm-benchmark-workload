@@ -97,6 +97,39 @@ where
     Ok(())
 }
 
+fn benchmark_zkvm_name(zkvm: &DockerizedzkVM) -> String {
+    format!("{}-v{}", zkvm.name(), zkvm.sdk_version())
+}
+
+fn benchmark_output_dir_for_name(config: &RunConfig, zkvm_name: &str) -> PathBuf {
+    config
+        .output_folder
+        .join(config.sub_folder.as_deref().unwrap_or(""))
+        .join(zkvm_name)
+}
+
+fn benchmark_output_path_for_name(
+    config: &RunConfig,
+    zkvm_name: &str,
+    fixture_name: &str,
+) -> PathBuf {
+    benchmark_output_dir_for_name(config, zkvm_name).join(format!("{fixture_name}.json"))
+}
+
+/// Returns the output directory for a given zkVM benchmark run.
+pub fn benchmark_output_dir(zkvm: &DockerizedzkVM, config: &RunConfig) -> PathBuf {
+    benchmark_output_dir_for_name(config, &benchmark_zkvm_name(zkvm))
+}
+
+/// Returns the output path for a given fixture within a zkVM benchmark run.
+pub fn benchmark_output_path(
+    zkvm: &DockerizedzkVM,
+    config: &RunConfig,
+    fixture_name: &str,
+) -> PathBuf {
+    benchmark_output_path_for_name(config, &benchmark_zkvm_name(zkvm), fixture_name)
+}
+
 /// Processes a single input through the zkVM
 fn process_input(
     zkvm: &DockerizedzkVM,
@@ -104,14 +137,12 @@ fn process_input(
     config: &RunConfig,
     elf: &[u8],
 ) -> Result<()> {
-    let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
-    let out_path = config
-        .output_folder
-        .join(config.sub_folder.as_deref().unwrap_or(""))
-        .join(format!("{zkvm_name}/{}.json", io.name()));
+    let zkvm_name = benchmark_zkvm_name(zkvm);
+    let fixture_name = io.name();
+    let out_path = benchmark_output_path_for_name(config, &zkvm_name, &fixture_name);
 
     if !config.force_rerun && out_path.exists() {
-        info!("Skipping {} (already exists)", &io.name());
+        info!("Skipping {} (already exists)", fixture_name);
         return Ok(());
     }
 
@@ -121,13 +152,13 @@ fn process_input(
     if let Some(ref dump_folder) = config.dump_inputs_folder {
         dump_input(
             input.stdin(),
-            &io.name(),
+            &fixture_name,
             dump_folder,
             config.sub_folder.as_deref(),
         )?;
     }
 
-    info!("Running {}", io.name());
+    info!("Running {}", fixture_name);
     let (execution, proving) = match config.action {
         Action::Execute => {
             // Run Zisk profiling if configured
@@ -136,14 +167,13 @@ fn process_input(
                     profile_config,
                     elf,
                     input.stdin(),
-                    &io.name(),
+                    &fixture_name,
                     config.sub_folder.as_deref(),
                 );
                 if let ProfileOutcome::Failed(message) = outcome {
                     warn!(
                         "Zisk profiling failed for {} but benchmark execution will continue: {}",
-                        io.name(),
-                        message
+                        fixture_name, message
                     );
                 }
             }
@@ -182,7 +212,7 @@ fn process_input(
                     if let Some(ref proofs_folder) = config.save_proofs_folder {
                         save_proof(
                             &proof,
-                            &io.name(),
+                            &fixture_name,
                             &zkvm_name,
                             proofs_folder,
                             config.sub_folder.as_deref(),
@@ -219,7 +249,7 @@ fn process_input(
     };
 
     let report = BenchmarkRun {
-        name: io.name(),
+        name: fixture_name.clone(),
         timestamp_completed: zkevm_metrics::chrono::Utc::now(),
         metadata: io.metadata(),
         execution,
@@ -227,7 +257,7 @@ fn process_input(
         verification: None,
     };
 
-    info!("Saving report {}", io.name());
+    info!("Saving report {}", fixture_name);
     report.to_path(out_path)?;
 
     Ok(())

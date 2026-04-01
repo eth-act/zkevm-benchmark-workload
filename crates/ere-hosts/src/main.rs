@@ -6,8 +6,8 @@ use anyhow::{Context, Result, bail};
 use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{
-        Action, ProfileConfig, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances,
-        run_benchmark_iter,
+        Action, ProfileConfig, RunConfig, benchmark_output_dir, get_el_zkvm_instances,
+        get_guest_zkvm_instances, run_benchmark_iter,
     },
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
@@ -130,9 +130,12 @@ async fn main() -> Result<()> {
                         input_folder.display()
                     );
                     for zkvm in &zkvms {
+                        let existing_output_dir = (!config.force_rerun)
+                            .then(|| benchmark_output_dir(&zkvm.zkvm, &config));
                         let guest_io = stateless_validator::stateless_validator_input_iter(
                             input_folder.as_path(),
                             el,
+                            existing_output_dir.as_deref(),
                         )
                         .map(|input| input.context("Failed to get stateless validator input"));
                         run_benchmark_iter(zkvm, &config, guest_io)?;

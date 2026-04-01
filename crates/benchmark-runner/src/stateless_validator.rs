@@ -65,21 +65,55 @@ pub fn load_benchmark_fixture(path: &Path) -> Result<StatelessValidationFixture>
 pub fn stateless_validator_input_iter(
     input_folder: &Path,
     el: ExecutionClient,
+    existing_output_dir: Option<&Path>,
 ) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>> {
-    stateless_validator_input_iter_from_paths(iter_benchmark_fixture_paths(input_folder), el)
+    stateless_validator_input_iter_from_paths(
+        iter_benchmark_fixture_paths(input_folder),
+        el,
+        existing_output_dir.map(Path::to_path_buf),
+    )
 }
 
 fn stateless_validator_input_iter_from_paths<I>(
     paths: I,
     el: ExecutionClient,
+    existing_output_dir: Option<PathBuf>,
 ) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>>
 where
     I: Iterator<Item = PathBuf>,
 {
-    paths.map(move |path| {
-        let fixture = load_benchmark_fixture(&path)?;
-        stateless_validator_input_from_fixture(fixture, el)
-    })
+    paths.filter_map(
+        move |path| match skip_existing_fixture_output(&path, existing_output_dir.as_deref()) {
+            Ok(true) => None,
+            Ok(false) => Some(
+                load_benchmark_fixture(&path)
+                    .and_then(|fixture| stateless_validator_input_from_fixture(fixture, el)),
+            ),
+            Err(err) => Some(Err(err)),
+        },
+    )
+}
+
+fn skip_existing_fixture_output(path: &Path, existing_output_dir: Option<&Path>) -> Result<bool> {
+    let Some(existing_output_dir) = existing_output_dir else {
+        return Ok(false);
+    };
+
+    let fixture_name = fixture_name_from_path(path)?;
+    let output_path = existing_output_dir.join(format!("{fixture_name}.json"));
+    if output_path.exists() {
+        info!("Skipping {fixture_name} (already exists)");
+        return Ok(true);
+    }
+
+    Ok(false)
+}
+
+fn fixture_name_from_path(path: &Path) -> Result<String> {
+    path.file_stem()
+        .and_then(|stem| stem.to_str())
+        .map(ToOwned::to_owned)
+        .with_context(|| format!("Failed to derive fixture name from {}", path.display()))
 }
 
 fn stateless_validator_input_from_fixture(
