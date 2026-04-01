@@ -1,7 +1,6 @@
 //! Stateless validator guest program.
 
-use crate::guest_programs::GenericGuestFixture;
-use crate::guest_programs::GuestFixture;
+use crate::guest_programs::{GenericGuestFixture, GuestFixture};
 use anyhow::{Context, Result};
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
@@ -11,10 +10,8 @@ use ere_guests_stateless_validator_ethrex::guest::{
 use ere_guests_stateless_validator_reth::guest::{
     StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
-use rayon::iter::IntoParallelRefIterator;
-use rayon::iter::{ParallelBridge, ParallelIterator};
 use serde::{Deserialize, Serialize};
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use strum::{AsRefStr, EnumString};
 use tracing::info;
 use walkdir::WalkDir;
@@ -48,91 +45,98 @@ impl ExecutionClient {
     }
 }
 
-/// Prepares the inputs for the stateless validator guest program based on the mode.
-pub fn stateless_validator_inputs(
-    input_folder: &Path,
-    el: ExecutionClient,
-) -> anyhow::Result<Vec<Box<dyn GuestFixture>>> {
-    let fixtures = read_benchmark_fixtures_folder(input_folder)?;
-    match el {
-        ExecutionClient::Reth => reth_inputs_from_fixture(&fixtures),
-        ExecutionClient::Ethrex => ethrex_inputs_from_fixture(&fixtures),
-    }
-}
-
-/// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
-pub fn ethrex_inputs_from_fixture(
-    fixtures: &[StatelessValidationFixture],
-) -> Result<Vec<Box<dyn GuestFixture>>> {
-    fixtures
-        .iter()
-        .map(|bw| {
-            let input = StatelessValidatorEthrexInput::new(&bw.stateless_input, bw.success)
-                .context("Failed to create Ethrex stateless validator input")?;
-            let output = StatelessValidatorEthrexGuest::compute::<NoopPlatform>(input.clone());
-            let metadata = BlockMetadata {
-                block_used_gas: bw.stateless_input.block.gas_used,
-            };
-
-            let fixture =
-                GenericGuestFixture::<BlockMetadata>::new::<StatelessValidatorEthrexGuest>(
-                    bw.name.clone(),
-                    input,
-                    output,
-                    metadata,
-                )?
-                .output_sha256();
-
-            Ok(fixture.into_boxed())
-        })
-        .collect()
-}
-
-/// Create a vector of `GuestFixture` instances from `StatelessValidationFixture`.
-pub fn reth_inputs_from_fixture(
-    fixtures: &[StatelessValidationFixture],
-) -> Result<Vec<Box<dyn GuestFixture>>> {
-    fixtures
-        .par_iter()
-        .map(|bw| {
-            info!(
-                "Preparing Reth stateless validator input for fixture {}",
-                bw.name
-            );
-            let input = StatelessValidatorRethInput::new(&bw.stateless_input, bw.success)
-                .context("Failed to create Reth stateless validator input")?;
-
-            let output = StatelessValidatorRethGuest::compute::<NoopPlatform>(input.clone());
-            let metadata = BlockMetadata {
-                block_used_gas: bw.stateless_input.block.gas_used,
-            };
-
-            let fixture = GenericGuestFixture::<BlockMetadata>::new::<StatelessValidatorRethGuest>(
-                bw.name.clone(),
-                input,
-                output,
-                metadata,
-            )?
-            .output_sha256();
-
-            Ok(fixture.into_boxed())
-        })
-        .collect()
-}
-
-/// Reads the benchmark fixtures folder and returns a list of block and witness pairs.
-pub fn read_benchmark_fixtures_folder(path: &Path) -> Result<Vec<StatelessValidationFixture>> {
+/// Lazily walks a fixture folder and yields each fixture file path.
+pub fn iter_benchmark_fixture_paths(path: &Path) -> impl Iterator<Item = PathBuf> {
     WalkDir::new(path)
         .min_depth(1)
         .into_iter()
         .filter_map(|entry| entry.ok())
         .filter(|entry| entry.file_type().is_file())
-        .par_bridge()
-        .map(|entry| {
-            let content = std::fs::read(entry.path())?;
-            let fixture: StatelessValidationFixture = serde_json::from_slice(&content)
-                .with_context(|| format!("Failed to parse {}", entry.path().display()))?;
-            Ok(fixture)
-        })
-        .collect()
+        .map(walkdir::DirEntry::into_path)
+}
+
+/// Reads and deserializes a single benchmark fixture file.
+pub fn load_benchmark_fixture(path: &Path) -> Result<StatelessValidationFixture> {
+    let content = std::fs::read(path)?;
+    serde_json::from_slice(&content).with_context(|| format!("Failed to parse {}", path.display()))
+}
+
+/// Lazily prepares stateless validator inputs from a fixture folder.
+pub fn stateless_validator_input_iter(
+    input_folder: &Path,
+    el: ExecutionClient,
+) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>> {
+    stateless_validator_input_iter_from_paths(iter_benchmark_fixture_paths(input_folder), el)
+}
+
+fn stateless_validator_input_iter_from_paths<I>(
+    paths: I,
+    el: ExecutionClient,
+) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>>
+where
+    I: Iterator<Item = PathBuf>,
+{
+    paths.map(move |path| {
+        let fixture = load_benchmark_fixture(&path)?;
+        stateless_validator_input_from_fixture(fixture, el)
+    })
+}
+
+fn stateless_validator_input_from_fixture(
+    fixture: StatelessValidationFixture,
+    el: ExecutionClient,
+) -> Result<Box<dyn GuestFixture>> {
+    match el {
+        ExecutionClient::Reth => reth_input_from_fixture(fixture),
+        ExecutionClient::Ethrex => ethrex_input_from_fixture(fixture),
+    }
+}
+
+fn ethrex_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<dyn GuestFixture>> {
+    let StatelessValidationFixture {
+        name,
+        stateless_input,
+        success,
+    } = fixture;
+    let input = StatelessValidatorEthrexInput::new(&stateless_input, success)
+        .context("Failed to create Ethrex stateless validator input")?;
+    let output = StatelessValidatorEthrexGuest::compute::<NoopPlatform>(input.clone());
+    let metadata = BlockMetadata {
+        block_used_gas: stateless_input.block.gas_used,
+    };
+
+    Ok(
+        GenericGuestFixture::<BlockMetadata>::new::<StatelessValidatorEthrexGuest>(
+            name, input, output, metadata,
+        )?
+        .output_sha256()
+        .into_boxed(),
+    )
+}
+
+fn reth_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<dyn GuestFixture>> {
+    let StatelessValidationFixture {
+        name,
+        stateless_input,
+        success,
+    } = fixture;
+    info!(
+        "Preparing Reth stateless validator input for fixture {}",
+        name
+    );
+    let input = StatelessValidatorRethInput::new(&stateless_input, success)
+        .context("Failed to create Reth stateless validator input")?;
+
+    let output = StatelessValidatorRethGuest::compute::<NoopPlatform>(input.clone());
+    let metadata = BlockMetadata {
+        block_used_gas: stateless_input.block.gas_used,
+    };
+
+    Ok(
+        GenericGuestFixture::<BlockMetadata>::new::<StatelessValidatorRethGuest>(
+            name, input, output, metadata,
+        )?
+        .output_sha256()
+        .into_boxed(),
+    )
 }

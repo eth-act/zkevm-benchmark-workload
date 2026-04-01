@@ -3,7 +3,7 @@
 use anyhow::{anyhow, Context, Result};
 use ere_dockerized::{zkVMKind, DockerizedzkVM, DockerizedzkVMConfig, SerializedProgram};
 use ere_guests_downloader::Downloader;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
@@ -67,28 +67,29 @@ pub enum Action {
     Verify,
 }
 
-/// Executes benchmarks for a given guest program type and zkVM
-pub fn run_benchmark(
-    instance: &ZkVMInstance,
-    config: &RunConfig,
-    inputs: impl IntoParallelIterator<Item: GuestFixture> + IntoIterator<Item: GuestFixture>,
-) -> Result<()> {
+/// Executes benchmarks from a lazy iterator of fixtures.
+pub fn run_benchmark_iter<I>(instance: &ZkVMInstance, config: &RunConfig, inputs: I) -> Result<()>
+where
+    I: Iterator<Item = Result<Box<dyn GuestFixture>>> + Send,
+{
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
 
     let zkvm = &instance.zkvm;
     let elf = &instance.elf;
     match config.action {
-        Action::Execute => inputs
-            .into_par_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
+        Action::Execute => inputs.par_bridge().try_for_each(|input| {
+            let input = input?;
+            process_input(zkvm, input, config, elf)
+        })?,
 
-        Action::Prove => inputs
-            .into_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
+        Action::Prove => inputs.into_iter().try_for_each(|input| {
+            let input = input?;
+            process_input(zkvm, input, config, elf)
+        })?,
 
         Action::Verify => {
             return Err(anyhow!(
-                "run_benchmark should not be called with Action::Verify, use run_verify_from_disk"
+                "run_benchmark_iter should not be called with Action::Verify, use run_verify_from_disk"
             ));
         }
     }

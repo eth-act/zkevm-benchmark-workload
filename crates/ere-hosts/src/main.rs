@@ -7,7 +7,7 @@ use benchmark_runner::{
     block_encoding_length_program, empty_program,
     runner::{
         Action, ProfileConfig, RunConfig, get_el_zkvm_instances, get_guest_zkvm_instances,
-        run_benchmark,
+        run_benchmark_iter,
     },
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
@@ -129,12 +129,13 @@ async fn main() -> Result<()> {
                         "Running stateless-validator benchmark for input folder: {}",
                         input_folder.display()
                     );
-                    let guest_io =
-                        stateless_validator::stateless_validator_inputs(input_folder.as_path(), el)
-                            .context("Failed to get stateless validator inputs")?;
-
                     for zkvm in &zkvms {
-                        run_benchmark(zkvm, &config, &guest_io)?;
+                        let guest_io = stateless_validator::stateless_validator_input_iter(
+                            input_folder.as_path(),
+                            el,
+                        )
+                        .map(|input| input.context("Failed to get stateless validator input"));
+                        run_benchmark_iter(zkvm, &config, guest_io)?;
                     }
                 }
             }
@@ -158,10 +159,10 @@ async fn main() -> Result<()> {
                     }
                 }
                 _ => {
-                    let guest_io = empty_program::empty_program_input()
-                        .context("Failed to create empty program input")?;
                     for zkvm in zkvms {
-                        run_benchmark(&zkvm, &config_base, [&guest_io])?;
+                        let guest_io = empty_program::empty_program_input()
+                            .context("Failed to create empty program input")?;
+                        run_benchmark_iter(&zkvm, &config_base, std::iter::once(Ok(guest_io)))?;
                     }
                 }
             }
@@ -194,14 +195,17 @@ async fn main() -> Result<()> {
                     }
                 }
                 _ => {
-                    let guest_io = block_encoding_length_program::block_encoding_length_inputs(
-                        input_folder.as_path(),
-                        loop_count,
-                        format.into(),
-                    )
-                    .context("Failed to get block encoding length inputs")?;
                     for zkvm in zkvms {
-                        run_benchmark(&zkvm, &config_base, &guest_io)?;
+                        let guest_io =
+                            block_encoding_length_program::block_encoding_length_input_iter(
+                                input_folder.as_path(),
+                                loop_count,
+                                format.clone().into(),
+                            )
+                            .map(|input| {
+                                input.context("Failed to get block encoding length input")
+                            });
+                        run_benchmark_iter(&zkvm, &config_base, guest_io)?;
                     }
                 }
             }
