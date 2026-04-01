@@ -3,17 +3,17 @@
 use anyhow::{anyhow, Context, Result};
 use ere_dockerized::{zkVMKind, DockerizedzkVM, DockerizedzkVMConfig, SerializedProgram};
 use ere_guests_downloader::Downloader;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
+use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
 use std::{any::Any, panic};
-use tracing::info;
+use tracing::{info, warn};
 
 use ere_zkvm_interface::{zkVM, ProofKind, ProverResource};
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
 
 use crate::guest_programs::GuestFixture;
-use crate::zisk_profiling::run_profiling;
+use crate::zisk_profiling::{run_profiling, ProfileOutcome};
 
 pub use crate::zisk_profiling::ProfileConfig;
 
@@ -67,33 +67,67 @@ pub enum Action {
     Verify,
 }
 
-/// Executes benchmarks for a given guest program type and zkVM
-pub fn run_benchmark(
-    instance: &ZkVMInstance,
-    config: &RunConfig,
-    inputs: impl IntoParallelIterator<Item: GuestFixture> + IntoIterator<Item: GuestFixture>,
-) -> Result<()> {
+/// Executes benchmarks from a lazy iterator of fixtures.
+pub fn run_benchmark_iter<I>(instance: &ZkVMInstance, config: &RunConfig, inputs: I) -> Result<()>
+where
+    I: Iterator<Item = Result<Box<dyn GuestFixture>>> + Send,
+{
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
 
     let zkvm = &instance.zkvm;
     let elf = &instance.elf;
     match config.action {
-        Action::Execute => inputs
-            .into_par_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
+        Action::Execute => inputs.par_bridge().try_for_each(|input| {
+            let input = input?;
+            process_input(zkvm, input, config, elf)
+        })?,
 
-        Action::Prove => inputs
-            .into_iter()
-            .try_for_each(|input| process_input(zkvm, input, config, elf))?,
+        Action::Prove => inputs.into_iter().try_for_each(|input| {
+            let input = input?;
+            process_input(zkvm, input, config, elf)
+        })?,
 
         Action::Verify => {
             return Err(anyhow!(
-                "run_benchmark should not be called with Action::Verify, use run_verify_from_disk"
+                "run_benchmark_iter should not be called with Action::Verify, use run_verify_from_disk"
             ));
         }
     }
 
     Ok(())
+}
+
+fn benchmark_zkvm_name(zkvm: &DockerizedzkVM) -> String {
+    format!("{}-v{}", zkvm.name(), zkvm.sdk_version())
+}
+
+fn benchmark_output_dir_for_name(config: &RunConfig, zkvm_name: &str) -> PathBuf {
+    config
+        .output_folder
+        .join(config.sub_folder.as_deref().unwrap_or(""))
+        .join(zkvm_name)
+}
+
+fn benchmark_output_path_for_name(
+    config: &RunConfig,
+    zkvm_name: &str,
+    fixture_name: &str,
+) -> PathBuf {
+    benchmark_output_dir_for_name(config, zkvm_name).join(format!("{fixture_name}.json"))
+}
+
+/// Returns the output directory for a given zkVM benchmark run.
+pub fn benchmark_output_dir(zkvm: &DockerizedzkVM, config: &RunConfig) -> PathBuf {
+    benchmark_output_dir_for_name(config, &benchmark_zkvm_name(zkvm))
+}
+
+/// Returns the output path for a given fixture within a zkVM benchmark run.
+pub fn benchmark_output_path(
+    zkvm: &DockerizedzkVM,
+    config: &RunConfig,
+    fixture_name: &str,
+) -> PathBuf {
+    benchmark_output_path_for_name(config, &benchmark_zkvm_name(zkvm), fixture_name)
 }
 
 /// Processes a single input through the zkVM
@@ -103,14 +137,12 @@ fn process_input(
     config: &RunConfig,
     elf: &[u8],
 ) -> Result<()> {
-    let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
-    let out_path = config
-        .output_folder
-        .join(config.sub_folder.as_deref().unwrap_or(""))
-        .join(format!("{zkvm_name}/{}.json", io.name()));
+    let zkvm_name = benchmark_zkvm_name(zkvm);
+    let fixture_name = io.name();
+    let out_path = benchmark_output_path_for_name(config, &zkvm_name, &fixture_name);
 
     if !config.force_rerun && out_path.exists() {
-        info!("Skipping {} (already exists)", &io.name());
+        info!("Skipping {} (already exists)", fixture_name);
         return Ok(());
     }
 
@@ -120,24 +152,30 @@ fn process_input(
     if let Some(ref dump_folder) = config.dump_inputs_folder {
         dump_input(
             input.stdin(),
-            &io.name(),
+            &fixture_name,
             dump_folder,
             config.sub_folder.as_deref(),
         )?;
     }
 
-    info!("Running {}", io.name());
+    info!("Running {}", fixture_name);
     let (execution, proving) = match config.action {
         Action::Execute => {
             // Run Zisk profiling if configured
             if let Some(profile_config) = &config.zisk_profile_config {
-                run_profiling(
+                let outcome = run_profiling(
                     profile_config,
                     elf,
                     input.stdin(),
-                    &io.name(),
+                    &fixture_name,
                     config.sub_folder.as_deref(),
-                )?;
+                );
+                if let ProfileOutcome::Failed(message) = outcome {
+                    warn!(
+                        "Zisk profiling failed for {} but benchmark execution will continue: {}",
+                        fixture_name, message
+                    );
+                }
             }
 
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
@@ -174,7 +212,7 @@ fn process_input(
                     if let Some(ref proofs_folder) = config.save_proofs_folder {
                         save_proof(
                             &proof,
-                            &io.name(),
+                            &fixture_name,
                             &zkvm_name,
                             proofs_folder,
                             config.sub_folder.as_deref(),
@@ -211,7 +249,7 @@ fn process_input(
     };
 
     let report = BenchmarkRun {
-        name: io.name(),
+        name: fixture_name.clone(),
         timestamp_completed: zkevm_metrics::chrono::Utc::now(),
         metadata: io.metadata(),
         execution,
@@ -219,7 +257,7 @@ fn process_input(
         verification: None,
     };
 
-    info!("Saving report {}", io.name());
+    info!("Saving report {}", fixture_name);
     report.to_path(out_path)?;
 
     Ok(())
