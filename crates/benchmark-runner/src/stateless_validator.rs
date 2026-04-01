@@ -82,16 +82,16 @@ fn stateless_validator_input_iter_from_paths<I>(
 where
     I: Iterator<Item = PathBuf>,
 {
-    paths.filter_map(
-        move |path| match skip_existing_fixture_output(&path, existing_output_dir.as_deref()) {
+    paths.filter_map(move |path| {
+        match skip_existing_fixture_output(&path, existing_output_dir.as_deref()) {
             Ok(true) => None,
             Ok(false) => Some(
                 load_benchmark_fixture(&path)
                     .and_then(|fixture| stateless_validator_input_from_fixture(fixture, el)),
             ),
             Err(err) => Some(Err(err)),
-        },
-    )
+        }
+    })
 }
 
 fn skip_existing_fixture_output(path: &Path, existing_output_dir: Option<&Path>) -> Result<bool> {
