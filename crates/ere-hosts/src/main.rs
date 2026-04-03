@@ -97,6 +97,7 @@ async fn main() -> Result<()> {
     match cli.guest_program {
         GuestProgramCommand::StatelessValidator {
             input_folder,
+            fixture,
             execution_client,
         } => {
             let el: stateless_validator::ExecutionClient = execution_client.into();
@@ -134,9 +135,10 @@ async fn main() -> Result<()> {
                             .then(|| benchmark_output_dir(&zkvm.zkvm, &config));
                         let guest_io = stateless_validator::stateless_validator_input_iter(
                             input_folder.as_path(),
+                            fixture.as_deref(),
                             el,
                             existing_output_dir.as_deref(),
-                        )
+                        )?
                         .map(|input| input.context("Failed to get stateless validator input"));
                         run_benchmark_iter(zkvm, &config, guest_io)?;
                     }
@@ -172,6 +174,7 @@ async fn main() -> Result<()> {
         }
         GuestProgramCommand::BlockEncodingLength {
             input_folder,
+            fixture,
             loop_count,
             format,
         } => {
@@ -202,9 +205,10 @@ async fn main() -> Result<()> {
                         let guest_io =
                             block_encoding_length_program::block_encoding_length_input_iter(
                                 input_folder.as_path(),
+                                fixture.as_deref(),
                                 loop_count,
                                 format.clone().into(),
-                            )
+                            )?
                             .map(|input| {
                                 input.context("Failed to get block encoding length input")
                             });

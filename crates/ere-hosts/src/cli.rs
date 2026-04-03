@@ -84,6 +84,9 @@ pub enum GuestProgramCommand {
         /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
+        /// Fixture name prefix to run. Repeat to select multiple prefixes.
+        #[arg(long, value_name = "PREFIX")]
+        fixture: Option<Vec<String>>,
         /// Execution client to benchmark
         #[arg(short, long)]
         execution_client: ExecutionClient,
@@ -96,6 +99,10 @@ pub enum GuestProgramCommand {
         /// Input folder for benchmark fixtures
         #[arg(short, long, default_value = "zkevm-fixtures-input")]
         input_folder: PathBuf,
+
+        /// Fixture name prefix to run. Repeat to select multiple prefixes.
+        #[arg(long, value_name = "PREFIX")]
+        fixture: Option<Vec<String>>,
 
         /// Number of times to loop the benchmark
         #[arg(long)]
