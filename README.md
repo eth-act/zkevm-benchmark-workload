@@ -89,6 +89,12 @@ This decoupling provides several benefits:
     # Use custom input folder for stateless validator benchmarks
     cargo run --release -- --zkvms sp1 stateless-validator --execution-client reth --input-folder my-fixtures
 
+    # Run only fixtures whose names start with the provided prefixes
+    cargo run --release -- --zkvms sp1 stateless-validator --execution-client reth \
+        --input-folder my-fixtures \
+        --fixture test_sha256.py::test_sha256 \
+        --fixture test_memory.py::test_mcopy
+
     # Dump raw input files used in benchmarks (opt-in)
     cargo run --release -- --zkvms sp1 --dump-inputs my-inputs stateless-validator --execution-client reth
 
@@ -97,6 +103,7 @@ This decoupling provides several benefits:
     ```
 
     See the respective README files in each crate for detailed usage instructions.
+    The same prefix-based `--fixture` filter is also available on `block-encoding-length`.
 
 ### Dumping Input Files
 

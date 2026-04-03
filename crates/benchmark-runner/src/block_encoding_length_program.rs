@@ -2,7 +2,7 @@
 
 use crate::{
     guest_programs::{GenericGuestFixture, GuestFixture},
-    stateless_validator::{iter_benchmark_fixture_paths, load_benchmark_fixture},
+    stateless_validator::{benchmark_fixture_paths, load_benchmark_fixture},
 };
 use anyhow::{Context, Result};
 use ere_guests_block_encoding_length::guest::{
@@ -22,14 +22,15 @@ pub struct BlockEncodingLengthMetadata {
 /// Lazily generates inputs for the block encoding length guest program.
 pub fn block_encoding_length_input_iter(
     input_folder: &Path,
+    selected_fixtures: Option<&[String]>,
     loop_count: u16,
     format: BlockEncodingFormat,
-) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>> {
-    block_encoding_length_input_iter_from_paths(
-        iter_benchmark_fixture_paths(input_folder),
+) -> Result<impl Iterator<Item = Result<Box<dyn GuestFixture>>>> {
+    Ok(block_encoding_length_input_iter_from_paths(
+        benchmark_fixture_paths(input_folder, selected_fixtures)?.into_iter(),
         loop_count,
         format,
-    )
+    ))
 }
 
 fn block_encoding_length_input_iter_from_paths<I>(

@@ -1,7 +1,7 @@
 //! Stateless validator guest program.
 
 use crate::guest_programs::{GenericGuestFixture, GuestFixture};
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
 use ere_guests_stateless_validator_ethrex::guest::{
@@ -11,7 +11,10 @@ use ere_guests_stateless_validator_reth::guest::{
     StatelessValidatorRethGuest, StatelessValidatorRethInput,
 };
 use serde::{Deserialize, Serialize};
-use std::path::{Path, PathBuf};
+use std::{
+    collections::HashSet,
+    path::{Path, PathBuf},
+};
 use strum::{AsRefStr, EnumString};
 use tracing::info;
 use walkdir::WalkDir;
@@ -55,6 +58,32 @@ pub fn iter_benchmark_fixture_paths(path: &Path) -> impl Iterator<Item = PathBuf
         .map(walkdir::DirEntry::into_path)
 }
 
+/// Resolves benchmark fixture file paths, optionally filtering by fixture name prefix.
+pub fn benchmark_fixture_paths(
+    input_folder: &Path,
+    selected_fixtures: Option<&[String]>,
+) -> Result<Vec<PathBuf>> {
+    let available_paths: Vec<_> = iter_benchmark_fixture_paths(input_folder).collect();
+    let Some(selected_fixtures) = selected_fixtures.filter(|fixtures| !fixtures.is_empty()) else {
+        return Ok(available_paths);
+    };
+
+    let fixture_prefixes = normalize_fixture_prefixes(selected_fixtures)?;
+    let mut resolved_paths = Vec::new();
+
+    for path in available_paths {
+        let fixture_name = fixture_name_from_path(&path)?;
+        if fixture_prefixes
+            .iter()
+            .any(|prefix| fixture_name.starts_with(prefix))
+        {
+            resolved_paths.push(path);
+        }
+    }
+
+    Ok(resolved_paths)
+}
+
 /// Reads and deserializes a single benchmark fixture file.
 pub fn load_benchmark_fixture(path: &Path) -> Result<StatelessValidationFixture> {
     let content = std::fs::read(path)?;
@@ -64,14 +93,15 @@ pub fn load_benchmark_fixture(path: &Path) -> Result<StatelessValidationFixture>
 /// Lazily prepares stateless validator inputs from a fixture folder.
 pub fn stateless_validator_input_iter(
     input_folder: &Path,
+    selected_fixtures: Option<&[String]>,
     el: ExecutionClient,
     existing_output_dir: Option<&Path>,
-) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>> {
-    stateless_validator_input_iter_from_paths(
-        iter_benchmark_fixture_paths(input_folder),
+) -> Result<impl Iterator<Item = Result<Box<dyn GuestFixture>>>> {
+    Ok(stateless_validator_input_iter_from_paths(
+        benchmark_fixture_paths(input_folder, selected_fixtures)?.into_iter(),
         el,
         existing_output_dir.map(Path::to_path_buf),
-    )
+    ))
 }
 
 fn stateless_validator_input_iter_from_paths<I>(
@@ -114,6 +144,32 @@ fn fixture_name_from_path(path: &Path) -> Result<String> {
         .and_then(|stem| stem.to_str())
         .map(ToOwned::to_owned)
         .with_context(|| format!("Failed to derive fixture name from {}", path.display()))
+}
+
+fn normalize_fixture_prefixes(prefixes: &[String]) -> Result<Vec<String>> {
+    let mut normalized_prefixes = Vec::with_capacity(prefixes.len());
+    let mut seen_prefixes = HashSet::new();
+
+    for prefix in prefixes {
+        let normalized_prefix = normalize_fixture_prefix(prefix)?;
+        if seen_prefixes.insert(normalized_prefix.clone()) {
+            normalized_prefixes.push(normalized_prefix);
+        }
+    }
+
+    Ok(normalized_prefixes)
+}
+
+fn normalize_fixture_prefix(prefix: &str) -> Result<String> {
+    let normalized = prefix.trim();
+    if normalized.is_empty() {
+        bail!("Fixture prefix cannot be empty");
+    }
+
+    Ok(normalized
+        .strip_suffix(".json")
+        .unwrap_or(normalized)
+        .to_owned())
 }
 
 fn stateless_validator_input_from_fixture(
