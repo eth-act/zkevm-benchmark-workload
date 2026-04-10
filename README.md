@@ -55,6 +55,10 @@ This decoupling provides several benefits:
     # Or generate from RPC
     cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
 
+    # Or generate from a custom/devnet RPC using a local genesis file
+    cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url> \
+        --genesis /path/to/genesis.json
+
     # Or listen for new blocks continuously
     cargo run --release -- rpc --follow --rpc-url <your-rpc-url>
 
