@@ -2,7 +2,7 @@
 
 use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
 use alloy_eips::BlockNumberOrTag;
-use alloy_genesis::ChainConfig;
+use alloy_genesis::{ChainConfig, Genesis};
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use async_trait::async_trait;
 use http::{HeaderName, HeaderValue};
@@ -14,7 +14,10 @@ use reth_chainspec::{Chain, HOLESKY, HOODI, NamedChain, SEPOLIA, mainnet_chain_c
 use reth_ethereum_primitives::TransactionSigned;
 use reth_rpc_api::{DebugApiClient, EthApiClient};
 use stateless::StatelessInput;
-use std::{path::Path, str::FromStr};
+use std::{
+    path::{Path, PathBuf},
+    str::FromStr,
+};
 use tokio_util::sync::CancellationToken;
 
 /// Builder for configuring an RPC client that fetches blocks and witnesses.
@@ -25,6 +28,7 @@ pub struct RpcBlocksAndWitnessesBuilder {
     last_n_blocks: Option<usize>,
     block: Option<u64>,
     stop: Option<CancellationToken>,
+    genesis: Option<PathBuf>,
 }
 
 impl RpcBlocksAndWitnessesBuilder {
@@ -45,6 +49,15 @@ impl RpcBlocksAndWitnessesBuilder {
     /// * `headers` - HTTP headers to include in RPC requests
     pub fn with_headers(mut self, headers: HeaderMap) -> Self {
         self.header_map = headers;
+        self
+    }
+
+    /// Sets the path to a geth-style `genesis.json` file used to derive the chain config.
+    ///
+    /// # Arguments
+    /// * `path` - Path to the genesis file
+    pub fn with_genesis(mut self, path: PathBuf) -> Self {
+        self.genesis = Some(path);
         self
     }
 
@@ -75,6 +88,40 @@ impl RpcBlocksAndWitnessesBuilder {
         self
     }
 
+    fn load_chain_config_from_genesis(path: &Path) -> Result<ChainConfig> {
+        if !path.exists() {
+            return Err(WGError::GenesisPathNotFound(path.display().to_string()));
+        }
+        if !path.is_file() {
+            return Err(WGError::GenesisPathNotFile(path.display().to_string()));
+        }
+
+        let contents =
+            std::fs::read_to_string(path).map_err(|e| WGError::GenesisFileReadError {
+                path: path.display().to_string(),
+                source: e,
+            })?;
+        let genesis: Genesis =
+            serde_json::from_str(&contents).map_err(|e| WGError::GenesisDeserializationError {
+                path: path.display().to_string(),
+                source: e,
+            })?;
+
+        Ok(genesis.config)
+    }
+
+    fn chain_config_from_chain_id(chain_id: u64) -> Result<ChainConfig> {
+        let chain = Chain::from_id(chain_id);
+
+        match chain.named() {
+            Some(NamedChain::Mainnet) => Ok(mainnet_chain_config()),
+            Some(NamedChain::Sepolia) => Ok(SEPOLIA.genesis.config.clone()),
+            Some(NamedChain::Hoodi) => Ok(HOODI.genesis.config.clone()),
+            Some(NamedChain::Holesky) => Ok(HOLESKY.genesis.config.clone()),
+            _ => Err(WGError::UnsupportedChain(chain_id)),
+        }
+    }
+
     /// Builds the configured `RpcBlocksAndWitnesses`.
     pub async fn build(self) -> Result<RpcFixtureGenerator> {
         let client = HttpClientBuilder::default()
@@ -88,16 +135,20 @@ impl RpcBlocksAndWitnessesBuilder {
             .map_err(|e| WGError::RpcError(e.to_string()))?
             .ok_or(WGError::ChainIdFetchError)?;
 
-        let chain = Chain::from_id(chain_id.to());
+        let rpc_chain_id: u64 = chain_id.to();
 
-        let chain_config = match chain.named() {
-            Some(NamedChain::Mainnet) => mainnet_chain_config(),
-            Some(NamedChain::Sepolia) => SEPOLIA.genesis.config.clone(),
-            Some(NamedChain::Hoodi) => HOODI.genesis.config.clone(),
-            Some(NamedChain::Holesky) => HOLESKY.genesis.config.clone(),
-            _ => {
-                return Err(WGError::UnsupportedChain(chain_id.to()));
+        let chain_config = if let Some(genesis_path) = self.genesis.as_deref() {
+            let chain_config = Self::load_chain_config_from_genesis(genesis_path)?;
+            if chain_config.chain_id != rpc_chain_id {
+                return Err(WGError::GenesisChainIdMismatch {
+                    path: genesis_path.display().to_string(),
+                    genesis_chain_id: chain_config.chain_id,
+                    rpc_chain_id,
+                });
             }
+            chain_config
+        } else {
+            Self::chain_config_from_chain_id(rpc_chain_id)?
         };
 
         Ok(RpcFixtureGenerator {

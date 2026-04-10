@@ -76,6 +76,10 @@ enum SourceCommand {
         /// Optional RPC headers to use (format: "Key:Value")
         #[arg(long)]
         rpc_header: Option<Vec<String>>,
+
+        /// Optional path to a geth-style genesis.json file for custom/devnet chain config
+        #[arg(long, value_name = "PATH")]
+        genesis: Option<PathBuf>,
     },
 }
 
@@ -146,6 +150,7 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
             block,
             rpc_url,
             rpc_header,
+            genesis,
             follow: listen,
         } => {
             let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
@@ -155,6 +160,10 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
                     .try_into()
                     .context("Failed to parse RPC headers")?;
                 builder = builder.with_headers(headers);
+            }
+
+            if let Some(genesis) = genesis {
+                builder = builder.with_genesis(genesis);
             }
 
             if listen {

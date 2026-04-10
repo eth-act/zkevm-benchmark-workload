@@ -47,6 +47,10 @@ cargo run -- tests --eest-fixtures-path /path/to/local/eest/fixtures
 # Generate from RPC (last 5 blocks)
 cargo run -- rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
+# Generate from RPC using a custom/devnet genesis file
+cargo run -- rpc --last-n-blocks 5 --rpc-url "https://your-devnet-rpc" \
+  --genesis /data/code-data/devnets/bal-devnet-3-ethrex/metadata/el/genesis.json
+
 # Generate specific block from RPC
 cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
 
@@ -89,6 +93,14 @@ When using `--follow`, the generator will:
 - Continue until interrupted with Ctrl+C
 - Handle network disconnections gracefully
 
+### RPC Custom Chain Config
+
+By default, the `rpc` subcommand only supports chain IDs with baked-in Reth chain configs. Use
+`--genesis <PATH>` to load a geth-style `genesis.json` for custom/devnet RPC endpoints.
+
+The CLI still validates `eth_chainId` against `genesis.config.chainId` and fails fast if they do
+not match.
+
 ## Command Line Options
 
 | Option | Description | Example |
@@ -105,6 +117,7 @@ When using `--follow`, the generator will:
 | `--follow` | Continuously stream new blocks | `--follow` |
 | `--rpc-url` | RPC endpoint URL | `--rpc-url "https://..."` |
 | `--rpc-header` | Custom RPC header | `--rpc-header "Auth=token"` |
+| `--genesis` | Custom geth-style genesis file for RPC chain config | `--genesis ./genesis.json` |
 | `--output-folder` | Custom output directory | `--output-folder my-fixtures` |
 
 ## Error Handling
