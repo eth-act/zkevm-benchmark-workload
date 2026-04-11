@@ -4,202 +4,62 @@
 
 <h1 align="center">zkEVM Benchmarking Workload</h1>
 
-This workspace contains code for benchmarking guest programs within different zkVMs. Although different guest programs are supported, the main use case is benchmarking the Ethereum STF by running benchmarks from the [spec tests](https://github.com/ethereum/execution-specs).
 
-## Workspace Structure
+This repository benchmarks Ethereum-related guest programs across multiple zkVMs. The normal workflow has two phases:
 
-- **`crates/metrics`**: Defines common data structures (`BenchmarkRun<Metadata>`) for storing and serializing benchmark results with generic metadata support.
-- **`crates/witness-generator`**: A library that provides functionality for generating benchmark fixture files (`BlockAndWitness`: individual block + witness pairs) required for stateless block validation by processing standard Ethereum test fixtures, RPC endpoints, or pre-collected raw input files.
-- **`crates/witness-generator-cli`**: A standalone binary that uses the `witness-generator` library to generate fixture files. These are saved in the `zkevm-fixtures-input` folder.
-- **`crates/ere-hosts`**: A standalone binary that runs benchmarks across different zkVM platforms using pre-generated fixture files from `zkevm-fixtures-input`.
-- **`crates/benchmark-runner`**: Provides a unified framework for running benchmarks across different zkVM implementations, including guest program input generation and execution orchestration.
-- **`scripts/`**: Contains helper scripts (e.g., fetching fixtures).
+1. Generate JSON fixtures from EEST, RPC, or raw-input sources.
+2. Run those fixtures through dockerized zkVM hosts and write metrics, proofs, or verification results.
 
-Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth-act/ere-guests) repository and downloaded automatically during benchmark runs.
+## Workspace At a Glance
 
-## Workflow Overview
+- **`crates/witness-generator-cli`**: fixture-generation CLI for EEST, RPC, and raw-input sources.
+- **`crates/ere-hosts`**: benchmark CLI for execution, proving, and verification jobs.
+- **`crates/benchmark-runner`**: shared orchestration for guest resolution, execution, proof flow, and verification.
+- **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 
-The benchmarking process is decoupled into two distinct phases:
-
-1. **Fixture Generation** (`witness-generator-cli`): Processes Ethereum benchmark fixtures (EEST), RPC data, or raw input files to generate individual `BlockAndWitness` fixtures as JSON files saved in `zkevm-fixtures-input/`.
-2. **Benchmark Execution** (`ere-hosts`): Reads from `zkevm-fixtures-input/` and runs performance benchmarks across different zkVM platforms.
-
-This decoupling provides several benefits:
-- Independent fixture generation and benchmark execution
-- Reuse of generated fixtures across multiple benchmark runs
+Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth-act/ere-guests) repository and are downloaded automatically unless `--bin-path` is provided.
 
 ## Prerequisites
 
-1. **Rust Toolchain:** A standard Rust installation managed by `rustup`.
-2. **Docker:** All zkVMs use EreDockerized, which means you don't need to install zkVM-specific toolchains locally. Docker handles all the compilation and execution environments.
-3. **Git:** Required for cloning the repository.
-4. **Common Shell Utilities:** The scripts require a `bash`-compatible shell and standard utilities like `curl`, `jq`, and `tar`.
+- Rust via `rustup`
+- Docker
+- Git
 
-## Setup
+## Quickstart
 
-1. **Clone the Repository:**
-
-    ```bash
-    git clone https://github.com/eth-applied-research-group/zkevm-benchmark-workload.git
-    cd zkevm-benchmark-workload
-    ```
-
-2. **Generate Benchmark Input Files (required for `stateless-validator` guest program):**
-
-    ```bash
-    cargo run --release -- tests --include 10M --include Prague
-
-    # Or generate from local EEST fixtures
-    cargo run --release -- tests --eest-fixtures-path /path/to/local/eest/fixtures
-
-    # Or generate from RPC
-    cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url>
-
-    # Or generate from a custom/devnet RPC using a local genesis file
-    cargo run --release -- rpc --last-n-blocks 2 --rpc-url <your-rpc-url> \
-        --genesis /path/to/genesis.json
-
-    # Or listen for new blocks continuously
-    cargo run --release -- rpc --follow --rpc-url <your-rpc-url>
-
-    # Or generate from pre-collected raw input files
-    cargo run --release -- raw-input --input-folder /path/to/raw/inputs
-    ```
-
-    This creates individual `.json` files in the `zkevm-fixtures-input/` directory that will be consumed by the benchmark runner.
-
-4. **Run Benchmarks:**
-
-    Run benchmarks using the generated fixture files. All zkVMs are dockerized, so no additional setup is required:
-
-    ```bash
-    cd crates/ere-hosts
-
-    # Run Ethereum stateless validator benchmarks with Reth execution client
-    cargo run --release -- --zkvms risc0 stateless-validator --execution-client reth
-
-    # Run Ethereum stateless validator benchmarks with Ethrex execution client
-    cargo run --release -- --zkvms sp1 stateless-validator --execution-client ethrex
-
-    # Run empty program benchmarks (for measuring zkVM overhead)
-    cargo run --release -- --zkvms sp1 empty-program
-
-    # Run block encoding length benchmarks
-    cargo run --release -- --zkvms sp1 block-encoding-length --loop-count 100 --format rlp
-    
-    # Run block encoding length benchmarks (with SSZ encoding format)
-    cargo run --release -- --zkvms sp1 block-encoding-length --loop-count 100 --format ssz
-    
-    # Use custom input folder for stateless validator benchmarks
-    cargo run --release -- --zkvms sp1 stateless-validator --execution-client reth --input-folder my-fixtures
-
-    # Run only fixtures whose names start with the provided prefixes
-    cargo run --release -- --zkvms sp1 stateless-validator --execution-client reth \
-        --input-folder my-fixtures \
-        --fixture test_sha256.py::test_sha256 \
-        --fixture test_memory.py::test_mcopy
-
-    # Dump raw input files used in benchmarks (opt-in)
-    cargo run --release -- --zkvms sp1 --dump-inputs my-inputs stateless-validator --execution-client reth
-
-    # Override the timeout for the selected action only
-    cargo run --release -- --zkvms sp1 --timeout 90s empty-program
-    ```
-
-    See the respective README files in each crate for detailed usage instructions.
-    The same prefix-based `--fixture` filter is also available on `block-encoding-length`.
-
-### Dumping Input Files
-
-The `--dump-inputs` flag allows you to save the raw serialized input bytes used for each benchmark run. This is useful for:
-- Debugging guest programs independently
-- Analyzing input data characteristics
-- Replaying specific test cases outside the benchmark framework
-
-When specified, input files are saved to the designated folder with the following structure:
-```
-{dump-folder}/
-  └── {sub-folder}/       # e.g., "reth" for stateless-validator, empty for others
-      └── {name}.bin      # Input files (one per benchmark)
-```
-
-Example usage:
-```bash
-cd crates/ere-hosts
-
-# Dump inputs for stateless validator with Reth
-cargo run --release -- --zkvms sp1 --dump-inputs debug-inputs stateless-validator --execution-client reth
-
-# This creates files like:
-# debug-inputs/reth/block-12345.bin
-# debug-inputs/reth/block-12346.bin
-```
-
-Note: Input files are zkVM-independent (the same input is used across all zkVMs), so they're only written once even when benchmarking multiple zkVMs.
-
-### Proof Generation & Verification
-
-The benchmark runner supports a decoupled prove/verify workflow using the `--action` flag. This allows generating proofs on one machine and verifying them on another.
-
-**Actions:**
-- `--action execute` (default): Only execute the zkVM, no proof generation.
-- `--action prove`: Execute and generate a zkVM proof, with optional proof persistence via `--save-proofs`.
-- `--action verify`: Verify pre-generated proofs loaded from disk or a remote URL.
-
-**Timeouts:**
-- Default timeouts are action-scoped: `execute=5m`, `prove=15m`, `verify=2s`.
-- Use `--timeout <duration>` to override only the timeout for the selected `--action`.
-- Duration values are human-readable, for example `90s`, `5m`, or `20m`.
-- With `--action prove`, the override applies to proof generation only; the follow-up proof verification still uses the verify timeout.
-
-**Step 1: Generate and save proofs**
+Verify that both CLIs are reachable from the repo root:
 
 ```bash
-cd crates/ere-hosts
-
-# Prove and save proof artifacts to a folder
-cargo run --release -- --zkvms sp1 --action prove --save-proofs my-proofs \
-    stateless-validator --execution-client reth
+cargo run -p witness-generator-cli -- --help
+cargo run -p ere-hosts -- --help
 ```
 
-This creates proof files in the following structure:
-```
-my-proofs/
-└── reth-v1.10.2/
-    └── sp1-v4.0.0/
-        ├── fixture1.proof
-        └── fixture2.proof
-```
+Generate sample fixtures into `zkevm-fixtures-input/`:
 
-**Step 2: Verify proofs**
-
-From a local folder:
 ```bash
-cargo run --release -- --zkvms sp1 --action verify --proofs-folder my-proofs \
-    stateless-validator --execution-client reth
+cargo run -p witness-generator-cli --release -- tests --include 10M --include Prague
 ```
 
-To override verification timeout for a slow verifier:
+Run a benchmark against those fixtures:
+
 ```bash
-cargo run --release -- --zkvms sp1 --action verify --timeout 10s \
-    --proofs-folder my-proofs \
-    stateless-validator --execution-client reth
+cargo run -p ere-hosts --release -- --zkvms sp1 stateless-validator --execution-client reth
 ```
 
-From a remote `.tar.gz` archive (e.g., hosted on GitHub releases or S3):
-```bash
-cargo run --release -- --zkvms sp1 --action verify \
-    --proofs-url https://example.com/proofs.tar.gz \
-    stateless-validator --execution-client reth
-```
+## Guides
 
-When using `--proofs-url`, the archive is downloaded and extracted to a temporary directory that is cleaned up after verification completes. The `.tar.gz` should contain the same folder structure as `--save-proofs` produces.
+- [Fixture generation guide](docs/fixture-generation.md)
+- [Benchmark execution, proofs, and verification guide](docs/benchmark-execution.md)
+- [Witness Generator CLI crate notes](crates/witness-generator-cli/README.md)
+- [Metrics crate reference](crates/metrics/README.md)
+
+The root README is intentionally short. Detailed workflow documentation lives under `docs/`.
 
 ## License
 
 Licensed under either of
 
-* MIT license (LICENSE‑MIT or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
-* Apache License, Version 2.0 (LICENSE‑APACHE or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
+* MIT license (LICENSE-MIT or [http://opensource.org/licenses/MIT](http://opensource.org/licenses/MIT))
+* Apache License, Version 2.0 (LICENSE-APACHE or [http://www.apache.org/licenses/LICENSE-2.0](http://www.apache.org/licenses/LICENSE-2.0))
 
 at your option.

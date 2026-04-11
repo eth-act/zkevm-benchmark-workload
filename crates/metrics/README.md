@@ -6,42 +6,44 @@ This crate provides data structures and utilities for handling workload performa
 
 The core data structure is `BenchmarkRun<Metadata>`, which stores:
 
-- `name`: The name of the benchmark (e.g., `fft_bench`, `aes_bench`).
+- `name`: The name of the benchmark (for example `fft_bench` or `aes_bench`).
 - `timestamp_completed`: Timestamp when the benchmark run ended.
-- `metadata`: Generic metadata of type `M` containing benchmark-specific information (e.g., block gas usage, loop counts).
+- `metadata`: Generic metadata of type `M` containing benchmark-specific information such as block gas usage or loop counts.
 - `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
 - `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
 - `verification`: Optional standalone verification metrics (`Option<VerificationMetrics>`).
 
 Both `ExecutionMetrics` and `ProvingMetrics` can be either:
-- `Success { ... }`: Contains metrics from successful runs
-- `Crashed(CrashInfo)`: Contains information about crashes that occurred
+
+- `Success { ... }`: Contains metrics from successful runs.
+- `Crashed(CrashInfo)`: Contains information about crashes that occurred.
 
 `ExecutionMetrics::Success` stores:
+
 - `total_num_cycles`: The total cycle count for the whole execution.
-- `region_cycles`: A map associating names (e.g., "setup", "compute") with the cycle counts for specific regions within the workload.
+- `region_cycles`: A map associating region names with cycle counts for specific workload phases.
 - `execution_duration`: The duration of the execution.
 
 `ProvingMetrics::Success` stores:
+
 - `proof_size`: The size of the generated proof in bytes.
 - `proving_time_ms`: The time taken to generate the proof in milliseconds.
 - `verification_time_ms`: The time taken to verify the proof in milliseconds.
 
 `HardwareInfo` is a separate utility struct that automatically detects and stores:
+
 - `cpu_model`: The CPU model name.
 - `total_ram_gib`: Total system RAM in GiB.
-- `gpus`: Information about available GPUs (detected via nvidia-smi if available).
+- `gpus`: Information about available GPUs, detected via `nvidia-smi` if available.
 
-This struct can be used independently to capture system information and can be serialized to JSON files.
+The crate can:
 
-The crate offers functionality to:
+- Serialize a `BenchmarkRun<Metadata>` to JSON.
+- Deserialize a `BenchmarkRun<Metadata>` from JSON.
+- Write a `BenchmarkRun<Metadata>` to a file, creating parent directories if needed.
+- Read a `BenchmarkRun<Metadata>` from a file.
 
-- Serialize a `BenchmarkRun<Metadata>` to a JSON string.
-- Deserialize a `BenchmarkRun<Metadata>` from a JSON string.
-- Serialize and write a `BenchmarkRun<Metadata>` to a file (creating parent directories if needed).
-- Read and deserialize a `BenchmarkRun<Metadata>` from a file.
-
-The metadata type `M` must implement `Serialize` and `DeserializeOwned` to enable JSON serialization.
+The metadata type `M` must implement `Serialize` and `DeserializeOwned`.
 
 ## Usage
 
@@ -49,18 +51,18 @@ Add this crate to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-zkevm-metrics = { path = "../metrics" } # Adjust path as needed
+zkevm-metrics = { path = "../metrics" }
 ```
 
 Example:
 
 ```rust
-use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
+use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::iter::FromIterator;
 use std::env::temp_dir;
+use std::iter::FromIterator;
 use std::time::Duration;
-use serde_derive::{Serialize, Deserialize};
+use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct Metadata {
@@ -101,27 +103,17 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             }),
             verification: None,
         },
-        // ... other workloads
     ];
 
-    // Serialize to JSON string
     let json_string = BenchmarkRun::to_json(&metrics_data)?;
     println!("Serialized JSON: {}", json_string);
 
-    
     for metrics in metrics_data.into_iter() {
-        // Create a path in the system's temp directory
         let output_path = temp_dir().join("metrics_output.json");
-
-        // Write to file
         metrics.to_path(&output_path)?;
-        println!("Metrics written to {:?}", &output_path);
-
-        // Read from file
         let read_metrics = BenchmarkRun::from_path(output_path)?;
         assert_eq!(metrics, read_metrics);
     }
-    println!("Successfully read metrics back from file.");
 
     Ok(())
 }
@@ -133,4 +125,4 @@ Functions return `Result<_, MetricsError>`.
 
 ## License
 
-This crate inherits its license from the workspace. See the root `Cargo.toml` or `LICENSE` file.
+This crate inherits its license from the workspace. See the root `Cargo.toml` or `LICENSE` files.
