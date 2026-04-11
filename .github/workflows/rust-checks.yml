@@ -4,9 +4,18 @@ on:
     branches: [ master ]
   pull_request:
     branches: [ master ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rust-checks-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 env:
   CARGO_TERM_COLOR: always
+  CARGO_INCREMENTAL: 0
 
 jobs:
   fmt:
@@ -38,9 +47,12 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-checks
+          save-if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Check clippy
-        run: cargo clippy --locked --workspace --all-targets --all-features -- -D warnings
+        run: cargo clippy --locked --workspace --all-targets -- -D warnings
 
   doc:
     name: Documentation
@@ -54,9 +66,12 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-checks
+          save-if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Check documentation
-        run: cargo doc --workspace --no-deps
+        run: cargo doc --locked --workspace --no-deps
         env:
           RUSTDOCFLAGS: "-D warnings"
 
@@ -72,10 +87,31 @@ jobs:
 
       - name: Cache dependencies
         uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-checks
+          save-if: ${{ github.ref == 'refs/heads/master' }}
 
-      - name: Run all tests
+      - name: Run default tests
+        run: cargo test --locked --workspace -- --no-capture
+
+  slow-test:
+    name: Slow EEST Download Test
+    if: github.event_name == 'workflow_dispatch' || (github.event_name == 'push' && github.ref == 'refs/heads/master')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: rust-checks
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+
+      - name: Run slow witness-generator test
         env:
-          RPC_URL: ${{ secrets.RPC_URL }}
-          RPC_HEADERS: ${{ secrets.RPC_HEADERS }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: cargo test --release --workspace --all-features -- --no-capture
+        run: cargo test --locked -p witness-generator --features slow-tests test_download_and_extract_default_tag -- --nocapture

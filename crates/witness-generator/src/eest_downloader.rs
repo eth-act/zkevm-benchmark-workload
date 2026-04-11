@@ -207,7 +207,8 @@ fn is_semver_tag(tag: &str) -> bool {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
+    #[cfg(feature = "slow-tests")]
+    use super::download_and_extract;
 
     #[cfg(feature = "slow-tests")]
     #[tokio::test]

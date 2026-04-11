@@ -1,140 +1,99 @@
 # Witness Generator CLI
 
-This crate provides a standalone binary for generating execution witnesses for Ethereum blockchain test cases using the `witness-generator` library.
+This README is crate-local. Use [`../../docs/fixture-generation.md`](../../docs/fixture-generation.md) for the primary operator workflow from the workspace root, and use this file for crate-specific notes such as Docker usage and binary-local behavior.
 
 ## Overview
 
-The witness generator CLI is a command-line interface that processes standard Ethereum test suites (specifically blockchain tests found in `zkevm-fixtures`), RPC endpoints, or pre-collected raw input files and produces execution witnesses as individual fixture files for use by the benchmark runner.
+`witness-generator-cli` is the standalone binary for generating JSON fixtures consumed by `ere-hosts`.
 
-The binary provides different data sources:
-- **EEST (Execution Spec Tests)**: Processes blockchain test fixtures using `ef_tests::cases::blockchain_test::run_case`. Can use fixtures from a specific release tag or from a local directory path.
-- **RPC**: Pulls blocks directly from RPC endpoints and generates witnesses. Supports one-time generation of specific blocks, last N blocks, or continuous streaming of new blocks.
-- **Raw Input**: Downloads pre-collected JSON-RPC response files (`eth_block.json` and `debug_executionWitness.json`) from URLs listed in `raw_input_parts.txt`, along with a shared `chain_config.json`.
+It supports three data sources:
 
-Each test case generates an individual JSON fixture file that can be consumed by the `ere-hosts` benchmark runner.
+- **EEST**: generate fixtures from execution-spec test releases or a local EEST directory.
+- **RPC**: generate fixtures from live RPC blocks and execution witnesses.
+- **Raw Input**: generate fixtures from pre-collected JSON-RPC response files listed in `raw_input_parts.txt`.
 
-## Usage
-
-### Docker Usage
-
-The witness generator supports containerized deployment via Docker:
+The current CLI surface is defined by `clap`; inspect it from the workspace root with:
 
 ```bash
-# Build the Docker image
-docker build -f Dockerfile -t witness-generator-cli .
-
-# Run with Docker (mounting output directory)
-docker run -v $(pwd)/output:/app/output witness-generator-cli tests --include Prague
+cargo run -p witness-generator-cli -- --help
 ```
 
-### Binary Usage
+## Running From The Workspace Root
 
-The crate provides a standalone binary for generating fixture files:
+Common examples:
 
 ```bash
 # Generate fixtures from execution spec tests
-cargo run -- tests
+cargo run -p witness-generator-cli --release -- tests --include Prague
 
-# Generate from specific tag
-cargo run -- tests --tag v0.1.0
+# Generate fixtures from a specific EEST tag
+cargo run -p witness-generator-cli --release -- tests --tag v0.1.0
 
-# Include/exclude specific tests
-cargo run -- tests --include "Prague" --exclude "SSTORE"
+# Generate fixtures from a local EEST folder
+cargo run -p witness-generator-cli --release -- tests \
+    --eest-fixtures-path /path/to/local/eest/fixtures
 
-# Generate from local EEST fixtures path
-cargo run -- tests --eest-fixtures-path /path/to/local/eest/fixtures
+# Generate fixtures from the last 5 RPC blocks
+cargo run -p witness-generator-cli --release -- rpc \
+    --last-n-blocks 5 \
+    --rpc-url <RPC_URL>
 
-# Generate from RPC (last 5 blocks)
-cargo run -- rpc --last-n-blocks 5 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
+# Listen for finalized blocks continuously
+cargo run -p witness-generator-cli --release -- rpc \
+    --follow \
+    --rpc-url <RPC_URL>
 
-# Generate from RPC using a custom/devnet genesis file
-cargo run -- rpc --last-n-blocks 5 --rpc-url "https://your-devnet-rpc" \
-  --genesis /data/code-data/devnets/bal-devnet-3-ethrex/metadata/el/genesis.json
+# Generate fixtures from pre-collected raw inputs
+cargo run -p witness-generator-cli --release -- raw-input \
+    --input-folder /path/to/raw/inputs
 
-# Generate specific block from RPC
-cargo run -- rpc --block 20000000 --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
-
-# Listen for new blocks continuously
-cargo run -- rpc --follow --rpc-url "https://mainnet.infura.io/v3/YOUR_KEY"
-
-# Generate from pre-collected raw input URLs
-cargo run -- raw-input --input-folder /path/to/raw/inputs
-
-# Custom output folder
-cargo run -- --output-folder my-fixtures tests
+# Write fixtures to a custom folder
+cargo run -p witness-generator-cli --release -- \
+    --output-folder my-fixtures \
+    tests --include Prague
 ```
 
-### EEST Fixture Sources
+## Docker Usage
 
-When using the `tests` subcommand, you have two options for specifying the source of EEST fixtures:
-
-1. **Release Tag** (default): Use `--tag` to specify a particular EEST release tag (e.g., "v0.1.0"). If no tag is specified, the latest release will be used.
-2. **Local Path**: Use `--eest-fixtures-path` to point to a local directory containing EEST fixture files.
-
-**Note:** The `--tag` and `--eest-fixtures-path` options are mutually exclusive - you can only use one at a time.
-
-**Example with local path:**
-```bash
-cargo run -- tests --eest-fixtures-path ./my-local-fixtures --include "Prague"
-```
-
-### RPC Streaming Support
-
-The RPC data source now supports continuous streaming of new blocks using the `--follow` flag:
+Build the image from the workspace root:
 
 ```bash
-cargo run -- rpc --follow --rpc-url "https://your-rpc.com" --rpc-header "Authorization=Bearer YOUR_TOKEN"
+docker build -f crates/witness-generator-cli/Dockerfile -t witness-generator-cli .
 ```
 
-When using `--follow`, the generator will:
-- Listen for new blocks as they are finalized
-- Generate witness data for each new block
-- Write fixture files as they are processed
-- Continue until interrupted with Ctrl+C
-- Handle network disconnections gracefully
+Run it with an explicit output folder mounted from the host:
 
-### RPC Custom Chain Config
+```bash
+docker run --rm -v "$(pwd)/output:/app/output" witness-generator-cli \
+    --output-folder /app/output \
+    tests --include Prague
+```
 
-By default, the `rpc` subcommand only supports chain IDs with baked-in Reth chain configs. Use
-`--genesis <PATH>` to load a geth-style `genesis.json` for custom/devnet RPC endpoints.
+The Docker build context must be the repository root because the Dockerfile copies the full workspace.
 
-The CLI still validates `eth_chainId` against `genesis.config.chainId` and fails fast if they do
-not match.
+## Source-Specific Notes
 
-## Command Line Options
+### EEST
 
-| Option | Description | Example |
-|--------|-------------|---------|
-| `tests` | Generate from EEST fixtures | `cargo run -- tests` |
-| `rpc` | Generate from RPC endpoint | `cargo run -- rpc --rpc-url <url>` |
-| `raw-input` | Generate from raw input URL lists | `cargo run -- raw-input --input-folder ./inputs` |
-| `--tag` | Specify EEST release tag | `--tag v0.1.0` |
-| `--eest-fixtures-path` | Use local EEST fixtures | `--eest-fixtures-path ./fixtures` |
-| `--include` | Include tests matching pattern | `--include "Prague"` |
-| `--exclude` | Exclude tests matching pattern | `--exclude "SSTORE"` |
-| `--last-n-blocks` | Process last N blocks from RPC | `--last-n-blocks 5` |
-| `--block` | Process specific block number | `--block 20000000` |
-| `--follow` | Continuously stream new blocks | `--follow` |
-| `--rpc-url` | RPC endpoint URL | `--rpc-url "https://..."` |
-| `--rpc-header` | Custom RPC header | `--rpc-header "Auth=token"` |
-| `--genesis` | Custom geth-style genesis file for RPC chain config | `--genesis ./genesis.json` |
-| `--output-folder` | Custom output directory | `--output-folder my-fixtures` |
+- `--tag` and `--eest-fixtures-path` are mutually exclusive.
+- `--include` and `--exclude` may be repeated to narrow the selected cases.
 
-## Error Handling
+### RPC
 
-The binary will exit with an error code if fixture generation fails. Individual fixture file creation is handled gracefully with detailed error messages.
+- `--last-n-blocks`, `--block`, and `--follow` are mutually exclusive.
+- `--rpc-header` values must use `key:value` or `key: value`.
+- `--genesis <PATH>` loads a geth-style `genesis.json` for custom or devnet chain configs.
+- The CLI validates `eth_chainId` against `genesis.config.chainId` when `--genesis` is used.
 
-## Architecture
+### Raw Input
 
-The CLI acts as a wrapper around the `witness-generator` library, providing:
-
-- Command-line argument parsing using `clap`
-- Docker support for containerized deployment
+- `--input-folder` must contain `chain_config.json` and `raw_input_parts.txt`.
+- Each raw-input pair should resolve to `eth_block.json` and `debug_executionWitness.json`.
 
 ## Library Integration
 
-For programmatic use, consider using the `witness-generator` library directly instead of this CLI. See the `witness-generator` crate documentation for library usage examples.
+For programmatic use, prefer the `witness-generator` library directly instead of this CLI wrapper.
 
 ## License
 
-This crate inherits its license from the workspace. See the root `Cargo.toml` or `LICENSE` file.
+This crate inherits its license from the workspace. See the root `Cargo.toml` or `LICENSE` files.
