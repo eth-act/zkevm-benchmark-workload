@@ -109,18 +109,18 @@ ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f2
 ere-io = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-io" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "downloader" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", version = "0.8.0", package = "downloader" }
 
-reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
-reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
-ef-tests = { git = "https://github.com/paradigmxyz/stateless", rev = "ed189a51931e8589102f3139d48fdbb3bbe4c1f7" }
-stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "ed189a51931e8589102f3139d48fdbb3bbe4c1f7", default-features = false }
+reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", branch = "bal-devnet-3" }
+reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", branch = "bal-devnet-3" }
+reth-chainspec = { git = "https://github.com/paradigmxyz/reth", branch = "bal-devnet-3" }
+ef-tests = { git = "https://github.com/paradigmxyz/stateless", branch = "bal-devnet-3" }
+stateless = { git = "https://github.com/paradigmxyz/stateless", branch = "bal-devnet-3", default-features = false }
 
 # alloy
 alloy-eips = { version = "1.5" }
@@ -155,7 +155,54 @@ flate2 = "1.1"
 tar = "0.4"
 toml = "0.8"
 
-[patch."https://github.com/paradigmxyz/stateless"]
-stateless = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
-ef-tests = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
-tries = { git = "https://github.com/jsign/stateless", branch = "jsign-workload-fork" }
+[patch.crates-io]
+# Keep the revm/alloy stack aligned with the BAL devnet branches used by
+# stateless, reth, and ere-guests.
+revm = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-bytecode = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-context = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-context-interface = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-database = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-database-interface = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-handler = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-inspector = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-inspectors = { git = "https://github.com/paradigmxyz/revm-inspectors", rev = "24becc3" }
+revm-interpreter = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-precompile = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+revm-state = { git = "https://github.com/bluealloy/revm", rev = "30e1c40" }
+alloy-evm = { git = "https://github.com/alloy-rs/evm", branch = "bal-devnet3" }
+alloy-consensus = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-consensus-any = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-eips = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-genesis = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-json-rpc = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-network = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-network-primitives = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-client = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-admin = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-anvil = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-any = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-beacon = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-debug = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-engine = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-eth = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-mev = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-trace = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-rpc-types-txpool = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-serde = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-signer = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-signer-local = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-transport = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-transport-http = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+alloy-tx-macros = { git = "https://github.com/alloy-rs/alloy", branch = "bal-devnet2" }
+op-alloy-consensus = { git = "https://github.com/alloy-rs/op-alloy", branch = "bal-devnet2" }
+
+[patch."https://github.com/eth-act/ere-guests"]
+block-encoding-length = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
+stateless-validator-reth = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
+stateless-validator-ethrex = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
+guest = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
+integration-tests = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
+downloader = { git = "https://github.com/jsign/ere-guests", branch = "bal-devnet-3" }
