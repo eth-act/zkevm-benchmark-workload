@@ -1,8 +1,7 @@
 //! Proof verification from disk or remote URL
 
 use anyhow::{anyhow, Context, Result};
-use ere_dockerized::DockerizedzkVM;
-use ere_zkvm_interface::{zkVM, ProofKind};
+use ere_dockerized::{DockerizedzkVM, EncodedProof};
 use std::fs;
 use std::panic;
 use std::path::{Path, PathBuf};
@@ -48,7 +47,7 @@ pub fn run_verify_from_disk(
         );
         let proof_bytes = fs::read(first.path())
             .with_context(|| format!("Failed to read proof from {}", first.path().display()))?;
-        let proof = ere_zkvm_interface::Proof::new(ProofKind::Compressed, proof_bytes);
+        let proof = EncodedProof(proof_bytes);
         let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.verify(&proof)));
         info!("Warmup complete");
     }
@@ -75,11 +74,7 @@ pub fn run_verify_from_disk(
 
         let proof_bytes = fs::read(entry.path())
             .with_context(|| format!("Failed to read proof from {}", entry.path().display()))?;
-        // NOTE: save_proof writes raw bytes from proof.as_bytes(), which strips the
-        // ProofKind discriminant. We reconstruct as Compressed here because the prove path
-        // always uses ProofKind::Compressed. If other proof kinds are added, the file
-        // format should be extended to store the proof kind.
-        let proof = ere_zkvm_interface::Proof::new(ProofKind::Compressed, proof_bytes);
+        let proof = EncodedProof(proof_bytes);
 
         let verify_start = std::time::Instant::now();
         let verification_result =
@@ -89,7 +84,7 @@ pub fn run_verify_from_disk(
             Ok(Ok(_public_values)) => {
                 let verification_time_ms = verify_start.elapsed().as_millis();
                 VerificationMetrics::Success {
-                    proof_size: proof.as_bytes().len(),
+                    proof_size: proof.len(),
                     verification_time_ms,
                 }
             }

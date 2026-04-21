@@ -11,7 +11,6 @@ default = []
 [dependencies]
 benchmark-runner.workspace = true
 
-ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
 
 ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }

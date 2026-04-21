@@ -1,7 +1,7 @@
 //! Empty program guest program.
 
 use crate::guest_programs::{GenericGuestFixture, GuestFixture};
-use ere_zkvm_interface::Input;
+use ere_dockerized::Input;
 
 /// Generate inputs for the empty program guest program.
 pub fn empty_program_input() -> anyhow::Result<Box<dyn GuestFixture>> {
