@@ -104,17 +104,15 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-zkvm-interface = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-zkvm-interface" }
-ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-dockerized" }
-ere-io = { git = "https://github.com/eth-act/ere", rev = "3914a12f18b5f27807114048ae4829f3e999806b", package = "ere-io" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.8.0" }
 
 # ere-guests
-ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "block-encoding-length" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.8.0", package = "downloader" }
+ere-guests-block-encoding-length = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "block-encoding-length" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.9.0", package = "downloader" }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
 reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0" }
