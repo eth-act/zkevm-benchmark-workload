@@ -11,7 +11,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use tracing::error;
+use tracing::{error, info};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
@@ -113,16 +113,37 @@ impl Drop for EESTFixtureGenerator {
 
 #[async_trait]
 impl FixtureGenerator for EESTFixtureGenerator {
-    /// Loads EEST blockchain tests, applies include/exclude filters, and generates typed witness fixtures in parallel.
-    async fn generate(&self) -> Result<Vec<Box<dyn Fixture>>> {
-        let suite_path = self.eest_fixtures.join("fixtures/blockchain_tests");
+    /// Streams matching EEST blockchain tests to disk without retaining every generated fixture.
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let suite_path = self.suite_path()?;
+        let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
+        info!(
+            "Generating EEST fixtures from {} source files",
+            test_file_paths.len()
+        );
 
-        if !suite_path.exists() {
-            return Err(WGError::TestSuitePathNotFound(
-                suite_path.display().to_string(),
-            ));
+        let mut count = 0;
+        for test_path in test_file_paths {
+            let tests =
+                load_filtered_tests(&test_path, &self.filter_include, &self.filter_exclude)?;
+            let test_count = tests.len();
+            if test_count == 0 {
+                continue;
+            }
+
+            tests.par_iter().try_for_each(|(name, case)| {
+                let fixture = gen_fixture(name, case)?;
+                write_fixture(fixture.as_ref(), path)
+            })?;
+            count += test_count;
         }
 
+        Ok(count)
+    }
+
+    /// Loads EEST blockchain tests, applies include/exclude filters, and generates typed witness fixtures in parallel.
+    async fn generate(&self) -> Result<Vec<Box<dyn Fixture>>> {
+        let suite_path = self.suite_path()?;
         let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
         let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
         for path in test_file_paths {
@@ -139,6 +160,20 @@ impl FixtureGenerator for EESTFixtureGenerator {
             .collect::<Result<Vec<_>>>()?;
 
         Ok(bws)
+    }
+}
+
+impl EESTFixtureGenerator {
+    fn suite_path(&self) -> Result<PathBuf> {
+        let suite_path = self.eest_fixtures.join("fixtures/blockchain_tests");
+
+        if !suite_path.exists() {
+            return Err(WGError::TestSuitePathNotFound(
+                suite_path.display().to_string(),
+            ));
+        }
+
+        Ok(suite_path)
     }
 }
 
@@ -208,6 +243,23 @@ fn test_case_load_error(path: &Path, source: EFTestError) -> WGError {
         path: path.display().to_string(),
         source: Box::new(source),
     }
+}
+
+fn write_fixture(fixture: &dyn Fixture, path: &Path) -> Result<()> {
+    let output_path = path.join(format!("{}.json", fixture.name()));
+    let mut buf = Vec::new();
+    let mut serializer = serde_json::Serializer::pretty(&mut buf);
+    erased_serde::serialize(fixture, &mut serializer).map_err(|error| {
+        WGError::FixtureSerializationError {
+            name: fixture.name().to_owned(),
+            source: error,
+        }
+    })?;
+
+    std::fs::write(&output_path, buf).map_err(|error| WGError::FixtureWriteError {
+        path: output_path.display().to_string(),
+        source: error,
+    })
 }
 
 fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
