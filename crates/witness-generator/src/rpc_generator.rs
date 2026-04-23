@@ -273,6 +273,7 @@ impl RpcFixtureGenerator {
             let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
                 &self.client,
                 block_hash,
+                None,
             )
             .await
             .map_err(|e| WGError::RpcError(e.to_string()))?;
@@ -305,6 +306,7 @@ impl RpcFixtureGenerator {
         let witness = DebugApiClient::<()>::debug_execution_witness(
             &self.client,
             BlockNumberOrTag::Number(block_num),
+            None,
         )
         .await
         .map_err(|e| WGError::RpcError(e.to_string()))?;

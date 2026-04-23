@@ -1,10 +1,16 @@
 //! Generate benchmark fixtures for EEST blockchain tests.
 
 use async_trait::async_trait;
-use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
+use ef_tests::{
+    Error as EFTestError, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest,
+};
 use rayon::prelude::*;
 use reth_chainspec::{Chain, blob_params_to_schedule, create_chain_config};
-use std::path::{Path, PathBuf};
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
 use tracing::error;
 use walkdir::{DirEntry, WalkDir};
 
@@ -120,30 +126,11 @@ impl FixtureGenerator for EESTFixtureGenerator {
         let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
         let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
         for path in test_file_paths {
-            let test_case =
-                BlockchainTestCase::load(&path).map_err(|e| WGError::TestCaseLoadError {
-                    path: path.display().to_string(),
-                    source: Box::new(e) as Box<dyn std::error::Error + Send + Sync>,
-                })?;
-
-            let file_tests: Vec<(String, BlockchainTest)> = test_case
-                .tests
-                .into_iter()
-                .map(|(name, case)| {
-                    (
-                        name.split('/').next_back().unwrap_or(&name).to_string(),
-                        case,
-                    )
-                })
-                .filter(|(name, _)| {
-                    !self
-                        .filter_exclude
-                        .iter()
-                        .any(|filter| name.contains(filter))
-                })
-                .filter(|(name, _)| self.filter_include.iter().all(|f| name.contains(f)))
-                .collect();
-            tests.extend(file_tests);
+            tests.extend(load_filtered_tests(
+                &path,
+                &self.filter_include,
+                &self.filter_exclude,
+            )?);
         }
 
         let bws = tests
@@ -152,6 +139,74 @@ impl FixtureGenerator for EESTFixtureGenerator {
             .collect::<Result<Vec<_>>>()?;
 
         Ok(bws)
+    }
+}
+
+fn load_filtered_tests(
+    path: &Path,
+    filter_include: &[String],
+    filter_exclude: &[String],
+) -> Result<Vec<(String, BlockchainTest)>> {
+    let raw_tests = load_raw_tests(path)?;
+
+    raw_tests
+        .into_iter()
+        .filter(|(name, _)| {
+            let name = display_test_name(name);
+            matches_filters(name, filter_include, filter_exclude)
+        })
+        .map(|(name, case)| {
+            let name = display_test_name(&name).to_string();
+            let case = serde_json::from_value(case).map_err(|error| {
+                test_case_load_error(
+                    path,
+                    EFTestError::CouldNotDeserialize {
+                        path: path.into(),
+                        error,
+                    },
+                )
+            })?;
+
+            Ok((name, case))
+        })
+        .collect()
+}
+
+fn load_raw_tests(path: &Path) -> Result<BTreeMap<String, serde_json::Value>> {
+    let contents = fs::read_to_string(path).map_err(|error| {
+        test_case_load_error(
+            path,
+            EFTestError::Io {
+                path: path.into(),
+                error,
+            },
+        )
+    })?;
+
+    serde_json::from_str(&contents).map_err(|error| {
+        test_case_load_error(
+            path,
+            EFTestError::CouldNotDeserialize {
+                path: path.into(),
+                error,
+            },
+        )
+    })
+}
+
+fn display_test_name(name: &str) -> &str {
+    name.split('/').next_back().unwrap_or(name)
+}
+
+fn matches_filters(name: &str, filter_include: &[String], filter_exclude: &[String]) -> bool {
+    !filter_exclude.iter().any(|filter| name.contains(filter))
+        && filter_include.iter().all(|filter| name.contains(filter))
+}
+
+fn test_case_load_error(path: &Path, source: EFTestError) -> WGError {
+    WGError::TestCaseLoadError {
+        path: path.display().to_string(),
+        source: Box::new(source),
     }
 }
 
