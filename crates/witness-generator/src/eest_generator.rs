@@ -11,7 +11,7 @@ use std::{
     fs,
     path::{Path, PathBuf},
 };
-use tracing::{error, info};
+use tracing::{error, info, warn};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
@@ -131,11 +131,20 @@ impl FixtureGenerator for EESTFixtureGenerator {
                 continue;
             }
 
-            tests.par_iter().try_for_each(|(name, case)| {
-                let fixture = gen_fixture(name, case)?;
-                write_fixture(fixture.as_ref(), path)
-            })?;
-            count += test_count;
+            let generated_count = tests
+                .par_iter()
+                .map(|(name, case)| {
+                    let Some(fixture) = gen_fixture_or_skip(name, case)? else {
+                        return Ok(0);
+                    };
+
+                    write_fixture(fixture.as_ref(), path)?;
+                    Ok(1)
+                })
+                .collect::<Result<Vec<_>>>()?
+                .into_iter()
+                .sum::<usize>();
+            count += generated_count;
         }
 
         Ok(count)
@@ -156,8 +165,11 @@ impl FixtureGenerator for EESTFixtureGenerator {
 
         let bws = tests
             .par_iter()
-            .map(|(name, case)| gen_fixture(name, case))
-            .collect::<Result<Vec<_>>>()?;
+            .map(|(name, case)| gen_fixture_or_skip(name, case))
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect();
 
         Ok(bws)
     }
@@ -260,6 +272,17 @@ fn write_fixture(fixture: &dyn Fixture, path: &Path) -> Result<()> {
         path: output_path.display().to_string(),
         source: error,
     })
+}
+
+fn gen_fixture_or_skip(name: &str, case: &BlockchainTest) -> Result<Option<Box<dyn Fixture>>> {
+    match gen_fixture(name, case) {
+        Ok(fixture) => Ok(Some(fixture)),
+        Err(WGError::NoTargetBlock(name)) => {
+            warn!("Skipping EEST test case {name}: no executed block/witness was produced");
+            Ok(None)
+        }
+        Err(error) => Err(error),
+    }
 }
 
 fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
