@@ -296,6 +296,7 @@ fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
 
     let (block, witness) = BlockchainTestCase::run_single_case(name, case)
         .map_err(|e| WGError::TestCaseExecutionError {
+            name: name.to_owned(),
             source: Box::new(e),
         })?
         .into_iter()

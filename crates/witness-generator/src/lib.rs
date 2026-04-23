@@ -66,8 +66,10 @@ pub enum WGError {
     NoTargetBlock(String),
 
     /// Test case execution error
-    #[error("test case execution error: {source}")]
+    #[error("test case execution error for {name}: {source}")]
     TestCaseExecutionError {
+        /// Name of the test case
+        name: String,
         /// Underlying error
         #[source]
         source: Box<dyn std::error::Error + Send + Sync>,
