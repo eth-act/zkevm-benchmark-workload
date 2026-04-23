@@ -6,7 +6,6 @@ edition = "2021"
 [dependencies]
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
-ere-zkvm-interface.workspace = true
 ere-dockerized.workspace = true
 
 rayon.workspace = true

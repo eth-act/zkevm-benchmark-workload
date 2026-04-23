@@ -1,7 +1,7 @@
 //! Guest program input generation and metadata types
 
-use ere_guests_guest::Io;
-use ere_zkvm_interface::zkvm::Input;
+use ere_dockerized::Input;
+use ere_guests_guest::codec::Encode;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
 use std::fmt::Debug;
@@ -61,10 +61,12 @@ where
         Ok(Self {
             name: name.as_ref().to_string(),
             input: Input::new().with_prefixed_stdin(
-                G::Io::serialize_input(&input)
+                input
+                    .encode_to_vec()
                     .map_err(|e| anyhow::anyhow!("Failed to serialize guest input: {}", e))?,
             ),
-            expected_public_values: G::Io::serialize_output(&output)
+            expected_public_values: output
+                .encode_to_vec()
                 .map_err(|e| anyhow::anyhow!("Failed to serialize guest output: {}", e))?,
             metadata,
         })

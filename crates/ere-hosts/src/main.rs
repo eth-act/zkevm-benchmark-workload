@@ -12,10 +12,9 @@ use benchmark_runner::{
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
 };
-use ere_dockerized::{DockerizedzkVMConfig, zkVMKind};
+use ere_dockerized::{DockerizedzkVMConfig, ProverResource, zkVMKind};
 
 use clap::Parser;
-use ere_zkvm_interface::ProverResource;
 use std::time::Duration;
 use tracing::info;
 use tracing_subscriber::EnvFilter;

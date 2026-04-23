@@ -2,8 +2,7 @@
 
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
-use ere_dockerized::zkVMKind;
-use ere_zkvm_interface::ProverResource;
+use ere_dockerized::{ProverResource, zkVMKind};
 use std::path::PathBuf;
 use std::time::Duration;
 
