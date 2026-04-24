@@ -92,34 +92,6 @@ pub enum GuestProgramCommand {
     },
     /// Empty program
     EmptyProgram,
-
-    /// Block encoding length
-    BlockEncodingLength {
-        /// Input folder for benchmark fixtures
-        #[arg(short, long, default_value = "zkevm-fixtures-input")]
-        input_folder: PathBuf,
-
-        /// Fixture name prefix to run. Repeat to select multiple prefixes.
-        #[arg(long, value_name = "PREFIX")]
-        fixture: Option<Vec<String>>,
-
-        /// Number of times to loop the benchmark
-        #[arg(long)]
-        loop_count: u16,
-
-        /// Encoding format
-        #[arg(short, long, value_enum)]
-        format: BlockEncodingFormat,
-    },
-}
-
-/// Encoding formats for block encoding length program
-#[derive(Debug, Clone, ValueEnum)]
-pub enum BlockEncodingFormat {
-    /// RLP encoding
-    Rlp,
-    /// SSZ encoding
-    Ssz,
 }
 
 /// Execution clients for the stateless validator
@@ -181,15 +153,6 @@ impl From<BenchmarkAction> for Action {
             BenchmarkAction::Execute => Self::Execute,
             BenchmarkAction::Prove => Self::Prove,
             BenchmarkAction::Verify => Self::Verify,
-        }
-    }
-}
-
-impl From<BlockEncodingFormat> for ere_guests_block_encoding_length::guest::BlockEncodingFormat {
-    fn from(format: BlockEncodingFormat) -> Self {
-        match format {
-            BlockEncodingFormat::Rlp => Self::Rlp,
-            BlockEncodingFormat::Ssz => Self::Ssz,
         }
     }
 }

@@ -39,13 +39,6 @@ Run the empty program:
 cargo run -p ere-hosts --release -- --zkvms sp1 empty-program
 ```
 
-Run the block-encoding-length guest:
-
-```bash
-cargo run -p ere-hosts --release -- --zkvms sp1 \
-    block-encoding-length --loop-count 100 --format rlp
-```
-
 Use a custom fixture folder:
 
 ```bash
@@ -62,8 +55,6 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --fixture test_sha256.py::test_sha256 \
     --fixture test_memory.py::test_mcopy
 ```
-
-The same prefix-based `--fixture` filter is also available on `block-encoding-length`.
 
 ## Action Model
 

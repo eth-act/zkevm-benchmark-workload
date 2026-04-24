@@ -23,7 +23,6 @@ auto_impl.workspace = true
 ere-guests-downloader.workspace = true
 tempfile.workspace = true
 
-ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
 ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
     "host",
 ] }
