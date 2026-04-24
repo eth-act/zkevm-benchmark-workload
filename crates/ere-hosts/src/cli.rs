@@ -58,7 +58,7 @@ pub struct Cli {
     pub proofs_url: Option<String>,
 
     /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
-    /// from the latest ere-guests release.
+    /// from the resolved ere-guests release or commit artifacts.
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
 

@@ -107,11 +107,11 @@ benchmark-runner = { path = "crates/benchmark-runner" }
 ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.8.0" }
 
 # ere-guests
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "92616585972cd808697bfda904cc92fbe79c5311", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "92616585972cd808697bfda904cc92fbe79c5311", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "92616585972cd808697bfda904cc92fbe79c5311", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "92616585972cd808697bfda904cc92fbe79c5311", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "92616585972cd808697bfda904cc92fbe79c5311", package = "downloader" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "downloader" }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
 reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }

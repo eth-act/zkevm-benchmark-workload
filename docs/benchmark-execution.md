@@ -130,7 +130,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Operational Notes
 
-- Guest binaries are downloaded automatically unless `--bin-path` is set.
+- Guest binaries are downloaded automatically unless `--bin-path` is set. Tagged `ere-guests` dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`.
 - Use `--force-rerun` to ignore existing output and rerun a workload.
 - `--resource gpu` selects GPU proving resources where supported.
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
