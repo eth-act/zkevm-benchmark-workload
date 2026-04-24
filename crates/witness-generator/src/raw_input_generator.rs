@@ -106,9 +106,7 @@ impl RawInputFixtureGenerator {
 
     fn read_chain_config(&self) -> Result<ChainConfig> {
         let chain_config_path = self.input_folder.join("chain_config.json");
-        let compat: alloy_genesis::serde_bincode_compat::ChainConfig<'_> =
-            Self::read_json(&chain_config_path)?;
-        Ok(compat.into())
+        Self::read_json(&chain_config_path)
     }
 
     fn read_url_pairs(&self) -> Result<Vec<FixtureUrlPair>> {

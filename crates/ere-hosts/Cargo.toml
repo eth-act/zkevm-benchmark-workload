@@ -13,8 +13,6 @@ benchmark-runner.workspace = true
 
 ere-dockerized.workspace = true
 
-ere-guests-block-encoding-length = { "workspace" = true, features = ["host"] }
-
 anyhow.workspace = true
 clap.workspace = true
 humantime.workspace = true

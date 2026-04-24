@@ -4,7 +4,7 @@
 
 use anyhow::{Context, Result, bail};
 use benchmark_runner::{
-    block_encoding_length_program, empty_program,
+    empty_program,
     runner::{
         Action, ProfileConfig, RunConfig, benchmark_output_dir, get_el_zkvm_instances,
         get_guest_zkvm_instances, run_benchmark_iter,
@@ -167,51 +167,6 @@ async fn main() -> Result<()> {
                         let guest_io = empty_program::empty_program_input()
                             .context("Failed to create empty program input")?;
                         run_benchmark_iter(&zkvm, &config_base, std::iter::once(Ok(guest_io)))?;
-                    }
-                }
-            }
-        }
-        GuestProgramCommand::BlockEncodingLength {
-            input_folder,
-            fixture,
-            loop_count,
-            format,
-        } => {
-            info!(
-                "Running {:?}-encoding-length benchmarks for input folder {} and loop count {}",
-                format,
-                input_folder.display(),
-                loop_count
-            );
-            let zkvms = get_guest_zkvm_instances(
-                "block-encoding-length",
-                &cli.zkvms,
-                resource,
-                zkvm_config.clone(),
-                bin_path,
-            )
-            .await
-            .context("Failed to get block encoding length zkvm instances")?;
-
-            match action {
-                Action::Verify => {
-                    for instance in &zkvms {
-                        run_verify_from_disk(&instance.zkvm, &config_base, &proofs_folder)?;
-                    }
-                }
-                _ => {
-                    for zkvm in zkvms {
-                        let guest_io =
-                            block_encoding_length_program::block_encoding_length_input_iter(
-                                input_folder.as_path(),
-                                fixture.as_deref(),
-                                loop_count,
-                                format.clone().into(),
-                            )?
-                            .map(|input| {
-                                input.context("Failed to get block encoding length input")
-                            });
-                        run_benchmark_iter(&zkvm, &config_base, guest_io)?;
                     }
                 }
             }

@@ -17,7 +17,7 @@ This repository benchmarks Ethereum-related guest programs across multiple zkVMs
 - **`crates/benchmark-runner`**: shared orchestration for guest resolution, execution, proof flow, and verification.
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 
-Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth-act/ere-guests) repository and are downloaded automatically unless `--bin-path` is provided.
+Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth-act/ere-guests) repository and are downloaded automatically from the resolved release or commit artifacts unless `--bin-path` is provided.
 
 ## Prerequisites
 
@@ -37,7 +37,7 @@ cargo run -p ere-hosts -- --help
 Generate sample fixtures into `zkevm-fixtures-input/`:
 
 ```bash
-cargo run -p witness-generator-cli --release -- tests --include 10M --include Prague
+EF_TEST_TRIE=default RUST_MIN_STACK=16388608 RUST_LOG=info RAYON_NUM_THREADS=8 cargo run -p witness-generator-cli --release -- tests
 ```
 
 Run a benchmark against those fixtures:

@@ -9,10 +9,7 @@ license.workspace = true
 stateless.workspace = true
 reth-chainspec.workspace = true
 reth-rpc-api = { workspace = true, features = ["client"] }
-reth-ethereum-primitives = { workspace = true, features = [
-    "serde",
-    "serde-bincode-compat",
-] }
+reth-ethereum-primitives = { workspace = true, features = ["serde"] }
 ef-tests.workspace = true
 
 alloy-genesis.workspace = true

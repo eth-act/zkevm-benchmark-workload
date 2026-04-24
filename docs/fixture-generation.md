@@ -40,6 +40,8 @@ Notes:
 
 - `--tag` and `--eest-fixtures-path` are mutually exclusive.
 - `--include` and `--exclude` may be repeated to narrow the generated set.
+- EEST generation runs matching tests in parallel. Lower `RAYON_NUM_THREADS` if fixture generation is memory constrained.
+- EEST cases that fail before producing an executable block witness are logged and skipped. The generated count reflects fixtures written to disk.
 
 ## RPC Fixtures
 

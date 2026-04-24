@@ -8,7 +8,7 @@ use ere_guests_downloader::Downloader;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
-use std::{any::Any, panic};
+use std::{any::Any, env, panic};
 use tracing::{info, warn};
 
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -18,8 +18,11 @@ use crate::zisk_profiling::{run_profiling, ProfileOutcome};
 
 pub use crate::zisk_profiling::ProfileConfig;
 
-/// Default version tag for guest programs
-const DEFAULT_GUEST_VERSION: &str = "v0.7.0";
+/// How to resolve downloaded guest binaries, derived from the resolved
+/// ere-guests dependency in Cargo.lock at build time.
+const ERE_GUESTS_DOWNLOAD_KIND: &str = env!("ERE_GUESTS_DOWNLOAD_KIND");
+/// Tag or commit SHA matching [`ERE_GUESTS_DOWNLOAD_KIND`].
+const ERE_GUESTS_DOWNLOAD_VALUE: &str = env!("ERE_GUESTS_DOWNLOAD_VALUE");
 
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub struct ZkVMInstance {
@@ -311,15 +314,60 @@ async fn load_elf(guest_name: &str, bin_path: Option<&Path>) -> Result<Vec<u8>> 
             .with_context(|| format!("Failed to read ELF from path: {}", path.display()));
     }
 
-    let downloader = Downloader::from_tag(DEFAULT_GUEST_VERSION)
-        .await
-        .context("Failed to create guest program downloader")?;
+    let downloader = guest_downloader().await?;
     let compiled = downloader
         .download(guest_name)
         .await
         .with_context(|| format!("Failed to download guest program: {guest_name}"))?;
 
     Ok(compiled.elf)
+}
+
+async fn guest_downloader() -> Result<Downloader> {
+    match ERE_GUESTS_DOWNLOAD_KIND {
+        "tag" => {
+            info!(
+                "Downloading guest programs from ere-guests release {}",
+                ERE_GUESTS_DOWNLOAD_VALUE
+            );
+            Downloader::from_tag(ERE_GUESTS_DOWNLOAD_VALUE)
+                .await
+                .with_context(|| {
+                    format!(
+                        "Failed to create guest program downloader for ere-guests release {}",
+                        ERE_GUESTS_DOWNLOAD_VALUE
+                    )
+                })
+        }
+        "commit" => {
+            let github_token = env::var("GITHUB_TOKEN")
+                .or_else(|_| env::var("GH_TOKEN"))
+                .with_context(|| {
+                    format!(
+                        "GITHUB_TOKEN or GH_TOKEN must be set to download guest artifacts for ere-guests commit {}",
+                        ERE_GUESTS_DOWNLOAD_VALUE
+                    )
+                })?;
+
+            info!(
+                "Downloading guest programs from ere-guests workflow artifacts for commit {}",
+                ERE_GUESTS_DOWNLOAD_VALUE
+            );
+            Downloader::from_commit(ERE_GUESTS_DOWNLOAD_VALUE, &github_token)
+                .await
+                .with_context(|| {
+                    format!(
+                        "Failed to create guest program downloader for ere-guests commit {}",
+                        ERE_GUESTS_DOWNLOAD_VALUE
+                    )
+                })
+        }
+        other => Err(anyhow!(
+            "Unsupported ere-guests download source `{}` with value `{}`",
+            other,
+            ERE_GUESTS_DOWNLOAD_VALUE
+        )),
+    }
 }
 
 /// Dumps the raw input bytes to disk

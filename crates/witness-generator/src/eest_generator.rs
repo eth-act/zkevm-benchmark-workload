@@ -1,11 +1,17 @@
 //! Generate benchmark fixtures for EEST blockchain tests.
 
 use async_trait::async_trait;
-use ef_tests::{Case, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest};
+use ef_tests::{
+    Error as EFTestError, cases::blockchain_test::BlockchainTestCase, models::BlockchainTest,
+};
 use rayon::prelude::*;
 use reth_chainspec::{Chain, blob_params_to_schedule, create_chain_config};
-use std::path::{Path, PathBuf};
-use tracing::error;
+use std::{
+    collections::BTreeMap,
+    fs,
+    path::{Path, PathBuf},
+};
+use tracing::{error, info, warn};
 use walkdir::{DirEntry, WalkDir};
 
 use crate::{Fixture, FixtureGenerator, Result, StatelessValidationFixture, WGError};
@@ -107,8 +113,70 @@ impl Drop for EESTFixtureGenerator {
 
 #[async_trait]
 impl FixtureGenerator for EESTFixtureGenerator {
+    /// Streams matching EEST blockchain tests to disk without retaining every generated fixture.
+    async fn generate_to_path(&self, path: &Path) -> Result<usize> {
+        let suite_path = self.suite_path()?;
+        let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
+        info!(
+            "Generating EEST fixtures from {} source files",
+            test_file_paths.len()
+        );
+
+        let mut count = 0;
+        for test_path in test_file_paths {
+            let tests =
+                load_filtered_tests(&test_path, &self.filter_include, &self.filter_exclude)?;
+            let test_count = tests.len();
+            if test_count == 0 {
+                continue;
+            }
+
+            let generated_count = tests
+                .par_iter()
+                .map(|(name, case)| {
+                    let Some(fixture) = gen_fixture_or_skip(name, case)? else {
+                        return Ok(0);
+                    };
+
+                    write_fixture(fixture.as_ref(), path)?;
+                    Ok(1)
+                })
+                .collect::<Result<Vec<_>>>()?
+                .into_iter()
+                .sum::<usize>();
+            count += generated_count;
+        }
+
+        Ok(count)
+    }
+
     /// Loads EEST blockchain tests, applies include/exclude filters, and generates typed witness fixtures in parallel.
     async fn generate(&self) -> Result<Vec<Box<dyn Fixture>>> {
+        let suite_path = self.suite_path()?;
+        let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
+        let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
+        for path in test_file_paths {
+            tests.extend(load_filtered_tests(
+                &path,
+                &self.filter_include,
+                &self.filter_exclude,
+            )?);
+        }
+
+        let bws = tests
+            .par_iter()
+            .map(|(name, case)| gen_fixture_or_skip(name, case))
+            .collect::<Result<Vec<_>>>()?
+            .into_iter()
+            .flatten()
+            .collect();
+
+        Ok(bws)
+    }
+}
+
+impl EESTFixtureGenerator {
+    fn suite_path(&self) -> Result<PathBuf> {
         let suite_path = self.eest_fixtures.join("fixtures/blockchain_tests");
 
         if !suite_path.exists() {
@@ -117,41 +185,103 @@ impl FixtureGenerator for EESTFixtureGenerator {
             ));
         }
 
-        let test_file_paths = find_all_files_with_extension(&suite_path, ".json");
-        let mut tests: Vec<(String, BlockchainTest)> = Vec::new();
-        for path in test_file_paths {
-            let test_case =
-                BlockchainTestCase::load(&path).map_err(|e| WGError::TestCaseLoadError {
-                    path: path.display().to_string(),
-                    source: Box::new(e) as Box<dyn std::error::Error + Send + Sync>,
-                })?;
+        Ok(suite_path)
+    }
+}
 
-            let file_tests: Vec<(String, BlockchainTest)> = test_case
-                .tests
-                .into_iter()
-                .map(|(name, case)| {
-                    (
-                        name.split('/').next_back().unwrap_or(&name).to_string(),
-                        case,
-                    )
-                })
-                .filter(|(name, _)| {
-                    !self
-                        .filter_exclude
-                        .iter()
-                        .any(|filter| name.contains(filter))
-                })
-                .filter(|(name, _)| self.filter_include.iter().all(|f| name.contains(f)))
-                .collect();
-            tests.extend(file_tests);
+fn load_filtered_tests(
+    path: &Path,
+    filter_include: &[String],
+    filter_exclude: &[String],
+) -> Result<Vec<(String, BlockchainTest)>> {
+    let raw_tests = load_raw_tests(path)?;
+
+    raw_tests
+        .into_iter()
+        .filter(|(name, _)| {
+            let name = display_test_name(name);
+            matches_filters(name, filter_include, filter_exclude)
+        })
+        .map(|(name, case)| {
+            let name = display_test_name(&name).to_string();
+            let case = serde_json::from_value(case).map_err(|error| {
+                test_case_load_error(
+                    path,
+                    EFTestError::CouldNotDeserialize {
+                        path: path.into(),
+                        error,
+                    },
+                )
+            })?;
+
+            Ok((name, case))
+        })
+        .collect()
+}
+
+fn load_raw_tests(path: &Path) -> Result<BTreeMap<String, serde_json::Value>> {
+    let contents = fs::read_to_string(path).map_err(|error| {
+        test_case_load_error(
+            path,
+            EFTestError::Io {
+                path: path.into(),
+                error,
+            },
+        )
+    })?;
+
+    serde_json::from_str(&contents).map_err(|error| {
+        test_case_load_error(
+            path,
+            EFTestError::CouldNotDeserialize {
+                path: path.into(),
+                error,
+            },
+        )
+    })
+}
+
+fn display_test_name(name: &str) -> &str {
+    name.split('/').next_back().unwrap_or(name)
+}
+
+fn matches_filters(name: &str, filter_include: &[String], filter_exclude: &[String]) -> bool {
+    !filter_exclude.iter().any(|filter| name.contains(filter))
+        && filter_include.iter().all(|filter| name.contains(filter))
+}
+
+fn test_case_load_error(path: &Path, source: EFTestError) -> WGError {
+    WGError::TestCaseLoadError {
+        path: path.display().to_string(),
+        source: Box::new(source),
+    }
+}
+
+fn write_fixture(fixture: &dyn Fixture, path: &Path) -> Result<()> {
+    let output_path = path.join(format!("{}.json", fixture.name()));
+    let mut buf = Vec::new();
+    let mut serializer = serde_json::Serializer::pretty(&mut buf);
+    erased_serde::serialize(fixture, &mut serializer).map_err(|error| {
+        WGError::FixtureSerializationError {
+            name: fixture.name().to_owned(),
+            source: error,
         }
+    })?;
 
-        let bws = tests
-            .par_iter()
-            .map(|(name, case)| gen_fixture(name, case))
-            .collect::<Result<Vec<_>>>()?;
+    std::fs::write(&output_path, buf).map_err(|error| WGError::FixtureWriteError {
+        path: output_path.display().to_string(),
+        source: error,
+    })
+}
 
-        Ok(bws)
+fn gen_fixture_or_skip(name: &str, case: &BlockchainTest) -> Result<Option<Box<dyn Fixture>>> {
+    match gen_fixture(name, case) {
+        Ok(fixture) => Ok(Some(fixture)),
+        Err(WGError::NoTargetBlock(name)) => {
+            warn!("Skipping EEST test case {name}: no executed block/witness was produced");
+            Ok(None)
+        }
+        Err(error) => Err(error),
     }
 }
 
@@ -166,6 +296,7 @@ fn gen_fixture(name: &str, case: &BlockchainTest) -> Result<Box<dyn Fixture>> {
 
     let (block, witness) = BlockchainTestCase::run_single_case(name, case)
         .map_err(|e| WGError::TestCaseExecutionError {
+            name: name.to_owned(),
             source: Box::new(e),
         })?
         .into_iter()

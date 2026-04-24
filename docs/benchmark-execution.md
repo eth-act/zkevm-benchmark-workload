@@ -39,13 +39,6 @@ Run the empty program:
 cargo run -p ere-hosts --release -- --zkvms sp1 empty-program
 ```
 
-Run the block-encoding-length guest:
-
-```bash
-cargo run -p ere-hosts --release -- --zkvms sp1 \
-    block-encoding-length --loop-count 100 --format rlp
-```
-
 Use a custom fixture folder:
 
 ```bash
@@ -62,8 +55,6 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --fixture test_sha256.py::test_sha256 \
     --fixture test_memory.py::test_mcopy
 ```
-
-The same prefix-based `--fixture` filter is also available on `block-encoding-length`.
 
 ## Action Model
 
@@ -139,7 +130,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Operational Notes
 
-- Guest binaries are downloaded automatically unless `--bin-path` is set.
+- Guest binaries are downloaded automatically unless `--bin-path` is set. Tagged `ere-guests` dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`.
 - Use `--force-rerun` to ignore existing output and rerun a workload.
 - `--resource gpu` selects GPU proving resources where supported.
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
