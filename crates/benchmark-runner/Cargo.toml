@@ -8,6 +8,8 @@ rust-version.workspace = true
 witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-dockerized.workspace = true
+ere-cluster-client-zisk.workspace = true
+ere-util-tokio.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true

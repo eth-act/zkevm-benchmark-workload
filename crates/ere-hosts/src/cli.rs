@@ -2,7 +2,7 @@
 
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
-use ere_dockerized::{ProverResource, zkVMKind};
+use ere_dockerized::{ProverResource, RemoteProverConfig, zkVMKind};
 use std::path::PathBuf;
 use std::time::Duration;
 
@@ -16,6 +16,10 @@ pub struct Cli {
     /// Resource type for proving
     #[arg(short, long, value_enum, default_value = "cpu")]
     pub resource: Resource,
+
+    /// Endpoint URL of the proving cluster (required when --resource cluster)
+    #[arg(long, required_if_eq("resource", "cluster"))]
+    pub cluster_endpoint: Option<String>,
 
     /// Action to perform
     #[arg(short, long, value_enum, default_value = "execute")]
@@ -121,6 +125,8 @@ pub enum Resource {
     Cpu,
     /// GPU resource
     Gpu,
+    /// Proving cluster (requires --cluster-endpoint)
+    Cluster,
 }
 
 /// Benchmark actions
@@ -138,11 +144,19 @@ fn parse_duration(value: &str) -> Result<Duration, String> {
     humantime::parse_duration(value).map_err(|err| err.to_string())
 }
 
-impl From<Resource> for ProverResource {
-    fn from(resource: Resource) -> Self {
-        match resource {
-            Resource::Cpu => Self::Cpu,
-            Resource::Gpu => Self::Gpu,
+impl Cli {
+    /// Build the Ere [`ProverResource`] from parsed CLI args.
+    pub fn prover_resource(&self) -> ProverResource {
+        match self.resource {
+            Resource::Cpu => ProverResource::Cpu,
+            Resource::Gpu => ProverResource::Gpu,
+            Resource::Cluster => ProverResource::Cluster(RemoteProverConfig {
+                endpoint: self
+                    .cluster_endpoint
+                    .clone()
+                    .expect("clap required_if_eq should guarantee cluster_endpoint set"),
+                api_key: None,
+            }),
         }
     }
 }

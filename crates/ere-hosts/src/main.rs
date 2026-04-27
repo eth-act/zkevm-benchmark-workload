@@ -51,7 +51,7 @@ async fn main() -> Result<()> {
         }
     }
 
-    let resource: ProverResource = cli.resource.into();
+    let resource: ProverResource = cli.prover_resource();
     let action: Action = cli.action.into();
     let zkvm_config = build_zkvm_config(action, cli.timeout);
     info!(
@@ -71,6 +71,21 @@ async fn main() -> Result<()> {
     // Validate: --proofs-url is only valid with --action verify
     if cli.proofs_url.is_some() && !matches!(action, Action::Verify) {
         anyhow::bail!("--proofs-url is only valid with --action verify");
+    }
+
+    // Validate: --cluster-endpoint is only valid with --resource cluster
+    if cli.cluster_endpoint.is_some() && !matches!(cli.resource, cli::Resource::Cluster) {
+        anyhow::bail!("--cluster-endpoint is only valid with --resource cluster");
+    }
+
+    // Validate: --resource cluster currently only supports zisk zkVM and not support --action execute
+    if matches!(cli.resource, cli::Resource::Cluster) {
+        if cli.zkvms.iter().any(|z| *z != zkVMKind::Zisk) {
+            anyhow::bail!("--resource cluster is only implemented for --zkvms zisk");
+        }
+        if matches!(action, Action::Execute) {
+            anyhow::bail!("--resource cluster is not implemented for --action execute");
+        }
     }
 
     // Resolve proofs source: download from URL or use local folder.
@@ -121,7 +136,7 @@ async fn main() -> Result<()> {
             match action {
                 Action::Verify => {
                     for instance in &zkvms {
-                        run_verify_from_disk(&instance.zkvm, &config, &proofs_folder)?;
+                        run_verify_from_disk(instance, &config, &proofs_folder)?;
                     }
                 }
                 _ => {
@@ -130,8 +145,8 @@ async fn main() -> Result<()> {
                         input_folder.display()
                     );
                     for zkvm in &zkvms {
-                        let existing_output_dir = (!config.force_rerun)
-                            .then(|| benchmark_output_dir(&zkvm.zkvm, &config));
+                        let existing_output_dir =
+                            (!config.force_rerun).then(|| benchmark_output_dir(zkvm, &config));
                         let guest_io = stateless_validator::stateless_validator_input_iter(
                             input_folder.as_path(),
                             fixture.as_deref(),
@@ -159,7 +174,7 @@ async fn main() -> Result<()> {
             match action {
                 Action::Verify => {
                     for instance in &zkvms {
-                        run_verify_from_disk(&instance.zkvm, &config_base, &proofs_folder)?;
+                        run_verify_from_disk(instance, &config_base, &proofs_folder)?;
                     }
                 }
                 _ => {

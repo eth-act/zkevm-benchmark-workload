@@ -1,18 +1,18 @@
 //! Proof verification from disk or remote URL
 
 use anyhow::{anyhow, Context, Result};
-use ere_dockerized::{DockerizedzkVM, EncodedProof};
+use ere_dockerized::EncodedProof;
 use std::fs;
 use std::panic;
 use std::path::{Path, PathBuf};
 use tracing::info;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, HardwareInfo, VerificationMetrics};
 
-use crate::runner::{get_panic_msg, RunConfig};
+use crate::runner::{get_panic_msg, RunConfig, ZkVMInstance};
 
 /// Loads proof artifacts from disk and verifies them using the given zkVM.
 pub fn run_verify_from_disk(
-    zkvm: &DockerizedzkVM,
+    zkvm: &ZkVMInstance,
     config: &RunConfig,
     proofs_folder: &Path,
 ) -> Result<()> {
