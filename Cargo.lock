@@ -2521,7 +2521,7 @@ dependencies = [
 [[package]]
 name = "downloader"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "anyhow",
  "reqwest 0.12.28",
@@ -3050,7 +3050,7 @@ dependencies = [
 [[package]]
 name = "ethrex-blockchain"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "crossbeam",
@@ -3061,6 +3061,7 @@ dependencies = [
  "ethrex-storage",
  "ethrex-trie",
  "ethrex-vm",
+ "rayon",
  "rustc-hash",
  "thiserror 2.0.18",
  "tokio",
@@ -3071,7 +3072,7 @@ dependencies = [
 [[package]]
 name = "ethrex-common"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -3085,6 +3086,10 @@ dependencies = [
  "indexmap 2.14.0",
  "lazy_static",
  "libc",
+ "libssz 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
+ "libssz-derive 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
+ "libssz-merkle 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
+ "libssz-types 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
  "lru",
  "once_cell",
  "rayon",
@@ -3100,7 +3105,7 @@ dependencies = [
 [[package]]
 name = "ethrex-crypto"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -3124,7 +3129,7 @@ dependencies = [
 [[package]]
 name = "ethrex-guest-program"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3134,6 +3139,8 @@ dependencies = [
  "ethrex-rlp",
  "ethrex-vm",
  "hex",
+ "libssz 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
+ "libssz-merkle 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
  "rkyv",
  "serde",
  "serde_with",
@@ -3143,7 +3150,7 @@ dependencies = [
 [[package]]
 name = "ethrex-l2-common"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3161,7 +3168,7 @@ dependencies = [
 [[package]]
 name = "ethrex-levm"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "derive_more 1.0.0",
@@ -3179,7 +3186,7 @@ dependencies = [
 [[package]]
 name = "ethrex-metrics"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "axum",
  "ethrex-common",
@@ -3195,7 +3202,7 @@ dependencies = [
 [[package]]
 name = "ethrex-p2p"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -3237,7 +3244,7 @@ dependencies = [
 [[package]]
 name = "ethrex-rlp"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3247,7 +3254,7 @@ dependencies = [
 [[package]]
 name = "ethrex-rpc"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "axum",
  "axum-extra",
@@ -3286,7 +3293,7 @@ dependencies = [
 [[package]]
 name = "ethrex-storage"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3308,7 +3315,7 @@ dependencies = [
 [[package]]
 name = "ethrex-trie"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3327,7 +3334,7 @@ dependencies = [
 [[package]]
 name = "ethrex-vm"
 version = "9.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e#6ba9d9a458e812ff3afd80eaf89cddd97d3fb67e"
+source = "git+https://github.com/lambdaclass/ethrex.git?rev=81484becd285e2a1e178306d8c22f94a104f560b#81484becd285e2a1e178306d8c22f94a104f560b"
 dependencies = [
  "bytes",
  "derive_more 1.0.0",
@@ -3799,7 +3806,7 @@ dependencies = [
 [[package]]
 name = "guest"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "ere-codec 0.8.0",
  "ere-platform-core",
@@ -4477,7 +4484,7 @@ dependencies = [
 [[package]]
 name = "integration-tests"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "alloy-primitives",
  "ere-dockerized 0.8.0",
@@ -5032,10 +5039,28 @@ dependencies = [
 ]
 
 [[package]]
+name = "libssz"
+version = "0.2.1"
+source = "git+https://github.com/lambdaclass/libssz?rev=7262a4f#7262a4f17f71fb9108166ba260659bcdd64feb4c"
+dependencies = [
+ "smallvec",
+]
+
+[[package]]
 name = "libssz-derive"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bb6393ec2e9b660bbcb0d9d74aac7b3c351c7b4440dcc24e9d344e62cf4bf10"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.117",
+]
+
+[[package]]
+name = "libssz-derive"
+version = "0.2.1"
+source = "git+https://github.com/lambdaclass/libssz?rev=7262a4f#7262a4f17f71fb9108166ba260659bcdd64feb4c"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -5048,7 +5073,16 @@ version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37acd26ea2fbecfd8af8121780a385284cfb6d6f4c2f77648a9798b5d95a87d8"
 dependencies = [
- "libssz",
+ "libssz 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "sha2",
+]
+
+[[package]]
+name = "libssz-merkle"
+version = "0.2.1"
+source = "git+https://github.com/lambdaclass/libssz?rev=7262a4f#7262a4f17f71fb9108166ba260659bcdd64feb4c"
+dependencies = [
+ "libssz 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
  "sha2",
 ]
 
@@ -5058,8 +5092,18 @@ version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "93fc4f9486929bd568731a599e9b4914aa44a0b4ecbd38c702151fe97210c323"
 dependencies = [
- "libssz",
- "libssz-merkle",
+ "libssz 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libssz-merkle 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smallvec",
+]
+
+[[package]]
+name = "libssz-types"
+version = "0.2.1"
+source = "git+https://github.com/lambdaclass/libssz?rev=7262a4f#7262a4f17f71fb9108166ba260659bcdd64feb4c"
+dependencies = [
+ "libssz 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
+ "libssz-merkle 0.2.1 (git+https://github.com/lambdaclass/libssz?rev=7262a4f)",
  "smallvec",
 ]
 
@@ -9504,18 +9548,17 @@ dependencies = [
 [[package]]
 name = "stateless-validator-common"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "alloy-eips 2.0.1",
  "alloy-primitives",
  "anyhow",
  "ere-codec 0.8.0",
  "ere-platform-core",
- "libssz",
- "libssz-derive",
- "libssz-merkle",
- "libssz-types",
- "rkyv",
+ "libssz 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libssz-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libssz-merkle 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libssz-types 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "serde",
  "serde_with",
  "sha2",
@@ -9524,23 +9567,20 @@ dependencies = [
 [[package]]
 name = "stateless-validator-ethrex"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",
  "alloy-genesis",
  "alloy-rlp",
  "anyhow",
- "bytes",
- "ere-prover-core 0.8.0",
  "ethrex-common",
  "ethrex-crypto",
  "ethrex-guest-program",
- "ethrex-rlp",
  "ethrex-rpc",
- "ethrex-vm",
  "guest",
- "libssz-merkle",
+ "libssz 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
+ "libssz-merkle 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "rkyv",
  "stateless",
  "stateless-validator-common",
@@ -9550,7 +9590,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-reth"
 version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=a58aa0d7f2c0a813d666eabc9fd94036a21d87b5#a58aa0d7f2c0a813d666eabc9fd94036a21d87b5"
+source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",

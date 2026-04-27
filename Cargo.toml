@@ -109,11 +109,11 @@ ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", rev = "44e91
 ere-util-tokio = { git = "https://github.com/eth-act/ere", rev = "44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b" }
 
 # ere-guests
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "stateless-validator-reth" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "stateless-validator-ethrex" }
-ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "guest" }
-ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "integration-tests" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "a58aa0d7f2c0a813d666eabc9fd94036a21d87b5", package = "downloader" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "3387b8f251d4af90ef031b9fa46372e85a3aa317", package = "stateless-validator-reth" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "3387b8f251d4af90ef031b9fa46372e85a3aa317", package = "stateless-validator-ethrex" }
+ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", rev = "3387b8f251d4af90ef031b9fa46372e85a3aa317", package = "guest" }
+ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", rev = "3387b8f251d4af90ef031b9fa46372e85a3aa317", package = "integration-tests" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "3387b8f251d4af90ef031b9fa46372e85a3aa317", package = "downloader" }
 
 reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
 reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
