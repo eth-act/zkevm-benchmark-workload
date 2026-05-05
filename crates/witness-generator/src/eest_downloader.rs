@@ -1,4 +1,4 @@
-//! Download and extract EEST fixtures from GitHub releases.
+//! Download and extract EEST benchmark fixtures from GitHub releases.
 
 use std::path::Path;
 
@@ -8,20 +8,23 @@ use tracing::info;
 
 use crate::{Result, WGError};
 
-/// GitHub repository for execution spec tests.
-const REPO: &str = "ethereum/execution-spec-tests";
+/// GitHub repository that publishes benchmark fixture releases.
+const REPO: &str = "ethereum/execution-specs";
 
 /// Asset filename to download from the release.
 const ASSET_NAME: &str = "fixtures_benchmark.tar.gz";
 
+/// Prefix for EEST benchmark release tags.
+const BENCHMARK_TAG_PREFIX: &str = "tests-benchmark@";
+
 /// Default release tag.
-const DEFAULT_TAG: &str = "benchmark@v0.0.7";
+const DEFAULT_TAG: &str = "tests-benchmark@v0.0.9";
 
 /// Downloads and extracts EEST fixtures from a GitHub release.
 ///
 /// # Arguments
-/// * `tag` - Optional release tag. `None` uses the default tag (`benchmark@v0.0.7`).
-///   `Some("latest")` resolves the latest non-prerelease semver release.
+/// * `tag` - Optional release tag. `None` uses the default tag.
+///   `Some("latest")` resolves the latest benchmark fixture release.
 /// * `dest_dir` - Directory where fixtures will be extracted.
 pub(crate) async fn download_and_extract(tag: Option<&str>, dest_dir: &Path) -> Result<()> {
     let client = build_http_client()?;
@@ -67,7 +70,7 @@ async fn resolve_tag(client: &reqwest::Client, tag: Option<&str>) -> Result<Stri
             Ok(DEFAULT_TAG.to_string())
         }
         Some("latest") => {
-            info!("Finding latest official release...");
+            info!("Finding latest benchmark release...");
             resolve_latest_tag(client).await
         }
         Some(t) => {
@@ -77,7 +80,7 @@ async fn resolve_tag(client: &reqwest::Client, tag: Option<&str>) -> Result<Stri
     }
 }
 
-/// Queries the GitHub API to find the latest non-prerelease semver release.
+/// Queries the GitHub API to find the latest benchmark fixture release.
 async fn resolve_latest_tag(client: &reqwest::Client) -> Result<String> {
     let url = format!("https://api.github.com/repos/{REPO}/releases");
     let resp = client
@@ -99,20 +102,16 @@ async fn resolve_latest_tag(client: &reqwest::Client) -> Result<String> {
         .map_err(|e| WGError::DownloadFailed(format!("failed to parse releases JSON: {e}")))?;
 
     for release in &releases {
-        let prerelease = release["prerelease"].as_bool().unwrap_or(true);
-        if prerelease {
-            continue;
-        }
         if let Some(tag_name) = release["tag_name"].as_str()
-            && is_semver_tag(tag_name)
+            && is_benchmark_release_tag(tag_name)
         {
-            info!("Using latest official release: {tag_name}");
+            info!("Using latest benchmark release: {tag_name}");
             return Ok(tag_name.to_string());
         }
     }
 
     Err(WGError::DownloadFailed(format!(
-        "no official release found in {REPO}"
+        "no benchmark release found in {REPO}"
     )))
 }
 
@@ -196,12 +195,15 @@ async fn download_and_untar(client: &reqwest::Client, url: &str, dest_dir: &Path
     Ok(())
 }
 
-/// Checks if a tag matches the semver pattern `v<major>.<minor>.<patch>`.
-fn is_semver_tag(tag: &str) -> bool {
-    let Some(rest) = tag.strip_prefix('v') else {
+/// Checks if a tag matches the benchmark release pattern.
+fn is_benchmark_release_tag(tag: &str) -> bool {
+    let Some(rest) = tag.strip_prefix(BENCHMARK_TAG_PREFIX) else {
         return false;
     };
-    let parts: Vec<&str> = rest.split('.').collect();
+    let Some(version) = rest.strip_prefix('v') else {
+        return false;
+    };
+    let parts: Vec<&str> = version.split('.').collect();
     parts.len() == 3 && parts.iter().all(|p| p.parse::<u64>().is_ok())
 }
 

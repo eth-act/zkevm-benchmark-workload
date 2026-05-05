@@ -8,7 +8,7 @@ This README is crate-local. Use [`../../docs/fixture-generation.md`](../../docs/
 
 It supports three data sources:
 
-- **EEST**: generate fixtures from execution-spec test releases or a local EEST directory.
+- **EEST**: generate fixtures from execution-spec benchmark fixture releases or a local EEST directory.
 - **RPC**: generate fixtures from live RPC blocks and execution witnesses.
 - **Raw Input**: generate fixtures from pre-collected JSON-RPC response files listed in `raw_input_parts.txt`.
 
@@ -23,11 +23,11 @@ cargo run -p witness-generator-cli -- --help
 Common examples:
 
 ```bash
-# Generate fixtures from execution spec tests
+# Generate fixtures from execution-spec benchmark fixtures
 cargo run -p witness-generator-cli --release -- tests --include Prague
 
-# Generate fixtures from a specific EEST tag
-cargo run -p witness-generator-cli --release -- tests --tag v0.1.0
+# Generate fixtures from a specific EEST benchmark tag
+cargo run -p witness-generator-cli --release -- tests --tag tests-benchmark@v0.0.9
 
 # Generate fixtures from a local EEST folder
 cargo run -p witness-generator-cli --release -- tests \
