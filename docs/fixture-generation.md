@@ -16,16 +16,16 @@ Override the default output folder with `-o, --output-folder <PATH>` when needed
 
 ## EEST Fixtures
 
-Generate fixtures from execution-spec tests:
+Generate fixtures from execution-spec benchmark fixtures:
 
 ```bash
 cargo run -p witness-generator-cli --release -- tests --include 10M --include Prague
 ```
 
-Use a specific tag:
+Use a specific benchmark release tag:
 
 ```bash
-cargo run -p witness-generator-cli --release -- tests --tag v0.1.0
+cargo run -p witness-generator-cli --release -- tests --tag tests-benchmark@v0.0.9
 ```
 
 Use a local EEST fixture directory instead of downloading a release:

@@ -33,7 +33,8 @@ struct Cli {
 enum SourceCommand {
     /// Generate fixtures from execution specification tests
     Tests {
-        /// EEST release tag to use (e.g., "v0.1.0"). If empty, the latest release will be used.
+        /// EEST benchmark release tag to use.
+        /// If empty, the pinned default release is used. Use "latest" to resolve the latest benchmark release.
         #[arg(short, long, conflicts_with = "eest_fixtures_path")]
         tag: Option<String>,
 
