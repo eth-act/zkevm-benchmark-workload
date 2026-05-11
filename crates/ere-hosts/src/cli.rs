@@ -105,6 +105,8 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex execution client
     Ethrex,
+    /// Zilkworm execution client
+    Zilkworm,
 }
 
 impl ExecutionClient {
@@ -113,6 +115,7 @@ impl ExecutionClient {
         let path = match self {
             Self::Reth => "stateless-validator/reth",
             Self::Ethrex => "stateless-validator/ethrex",
+            Self::Zilkworm => "stateless-validator/zilkworm",
         };
         PathBuf::from(path)
     }
@@ -176,6 +179,7 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
         match client {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
+            ExecutionClient::Zilkworm => Self::Zilkworm,
         }
     }
 }

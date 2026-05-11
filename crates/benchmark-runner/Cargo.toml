@@ -33,6 +33,7 @@ ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
 ere-guests-stateless-validator-reth = { "workspace" = true, features = [
     "host",
 ] }
+stateless-validator-zilkworm = { "workspace" = true }
 ere-guests-guest = { "workspace" = true }
 ere-guests-integration-tests = { "workspace" = true }
 
