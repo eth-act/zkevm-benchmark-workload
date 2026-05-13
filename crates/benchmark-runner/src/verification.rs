@@ -18,7 +18,7 @@ pub fn run_verify_from_disk(
 ) -> Result<()> {
     HardwareInfo::detect().to_path(config.output_folder.join("hardware.json"))?;
 
-    let zkvm_name = format!("{}-v{}", zkvm.name(), zkvm.sdk_version());
+    let zkvm_name = format!("{}-{}", zkvm.name(), zkvm.sdk_version());
     let proof_dir = proofs_folder
         .join(config.sub_folder.as_deref().unwrap_or(""))
         .join(&zkvm_name);
