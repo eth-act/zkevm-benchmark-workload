@@ -1390,8 +1390,8 @@ dependencies = [
  "auto_impl",
  "downloader",
  "ere-cluster-client-zisk",
- "ere-dockerized 0.8.1",
- "ere-util-tokio 0.8.1",
+ "ere-dockerized",
+ "ere-util-tokio",
  "flate2",
  "guest",
  "integration-tests",
@@ -2520,8 +2520,8 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
  "anyhow",
  "reqwest 0.12.28",
@@ -2748,31 +2748,21 @@ dependencies = [
 
 [[package]]
 name = "ere-catalog"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
- "ere-util-build 0.8.0",
- "serde",
- "strum 0.27.2",
-]
-
-[[package]]
-name = "ere-catalog"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
-dependencies = [
- "ere-util-build 0.8.1",
+ "ere-util-build",
  "serde",
  "strum 0.27.2",
 ]
 
 [[package]]
 name = "ere-cluster-client-zisk"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
- "ere-prover-core 0.8.1",
- "ere-util-tokio 0.8.1",
+ "ere-prover-core",
+ "ere-util-tokio",
  "ere-verifier-zisk",
  "futures-util",
  "http",
@@ -2787,58 +2777,28 @@ dependencies = [
 
 [[package]]
 name = "ere-codec"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
-
-[[package]]
-name = "ere-codec"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 
 [[package]]
 name = "ere-compiler-core"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
-dependencies = [
- "serde",
-]
-
-[[package]]
-name = "ere-compiler-core"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "ere-dockerized"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "anyhow",
- "ere-catalog 0.8.0",
- "ere-compiler-core 0.8.0",
- "ere-prover-core 0.8.0",
- "ere-server-client 0.8.0",
- "ere-util-tokio 0.8.0",
- "tempfile",
- "thiserror 2.0.18",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "ere-dockerized"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
-dependencies = [
- "anyhow",
- "ere-catalog 0.8.1",
- "ere-compiler-core 0.8.1",
- "ere-prover-core 0.8.1",
- "ere-server-client 0.8.1",
- "ere-util-tokio 0.8.1",
+ "ere-catalog",
+ "ere-compiler-core",
+ "ere-prover-core",
+ "ere-server-client",
+ "ere-util-tokio",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
@@ -2852,7 +2812,7 @@ dependencies = [
  "anyhow",
  "benchmark-runner",
  "clap",
- "ere-dockerized 0.8.1",
+ "ere-dockerized",
  "humantime",
  "tokio",
  "tracing",
@@ -2861,37 +2821,20 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-core"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 
 [[package]]
 name = "ere-prover-core"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "anyhow",
  "auto_impl",
  "bincode 2.0.1",
  "clap",
- "ere-codec 0.8.0",
- "ere-verifier-core 0.8.0",
- "indexmap 2.14.0",
- "serde",
- "strum 0.27.2",
- "thiserror 2.0.18",
-]
-
-[[package]]
-name = "ere-prover-core"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
-dependencies = [
- "anyhow",
- "auto_impl",
- "bincode 2.0.1",
- "clap",
- "ere-codec 0.8.1",
- "ere-verifier-core 0.8.1",
+ "ere-codec",
+ "ere-verifier-core",
  "indexmap 2.14.0",
  "serde",
  "strum 0.27.2",
@@ -2900,18 +2843,8 @@ dependencies = [
 
 [[package]]
 name = "ere-server-api"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
-dependencies = [
- "prost",
- "serde",
- "twirp",
-]
-
-[[package]]
-name = "ere-server-api"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "prost",
  "serde",
@@ -2920,89 +2853,51 @@ dependencies = [
 
 [[package]]
 name = "ere-server-client"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "bincode 2.0.1",
- "ere-prover-core 0.8.0",
- "ere-server-api 0.8.0",
- "thiserror 2.0.18",
- "twirp",
-]
-
-[[package]]
-name = "ere-server-client"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
-dependencies = [
- "bincode 2.0.1",
- "ere-prover-core 0.8.1",
- "ere-server-api 0.8.1",
+ "ere-prover-core",
+ "ere-server-api",
  "thiserror 2.0.18",
  "twirp",
 ]
 
 [[package]]
 name = "ere-util-build"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
-dependencies = [
- "cargo_metadata 0.19.2",
-]
-
-[[package]]
-name = "ere-util-build"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "cargo_metadata 0.19.2",
 ]
 
 [[package]]
 name = "ere-util-tokio"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
-dependencies = [
- "tokio",
-]
-
-[[package]]
-name = "ere-util-tokio"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "tokio",
 ]
 
 [[package]]
 name = "ere-verifier-core"
-version = "0.8.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.8.0#54b00745fa5fabe008b037f61f6864305c41af80"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "auto_impl",
- "ere-codec 0.8.0",
- "serde",
-]
-
-[[package]]
-name = "ere-verifier-core"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
-dependencies = [
- "auto_impl",
- "ere-codec 0.8.1",
+ "ere-codec",
  "serde",
 ]
 
 [[package]]
 name = "ere-verifier-zisk"
-version = "0.8.1"
-source = "git+https://github.com/eth-act/ere?rev=44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b#44e91ed7c0bd5398d55eb4ce43594ac0f161dd2b"
+version = "0.9.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.9.1#a0ff5701d6328bb55126a59d7091b1777944c8b0"
 dependencies = [
  "bincode 2.0.1",
  "bytemuck",
- "ere-util-build 0.8.1",
- "ere-verifier-core 0.8.1",
+ "ere-util-build",
+ "ere-verifier-core",
  "proofman-util",
  "proofman-verifier",
  "serde",
@@ -3805,10 +3700,10 @@ dependencies = [
 
 [[package]]
 name = "guest"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
- "ere-codec 0.8.0",
+ "ere-codec",
  "ere-platform-core",
  "sha2",
 ]
@@ -4483,11 +4378,11 @@ dependencies = [
 
 [[package]]
 name = "integration-tests"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
  "alloy-primitives",
- "ere-dockerized 0.8.0",
+ "ere-dockerized",
  "flate2",
  "guest",
  "rayon",
@@ -9547,13 +9442,13 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-common"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
  "alloy-eips 2.0.1",
  "alloy-primitives",
  "anyhow",
- "ere-codec 0.8.0",
+ "ere-codec",
  "ere-platform-core",
  "libssz 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
  "libssz-derive 0.2.1 (registry+https://github.com/rust-lang/crates.io-index)",
@@ -9566,8 +9461,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-ethrex"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",
@@ -9589,8 +9484,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-reth"
-version = "0.9.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=3387b8f251d4af90ef031b9fa46372e85a3aa317#3387b8f251d4af90ef031b9fa46372e85a3aa317"
+version = "0.10.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.10.0#2d519d4f2cea92c654a1934f6cb0b0368d7fbef8"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",
@@ -9600,7 +9495,7 @@ dependencies = [
  "alloy-rpc-types-engine",
  "anyhow",
  "bincode 2.0.1",
- "ere-prover-core 0.8.0",
+ "ere-prover-core",
  "guest",
  "once_cell",
  "reth-chainspec",

@@ -192,7 +192,7 @@ where
 }
 
 fn benchmark_zkvm_name(zkvm: &ZkVMInstance) -> String {
-    format!("{}-v{}", zkvm.name(), zkvm.sdk_version())
+    format!("{}-{}", zkvm.name(), zkvm.sdk_version())
 }
 
 fn benchmark_output_dir_for_name(config: &RunConfig, zkvm_name: &str) -> PathBuf {
