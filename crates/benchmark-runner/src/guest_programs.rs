@@ -60,7 +60,7 @@ where
     ) -> anyhow::Result<Self> {
         Ok(Self {
             name: name.as_ref().to_string(),
-            input: Input::new().with_prefixed_stdin(
+            input: Input::new().with_stdin(
                 input
                     .encode_to_vec()
                     .map_err(|e| anyhow::anyhow!("Failed to serialize guest input: {}", e))?,

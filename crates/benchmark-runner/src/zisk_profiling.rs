@@ -250,7 +250,7 @@ fn remove_file_if_exists(path: &Path) -> Result<()> {
     }
 }
 
-/// Mirrors `ere-zisk` input preparation for direct `ziskemu` execution.
+/// Mirrors `ere-prover-zisk` input preparation for direct `ziskemu` execution.
 fn length_prefixed_and_padded(data: &[u8]) -> Vec<u8> {
     let len = (8 + data.len()).next_multiple_of(8);
     let mut buf = Vec::with_capacity(len);
