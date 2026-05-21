@@ -145,7 +145,7 @@ fn decode_hex_bytes(field_name: &str, value: &str) -> Result<Vec<u8>> {
         .or_else(|| value.strip_prefix("0X"))
         .unwrap_or(value);
 
-    if hex.len() % 2 != 0 {
+    if !hex.len().is_multiple_of(2) {
         bail!("{field_name} must contain an even number of hex digits");
     }
 

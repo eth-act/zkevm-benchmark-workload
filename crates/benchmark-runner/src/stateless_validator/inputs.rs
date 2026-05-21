@@ -38,8 +38,8 @@ pub(crate) fn stateless_validator_input_from_fixture(
 ) -> Result<Box<dyn GuestFixture>> {
     match fixture {
         BenchmarkFixture::Legacy(fixture) => match el {
-            ExecutionClient::Reth => reth_input_from_fixture(fixture),
-            ExecutionClient::Ethrex => ethrex_input_from_fixture(fixture),
+            ExecutionClient::Reth => reth_input_from_fixture(*fixture),
+            ExecutionClient::Ethrex => ethrex_input_from_fixture(*fixture),
         },
         BenchmarkFixture::Eest(fixture) => raw_eest_input_from_fixture(fixture),
     }

@@ -17,7 +17,7 @@ use witness_generator::StatelessValidationFixture;
 
 #[derive(Debug, Clone)]
 pub(crate) enum BenchmarkFixture {
-    Legacy(StatelessValidationFixture),
+    Legacy(Box<StatelessValidationFixture>),
     Eest(EestStatelessFixture),
 }
 
@@ -143,7 +143,7 @@ fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<Benchma
     if value.get("stateless_input").is_some() {
         let fixture = serde_json::from_value(value)
             .with_context(|| format!("Failed to parse legacy fixture {}", path.display()))?;
-        return Ok(vec![BenchmarkFixture::Legacy(fixture)]);
+        return Ok(vec![BenchmarkFixture::Legacy(Box::new(fixture))]);
     }
 
     load_eest_benchmark_fixtures(value, path, input_root)
