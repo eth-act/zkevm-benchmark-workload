@@ -25,6 +25,7 @@ anyhow.workspace = true
 auto_impl.workspace = true
 ere-guests-downloader.workspace = true
 tempfile.workspace = true
+hex.workspace = true
 
 ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
     "host",

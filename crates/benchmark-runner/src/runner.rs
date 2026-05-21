@@ -1,7 +1,7 @@
 //! Runner for benchmark tests
 
 use anyhow::{anyhow, bail, Context, Result};
-use ere_cluster_client_zisk::{ZiskClusterClient, ZiskProgramVk, ZiskProof};
+use ere_cluster_client_zisk::{ZiskClusterClient, ZiskProof};
 use ere_dockerized::{
     codec::{Decode, Encode},
     zkVMKind, zkVMVerifier, DockerizedzkVM, DockerizedzkVMConfig, Elf, EncodedProof, Input,
@@ -31,13 +31,20 @@ const ERE_GUESTS_DOWNLOAD_VALUE: &str = env!("ERE_GUESTS_DOWNLOAD_VALUE");
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub enum ZkVMInstance {
     /// Dockerized zkVM instance
-    Dockerized(DockerizedzkVM),
+    Dockerized {
+        /// zkVM instance
+        zkvm: DockerizedzkVM,
+        /// ELF of Zisk guest with feature `cycle-scope` enabled.
+        /// `Some` only if the guest is a Zisk guest.
+        profiling_elf: Option<Elf>,
+    },
     /// Remote Zisk proving cluster client.
     ZiskClusterClient {
-        /// ELF of the guest program.
-        elf: Elf,
         /// gRPC client connected to the remote Zisk cluster.
         client: ZiskClusterClient,
+        /// ELF of Zisk guest with feature `cycle-scope` enabled.
+        /// `Some` only if the guest is a Zisk guest.
+        profiling_elf: Option<Elf>,
     },
 }
 
@@ -45,7 +52,7 @@ impl ZkVMInstance {
     /// Returns the zkVM kind.
     pub fn zkvm_kind(&self) -> zkVMKind {
         match self {
-            Self::Dockerized(vm) => vm.zkvm_kind(),
+            Self::Dockerized { zkvm, .. } => zkvm.zkvm_kind(),
             Self::ZiskClusterClient { .. } => zkVMKind::Zisk,
         }
     }
@@ -53,7 +60,7 @@ impl ZkVMInstance {
     /// Returns the zkVM name.
     pub fn name(&self) -> &'static str {
         match self {
-            Self::Dockerized(vm) => vm.name(),
+            Self::Dockerized { zkvm, .. } => zkvm.name(),
             Self::ZiskClusterClient { client, .. } => client.verifier().name(),
         }
     }
@@ -61,23 +68,23 @@ impl ZkVMInstance {
     /// Returns the zkVM SDK version.
     pub fn sdk_version(&self) -> &'static str {
         match self {
-            Self::Dockerized(vm) => vm.sdk_version(),
+            Self::Dockerized { zkvm, .. } => zkvm.sdk_version(),
             Self::ZiskClusterClient { client, .. } => client.verifier().sdk_version(),
         }
     }
 
-    /// Returns the ELF.
-    fn elf(&self) -> &Elf {
+    /// Returns the ELF for Zisk profiling.
+    pub const fn profiling_elf(&self) -> Option<&Elf> {
         match self {
-            Self::Dockerized(vm) => vm.elf(),
-            Self::ZiskClusterClient { elf, .. } => elf,
+            Self::Dockerized { profiling_elf, .. }
+            | Self::ZiskClusterClient { profiling_elf, .. } => profiling_elf.as_ref(),
         }
     }
 
     /// Executes the guest program without proving.
     pub fn execute(&self, input: &Input) -> Result<(PublicValues, ProgramExecutionReport)> {
         match self {
-            Self::Dockerized(vm) => vm.execute(input),
+            Self::Dockerized { zkvm, .. } => zkvm.execute(input),
             Self::ZiskClusterClient { .. } => {
                 bail!("ZiskClusterClient does not support Action::Execute")
             }
@@ -90,10 +97,10 @@ impl ZkVMInstance {
         input: &Input,
     ) -> Result<(PublicValues, EncodedProof, ProgramProvingReport)> {
         match self {
-            Self::Dockerized(vm) => vm.prove(input),
+            Self::Dockerized { zkvm, .. } => zkvm.prove(input),
             Self::ZiskClusterClient { client, .. } => {
-                let (proof, proving_time) = block_on(client.prove(input))?;
-                let public_values = proof.public_values.into();
+                let (proof, proving_time) = block_on(client.prove(input, None))?;
+                let (_, public_values) = proof.program_vk_and_public_values()?;
                 let proof = proof.encode_to_vec()?;
                 Ok((
                     public_values,
@@ -107,10 +114,10 @@ impl ZkVMInstance {
     /// Verifies a proof and returns the public values it commits to.
     pub fn verify(&self, proof: &EncodedProof) -> Result<PublicValues> {
         match self {
-            Self::Dockerized(vm) => vm.verify(proof),
+            Self::Dockerized { zkvm, .. } => zkvm.verify(proof),
             Self::ZiskClusterClient { client, .. } => {
                 let proof = ZiskProof::decode_from_slice(&proof.0)?;
-                Ok(client.verify(&proof)?)
+                Ok(client.verifier().verify(&proof)?)
             }
         }
     }
@@ -119,15 +126,20 @@ impl ZkVMInstance {
 impl std::fmt::Debug for ZkVMInstance {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            Self::Dockerized(vm) => f
+            Self::Dockerized { zkvm, .. } => f
                 .debug_struct("Dockerized")
-                .field("zkvm", &vm.name())
-                .field("elf", vm.elf())
+                .field("zkvm", &zkvm.name())
+                .field("sdk_version", &zkvm.sdk_version())
+                .field("program_vk", &hex::encode(&zkvm.program_vk().0))
                 .finish(),
-            Self::ZiskClusterClient { client, elf } => f
+            Self::ZiskClusterClient { client, .. } => f
                 .debug_struct("ZiskClusterClient")
                 .field("zkvm", &client.verifier().name())
-                .field("elf", elf)
+                .field("sdk_version", &client.verifier().sdk_version())
+                .field(
+                    "program_vk",
+                    &hex::encode(client.program_vk().encode_to_vec().expect("infallable")),
+                )
                 .finish(),
         }
     }
@@ -252,9 +264,12 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
         Action::Execute => {
             // Run Zisk profiling if configured
             if let Some(profile_config) = &config.zisk_profile_config {
+                let Some(profiling_elf) = zkvm.profiling_elf() else {
+                    bail!("Zisk profiling configured but profiling ELF not found")
+                };
                 let outcome = run_profiling(
                     profile_config,
-                    zkvm.elf(),
+                    profiling_elf,
                     input.stdin(),
                     &fixture_name,
                     config.sub_folder.as_deref(),
@@ -383,20 +398,7 @@ pub async fn get_guest_zkvm_instances(
         let guest_name = format!("{}-{}", guest_name_prefix, zkvm.as_str());
         let compiled = load_compiled(&guest_name, bin_path).await?;
         let instance = match &resource {
-            ProverResource::Cluster(cfg) if *zkvm == zkVMKind::Zisk => {
-                let program_vk = ZiskProgramVk::decode_from_slice(&compiled.program_vk)
-                    .context("Failed to decode Zisk program vk")?;
-                let client = ZiskClusterClient::new(cfg, program_vk)
-                    .map_err(|e| anyhow!("Failed to connect to Zisk cluster: {e}"))?;
-                ZkVMInstance::ZiskClusterClient {
-                    elf: Elf(compiled.elf),
-                    client,
-                }
-            }
-            ProverResource::Cluster(_) => {
-                bail!("Cluster resource is only implemented for Zisk; got {zkvm}");
-            }
-            _ => {
+            ProverResource::Cpu | ProverResource::Gpu => {
                 let zkvm = DockerizedzkVM::new(
                     *zkvm,
                     Elf(compiled.elf),
@@ -404,8 +406,24 @@ pub async fn get_guest_zkvm_instances(
                     zkvm_config.clone(),
                 )
                 .with_context(|| format!("Failed to initialize DockerizedzkVM, kind {zkvm}"))?;
-                ZkVMInstance::Dockerized(zkvm)
+                ZkVMInstance::Dockerized {
+                    zkvm,
+                    profiling_elf: compiled.profiling_elf.map(Elf),
+                }
             }
+            ProverResource::Cluster(cfg) if *zkvm == zkVMKind::Zisk => {
+                let client = ZiskClusterClient::new(cfg, Elf(compiled.elf.clone()))
+                    .await
+                    .map_err(|e| anyhow!("Failed to connect to Zisk cluster: {e}"))?;
+                ZkVMInstance::ZiskClusterClient {
+                    client,
+                    profiling_elf: compiled.profiling_elf.map(Elf),
+                }
+            }
+            ProverResource::Cluster(_) => {
+                bail!("Cluster is only implemented for Zisk, got {zkvm}")
+            }
+            ProverResource::Network(_) => unreachable!(),
         };
         instances.push(instance);
     }
@@ -418,7 +436,12 @@ async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<Comp
             .with_context(|| format!("Failed to read ELF from path: {}", path.display()))?;
         let program_vk = fs::read(path.join(format!("{guest_name}.vk")))
             .with_context(|| format!("Failed to read program vk from path: {}", path.display()))?;
-        return Ok(CompiledGuest { elf, program_vk });
+        let profiling_elf = fs::read(path.join(format!("{guest_name}-profiling.elf"))).ok();
+        return Ok(CompiledGuest {
+            elf,
+            program_vk,
+            profiling_elf,
+        });
     }
 
     let downloader = guest_downloader().await?;

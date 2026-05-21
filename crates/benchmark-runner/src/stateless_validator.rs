@@ -5,7 +5,8 @@ use anyhow::{bail, Context, Result};
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
 use ere_guests_stateless_validator_ethrex::{
-    guest::StatelessValidatorEthrexGuest, host::build_eip8025_input,
+    guest::StatelessValidatorEthrexGuest,
+    host::{build_eip8025_input, Eip8025InputSource},
 };
 use ere_guests_stateless_validator_reth::guest::{
     StatelessValidatorRethGuest, StatelessValidatorRethInput,
@@ -188,8 +189,11 @@ fn ethrex_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<
         stateless_input,
         success,
     } = fixture;
-    let input = build_eip8025_input(&stateless_input, success)
-        .context("Failed to create Ethrex stateless validator input")?;
+    let input = build_eip8025_input(Eip8025InputSource::Legacy {
+        stateless_input: &stateless_input,
+        valid_block: success,
+    })
+    .context("Failed to create Ethrex stateless validator input")?;
     let output = StatelessValidatorEthrexGuest::compute::<NoopPlatform>(input.clone());
     let metadata = BlockMetadata {
         block_used_gas: stateless_input.block.gas_used,
