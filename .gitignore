@@ -7,6 +7,8 @@ zkevm-fixtures*
 zkevm-metrics*
 # zkevm dump
 zkevm-dump
+# zisk profiles
+zisk-profiles
 
 # vscode settings
 .vscode
