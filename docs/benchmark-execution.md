@@ -16,6 +16,7 @@ Prerequisites:
 
 - Docker is required because zkVM hosts are managed through `ere-dockerized`.
 - Fixture JSON files are expected in `zkevm-fixtures-input/` unless `--input-folder` is provided.
+- `stateless-validator` accepts both generated repo fixtures and EEST `blockchain_tests` fixtures that contain `statelessInputBytes` and `statelessOutputBytes`.
 
 ## Common Benchmark Commands
 
@@ -45,6 +46,14 @@ Use a custom fixture folder:
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     stateless-validator --execution-client reth \
     --input-folder my-fixtures
+```
+
+Run directly from an EEST fixture checkout:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 \
+    stateless-validator --execution-client reth \
+    --input-folder /data/code-data/execution-specs/fixtures
 ```
 
 Filter the selected fixtures by prefix:
@@ -84,6 +93,8 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 - Metrics output folder default: `zkevm-metrics/`
 - Verification proof folder default: `zkevm-fixtures-proofs/`
 - Zisk profile output folder default: `zisk-profiles/`
+
+Generated repo fixtures are converted into the selected execution client's guest input format before execution. EEST fixtures are different: `ere-hosts` extracts each block's `statelessInputBytes` and sends those bytes directly to the selected guest program without EL-specific host conversion. The expected public values are the SHA-256 digest of the fixture's `statelessOutputBytes`, matching the current stateless validator guest binaries.
 
 Proofs are only saved when `--save-proofs <PATH>` is provided.
 
@@ -141,4 +152,5 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 - Docker availability issues will block benchmark execution.
 - `--save-proofs` is only valid with `--action prove`.
 - `--proofs-url` is only valid with `--action verify`.
+- Direct EEST fixture runs may produce normal benchmark crash reports until the selected EL guest binary can decode canonical EEST stateless input bytes.
 - Local offline failures may come from guest downloads, RPC access, or proof archive downloads rather than from a compile regression.
