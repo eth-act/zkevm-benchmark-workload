@@ -138,7 +138,7 @@ impl std::fmt::Debug for ZkVMInstance {
                 .field("sdk_version", &client.verifier().sdk_version())
                 .field(
                     "program_vk",
-                    &hex::encode(client.program_vk().encode_to_vec().expect("infallable")),
+                    &hex::encode(client.program_vk().encode_to_vec().expect("infallible")),
                 )
                 .finish(),
         }
