@@ -1,10 +1,12 @@
 use anyhow::{bail, Context, Result};
 use serde::Deserialize;
-use sha2::{Digest, Sha256};
-use std::{collections::BTreeMap, path::Path};
+use std::{
+    collections::{BTreeMap, HashSet},
+    path::Path,
+};
 use tracing::info;
 
-const EEST_SAFE_NAME_MAX_LEN: usize = 80;
+const EEST_SAFE_FILE_STEM_MAX_LEN: usize = 220;
 
 #[derive(Debug, Clone)]
 pub(crate) struct EestStatelessFixture {
@@ -70,6 +72,7 @@ pub(crate) fn load_eest_benchmark_fixtures(
 
     let source_path = relative_source_path(path, input_root);
     let mut fixtures = Vec::new();
+    let mut fixture_names = HashSet::new();
 
     for (test_name, case) in cases {
         let chain_id = parse_json_u64(&case.config.chainid)
@@ -129,7 +132,7 @@ pub(crate) fn load_eest_benchmark_fixtures(
             })?;
 
             fixtures.push(EestStatelessFixture {
-                name: eest_fixture_name(&source_path, &test_name, block_index),
+                name: unique_eest_fixture_name(&test_name, block_index, &mut fixture_names),
                 original_test_name: test_name.clone(),
                 source_path: source_path.clone(),
                 block_index,
@@ -198,13 +201,34 @@ fn normalize_path_string(path: &Path) -> String {
     path.to_string_lossy().replace('\\', "/")
 }
 
-fn eest_fixture_name(source_path: &str, test_name: &str, block_index: usize) -> String {
-    let sanitized = sanitize_fixture_name(test_name);
-    let hash_input = format!("{source_path}\0{test_name}\0{block_index}");
-    let digest = Sha256::digest(hash_input.as_bytes());
-    let hash = hex_lower(&digest[..6]);
+fn unique_eest_fixture_name(
+    test_name: &str,
+    block_index: usize,
+    fixture_names: &mut HashSet<String>,
+) -> String {
+    let base = eest_fixture_name(test_name, block_index);
+    let mut index = 1;
 
-    format!("eest__{sanitized}__block{block_index}__{hash}")
+    loop {
+        let suffix = if index == 1 {
+            String::new()
+        } else {
+            format!("__{index}")
+        };
+        let candidate = truncate_fixture_name(&base, &suffix);
+
+        if fixture_names.insert(candidate.clone()) {
+            return candidate;
+        }
+
+        index += 1;
+    }
+}
+
+fn eest_fixture_name(test_name: &str, block_index: usize) -> String {
+    let sanitized = sanitize_fixture_name(test_name);
+
+    format!("eest__{sanitized}__block{block_index}")
 }
 
 fn sanitize_fixture_name(value: &str) -> String {
@@ -222,9 +246,7 @@ fn sanitize_fixture_name(value: &str) -> String {
             '_'
         };
 
-        if sanitized.len() < EEST_SAFE_NAME_MAX_LEN {
-            sanitized.push(next);
-        }
+        sanitized.push(next);
     }
 
     let sanitized = sanitized.trim_matches('_');
@@ -235,14 +257,14 @@ fn sanitize_fixture_name(value: &str) -> String {
     sanitized.to_string()
 }
 
-fn hex_lower(bytes: &[u8]) -> String {
-    const HEX: &[u8; 16] = b"0123456789abcdef";
-    let mut out = String::with_capacity(bytes.len() * 2);
-    for byte in bytes {
-        out.push(HEX[(byte >> 4) as usize] as char);
-        out.push(HEX[(byte & 0x0f) as usize] as char);
+fn truncate_fixture_name(base: &str, suffix: &str) -> String {
+    let base_max_len = EEST_SAFE_FILE_STEM_MAX_LEN.saturating_sub(suffix.len());
+    if base.len() <= base_max_len {
+        return format!("{base}{suffix}");
     }
-    out
+
+    let truncated = base[..base_max_len].trim_end_matches('_');
+    format!("{truncated}{suffix}")
 }
 
 #[cfg(test)]
@@ -270,7 +292,13 @@ mod tests {
             .iter()
             .map(|fixture| fixture.name.clone())
             .collect();
-        assert_ne!(names[0], names[1]);
+        assert_eq!(
+            names,
+            vec![
+                "eest__tests_foo_py_test_same_name_a__block0".to_string(),
+                "eest__tests_foo_py_test_same_name_a__block0__2".to_string(),
+            ]
+        );
         assert!(names.iter().all(|name| name.starts_with("eest__")));
         assert!(names.iter().all(|name| !name.contains('/')));
         assert!(names.iter().all(|name| !name.contains(':')));
@@ -292,6 +320,31 @@ mod tests {
         assert_eq!(fixture.block_used_gas, Some(16));
 
         Ok(())
+    }
+
+    #[test]
+    fn eest_fixture_name_preserves_full_sanitized_name_when_it_fits() {
+        let name = eest_fixture_name(
+            "tests/amsterdam/eip8025_optional_proofs/test_witness_state_writes.py::test_witness_state_sstore_into_empty_storage_omits_post_state_nodes[fork_Amsterdam-blockchain_test]",
+            0,
+        );
+
+        assert_eq!(
+            name,
+            "eest__tests_amsterdam_eip8025_optional_proofs_test_witness_state_writes_py_test_witness_state_sstore_into_empty_storage_omits_post_state_nodes_fork_Amsterdam-blockchain_test__block0"
+        );
+    }
+
+    #[test]
+    fn eest_fixture_name_truncates_only_when_it_exceeds_safe_file_stem_limit() {
+        let test_name = format!("tests/foo.py::test_{}", "a".repeat(300));
+        let name = eest_fixture_name(&test_name, 0);
+        let truncated = truncate_fixture_name(&name, "");
+
+        assert!(name.len() > EEST_SAFE_FILE_STEM_MAX_LEN);
+        assert_eq!(truncated.len(), EEST_SAFE_FILE_STEM_MAX_LEN);
+        assert!(truncated.starts_with("eest__tests_foo_py_test_"));
+        assert!(!truncated.ends_with('_'));
     }
 
     #[test]
