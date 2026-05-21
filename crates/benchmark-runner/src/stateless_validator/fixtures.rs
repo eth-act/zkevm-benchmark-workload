@@ -15,6 +15,8 @@ use tracing::info;
 use walkdir::WalkDir;
 use witness_generator::StatelessValidationFixture;
 
+const EEST_BLOCKCHAIN_TESTS_DIR: &str = "blockchain_tests";
+
 #[derive(Debug, Clone)]
 pub(crate) enum BenchmarkFixture {
     Legacy(Box<StatelessValidationFixture>),
@@ -61,7 +63,19 @@ pub fn benchmark_fixture_paths(
     input_folder: &Path,
     _selected_fixtures: Option<&[String]>,
 ) -> Result<Vec<PathBuf>> {
-    Ok(iter_benchmark_fixture_paths(input_folder).collect())
+    let fixture_root =
+        eest_blockchain_tests_root(input_folder).unwrap_or_else(|| input_folder.to_path_buf());
+
+    Ok(iter_benchmark_fixture_paths(&fixture_root).collect())
+}
+
+fn eest_blockchain_tests_root(input_folder: &Path) -> Option<PathBuf> {
+    if input_folder.is_file() {
+        return None;
+    }
+
+    let blockchain_tests = input_folder.join(EEST_BLOCKCHAIN_TESTS_DIR);
+    blockchain_tests.is_dir().then_some(blockchain_tests)
 }
 
 /// Reads and deserializes a single legacy benchmark fixture file.
@@ -272,6 +286,26 @@ mod tests {
 
         let paths: Vec<_> = iter_benchmark_fixture_paths(dir.path()).collect();
         assert_eq!(paths, vec![dir.path().join("fixture.json")]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn benchmark_fixture_paths_prefers_eest_blockchain_tests_subdir() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let included_path = dir
+            .path()
+            .join("blockchain_tests/for_amsterdam/included.json");
+        let engine_path = dir
+            .path()
+            .join("blockchain_tests_engine/for_amsterdam/ignored.json");
+        fs::create_dir_all(included_path.parent().unwrap())?;
+        fs::create_dir_all(engine_path.parent().unwrap())?;
+        fs::write(&included_path, "{}")?;
+        fs::write(&engine_path, "{}")?;
+
+        let paths = benchmark_fixture_paths(dir.path(), None)?;
+        assert_eq!(paths, vec![included_path]);
 
         Ok(())
     }

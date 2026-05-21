@@ -56,6 +56,9 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --input-folder /data/code-data/execution-specs/fixtures
 ```
 
+When an input folder contains an EEST `blockchain_tests/` subdirectory, only that
+subtree is used for stateless-validator inputs.
+
 Filter the selected fixtures by prefix:
 
 ```bash

@@ -2,6 +2,7 @@ use anyhow::{bail, Context, Result};
 use serde::Deserialize;
 use sha2::{Digest, Sha256};
 use std::{collections::BTreeMap, path::Path};
+use tracing::info;
 
 const EEST_SAFE_NAME_MAX_LEN: usize = 80;
 
@@ -62,7 +63,7 @@ pub(crate) fn load_eest_benchmark_fixtures(
     let cases: BTreeMap<String, EestBlockchainTest> =
         serde_json::from_value(value).with_context(|| {
             format!(
-                "Fixture {} is neither a legacy benchmark fixture nor an EEST blockchain test",
+                "Failed to parse fixture {} as an EEST blockchain test",
                 path.display()
             )
         })?;
@@ -76,6 +77,9 @@ pub(crate) fn load_eest_benchmark_fixtures(
 
         for (block_index, block) in case.blocks.into_iter().enumerate() {
             let Some(input_hex) = block.stateless_input_bytes else {
+                info!(
+                    "Skipping EEST test {test_name} block {block_index} from {source_path}: missing statelessInputBytes"
+                );
                 continue;
             };
             let stateless_input_bytes = decode_hex_bytes("statelessInputBytes", &input_hex)
@@ -85,6 +89,9 @@ pub(crate) fn load_eest_benchmark_fixtures(
                     )
                 })?;
             if stateless_input_bytes.is_empty() {
+                info!(
+                    "Skipping EEST test {test_name} block {block_index} from {source_path}: empty statelessInputBytes"
+                );
                 continue;
             }
 
