@@ -3,7 +3,7 @@
 Analyze Zisk profiling outputs and generate an aggregate summary report.
 
 Parses .prof files from ziskemu and produces a Markdown report with:
-- MARK_ID custom scope statistics (primary focus)
+- PROFILE TAGS custom scope statistics (primary focus)
 - Cost distribution breakdown (MAIN, OPCODES, PRECOMPILES, MEMORY)
 - Top opcodes by cost
 
@@ -37,6 +37,11 @@ class ProfileData:
     cost_distribution: Dict[str, int] = field(default_factory=dict)
     opcodes: Dict[str, Dict[str, int]] = field(default_factory=dict)
     mark_ids: Dict[str, Dict[str, int]] = field(default_factory=dict)
+
+
+# ziskemu's per-step MAIN cost constant. Used to derive per-scope MAIN cost from per-scope STEPS.
+# https://github.com/0xPolygonHermez/zisk/blob/v0.18.0/emulator/src/emu_costs.rs#L18
+MAIN_COST_PER_STEP = 68
 
 
 def parse_number(s: str) -> int:
@@ -94,6 +99,10 @@ def parse_profile(filepath: Path, verbose: bool = False) -> Optional[ProfileData
                 line = lines[i].strip()
                 if not line or line.startswith("TOTAL") or line.startswith("FROPS"):
                     break
+                # Skip VARIABLE which is a sub-total of MAIN+OPCODES+PRECOMPILES+MEMORY.
+                if line.startswith("VARIABLE"):
+                    i += 1
+                    continue
                 # Match lines like: BASE                         293,601,280   1.10%
                 match = re.match(r"^(\w+)\s+([\d,]+)\s+[\d.]+%$", line)
                 if match:
@@ -122,9 +131,10 @@ def parse_profile(filepath: Path, verbose: bool = False) -> Optional[ProfileData
                 line = lines[i].strip()
                 if not line or line.startswith("FROPS"):
                     break
-                # Match lines like: OP keccak                         44,347   5,681,205,476  21.20% #1
+                # Match lines like: OP keccak                         44,347   0.03%  5,681,205,476  21.20% #1
                 match = re.match(
-                    r"^OP\s+(\w+)\s+([\d,]+)\s+([\d,]+)\s+[\d.]+%", line
+                    r"^OP\s+(\w+)\s+([\d,]+)\s+[\d.]+%\s+([\d,]+)\s+[\d.]+%",
+                    line,
                 )
                 if match:
                     opcode = match.group(1)
@@ -134,37 +144,45 @@ def parse_profile(filepath: Path, verbose: bool = False) -> Optional[ProfileData
                 i += 1
             continue
 
-        # Parse MARK_ID section
-        if line.startswith("MARK_ID"):
+        # Parse PROFILE TAGS COST section.
+        if line.startswith("PROFILE TAGS COST"):
             i += 2  # Skip header line
             while i < len(lines):
                 line = lines[i].strip()
-                if not line or re.match(r"^[a-f0-9]{8}$", line):
+                if not line:
                     break
-                # Match MARK_ID lines
-                # RECOVER_BLOCK                     0          1       2,376,088   1.06%     384,171,246   1.43%     161,573,984      38,085,509     150,738,364      33,773,389
-                parts = line.split()
-                if len(parts) >= 11 and not parts[0].startswith("-"):
-                    try:
-                        name = parts[0].lower()
-                        # parts[1] = INDEX, parts[2] = COUNT, parts[3] = STEPS, parts[4] = STEPS%
-                        # parts[5] = TOTAL COST, parts[6] = %, parts[7] = MAIN COST, parts[8] = OPCODE COST
-                        # parts[9] = PRECOMPILE COST, parts[10] = MEMORY COST
-                        total_cost = parse_number(parts[5])
-                        main_cost = parse_number(parts[7])
-                        opcode_cost = parse_number(parts[8])
-                        precompile_cost = parse_number(parts[9])
-                        memory_cost = parse_number(parts[10])
+                # Match PROFILE TAGS COST lines (COST, % COST, CALLS, AVG, MIN, MAX, name):
+                # 28,506,826,487  94.81%          1  28,506,826,487  28,506,826,487  28,506,826,487 stf
+                match = re.match(
+                    r"^([\d,]+)\s+[\d.]+%\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+(\S+)\s*$",
+                    line,
+                )
+                if match:
+                    name = match.group(2).lower()
+                    cost = parse_number(match.group(1))
+                    entry = profile.mark_ids.setdefault(name, {})
+                    entry["total_cost"] = cost
+                i += 1
+            continue
 
-                        profile.mark_ids[name] = {
-                            "total_cost": total_cost,
-                            "main_cost": main_cost,
-                            "opcode_cost": opcode_cost,
-                            "precompile_cost": precompile_cost,
-                            "memory_cost": memory_cost,
-                        }
-                    except (IndexError, ValueError):
-                        pass
+        # Parse PROFILE TAGS STEPS section.
+        if line.startswith("PROFILE TAGS STEPS"):
+            i += 2  # Skip header line
+            while i < len(lines):
+                line = lines[i].strip()
+                if not line:
+                    break
+                # Match PROFILE TAGS STEPS lines (STEPS, % STEPS, CALLS, AVG, MIN, MAX, name):
+                # 225,526,731  95.12%          1     225,526,731     225,526,731     225,526,731 stf
+                match = re.match(
+                    r"^([\d,]+)\s+[\d.]+%\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+[\d,]+\s+(\S+)\s*$",
+                    line,
+                )
+                if match:
+                    name = match.group(2).lower()
+                    steps = parse_number(match.group(1))
+                    entry = profile.mark_ids.setdefault(name, {})
+                    entry["steps"] = steps
                 i += 1
             continue
 
@@ -258,7 +276,7 @@ def aggregate_profiles(profiles: List[ProfileData]) -> Dict:
         stats["avg_count"] = statistics.mean(counts) if counts else 0
         result["opcodes"][opcode] = stats
 
-    # Aggregate MARK_IDs
+    # Aggregate PROFILE TAGS
     all_mark_ids = set()
     for p in profiles:
         all_mark_ids.update(p.mark_ids.keys())
@@ -267,15 +285,14 @@ def aggregate_profiles(profiles: List[ProfileData]) -> Dict:
         total_costs = [
             p.mark_ids.get(mark_id, {}).get("total_cost", 0) for p in profiles
         ]
-        main_costs = [p.mark_ids.get(mark_id, {}).get("main_cost", 0) for p in profiles]
-        opcode_costs = [
-            p.mark_ids.get(mark_id, {}).get("opcode_cost", 0) for p in profiles
-        ]
-        precompile_costs = [
-            p.mark_ids.get(mark_id, {}).get("precompile_cost", 0) for p in profiles
-        ]
-        memory_costs = [
-            p.mark_ids.get(mark_id, {}).get("memory_cost", 0) for p in profiles
+        steps = [p.mark_ids.get(mark_id, {}).get("steps", 0) for p in profiles]
+        # MAIN cost per scope is derived from steps. Rest is whatever the
+        # scope's total cost has on top of MAIN, i.e. the OPCODES +
+        # PRECOMPILES + MEMORY.
+        main_costs = [s * MAIN_COST_PER_STEP for s in steps]
+        rest_costs = [
+            max(total_cost - main_cost, 0)
+            for total_cost, main_cost in zip(total_costs, main_costs)
         ]
         percentages = [
             (p.mark_ids.get(mark_id, {}).get("total_cost", 0) / p.total_cost * 100)
@@ -286,10 +303,9 @@ def aggregate_profiles(profiles: List[ProfileData]) -> Dict:
 
         result["mark_ids"][mark_id] = {
             "total_cost": compute_statistics(total_costs),
+            "steps": compute_statistics(steps),
             "main_cost": compute_statistics(main_costs),
-            "opcode_cost": compute_statistics(opcode_costs),
-            "precompile_cost": compute_statistics(precompile_costs),
-            "memory_cost": compute_statistics(memory_costs),
+            "rest_cost": compute_statistics(rest_costs),
             "avg_pct": statistics.mean(percentages) if percentages else 0,
         }
 
@@ -319,8 +335,8 @@ def generate_markdown_report(
     lines.append(f"- **Std dev:** {format_number(total_cost_stats['std_dev'])}")
     lines.append("")
 
-    # MARK_ID Summary (primary focus)
-    lines.append("## Custom Scopes (MARK_ID)\n")
+    # PROFILE TAGS Summary (primary focus)
+    lines.append("## Custom Scopes (PROFILE TAGS)\n")
     lines.append(
         "| Scope | Avg Cost | Avg % | Median | Min | Max | Std Dev |"
     )
@@ -348,38 +364,25 @@ def generate_markdown_report(
 
     lines.append("")
 
-    # MARK_ID Cost Breakdown
-    lines.append("### Cost Breakdown by Scope\n")
-    lines.append("| Scope | Main | Opcodes | Precompiles | Memory |")
-    lines.append("|-------|------|---------|-------------|--------|")
+    # Cost Breakdown by Scope.
+    # MAIN per scope is derived from steps (steps * MAIN_COST_PER_STEP).
+    # Rest is the OPCODES + PRECOMPILES + MEMORY portion.
+    if any(data["steps"]["mean"] > 0 for _, data in sorted_mark_ids):
+        lines.append("### Cost Breakdown by Scope\n")
+        lines.append("| Scope | Main | Rest (Opcodes + Precompiles + Memory) |")
+        lines.append("|-------|------|---------------------------------------|")
 
-    for name, data in sorted_mark_ids:
-        main_pct = (
-            data["main_cost"]["mean"] / data["total_cost"]["mean"] * 100
-            if data["total_cost"]["mean"] > 0
-            else 0
-        )
-        opcode_pct = (
-            data["opcode_cost"]["mean"] / data["total_cost"]["mean"] * 100
-            if data["total_cost"]["mean"] > 0
-            else 0
-        )
-        precompile_pct = (
-            data["precompile_cost"]["mean"] / data["total_cost"]["mean"] * 100
-            if data["total_cost"]["mean"] > 0
-            else 0
-        )
-        memory_pct = (
-            data["memory_cost"]["mean"] / data["total_cost"]["mean"] * 100
-            if data["total_cost"]["mean"] > 0
-            else 0
-        )
-        lines.append(
-            f"| {name} | {format_percent(main_pct)} | {format_percent(opcode_pct)} | "
-            f"{format_percent(precompile_pct)} | {format_percent(memory_pct)} |"
-        )
+        for name, data in sorted_mark_ids:
+            total_mean = data["total_cost"]["mean"]
+            main_mean = data["main_cost"]["mean"]
+            rest_mean = data["rest_cost"]["mean"]
+            main_pct = main_mean / total_mean * 100 if total_mean > 0 else 0
+            rest_pct = rest_mean / total_mean * 100 if total_mean > 0 else 0
+            lines.append(
+                f"| {name} | {format_percent(main_pct)} | {format_percent(rest_pct)} |"
+            )
 
-    lines.append("")
+        lines.append("")
 
     # Cost Distribution Summary
     lines.append("## Cost Distribution\n")
@@ -447,7 +450,7 @@ def generate_scope_plot(
             k: v for k, v in mark_ids.items() if k.lower() not in ignore_zones
         }
     if not mark_ids:
-        print("Warning: No MARK_ID data to plot.", file=sys.stderr)
+        print("Warning: No PROFILE TAGS data to plot.", file=sys.stderr)
         return
 
     # Sort by mean total_cost descending
