@@ -16,6 +16,8 @@ Override the default output folder with `-o, --output-folder <PATH>` when needed
 
 ## EEST Fixtures
 
+`ere-hosts` can consume new EEST `blockchain_tests` fixtures directly when their blocks include `statelessInputBytes` and `statelessOutputBytes`. Use `witness-generator-cli tests` only when you need the legacy generated fixture shape.
+
 Generate fixtures from execution-spec benchmark fixtures:
 
 ```bash
