@@ -285,10 +285,12 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.execute(&input)));
             let execution = match run {
                 Ok(Ok((public_values, report))) => {
-                    verify_public_output(zkvm.zkvm_kind(), &io, &public_values)
-                        .context("Failed to verify public output from execution")?;
+                    let output_matched =
+                        public_output_matched(zkvm.zkvm_kind(), &io, &public_values)
+                            .context("Failed to compare public output from execution")?;
 
                     ExecutionMetrics::Success {
+                        output_matched,
                         total_num_cycles: report.total_num_cycles,
                         region_cycles: report.region_cycles.into_iter().collect(),
                         execution_duration: report.execution_duration,
@@ -307,8 +309,9 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
             let run = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.prove(&input)));
             let proving = match run {
                 Ok(Ok((public_values, proof, report))) => {
-                    verify_public_output(zkvm.zkvm_kind(), &io, &public_values)
-                        .context("Failed to verify public output from proof")?;
+                    let prover_output_matched =
+                        public_output_matched(zkvm.zkvm_kind(), &io, &public_values)
+                            .context("Failed to compare public output from proof")?;
 
                     // Save proof to disk if requested
                     if let Some(ref proofs_folder) = config.save_proofs_folder {
@@ -325,10 +328,12 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
                     let verif_public_values =
                         zkvm.verify(&proof).context("Failed to verify proof")?;
                     let verification_time_ms = verify_start.elapsed().as_millis();
-                    verify_public_output(zkvm.zkvm_kind(), &io, &verif_public_values)
-                        .context("Failed to verify public output from proof verification")?;
+                    let verifier_output_matched =
+                        public_output_matched(zkvm.zkvm_kind(), &io, &verif_public_values)
+                            .context("Failed to compare public output from proof verification")?;
 
                     ProvingMetrics::Success {
+                        output_matched: prover_output_matched && verifier_output_matched,
                         proof_size: proof.len(),
                         proving_time_ms: report.proving_time.as_millis(),
                         verification_time_ms,
@@ -543,21 +548,24 @@ fn save_proof(
     Ok(())
 }
 
-fn verify_public_output(
+fn public_output_matched(
     zkvm_kind: zkVMKind,
     io: &impl GuestFixture,
     public_values: &[u8],
-) -> Result<()> {
+) -> Result<bool> {
     let expected_public_values =
         normalize_expected_public_values(zkvm_kind, io.expected_public_values()?);
 
     if expected_public_values == public_values {
-        Ok(())
+        Ok(true)
     } else {
-        Err(anyhow!(
-            "Output mismatch for {}: Public values mismatch: expected {expected_public_values:?}, got {public_values:?}",
-            io.name()
-        ))
+        warn!(
+            "Output mismatch for {}: Public values mismatch: expected {:?}, got {:?}",
+            io.name(),
+            expected_public_values,
+            public_values
+        );
+        Ok(false)
     }
 }
 
@@ -576,4 +584,93 @@ fn normalize_expected_public_values(
     }
 
     expected_public_values
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    struct Fixture {
+        name: &'static str,
+        expected_public_values: Vec<u8>,
+    }
+
+    impl Fixture {
+        fn new(expected_public_values: Vec<u8>) -> Self {
+            Self {
+                name: "fixture",
+                expected_public_values,
+            }
+        }
+    }
+
+    impl GuestFixture for Fixture {
+        fn name(&self) -> String {
+            self.name.to_string()
+        }
+
+        fn metadata(&self) -> serde_json::Value {
+            serde_json::json!({})
+        }
+
+        fn input(&self) -> Result<Input> {
+            Ok(Input::new())
+        }
+
+        fn expected_public_values(&self) -> Result<Vec<u8>> {
+            Ok(self.expected_public_values.clone())
+        }
+    }
+
+    #[test]
+    fn public_output_matched_returns_true_for_matching_values() -> Result<()> {
+        let fixture = Fixture::new(vec![1, 2, 3]);
+
+        assert!(public_output_matched(zkVMKind::SP1, &fixture, &[1, 2, 3],)?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn public_output_matched_returns_false_for_mismatched_values() -> Result<()> {
+        let fixture = Fixture::new(vec![1, 2, 3]);
+
+        assert!(!public_output_matched(zkVMKind::SP1, &fixture, &[1, 2, 4],)?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn public_output_matched_preserves_zkvm_padding_normalization() -> Result<()> {
+        let fixture = Fixture::new(vec![0xab]);
+
+        let mut thirty_two_byte_public_values = vec![0xab];
+        thirty_two_byte_public_values.resize(32, 0);
+
+        assert!(public_output_matched(
+            zkVMKind::Airbender,
+            &fixture,
+            &thirty_two_byte_public_values,
+        )?);
+        assert!(public_output_matched(
+            zkVMKind::OpenVM,
+            &fixture,
+            &thirty_two_byte_public_values,
+        )?);
+        assert!(!public_output_matched(
+            zkVMKind::SP1,
+            &fixture,
+            &thirty_two_byte_public_values,
+        )?);
+
+        let mut zisk_public_values = vec![0xab];
+        zisk_public_values.resize(256, 0);
+        assert!(public_output_matched(
+            zkVMKind::Zisk,
+            &fixture,
+            &zisk_public_values,
+        )?);
+
+        Ok(())
+    }
 }

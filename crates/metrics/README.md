@@ -20,12 +20,14 @@ Both `ExecutionMetrics` and `ProvingMetrics` can be either:
 
 `ExecutionMetrics::Success` stores:
 
+- `output_matched`: Whether public output matched the fixture's expected public values.
 - `total_num_cycles`: The total cycle count for the whole execution.
 - `region_cycles`: A map associating region names with cycle counts for specific workload phases.
 - `execution_duration`: The duration of the execution.
 
 `ProvingMetrics::Success` stores:
 
+- `output_matched`: Whether prover and verification public outputs matched the fixture's expected public values.
 - `proof_size`: The size of the generated proof in bytes.
 - `proving_time_ms`: The time taken to generate the proof in milliseconds.
 - `verification_time_ms`: The time taken to verify the proof in milliseconds.
@@ -78,6 +80,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
                 block_used_gas: 12345,
             },
             execution: Some(ExecutionMetrics::Success {
+                output_matched: true,
                 total_num_cycles: 1_000,
                 region_cycles: HashMap::from_iter([
                     ("setup".to_string(), 100),
@@ -97,6 +100,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
             },
             execution: None,
             proving: Some(ProvingMetrics::Success {
+                output_matched: true,
                 proof_size: 256,
                 proving_time_ms: 2_000,
                 verification_time_ms: 200,
