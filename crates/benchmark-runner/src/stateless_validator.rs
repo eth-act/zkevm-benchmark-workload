@@ -20,6 +20,8 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex stateless block validation guest program.
     Ethrex,
+    /// Nethermind stateless block validation guest program.
+    Nethermind,
 }
 
 /// Extra information about the block being benchmarked
@@ -31,11 +33,13 @@ pub struct BlockMetadata {
 
 impl ExecutionClient {
     /// Returns the version string of the execution client (tag or short commit hash),
-    /// extracted from the resolved `Cargo.lock` at build time.
+    /// extracted from the resolved `Cargo.lock` at build time. Nethermind is a
+    /// temporary external binary path and does not come from `ere-guests`.
     pub const fn version(&self) -> &'static str {
         match self {
             Self::Reth => env!("RETH_EL_VERSION"),
             Self::Ethrex => env!("ETHREX_EL_VERSION"),
+            Self::Nethermind => "external",
         }
     }
 }

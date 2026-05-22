@@ -15,7 +15,7 @@ use benchmark_runner::{
 use ere_dockerized::{DockerizedzkVMConfig, ProverResource, zkVMKind};
 
 use clap::Parser;
-use std::time::Duration;
+use std::{path::Path, time::Duration};
 use tracing::info;
 use tracing_subscriber::EnvFilter;
 
@@ -115,6 +115,7 @@ async fn main() -> Result<()> {
             execution_client,
         } => {
             let el: stateless_validator::ExecutionClient = execution_client.into();
+            validate_stateless_validator_execution_client(el, bin_path)?;
 
             let el_name = el.as_ref().to_lowercase();
             let el_str = format!("{}-{}", el_name, el.version());
@@ -210,4 +211,18 @@ const fn build_zkvm_config(
     }
 
     config
+}
+
+fn validate_stateless_validator_execution_client(
+    el: stateless_validator::ExecutionClient,
+    bin_path: Option<&Path>,
+) -> Result<()> {
+    if matches!(el, stateless_validator::ExecutionClient::Nethermind) && bin_path.is_none() {
+        bail!(
+            "--execution-client nethermind is temporary and requires --bin-path with local \
+             stateless-validator-nethermind-{{zkvm}}.elf artifacts"
+        );
+    }
+
+    Ok(())
 }

@@ -62,7 +62,8 @@ pub struct Cli {
     pub proofs_url: Option<String>,
 
     /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
-    /// from the resolved ere-guests release or commit artifacts.
+    /// from the resolved ere-guests release or commit artifacts. Required for temporary
+    /// Nethermind stateless-validator runs.
     #[arg(long)]
     pub bin_path: Option<PathBuf>,
 
@@ -105,6 +106,8 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex execution client
     Ethrex,
+    /// Nethermind execution client (temporary, --bin-path only, EEST fixtures only)
+    Nethermind,
 }
 
 impl ExecutionClient {
@@ -113,6 +116,7 @@ impl ExecutionClient {
         let path = match self {
             Self::Reth => "stateless-validator/reth",
             Self::Ethrex => "stateless-validator/ethrex",
+            Self::Nethermind => "stateless-validator/nethermind",
         };
         PathBuf::from(path)
     }
@@ -176,6 +180,7 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
         match client {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
+            ExecutionClient::Nethermind => Self::Nethermind,
         }
     }
 }

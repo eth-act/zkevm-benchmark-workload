@@ -439,8 +439,25 @@ async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<Comp
     if let Some(path) = bin_path {
         let elf = fs::read(path.join(format!("{guest_name}.elf")))
             .with_context(|| format!("Failed to read ELF from path: {}", path.display()))?;
-        let program_vk = fs::read(path.join(format!("{guest_name}.vk")))
-            .with_context(|| format!("Failed to read program vk from path: {}", path.display()))?;
+        let program_vk_path = path.join(format!("{guest_name}.vk"));
+        let program_vk = match fs::read(&program_vk_path) {
+            Ok(program_vk) => program_vk,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {
+                warn!(
+                    "Program VK not found at {}; using empty program_vk for local guest",
+                    program_vk_path.display()
+                );
+                Vec::new()
+            }
+            Err(error) => {
+                return Err(error).with_context(|| {
+                    format!(
+                        "Failed to read program vk from path: {}",
+                        program_vk_path.display()
+                    )
+                });
+            }
+        };
         let profiling_elf = fs::read(path.join(format!("{guest_name}-profiling.elf"))).ok();
         return Ok(CompiledGuest {
             elf,

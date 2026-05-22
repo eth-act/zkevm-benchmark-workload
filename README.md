@@ -18,6 +18,9 @@ This repository benchmarks Ethereum-related guest programs across multiple zkVMs
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 
 Guest programs are maintained in the [eth-act/ere-guests](https://github.com/eth-act/ere-guests) repository and are downloaded automatically from the resolved release or commit artifacts unless `--bin-path` is provided.
+Temporary Nethermind stateless-validator runs are local-artifact only: use
+`--execution-client nethermind` with `--bin-path` and EEST `blockchain_tests`
+fixtures.
 
 ## Prerequisites
 

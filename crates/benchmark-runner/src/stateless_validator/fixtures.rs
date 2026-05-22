@@ -276,35 +276,36 @@ mod tests {
     }
 
     #[test]
-    fn eest_fixture_iter_yields_raw_input_and_hashed_output() -> Result<()> {
+    fn eest_fixture_iter_yields_el_specific_expected_output() -> Result<()> {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
 
         let selected = vec!["tests/foo.py::test_same[name/a]".to_string()];
-        let mut fixtures = stateless_validator_input_iter(
-            dir.path(),
-            Some(&selected),
-            ExecutionClient::Reth,
-            None,
-        )?;
-        let guest_fixture = fixtures.next().unwrap()?;
-        assert!(fixtures.next().is_none());
+        for (el, expected_public_values) in [
+            (ExecutionClient::Reth, Sha256::digest([0xaa, 0xbb]).to_vec()),
+            (ExecutionClient::Nethermind, vec![0xaa, 0xbb]),
+        ] {
+            let mut fixtures =
+                stateless_validator_input_iter(dir.path(), Some(&selected), el, None)?;
+            let guest_fixture = fixtures.next().unwrap()?;
+            assert!(fixtures.next().is_none());
 
-        let input = guest_fixture.input()?;
-        assert_eq!(input.stdin(), [0x00, 0x01, 0x02]);
-        assert_eq!(
-            guest_fixture.expected_public_values()?,
-            Sha256::digest([0xaa, 0xbb]).to_vec()
-        );
+            let input = guest_fixture.input()?;
+            assert_eq!(input.stdin(), [0x00, 0x01, 0x02]);
+            assert_eq!(
+                guest_fixture.expected_public_values()?,
+                expected_public_values
+            );
 
-        let metadata = guest_fixture.metadata();
-        assert_eq!(metadata["fixture_format"], "eest");
-        assert_eq!(
-            metadata["original_test_name"],
-            "tests/foo.py::test_same[name/a]"
-        );
-        assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
+            let metadata = guest_fixture.metadata();
+            assert_eq!(metadata["fixture_format"], "eest");
+            assert_eq!(
+                metadata["original_test_name"],
+                "tests/foo.py::test_same[name/a]"
+            );
+            assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
+        }
 
         Ok(())
     }

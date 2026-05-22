@@ -59,6 +59,21 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 When an input folder contains an EEST `blockchain_tests/` subdirectory, only that
 subtree is used for stateless-validator inputs.
 
+Run the temporary Nethermind stateless-validator guest from local artifacts:
+
+```bash
+cargo run -p ere-hosts --release -- \
+    --zkvms sp1 \
+    --bin-path /path/to/nethermind-artifacts \
+    stateless-validator \
+    --execution-client nethermind \
+    --input-folder /path/to/eest/fixtures
+```
+
+Nethermind currently requires EEST `blockchain_tests` fixtures and local
+`--bin-path` artifacts named `stateless-validator-nethermind-{zkvm}.elf`. A
+matching `.vk` file is optional for this temporary path.
+
 Filter the selected fixtures by prefix:
 
 ```bash
@@ -97,7 +112,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 - Verification proof folder default: `zkevm-fixtures-proofs/`
 - Zisk profile output folder default: `zisk-profiles/`
 
-Generated repo fixtures are converted into the selected execution client's guest input format before execution. EEST fixtures are different: `ere-hosts` extracts each block's `statelessInputBytes` and sends those bytes directly to the selected guest program without EL-specific host conversion. The expected public values are the SHA-256 digest of the fixture's `statelessOutputBytes`, matching the current stateless validator guest binaries.
+Generated repo fixtures are converted into the selected execution client's guest input format before execution. EEST fixtures are different: `ere-hosts` extracts each block's `statelessInputBytes` and sends those bytes directly to the selected guest program without EL-specific host conversion. For Reth and Ethrex, the expected public values are the SHA-256 digest of the fixture's `statelessOutputBytes`; temporary Nethermind runs compare against the raw `statelessOutputBytes`.
 
 Completed execution and proving runs are still written as successful metrics even when public values do not match the fixture expectation. In that case the runner logs a warning and writes `output_matched: false` inside `execution.success` or `proving.success`. zkVM errors, proof verification errors, expected-output computation errors, and panics are still recorded as crashed or returned as fatal infrastructure errors as before.
 
@@ -147,6 +162,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 ## Operational Notes
 
 - Guest binaries are downloaded automatically unless `--bin-path` is set. Tagged `ere-guests` dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`.
+- `--execution-client nethermind` is temporary, requires `--bin-path`, and only supports direct EEST stateless input fixtures.
 - Use `--force-rerun` to ignore existing output and rerun a workload.
 - `--resource gpu` selects GPU proving resources where supported.
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.

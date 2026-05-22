@@ -4,7 +4,7 @@ use crate::{
         eest::EestStatelessFixture, fixtures::BenchmarkFixture, BlockMetadata, ExecutionClient,
     },
 };
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use ere_dockerized::Input;
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
@@ -40,12 +40,19 @@ pub(crate) fn stateless_validator_input_from_fixture(
         BenchmarkFixture::Legacy(fixture) => match el {
             ExecutionClient::Reth => reth_input_from_fixture(*fixture),
             ExecutionClient::Ethrex => ethrex_input_from_fixture(*fixture),
+            ExecutionClient::Nethermind => bail!(
+                "Nethermind stateless-validator only supports EEST blockchain_tests fixtures \
+                 with statelessInputBytes/statelessOutputBytes"
+            ),
         },
-        BenchmarkFixture::Eest(fixture) => raw_eest_input_from_fixture(fixture),
+        BenchmarkFixture::Eest(fixture) => raw_eest_input_from_fixture(fixture, el),
     }
 }
 
-fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn GuestFixture>> {
+fn raw_eest_input_from_fixture(
+    fixture: EestStatelessFixture,
+    el: ExecutionClient,
+) -> Result<Box<dyn GuestFixture>> {
     let metadata = EestBlockMetadata {
         fixture_format: "eest",
         original_test_name: fixture.original_test_name,
@@ -56,7 +63,12 @@ fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn 
         block_number: fixture.block_number,
         block_used_gas: fixture.block_used_gas,
     };
-    let expected_public_values = Sha256::digest(fixture.stateless_output_bytes).to_vec();
+    let expected_public_values = match el {
+        ExecutionClient::Nethermind => fixture.stateless_output_bytes,
+        ExecutionClient::Reth | ExecutionClient::Ethrex => {
+            Sha256::digest(fixture.stateless_output_bytes).to_vec()
+        }
+    };
 
     Ok(GenericGuestFixture::<EestBlockMetadata> {
         name: fixture.name,
