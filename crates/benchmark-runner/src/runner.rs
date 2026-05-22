@@ -569,6 +569,23 @@ fn public_output_matched(
     }
 }
 
+fn normalize_expected_public_values(
+    zkvm_kind: zkVMKind,
+    mut expected_public_values: Vec<u8>,
+) -> Vec<u8> {
+    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
+        && expected_public_values.len() < 32
+    {
+        expected_public_values.resize(32, 0);
+    }
+
+    if matches!(zkvm_kind, zkVMKind::Zisk) && expected_public_values.len() < 256 {
+        expected_public_values.resize(256, 0);
+    }
+
+    expected_public_values
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -656,21 +673,4 @@ mod tests {
 
         Ok(())
     }
-}
-
-fn normalize_expected_public_values(
-    zkvm_kind: zkVMKind,
-    mut expected_public_values: Vec<u8>,
-) -> Vec<u8> {
-    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
-        && expected_public_values.len() < 32
-    {
-        expected_public_values.resize(32, 0);
-    }
-
-    if matches!(zkvm_kind, zkVMKind::Zisk) && expected_public_values.len() < 256 {
-        expected_public_values.resize(256, 0);
-    }
-
-    expected_public_values
 }
