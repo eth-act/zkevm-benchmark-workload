@@ -99,6 +99,8 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 Generated repo fixtures are converted into the selected execution client's guest input format before execution. EEST fixtures are different: `ere-hosts` extracts each block's `statelessInputBytes` and sends those bytes directly to the selected guest program without EL-specific host conversion. The expected public values are the SHA-256 digest of the fixture's `statelessOutputBytes`, matching the current stateless validator guest binaries.
 
+Completed execution and proving runs are still written as successful metrics even when public values do not match the fixture expectation. In that case the runner logs a warning and writes `output_matched: false` inside `execution.success` or `proving.success`. zkVM errors, proof verification errors, expected-output computation errors, and panics are still recorded as crashed or returned as fatal infrastructure errors as before.
+
 Proofs are only saved when `--save-proofs <PATH>` is provided.
 
 Dump the raw serialized guest inputs used for a run:
