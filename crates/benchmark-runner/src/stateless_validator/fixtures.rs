@@ -16,6 +16,9 @@ use walkdir::WalkDir;
 use witness_generator::StatelessValidationFixture;
 
 const EEST_BLOCKCHAIN_TESTS_DIR: &str = "blockchain_tests";
+const EEST_BLOCKCHAIN_TESTS_ENGINE_DIR: &str = "blockchain_tests_engine";
+const EEST_BLOCKCHAIN_TESTS_ENGINE_X_DIR: &str = "blockchain_tests_engine_x";
+const EEST_BLOCKCHAIN_TESTS_SYNC_DIR: &str = "blockchain_tests_sync";
 
 #[derive(Debug, Clone)]
 pub(crate) enum BenchmarkFixture {
@@ -63,19 +66,51 @@ pub fn benchmark_fixture_paths(
     input_folder: &Path,
     _selected_fixtures: Option<&[String]>,
 ) -> Result<Vec<PathBuf>> {
-    let fixture_root =
-        eest_blockchain_tests_root(input_folder).unwrap_or_else(|| input_folder.to_path_buf());
-
+    let fixture_root = benchmark_fixture_root(input_folder)?;
     Ok(iter_benchmark_fixture_paths(&fixture_root).collect())
 }
 
-fn eest_blockchain_tests_root(input_folder: &Path) -> Option<PathBuf> {
+fn benchmark_fixture_root(input_folder: &Path) -> Result<PathBuf> {
     if input_folder.is_file() {
-        return None;
+        return Ok(input_folder.to_path_buf());
     }
 
     let blockchain_tests = input_folder.join(EEST_BLOCKCHAIN_TESTS_DIR);
-    blockchain_tests.is_dir().then_some(blockchain_tests)
+    if blockchain_tests.is_dir() {
+        return Ok(blockchain_tests);
+    }
+
+    if looks_like_eest_fixture_bundle(input_folder) {
+        bail!(
+            "EEST fixture bundle {} does not contain required {}/ directory; \
+             stateless-validator supports EEST blockchain_test fixtures",
+            input_folder.display(),
+            EEST_BLOCKCHAIN_TESTS_DIR
+        );
+    }
+
+    Ok(input_folder.to_path_buf())
+}
+
+fn looks_like_eest_fixture_bundle(input_folder: &Path) -> bool {
+    input_folder.join(EEST_BLOCKCHAIN_TESTS_ENGINE_DIR).is_dir()
+        || input_folder
+            .join(EEST_BLOCKCHAIN_TESTS_ENGINE_X_DIR)
+            .is_dir()
+        || input_folder.join(EEST_BLOCKCHAIN_TESTS_SYNC_DIR).is_dir()
+        || eest_fixture_index_has_formats(input_folder)
+}
+
+fn eest_fixture_index_has_formats(input_folder: &Path) -> bool {
+    let index_path = input_folder.join(".meta").join("index.json");
+    let Ok(content) = std::fs::read(index_path) else {
+        return false;
+    };
+    let Ok(value) = serde_json::from_slice::<serde_json::Value>(&content) else {
+        return false;
+    };
+
+    value.get("fixture_formats").is_some()
 }
 
 /// Reads and deserializes a single legacy benchmark fixture file.
@@ -306,6 +341,23 @@ mod tests {
 
         let paths = benchmark_fixture_paths(dir.path(), None)?;
         assert_eq!(paths, vec![included_path]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn benchmark_fixture_paths_rejects_engine_only_eest_bundle() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let engine_path = dir
+            .path()
+            .join("blockchain_tests_engine/for_amsterdam/ignored.json");
+        fs::create_dir_all(engine_path.parent().unwrap())?;
+        fs::write(&engine_path, "{}")?;
+
+        let err = benchmark_fixture_paths(dir.path(), None).unwrap_err();
+        let message = err.to_string();
+        assert!(message.contains("blockchain_tests"));
+        assert!(message.contains("blockchain_test_engine-only"));
 
         Ok(())
     }
