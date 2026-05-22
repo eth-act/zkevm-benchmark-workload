@@ -61,11 +61,8 @@ pub fn iter_benchmark_fixture_paths(path: &Path) -> impl Iterator<Item = PathBuf
         .map(walkdir::DirEntry::into_path)
 }
 
-/// Resolves benchmark fixture file paths.
-pub fn benchmark_fixture_paths(
-    input_folder: &Path,
-    _selected_fixtures: Option<&[String]>,
-) -> Result<Vec<PathBuf>> {
+/// Resolves benchmark fixture JSON paths.
+pub fn benchmark_fixture_paths(input_folder: &Path) -> Result<Vec<PathBuf>> {
     let fixture_root = benchmark_fixture_root(input_folder)?;
     Ok(iter_benchmark_fixture_paths(&fixture_root).collect())
 }
@@ -83,7 +80,8 @@ fn benchmark_fixture_root(input_folder: &Path) -> Result<PathBuf> {
     if looks_like_eest_fixture_bundle(input_folder) {
         bail!(
             "EEST fixture bundle {} does not contain required {}/ directory; \
-             stateless-validator supports EEST blockchain_test fixtures",
+             stateless-validator supports EEST blockchain_test fixtures, \
+             not blockchain_test_engine-only fixtures",
             input_folder.display(),
             EEST_BLOCKCHAIN_TESTS_DIR
         );
@@ -131,7 +129,7 @@ pub(super) fn stateless_validator_input_iter(
         .transpose()?;
 
     Ok(stateless_validator_input_iter_from_paths(
-        benchmark_fixture_paths(input_folder, None)?.into_iter(),
+        benchmark_fixture_paths(input_folder)?.into_iter(),
         input_folder.to_path_buf(),
         fixture_prefixes,
         el,
@@ -339,7 +337,7 @@ mod tests {
         fs::write(&included_path, "{}")?;
         fs::write(&engine_path, "{}")?;
 
-        let paths = benchmark_fixture_paths(dir.path(), None)?;
+        let paths = benchmark_fixture_paths(dir.path())?;
         assert_eq!(paths, vec![included_path]);
 
         Ok(())
@@ -354,7 +352,7 @@ mod tests {
         fs::create_dir_all(engine_path.parent().unwrap())?;
         fs::write(&engine_path, "{}")?;
 
-        let err = benchmark_fixture_paths(dir.path(), None).unwrap_err();
+        let err = benchmark_fixture_paths(dir.path()).unwrap_err();
         let message = err.to_string();
         assert!(message.contains("blockchain_tests"));
         assert!(message.contains("blockchain_test_engine-only"));
