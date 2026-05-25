@@ -1,42 +1,27 @@
-# metrics
+# zkevm-metrics
 
-This crate provides data structures and utilities for handling workload performance metrics, specifically cycle counts.
+This crate provides serializable data structures and file helpers for benchmark metrics.
+
+For the exact metrics files written by `ere-hosts`, see [`docs/benchmark-execution-output.md`](../../docs/benchmark-execution-output.md).
 
 ## Overview
 
 The core data structure is `BenchmarkRun<Metadata>`, which stores:
 
-- `name`: The name of the benchmark (for example `fft_bench` or `aes_bench`).
+- `name`: The benchmark or fixture name.
 - `timestamp_completed`: Timestamp when the benchmark run ended.
-- `metadata`: Generic metadata of type `M` containing benchmark-specific information such as block gas usage or loop counts.
-- `execution`: Optional execution metrics (`Option<ExecutionMetrics>`).
-- `proving`: Optional proving metrics (`Option<ProvingMetrics>`).
-- `verification`: Optional standalone verification metrics (`Option<VerificationMetrics>`).
+- `metadata`: Benchmark-specific metadata, generic over the caller's type.
+- `execution`: Optional execution metrics.
+- `proving`: Optional proving metrics.
+- `verification`: Optional standalone verification metrics.
 
-Both `ExecutionMetrics` and `ProvingMetrics` can be either:
+`ExecutionMetrics`, `ProvingMetrics`, and `VerificationMetrics` can contain either a success payload or crash information, depending on the run outcome.
 
-- `Success { ... }`: Contains metrics from successful runs.
-- `Crashed(CrashInfo)`: Contains information about crashes that occurred.
+`HardwareInfo` detects and stores:
 
-`ExecutionMetrics::Success` stores:
-
-- `output_matched`: Whether public output matched the fixture's expected public values.
-- `total_num_cycles`: The total cycle count for the whole execution.
-- `region_cycles`: A map associating region names with cycle counts for specific workload phases.
-- `execution_duration`: The duration of the execution.
-
-`ProvingMetrics::Success` stores:
-
-- `output_matched`: Whether prover and verification public outputs matched the fixture's expected public values.
-- `proof_size`: The size of the generated proof in bytes.
-- `proving_time_ms`: The time taken to generate the proof in milliseconds.
-- `verification_time_ms`: The time taken to verify the proof in milliseconds.
-
-`HardwareInfo` is a separate utility struct that automatically detects and stores:
-
-- `cpu_model`: The CPU model name.
+- `cpu_model`: CPU model name.
 - `total_ram_gib`: Total system RAM in GiB.
-- `gpus`: Information about available GPUs, detected via `nvidia-smi` if available.
+- `gpus`: Available GPUs, detected via `nvidia-smi` when available.
 
 The crate can:
 
@@ -45,7 +30,7 @@ The crate can:
 - Write a `BenchmarkRun<Metadata>` to a file, creating parent directories if needed.
 - Read a `BenchmarkRun<Metadata>` from a file.
 
-The metadata type `M` must implement `Serialize` and `DeserializeOwned`.
+The metadata type must implement `Serialize` and `DeserializeOwned`.
 
 ## Usage
 
@@ -61,10 +46,8 @@ Example:
 ```rust
 use serde_derive::{Deserialize, Serialize};
 use std::collections::HashMap;
-use std::env::temp_dir;
-use std::iter::FromIterator;
 use std::time::Duration;
-use zkevm_metrics::{BenchmarkRun, ExecutionMetrics, ProvingMetrics};
+use zkevm_metrics::{BenchmarkRun, ExecutionMetrics};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 struct Metadata {
@@ -72,61 +55,32 @@ struct Metadata {
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let metrics_data = vec![
-        BenchmarkRun::<Metadata> {
-            name: "workload name".into(),
-            timestamp_completed: zkevm_metrics::chrono::Utc::now(),
-            metadata: Metadata {
-                block_used_gas: 12345,
-            },
-            execution: Some(ExecutionMetrics::Success {
-                output_matched: true,
-                total_num_cycles: 1_000,
-                region_cycles: HashMap::from_iter([
-                    ("setup".to_string(), 100),
-                    ("compute".to_string(), 800),
-                    ("teardown".to_string(), 100),
-                ]),
-                execution_duration: Duration::from_millis(300),
-            }),
-            proving: None,
-            verification: None,
+    let metrics = BenchmarkRun::<Metadata> {
+        name: "workload name".into(),
+        timestamp_completed: zkevm_metrics::chrono::Utc::now(),
+        metadata: Metadata {
+            block_used_gas: 12345,
         },
-        BenchmarkRun {
-            name: "proving workload".into(),
-            timestamp_completed: zkevm_metrics::chrono::Utc::now(),
-            metadata: Metadata {
-                block_used_gas: 67890,
-            },
-            execution: None,
-            proving: Some(ProvingMetrics::Success {
-                output_matched: true,
-                proof_size: 256,
-                proving_time_ms: 2_000,
-                verification_time_ms: 200,
-            }),
-            verification: None,
-        },
-    ];
+        execution: Some(ExecutionMetrics::Success {
+            output_matched: true,
+            total_num_cycles: 1_000,
+            region_cycles: HashMap::new(),
+            execution_duration: Duration::from_millis(300),
+        }),
+        proving: None,
+        verification: None,
+    };
 
-    let json_string = BenchmarkRun::to_json(&metrics_data)?;
-    println!("Serialized JSON: {}", json_string);
-
-    for metrics in metrics_data.into_iter() {
-        let output_path = temp_dir().join("metrics_output.json");
-        metrics.to_path(&output_path)?;
-        let read_metrics = BenchmarkRun::from_path(output_path)?;
-        assert_eq!(metrics, read_metrics);
-    }
-
+    let json = BenchmarkRun::to_json(&[metrics])?;
+    println!("{json}");
     Ok(())
 }
 ```
 
 ## Error Handling
 
-Functions return `Result<_, MetricsError>`.
+File and JSON helpers return `Result<_, MetricsError>`.
 
 ## License
 
-This crate inherits its license from the workspace. See the root `Cargo.toml` or `LICENSE` files.
+This crate inherits its license from the workspace. See the root `Cargo.toml` or license files.
