@@ -1,6 +1,6 @@
 # Witness Generator CLI
 
-This README is crate-local. Use [`../../docs/fixture-generation.md`](../../docs/fixture-generation.md) for the primary operator workflow from the workspace root, and use this file for crate-specific notes such as Docker usage and binary-local behavior.
+Use [Fixture Generation](fixture-generation.md) for the primary operator workflow, and use this page for Docker usage and binary-local behavior.
 
 ## Overview
 
@@ -11,6 +11,8 @@ It supports three data sources:
 - **EEST**: generate fixtures from execution-spec benchmark fixture releases or a local EEST directory.
 - **RPC**: generate fixtures from live RPC blocks and execution witnesses.
 - **Raw Input**: generate fixtures from pre-collected JSON-RPC response files listed in `raw_input_parts.txt`.
+
+For the exact JSON fixture formats accepted by `ere-hosts`, see [Benchmark Execution Inputs](benchmark-execution-inputs.md).
 
 The current CLI surface is defined by `clap`; inspect it from the workspace root with:
 
