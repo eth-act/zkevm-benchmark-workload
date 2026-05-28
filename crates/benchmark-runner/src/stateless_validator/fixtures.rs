@@ -48,6 +48,7 @@ pub fn iter_benchmark_fixture_paths(path: &Path) -> impl Iterator<Item = PathBuf
 
     WalkDir::new(path)
         .min_depth(min_depth)
+        .sort_by_file_name()
         .into_iter()
         .filter_map(|entry| entry.ok())
         .filter(|entry| entry.file_type().is_file())
@@ -245,6 +246,24 @@ mod tests {
     use super::*;
     use sha2::{Digest, Sha256};
     use std::fs;
+
+    #[test]
+    fn fixture_iter_yields_sorted_paths() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+
+        let paths = (24950000..)
+            .take(100)
+            .map(|block_number| dir.path().join(format!("{block_number}.json")))
+            .collect::<Vec<_>>();
+
+        for path in &paths {
+            fs::File::create(path)?;
+        }
+
+        assert_eq!(paths, benchmark_fixture_paths(dir.path())?);
+
+        Ok(())
+    }
 
     #[test]
     fn fixture_prefix_matching_accepts_safe_and_original_eest_names() -> Result<()> {
