@@ -1528,6 +1528,7 @@ dependencies = [
  "strum 0.26.3",
  "tar",
  "tempfile",
+ "tokio",
  "toml 0.8.23",
  "tracing",
  "walkdir",

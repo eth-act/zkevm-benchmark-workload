@@ -12,6 +12,7 @@ use ere_util_tokio::block_on;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 use std::{any::Any, env, panic};
 use tracing::{info, warn};
 
@@ -42,6 +43,9 @@ pub enum ZkVMInstance {
     ZiskClusterClient {
         /// gRPC client connected to the remote Zisk cluster.
         client: ZiskClusterClient,
+        /// Per-request prove deadline cap, propagated from the
+        /// `DockerizedzkVMConfig` prove timeout. `None` means no cap.
+        prove_timeout: Option<Duration>,
         /// ELF of Zisk guest with feature `cycle-scope` enabled.
         /// `Some` only if the guest is a Zisk guest.
         profiling_elf: Option<Elf>,
@@ -98,8 +102,13 @@ impl ZkVMInstance {
     ) -> Result<(PublicValues, EncodedProof, ProgramProvingReport)> {
         match self {
             Self::Dockerized { zkvm, .. } => zkvm.prove(input),
-            Self::ZiskClusterClient { client, .. } => {
-                let (proof, proving_time) = block_on(client.prove(input, None))?;
+            Self::ZiskClusterClient {
+                client,
+                prove_timeout,
+                ..
+            } => {
+                let deadline = prove_timeout.map(|timeout| tokio::time::Instant::now() + timeout);
+                let (proof, proving_time) = block_on(client.prove(input, deadline))?;
                 let (_, public_values) = proof.program_vk_and_public_values()?;
                 let proof = proof.encode_to_vec()?;
                 Ok((
@@ -422,6 +431,7 @@ pub async fn get_guest_zkvm_instances(
                     .map_err(|e| anyhow!("Failed to connect to Zisk cluster: {e}"))?;
                 ZkVMInstance::ZiskClusterClient {
                     client,
+                    prove_timeout: zkvm_config.prove_timeout,
                     profiling_elf: compiled.profiling_elf.map(Elf),
                 }
             }
