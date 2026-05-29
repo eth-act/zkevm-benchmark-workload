@@ -1,12 +1,12 @@
 //! Vendored encoding of the external zisk-eth-client guest input.
 //!
-//! Reproduces `guest_reth::RethInput` byte-for-byte so a benchmark fixture can
-//! be converted into the guest's stdin in process. The guest reads a single
-//! `RethInput` record (bincode standard) bundling the stateless input with the
-//! host-recovered transaction signer public keys, and commits the validated
-//! block hash. The `block`/`chain_config` fields carry the same
-//! `serde_bincode_compat` adapters the guest uses, so the produced bytes match
-//! exactly. Types resolve against the `-v1` aliased reth/alloy crates.
+//! Reproduces the guest's input byte-for-byte so a benchmark fixture can be
+//! converted into the guest's stdin in process. The guest reads a single record
+//! that bincode-decodes into the tuple `(RethInputPublic, RethInputWitness)` and
+//! commits the validated block hash. The `block`/`chain_config` fields carry the
+//! same `serde_bincode_compat` adapters and the public-key bytes the guest uses,
+//! so the produced bytes match exactly. Types resolve against the `-v1` aliased
+//! reth/alloy crates.
 
 use alloy_genesis_v1::ChainConfig;
 use alloy_primitives_v1::B256;
@@ -23,24 +23,23 @@ use serde_with::{serde_as, Bytes};
 #[derive(Debug, Clone, Serialize, Deserialize)]
 struct UncompressedPublicKey(#[serde_as(as = "Bytes")] [u8; 65]);
 
-/// Mirrors the patched `stateless_reth::StatelessInput` bincode wire format.
+/// Mirrors `guest_reth::RethInputPublic` (block, chain config, recovered keys).
 #[serde_as]
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct StatelessInput {
+struct RethInputPublic {
     #[serde_as(
         as = "reth_primitives_traits_v1::serde_bincode_compat::Block<reth_ethereum_primitives_v1::TransactionSigned, alloy_consensus_v1::Header>"
     )]
     block: Block,
-    witness: ExecutionWitness,
     #[serde_as(as = "alloy_genesis_v1::serde_bincode_compat::ChainConfig<'_>")]
     chain_config: ChainConfig,
+    public_keys: Vec<UncompressedPublicKey>,
 }
 
-/// Mirrors `guest_reth::RethInput`.
+/// Mirrors `guest_reth::RethInputWitness`.
 #[derive(Debug, Clone, Serialize, Deserialize)]
-struct RethInput {
-    stateless_input: StatelessInput,
-    public_keys: Vec<UncompressedPublicKey>,
+struct RethInputWitness {
+    witness: ExecutionWitness,
 }
 
 /// On-disk benchmark fixture shape, with `block` in native reth JSON (the form
@@ -67,7 +66,7 @@ pub(crate) struct ConvertedFixture {
     pub(crate) name: String,
     /// Gas used by the block, recorded in the metrics metadata.
     pub(crate) gas_used: u64,
-    /// Guest stdin (bincode-encoded `RethInput`).
+    /// Guest stdin (bincode-encoded `(RethInputPublic, RethInputWitness)`).
     pub(crate) stdin: Vec<u8>,
     /// Expected committed output, the block hash encoded as the guest commits it.
     pub(crate) expected: Vec<u8>,
@@ -89,16 +88,16 @@ pub(crate) fn convert_fixture_json(json: &[u8]) -> Result<ConvertedFixture> {
     let expected = bincode::serde::encode_to_vec(block_hash, bincode::config::standard())
         .context("Failed to encode expected block hash")?;
 
-    let reth_input = RethInput {
-        stateless_input: StatelessInput {
-            block: fixture.stateless_input.block,
-            witness: fixture.stateless_input.witness,
-            chain_config: fixture.stateless_input.chain_config,
-        },
+    let public = RethInputPublic {
+        block: fixture.stateless_input.block,
+        chain_config: fixture.stateless_input.chain_config,
         public_keys,
     };
-    let stdin = bincode::serde::encode_to_vec(&reth_input, bincode::config::standard())
-        .context("Failed to serialize RethInput")?;
+    let witness = RethInputWitness {
+        witness: fixture.stateless_input.witness,
+    };
+    let stdin = bincode::serde::encode_to_vec(&(public, witness), bincode::config::standard())
+        .context("Failed to serialize (RethInputPublic, RethInputWitness)")?;
 
     Ok(ConvertedFixture {
         name: fixture.name,
