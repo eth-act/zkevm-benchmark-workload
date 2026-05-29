@@ -61,17 +61,30 @@ struct RawStatelessInput {
     chain_config: ChainConfig,
 }
 
-/// Converts a benchmark fixture JSON into `(name, guest stdin, expected output)`.
+/// Result of converting a benchmark fixture into guest input.
+pub(crate) struct ConvertedFixture {
+    /// Fixture name.
+    pub(crate) name: String,
+    /// Gas used by the block, recorded in the metrics metadata.
+    pub(crate) gas_used: u64,
+    /// Guest stdin (bincode-encoded `RethInput`).
+    pub(crate) stdin: Vec<u8>,
+    /// Expected committed output, the block hash encoded as the guest commits it.
+    pub(crate) expected: Vec<u8>,
+}
+
+/// Converts a benchmark fixture JSON into the guest stdin and expected output.
 ///
 /// The expected output is the block hash encoded exactly as the guest commits
 /// it via `ziskos::io::commit`.
-pub(crate) fn convert_fixture_json(json: &[u8]) -> Result<(String, Vec<u8>, Vec<u8>)> {
+pub(crate) fn convert_fixture_json(json: &[u8]) -> Result<ConvertedFixture> {
     let fixture: RawFixture =
         serde_json::from_slice(json).context("Failed to parse stateless validation fixture")?;
 
     let public_keys = recover_signers(&fixture.stateless_input.block.body.transactions)
         .context("Failed to recover transaction signer public keys")?;
 
+    let gas_used = fixture.stateless_input.block.header.gas_used;
     let block_hash: B256 = fixture.stateless_input.block.header.hash_slow();
     let expected = bincode::serde::encode_to_vec(block_hash, bincode::config::standard())
         .context("Failed to encode expected block hash")?;
@@ -87,7 +100,12 @@ pub(crate) fn convert_fixture_json(json: &[u8]) -> Result<(String, Vec<u8>, Vec<
     let stdin = bincode::serde::encode_to_vec(&reth_input, bincode::config::standard())
         .context("Failed to serialize RethInput")?;
 
-    Ok((fixture.name, stdin, expected))
+    Ok(ConvertedFixture {
+        name: fixture.name,
+        gas_used,
+        stdin,
+        expected,
+    })
 }
 
 /// Recovers the uncompressed signer public key for each transaction.

@@ -15,18 +15,9 @@ use std::path::{Path, PathBuf};
 
 use anyhow::{Context, Result};
 use ere_dockerized::Input;
-use serde::Serialize;
 
 use crate::guest_programs::{GenericGuestFixture, GuestFixture};
-
-/// Metadata recorded alongside each converted `zisk-eth-client` fixture.
-#[derive(Debug, Clone, Serialize)]
-struct ZiskEthClientMetadata {
-    /// Discriminates the fixture origin in the emitted metrics.
-    fixture_format: &'static str,
-    /// Fixture name.
-    name: String,
-}
+use crate::stateless_validator::BlockMetadata;
 
 /// Builds a lazy iterator of guest fixtures from a folder of benchmark fixtures.
 ///
@@ -58,16 +49,15 @@ pub fn zisk_eth_client_input_iter(
         .map(|path| {
             let bytes = fs::read(&path)
                 .with_context(|| format!("Failed to read fixture {}", path.display()))?;
-            let (name, stdin, expected) = reth_input::convert_fixture_json(&bytes)
+            let converted = reth_input::convert_fixture_json(&bytes)
                 .with_context(|| format!("Failed to convert fixture {}", path.display()))?;
-            let metadata = ZiskEthClientMetadata {
-                fixture_format: "zisk-eth-client-reth",
-                name: name.clone(),
+            let metadata = BlockMetadata {
+                block_used_gas: converted.gas_used,
             };
             let fixture = GenericGuestFixture {
-                name,
-                input: Input::new().with_stdin(stdin),
-                expected_public_values: expected,
+                name: converted.name,
+                input: Input::new().with_stdin(converted.stdin),
+                expected_public_values: converted.expected,
                 metadata,
             };
             Ok(Box::new(fixture) as Box<dyn GuestFixture>)
