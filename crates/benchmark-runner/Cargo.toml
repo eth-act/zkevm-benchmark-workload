@@ -36,6 +36,19 @@ ere-guests-stateless-validator-reth = { "workspace" = true, features = [
 ere-guests-guest = { "workspace" = true }
 ere-guests-integration-tests = { "workspace" = true }
 
+# zisk-eth-client guest IO encoding. The guest serializes its input with reth
+# v1.11.0 / alloy 1.7.3, distinct from the workspace's v2 stack, so those crates
+# are pulled in under `-v1` aliases to coexist. These reproduce the exact
+# `guest_reth::RethInput` wire format without depending on the guest's EVM stack.
+reth-ethereum-primitives-v1 = { package = "reth-ethereum-primitives", git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0", features = ["serde", "serde-bincode-compat"] }
+reth-primitives-traits-v1 = { package = "reth-primitives-traits", git = "https://github.com/paradigmxyz/reth", tag = "v1.11.0", features = ["serde", "serde-bincode-compat"] }
+alloy-consensus-v1 = { package = "alloy-consensus", version = "1.7.3", default-features = false, features = ["k256", "serde", "serde-bincode-compat"] }
+alloy-genesis-v1 = { package = "alloy-genesis", version = "1.7.3", features = ["serde-bincode-compat"] }
+alloy-primitives-v1 = { package = "alloy-primitives", version = "1.5", default-features = false, features = ["k256"] }
+alloy-rpc-types-debug-v1 = { package = "alloy-rpc-types-debug", version = "1.7.3" }
+serde_with = "3"
+bincode = { version = "2.0", default-features = false, features = ["std", "serde"] }
+
 [build-dependencies]
 toml = { workspace = true }
 

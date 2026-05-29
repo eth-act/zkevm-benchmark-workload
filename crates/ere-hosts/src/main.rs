@@ -159,6 +159,47 @@ async fn main() -> Result<()> {
                 }
             }
         }
+        GuestProgramCommand::ZiskEthClientReth {
+            input_folder,
+            fixture,
+        } => {
+            let zkvms = get_guest_zkvm_instances(
+                "stateless-validator-reth",
+                &cli.zkvms,
+                resource,
+                zkvm_config.clone(),
+                bin_path,
+            )
+            .await
+            .context("Failed to get zisk-eth-client zkvm instances")?;
+
+            let config = RunConfig {
+                sub_folder: Some("zisk-eth-client-v0.9.0".to_string()),
+                ..config_base
+            };
+
+            match action {
+                Action::Verify => {
+                    for instance in &zkvms {
+                        run_verify_from_disk(instance, &config, &proofs_folder)?;
+                    }
+                }
+                _ => {
+                    info!(
+                        "Running zisk-eth-client stateless-validator benchmark for input folder: {}",
+                        input_folder.display()
+                    );
+                    for zkvm in &zkvms {
+                        let guest_io =
+                            benchmark_runner::zisk_eth_client::zisk_eth_client_input_iter(
+                                input_folder.as_path(),
+                                fixture.as_deref(),
+                            )?;
+                        run_benchmark_iter(zkvm, &config, guest_io)?;
+                    }
+                }
+            }
+        }
         GuestProgramCommand::EmptyProgram => {
             info!("Running empty-program benchmarks");
             let zkvms = get_guest_zkvm_instances(
