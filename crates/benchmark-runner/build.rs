@@ -80,7 +80,7 @@ fn main() {
     println!("cargo:rustc-env=ZILKWORM_GUEST_REPO_API_URL={zilkworm_repo_api_url}");
 
     let zilkworm_version = if !zilkworm_tag.is_empty() {
-        zilkworm_tag.clone()
+        zilkworm_tag
     } else if !zilkworm_sha.is_empty() {
         zilkworm_sha[..7.min(zilkworm_sha.len())].to_string()
     } else {
@@ -100,7 +100,9 @@ fn find_zilkworm_git_ref(packages: &[toml::Value]) -> (String, String, String) {
         return (String::new(), String::new(), String::new());
     };
     let tag = extract_tag_from_source(source).unwrap_or_default();
-    let sha = extract_hash_from_source(source).unwrap_or_default().to_string();
+    let sha = extract_hash_from_source(source)
+        .unwrap_or_default()
+        .to_string();
     let api_url = extract_repo_api_url_from_source(source).unwrap_or_default();
     (tag, sha, api_url)
 }

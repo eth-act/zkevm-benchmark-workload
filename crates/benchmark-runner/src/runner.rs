@@ -460,8 +460,8 @@ async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<Comp
             env!("ZILKWORM_GUEST_REPO_API_URL"),
             tag,
         )
-            .await
-            .with_context(|| format!("Failed to create zilkworm guest downloader for tag {tag}"))?;
+        .await
+        .with_context(|| format!("Failed to create zilkworm guest downloader for tag {tag}"))?;
         let compiled = downloader
             .download()
             .await
