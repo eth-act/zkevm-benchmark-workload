@@ -104,9 +104,9 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.11.0" }
-ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", tag = "v0.11.0" }
-ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.11.0" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "8230df91c155269299e4188dec933cfbc283c653" }
+ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", rev = "8230df91c155269299e4188dec933cfbc283c653" }
+ere-util-tokio = { git = "https://github.com/eth-act/ere", rev = "8230df91c155269299e4188dec933cfbc283c653" }
 
 # ere-guests
 ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "stateless-validator-reth" }
