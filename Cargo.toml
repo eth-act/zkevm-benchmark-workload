@@ -111,6 +111,7 @@ ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.11.0" }
 # ere-guests
 ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "stateless-validator-reth" }
 ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "stateless-validator-ethrex" }
+stateless-validator-zilkworm = { git = "https://github.com/erigontech/zilkworm", tag = "v0.1.0-alpha.2-ere", package = "z6m_stateless_validator", features = ["download"] }
 ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "guest" }
 ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "integration-tests" }
 ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "downloader" }

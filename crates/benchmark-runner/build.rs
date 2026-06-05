@@ -73,6 +73,45 @@ fn main() {
             println!("cargo:rustc-env=ERE_GUESTS_DOWNLOAD_VALUE=unknown");
         }
     }
+
+    let (zilkworm_tag, zilkworm_sha, zilkworm_repo_api_url) = find_zilkworm_git_ref(packages);
+    println!("cargo:rustc-env=ZILKWORM_GUEST_TAG={zilkworm_tag}");
+    println!("cargo:rustc-env=ZILKWORM_GUEST_SHA={zilkworm_sha}");
+    println!("cargo:rustc-env=ZILKWORM_GUEST_REPO_API_URL={zilkworm_repo_api_url}");
+
+    let zilkworm_version = if !zilkworm_tag.is_empty() {
+        zilkworm_tag
+    } else if !zilkworm_sha.is_empty() {
+        zilkworm_sha[..7.min(zilkworm_sha.len())].to_string()
+    } else {
+        "local".to_string()
+    };
+    println!("cargo:rustc-env=ZILKWORM_EL_VERSION={zilkworm_version}");
+}
+
+fn find_zilkworm_git_ref(packages: &[toml::Value]) -> (String, String, String) {
+    let Some(pkg) = packages
+        .iter()
+        .find(|p| p.get("name").and_then(|n| n.as_str()) == Some("z6m_stateless_validator"))
+    else {
+        return (String::new(), String::new(), String::new());
+    };
+    let Some(source) = pkg.get("source").and_then(|s| s.as_str()) else {
+        return (String::new(), String::new(), String::new());
+    };
+    let tag = extract_tag_from_source(source).unwrap_or_default();
+    let sha = extract_hash_from_source(source)
+        .unwrap_or_default()
+        .to_string();
+    let api_url = extract_repo_api_url_from_source(source).unwrap_or_default();
+    (tag, sha, api_url)
+}
+
+fn extract_repo_api_url_from_source(source: &str) -> Option<String> {
+    let url = source.strip_prefix("git+")?;
+    let url = url.split(['?', '#']).next()?;
+    let path = url.strip_prefix("https://github.com/")?;
+    Some(format!("https://api.github.com/repos/{path}"))
 }
 
 /// Finds the EL version by tracing the ere-guests dependency chain:

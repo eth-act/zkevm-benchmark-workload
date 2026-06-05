@@ -1410,6 +1410,7 @@ dependencies = [
  "tracing",
  "walkdir",
  "witness-generator",
+ "z6m_stateless_validator",
  "zkevm-metrics",
 ]
 
@@ -4020,6 +4021,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tower-service",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -6669,6 +6671,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -10794,6 +10797,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "webpki-roots"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52f5ee44c96cf55f1b349600768e3ece3a8f26010c05265ab73f945bb1a2eb9d"
+dependencies = [
+ "rustls-pki-types",
+]
+
+[[package]]
 name = "wide"
 version = "0.7.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11482,6 +11494,34 @@ dependencies = [
  "quote",
  "syn 2.0.117",
  "synstructure",
+]
+
+[[package]]
+name = "z6m_stateless_validator"
+version = "0.1.0"
+source = "git+https://github.com/erigontech/zilkworm?tag=v0.1.0-alpha.2-ere#9c38ed4b915ae563a0f63eae20e603df8ec00ffb"
+dependencies = [
+ "alloy-consensus",
+ "alloy-genesis",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-debug",
+ "alloy-trie",
+ "anyhow",
+ "reqwest 0.12.28",
+ "serde",
+ "stateless",
+ "tokio",
+ "z6m_unified_rlp",
+]
+
+[[package]]
+name = "z6m_unified_rlp"
+version = "0.1.0"
+source = "git+https://github.com/erigontech/zilkworm?tag=v0.1.0-alpha.2-ere#9c38ed4b915ae563a0f63eae20e603df8ec00ffb"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
 ]
 
 [[package]]
