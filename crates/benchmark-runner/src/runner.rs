@@ -44,8 +44,8 @@ pub enum ZkVMInstance {
     ZiskClusterClient {
         /// gRPC client connected to the remote Zisk cluster.
         client: ZiskClusterClient,
-        /// Per-request prove deadline cap, propagated from the
-        /// `DockerizedzkVMConfig` prove timeout. `None` means no cap.
+        /// Per-request prove timeout, propagated from the `DockerizedzkVMConfig`
+        /// prove timeout. Defaults to 3 minutes.
         prove_timeout: Duration,
         /// ELF of Zisk guest with feature `cycle-scope` enabled.
         /// `Some` only if the guest is a Zisk guest.
