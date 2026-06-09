@@ -5,7 +5,7 @@ use alloy_eips::BlockNumberOrTag;
 use alloy_genesis::{ChainConfig, Genesis};
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use async_trait::async_trait;
-use futures::stream::{StreamExt, TryStreamExt, iter};
+use futures::stream::StreamExt;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
@@ -91,7 +91,7 @@ impl RpcBlocksAndWitnessesBuilder {
         self
     }
 
-    /// Sets the maximum number of blocks and witnesses fetched concurrently.
+    /// Sets the maximum number of blocks and witnesses fetched concurrently while catching up.
     ///
     /// # Arguments
     /// * `max_concurrency` - Maximum number of in-flight block and witness fetches. Defaults to 1 (sequential).
@@ -246,12 +246,12 @@ impl RpcFixtureGenerator {
         >::block_by_number(&self.client, number, full)
         .await
         .map_err(|e| WGError::RpcError(e.to_string()))?
-        .ok_or(
+        .ok_or_else(|| {
             number
                 .as_number()
                 .map(WGError::BlockNotFoundForNumber)
-                .unwrap_or(WGError::LatestBlockFetchError),
-        )
+                .unwrap_or(WGError::LatestBlockFetchError)
+        })
     }
 
     /// Fetches the last N blocks and their execution witnesses.
@@ -267,7 +267,7 @@ impl RpcFixtureGenerator {
         }
 
         let latest_block = self
-            .fetch_block_by_number(BlockNumberOrTag::Latest, false)
+            .fetch_block_by_number(BlockNumberOrTag::Latest, true)
             .await?;
 
         let (block_num_start, block_num_end) = (
@@ -278,12 +278,10 @@ impl RpcFixtureGenerator {
             latest_block.header.number,
         );
 
-        let mut blocks: Vec<Block<TransactionSigned>> = Vec::with_capacity(last_n_blocks);
-        for n in (block_num_start..=block_num_end).rev() {
-            let block_hash = blocks
-                .last()
-                .map(|block| block.header.parent_hash)
-                .unwrap_or_else(|| latest_block.header.hash);
+        let mut blocks = Vec::with_capacity(last_n_blocks);
+        blocks.push(latest_block);
+        for _ in (block_num_start..block_num_end).rev() {
+            let block_hash = blocks.last().unwrap().header.parent_hash;
             let block = EthApiClient::<
                 TransactionRequest,
                 Transaction,
@@ -294,34 +292,34 @@ impl RpcFixtureGenerator {
             >::block_by_hash(&self.client, block_hash, true)
             .await
             .map_err(|e| WGError::RpcError(e.to_string()))?
-            .ok_or(WGError::BlockNotFoundForNumber(n))?;
+            .ok_or(WGError::BlockNotFoundForHash(block_hash.to_string()))?;
             blocks.push(block);
         }
 
-        // Fetch up to `max_concurrency` block and witness pairs at a time.
-        let blocks_and_witnesses = iter(blocks)
-            .map(|block| async move {
-                let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
-                    &self.client,
-                    block.header.hash,
-                    None,
-                )
-                .await
-                .map_err(|e| WGError::RpcError(e.to_string()))?;
+        let mut blocks_and_witnesses = Vec::with_capacity(blocks.len());
+        for block in blocks {
+            let block_hash = block.header.hash;
+            let block_num = block.header.number;
+            let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
+                &self.client,
+                block_hash,
+                None,
+            )
+            .await
+            .map_err(|e| WGError::RpcError(e.to_string()))?;
 
-                Ok::<_, WGError>(Box::new(StatelessValidationFixture {
-                    name: format!("rpc_block_{}", block.header.number),
-                    stateless_input: StatelessInput {
-                        block: block.into_consensus(),
-                        witness,
-                        chain_config: self.chain_config.clone(),
-                    },
-                    success: true,
-                }) as Box<dyn Fixture>)
-            })
-            .buffered(self.max_concurrency)
-            .try_collect()
-            .await?;
+            let bw = Box::new(StatelessValidationFixture {
+                name: format!("rpc_block_{block_num}"),
+                stateless_input: StatelessInput {
+                    block: block.into_consensus(),
+                    witness,
+                    chain_config: self.chain_config.clone(),
+                },
+                success: true,
+            }) as Box<dyn Fixture>;
+
+            blocks_and_witnesses.push(bw);
+        }
 
         Ok(blocks_and_witnesses)
     }
@@ -380,24 +378,22 @@ impl RpcFixtureGenerator {
     ///
     /// Returns an error only if the latest block number cannot be resolved.
     async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<Box<dyn Fixture>>> {
-        let latest_block_num = self
+        let latest_block = self
             .fetch_block_by_number(BlockNumberOrTag::Latest, false)
-            .await?
-            .header
-            .number;
+            .await?;
 
         // Fetch up to `max_concurrency` blocks at a time, returning the contiguous
         // prefix of successes so the caller can resume from the first gap.
-        let mut stream = iter(block_num..=latest_block_num)
-            .map(|n| self.fetch_specific_block(n))
+        let mut stream = futures::stream::iter(block_num..=latest_block.header.number)
+            .map(|n| async move { (n, self.fetch_specific_block(n).await) })
             .buffered(self.max_concurrency);
 
         let mut bws = Vec::new();
-        while let Some(res) = stream.next().await {
-            match res {
+        while let Some((n, result)) = stream.next().await {
+            match result {
                 Ok(bw) => bws.push(bw),
                 Err(err) => {
-                    error!("Error fetching block: {err}");
+                    error!("Fetch block {n} failed: {err}");
                     break;
                 }
             }

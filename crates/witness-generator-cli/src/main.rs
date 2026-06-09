@@ -82,7 +82,7 @@ enum SourceCommand {
         #[arg(long, value_name = "PATH")]
         genesis: Option<PathBuf>,
 
-        /// Maximum number of blocks and witnesses fetched concurrently
+        /// Maximum number of blocks fetched concurrently while catching up, only applies to `--follow`
         #[arg(long, default_value_t = 1)]
         max_concurrency: usize,
     },
