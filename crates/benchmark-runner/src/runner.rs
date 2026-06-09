@@ -10,9 +10,11 @@ use ere_dockerized::{
 use ere_guests_downloader::{CompiledGuest, Downloader};
 use ere_util_tokio::block_on;
 use rayon::iter::{ParallelBridge, ParallelIterator};
-use std::fs;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 use std::{any::Any, env, panic};
+use std::{fs, thread::sleep};
+use tokio::time::Instant;
 use tracing::{info, warn};
 
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -42,6 +44,9 @@ pub enum ZkVMInstance {
     ZiskClusterClient {
         /// gRPC client connected to the remote Zisk cluster.
         client: ZiskClusterClient,
+        /// Per-request prove deadline cap, propagated from the
+        /// `DockerizedzkVMConfig` prove timeout. `None` means no cap.
+        prove_timeout: Duration,
         /// ELF of Zisk guest with feature `cycle-scope` enabled.
         /// `Some` only if the guest is a Zisk guest.
         profiling_elf: Option<Elf>,
@@ -98,8 +103,13 @@ impl ZkVMInstance {
     ) -> Result<(PublicValues, EncodedProof, ProgramProvingReport)> {
         match self {
             Self::Dockerized { zkvm, .. } => zkvm.prove(input),
-            Self::ZiskClusterClient { client, .. } => {
-                let (proof, proving_time) = block_on(client.prove(input, None))?;
+            Self::ZiskClusterClient {
+                client,
+                prove_timeout,
+                ..
+            } => {
+                let deadline = Instant::now() + *prove_timeout;
+                let (proof, proving_time) = block_on(client.prove(input, deadline))?;
                 let (_, public_values) = proof.program_vk_and_public_values()?;
                 let proof = proof.encode_to_vec()?;
                 Ok((
@@ -367,6 +377,14 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
     info!("Saving report {}", fixture_name);
     report.to_path(out_path)?;
 
+    // Sleep 10 seconds for the cluster to fully recover if the proving fails
+    // due to some worker connection dropped (usually OOM killed).
+    if matches!(zkvm, ZkVMInstance::ZiskClusterClient { .. }) && report.proving.is_some_and(
+        |proving| matches!(proving, ProvingMetrics::Crashed(info) if info.reason.contains("connection dropped")),
+    ) {
+        sleep(Duration::from_secs(10));
+    }
+
     Ok(())
 }
 
@@ -417,11 +435,14 @@ pub async fn get_guest_zkvm_instances(
                 }
             }
             ProverResource::Cluster(cfg) if *zkvm == zkVMKind::Zisk => {
+                const DEFAULT_PROVE_TIMEOUT: Duration = Duration::from_mins(3);
+
                 let client = ZiskClusterClient::new(cfg, Elf(compiled.elf.clone()))
                     .await
                     .map_err(|e| anyhow!("Failed to connect to Zisk cluster: {e}"))?;
                 ZkVMInstance::ZiskClusterClient {
                     client,
+                    prove_timeout: zkvm_config.prove_timeout.unwrap_or(DEFAULT_PROVE_TIMEOUT),
                     profiling_elf: compiled.profiling_elf.map(Elf),
                 }
             }
