@@ -81,6 +81,10 @@ enum SourceCommand {
         /// Optional path to a geth-style genesis.json file for custom/devnet chain config
         #[arg(long, value_name = "PATH")]
         genesis: Option<PathBuf>,
+
+        /// Maximum number of blocks and witnesses fetched concurrently
+        #[arg(long, default_value_t = 1)]
+        max_concurrency: usize,
     },
 }
 
@@ -153,8 +157,10 @@ async fn build_generator(source: SourceCommand) -> Result<Box<dyn FixtureGenerat
             rpc_header,
             genesis,
             follow: listen,
+            max_concurrency,
         } => {
-            let mut builder = RpcBlocksAndWitnessesBuilder::new(rpc_url);
+            let mut builder =
+                RpcBlocksAndWitnessesBuilder::new(rpc_url).max_concurrency(max_concurrency);
 
             if let Some(rpc_header) = rpc_header {
                 let headers = RpcFlatHeaderKeyValues::new(rpc_header)
