@@ -10,10 +10,10 @@ use ere_dockerized::{
 use ere_guests_downloader::{CompiledGuest, Downloader};
 use ere_util_tokio::block_on;
 use rayon::iter::{ParallelBridge, ParallelIterator};
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use std::{any::Any, env, panic};
-use std::{fs, thread::sleep};
 use tokio::time::Instant;
 use tracing::{info, warn};
 
@@ -376,14 +376,6 @@ fn process_input(zkvm: &ZkVMInstance, io: impl GuestFixture, config: &RunConfig)
 
     info!("Saving report {}", fixture_name);
     report.to_path(out_path)?;
-
-    // Sleep 10 seconds for the cluster to fully recover if the proving fails
-    // due to some worker connection dropped (usually OOM killed).
-    if matches!(zkvm, ZkVMInstance::ZiskClusterClient { .. }) && report.proving.is_some_and(
-        |proving| matches!(proving, ProvingMetrics::Crashed(info) if info.reason.contains("connection dropped")),
-    ) {
-        sleep(Duration::from_secs(10));
-    }
 
     Ok(())
 }
