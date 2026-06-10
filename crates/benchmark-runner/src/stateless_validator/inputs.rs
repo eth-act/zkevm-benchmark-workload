@@ -4,7 +4,7 @@ use crate::{
         eest::EestStatelessFixture, fixtures::BenchmarkFixture, BlockMetadata, ExecutionClient,
     },
 };
-use anyhow::{Context, Result};
+use anyhow::{bail, Context, Result};
 use ere_dockerized::Input;
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
@@ -17,6 +17,7 @@ use ere_guests_stateless_validator_reth::guest::{
 };
 use serde::Serialize;
 use sha2::{Digest, Sha256};
+use stateless_validator_zilkworm::StatelessValidatorZilkwormInput;
 use tracing::info;
 use witness_generator::StatelessValidationFixture;
 
@@ -40,8 +41,14 @@ pub(crate) fn stateless_validator_input_from_fixture(
         BenchmarkFixture::Legacy(fixture) => match el {
             ExecutionClient::Reth => reth_input_from_fixture(*fixture),
             ExecutionClient::Ethrex => ethrex_input_from_fixture(*fixture),
+            ExecutionClient::Zilkworm => zilkworm_input_from_fixture(*fixture),
         },
-        BenchmarkFixture::Eest(fixture) => raw_eest_input_from_fixture(fixture),
+        BenchmarkFixture::Eest(fixture) => match el {
+            ExecutionClient::Reth | ExecutionClient::Ethrex => raw_eest_input_from_fixture(fixture),
+            ExecutionClient::Zilkworm => {
+                bail!("EEST fixture format not yet supported for Zilkworm")
+            }
+        },
     }
 }
 
@@ -90,6 +97,57 @@ fn ethrex_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<
         .output_sha256()
         .into_boxed(),
     )
+}
+
+fn zilkworm_input_from_fixture(
+    fixture: StatelessValidationFixture,
+) -> Result<Box<dyn GuestFixture>> {
+    let StatelessValidationFixture {
+        name,
+        stateless_input,
+        success,
+    } = fixture;
+    info!("Preparing Zilkworm stateless validator input for fixture {name}");
+    let zilkworm_input = StatelessValidatorZilkwormInput::new(&stateless_input, success)
+        .with_context(|| format!("building Zilkworm input for {name}"))?;
+    let metadata = BlockMetadata {
+        block_used_gas: stateless_input.block.gas_used,
+    };
+
+    Ok(Box::new(ZilkwormGuestFixture {
+        name,
+        unified_rlp: zilkworm_input.unified_rlp,
+        metadata,
+    }))
+}
+
+#[derive(Debug)]
+struct ZilkwormGuestFixture {
+    name: String,
+    unified_rlp: Vec<u8>,
+    metadata: BlockMetadata,
+}
+
+impl GuestFixture for ZilkwormGuestFixture {
+    fn name(&self) -> String {
+        self.name.clone()
+    }
+
+    fn metadata(&self) -> serde_json::Value {
+        serde_json::to_value(&self.metadata).unwrap()
+    }
+
+    fn input(&self) -> Result<Input> {
+        let bundle = stateless_validator_zilkworm::encode_unified_rlp_bundle(&[&self.unified_rlp]);
+        Ok(Input::new().with_stdin(bundle))
+    }
+
+    fn expected_public_values(&self) -> Result<Vec<u8>> {
+        let mut out = Vec::with_capacity(4 + 8);
+        out.extend_from_slice(&1u32.to_le_bytes());
+        out.extend_from_slice(&self.metadata.block_used_gas.to_le_bytes());
+        Ok(out)
+    }
 }
 
 fn reth_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<dyn GuestFixture>> {

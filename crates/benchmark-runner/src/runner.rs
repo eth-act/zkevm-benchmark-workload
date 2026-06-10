@@ -12,7 +12,9 @@ use ere_util_tokio::block_on;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use std::fs;
 use std::path::{Path, PathBuf};
+use std::time::Duration;
 use std::{any::Any, env, panic};
+use tokio::time::Instant;
 use tracing::{info, warn};
 
 use zkevm_metrics::{BenchmarkRun, CrashInfo, ExecutionMetrics, HardwareInfo, ProvingMetrics};
@@ -42,6 +44,9 @@ pub enum ZkVMInstance {
     ZiskClusterClient {
         /// gRPC client connected to the remote Zisk cluster.
         client: ZiskClusterClient,
+        /// Per-request prove timeout, propagated from the `DockerizedzkVMConfig`
+        /// prove timeout. Defaults to 3 minutes.
+        prove_timeout: Duration,
         /// ELF of Zisk guest with feature `cycle-scope` enabled.
         /// `Some` only if the guest is a Zisk guest.
         profiling_elf: Option<Elf>,
@@ -98,8 +103,13 @@ impl ZkVMInstance {
     ) -> Result<(PublicValues, EncodedProof, ProgramProvingReport)> {
         match self {
             Self::Dockerized { zkvm, .. } => zkvm.prove(input),
-            Self::ZiskClusterClient { client, .. } => {
-                let (proof, proving_time) = block_on(client.prove(input, None))?;
+            Self::ZiskClusterClient {
+                client,
+                prove_timeout,
+                ..
+            } => {
+                let deadline = Instant::now() + *prove_timeout;
+                let (proof, proving_time) = block_on(client.prove(input, deadline))?;
                 let (_, public_values) = proof.program_vk_and_public_values()?;
                 let proof = proof.encode_to_vec()?;
                 Ok((
@@ -417,11 +427,14 @@ pub async fn get_guest_zkvm_instances(
                 }
             }
             ProverResource::Cluster(cfg) if *zkvm == zkVMKind::Zisk => {
+                const DEFAULT_PROVE_TIMEOUT: Duration = Duration::from_mins(3);
+
                 let client = ZiskClusterClient::new(cfg, Elf(compiled.elf.clone()))
                     .await
                     .map_err(|e| anyhow!("Failed to connect to Zisk cluster: {e}"))?;
                 ZkVMInstance::ZiskClusterClient {
                     client,
+                    prove_timeout: zkvm_config.prove_timeout.unwrap_or(DEFAULT_PROVE_TIMEOUT),
                     profiling_elf: compiled.profiling_elf.map(Elf),
                 }
             }
@@ -446,6 +459,30 @@ async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<Comp
             elf,
             program_vk,
             profiling_elf,
+        });
+    }
+
+    if guest_name.starts_with("stateless-validator-zilkworm") {
+        let tag = env!("ZILKWORM_GUEST_TAG");
+        anyhow::ensure!(
+            !tag.is_empty(),
+            "z6m_stateless_validator is not tag-pinned (branch- or path-pinned dep); \
+             supply --bin-path or pin the Cargo.toml dep to a release tag"
+        );
+        let downloader = stateless_validator_zilkworm::download::Downloader::from_tag(
+            env!("ZILKWORM_GUEST_REPO_API_URL"),
+            tag,
+        )
+        .await
+        .with_context(|| format!("Failed to create zilkworm guest downloader for tag {tag}"))?;
+        let compiled = downloader
+            .download()
+            .await
+            .with_context(|| format!("Failed to download zilkworm guest from release {tag}"))?;
+        return Ok(CompiledGuest {
+            elf: compiled.elf,
+            program_vk: compiled.program_vk,
+            profiling_elf: compiled.profiling_elf,
         });
     }
 

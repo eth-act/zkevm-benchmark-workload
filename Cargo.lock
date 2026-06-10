@@ -1406,10 +1406,12 @@ dependencies = [
  "strum 0.26.3",
  "tar",
  "tempfile",
+ "tokio",
  "toml 0.8.23",
  "tracing",
  "walkdir",
  "witness-generator",
+ "z6m_stateless_validator",
  "zkevm-metrics",
 ]
 
@@ -2521,8 +2523,8 @@ dependencies = [
 
 [[package]]
 name = "downloader"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "anyhow",
  "reqwest 0.12.28",
@@ -2749,8 +2751,8 @@ dependencies = [
 
 [[package]]
 name = "ere-catalog"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "ere-util-build",
  "serde",
@@ -2759,8 +2761,8 @@ dependencies = [
 
 [[package]]
 name = "ere-cluster-client-zisk"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "bincode 2.0.1",
  "ere-compiler-core",
@@ -2774,25 +2776,26 @@ dependencies = [
  "tokio",
  "tonic",
  "tonic-prost",
+ "tracing",
 ]
 
 [[package]]
 name = "ere-codec"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 
 [[package]]
 name = "ere-compiler-core"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "ere-dockerized"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -2822,13 +2825,13 @@ dependencies = [
 
 [[package]]
 name = "ere-platform-core"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 
 [[package]]
 name = "ere-prover-core"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -2844,8 +2847,8 @@ dependencies = [
 
 [[package]]
 name = "ere-server-api"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "prost",
  "serde",
@@ -2854,8 +2857,8 @@ dependencies = [
 
 [[package]]
 name = "ere-server-client"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "bincode 2.0.1",
  "ere-prover-core",
@@ -2866,24 +2869,24 @@ dependencies = [
 
 [[package]]
 name = "ere-util-build"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "cargo_metadata 0.19.2",
 ]
 
 [[package]]
 name = "ere-util-tokio"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "tokio",
 ]
 
 [[package]]
 name = "ere-verifier-core"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "auto_impl",
  "ere-codec",
@@ -2892,8 +2895,8 @@ dependencies = [
 
 [[package]]
 name = "ere-verifier-zisk"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere?tag=v0.11.0#e1d345c5e4e2b41d1334421310443306ea44f65f"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "bincode 2.0.1",
  "bytemuck",
@@ -2945,8 +2948,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-blockchain"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "crossbeam",
@@ -2967,8 +2970,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-common"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "crc32fast",
@@ -2999,8 +3002,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-crypto"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "ark-bn254",
  "ark-ec",
@@ -3023,8 +3026,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-guest-program"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3046,8 +3049,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-l2-common"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3064,8 +3067,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-levm"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "derive_more 1.0.0",
@@ -3081,8 +3084,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-metrics"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "axum",
  "ethrex-common",
@@ -3097,8 +3100,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-p2p"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "aes",
  "aes-gcm",
@@ -3139,8 +3142,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rlp"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "ethereum-types",
@@ -3149,8 +3152,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-rpc"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "axum",
  "axum-extra",
@@ -3188,8 +3191,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-storage"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3210,8 +3213,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-trie"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "anyhow",
  "bytes",
@@ -3229,8 +3232,8 @@ dependencies = [
 
 [[package]]
 name = "ethrex-vm"
-version = "12.0.0"
-source = "git+https://github.com/lambdaclass/ethrex.git?rev=b112f94748a222e78b642406155674df9e180ee4#b112f94748a222e78b642406155674df9e180ee4"
+version = "15.0.0"
+source = "git+https://github.com/lambdaclass/ethrex.git?tag=v15.0.0#f902422ada4b4004c4e5e0630987d116661a5dd0"
 dependencies = [
  "bytes",
  "derive_more 1.0.0",
@@ -3700,8 +3703,8 @@ dependencies = [
 
 [[package]]
 name = "guest"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "ere-codec",
  "ere-platform-core",
@@ -4020,6 +4023,7 @@ dependencies = [
  "tokio",
  "tokio-rustls",
  "tower-service",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -4378,8 +4382,8 @@ dependencies = [
 
 [[package]]
 name = "integration-tests"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "alloy-primitives",
  "ere-dockerized",
@@ -6669,6 +6673,7 @@ dependencies = [
  "wasm-bindgen",
  "wasm-bindgen-futures",
  "web-sys",
+ "webpki-roots",
 ]
 
 [[package]]
@@ -9432,8 +9437,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-common"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "alloy-eips 2.0.1",
  "alloy-primitives",
@@ -9451,14 +9456,15 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-ethrex"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",
  "alloy-genesis",
  "alloy-rlp",
  "anyhow",
+ "ere-util-build",
  "ethrex-common",
  "ethrex-crypto",
  "ethrex-guest-program",
@@ -9474,8 +9480,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-reth"
-version = "0.11.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.11.0#91735556bb1bdd6a16c3bcecee46ef14078846d0"
+version = "0.12.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "alloy-consensus",
  "alloy-eips 2.0.1",
@@ -9486,6 +9492,7 @@ dependencies = [
  "anyhow",
  "bincode 2.0.1",
  "ere-prover-core",
+ "ere-util-build",
  "guest",
  "once_cell",
  "reth-chainspec",
@@ -10794,6 +10801,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "webpki-roots"
+version = "1.0.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "52f5ee44c96cf55f1b349600768e3ece3a8f26010c05265ab73f945bb1a2eb9d"
+dependencies = [
+ "rustls-pki-types",
+]
+
+[[package]]
 name = "wide"
 version = "0.7.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -11404,6 +11420,7 @@ dependencies = [
  "ef-tests",
  "erased-serde",
  "flate2",
+ "futures",
  "http",
  "jsonrpsee",
  "rayon",
@@ -11502,6 +11519,34 @@ dependencies = [
  "quote",
  "syn 2.0.117",
  "synstructure",
+]
+
+[[package]]
+name = "z6m_stateless_validator"
+version = "0.1.0"
+source = "git+https://github.com/erigontech/zilkworm?tag=v0.1.0-alpha.2-ere#9c38ed4b915ae563a0f63eae20e603df8ec00ffb"
+dependencies = [
+ "alloy-consensus",
+ "alloy-genesis",
+ "alloy-primitives",
+ "alloy-rlp",
+ "alloy-rpc-types-debug",
+ "alloy-trie",
+ "anyhow",
+ "reqwest 0.12.28",
+ "serde",
+ "stateless",
+ "tokio",
+ "z6m_unified_rlp",
+]
+
+[[package]]
+name = "z6m_unified_rlp"
+version = "0.1.0"
+source = "git+https://github.com/erigontech/zilkworm?tag=v0.1.0-alpha.2-ere#9c38ed4b915ae563a0f63eae20e603df8ec00ffb"
+dependencies = [
+ "alloy-primitives",
+ "alloy-rlp",
 ]
 
 [[package]]

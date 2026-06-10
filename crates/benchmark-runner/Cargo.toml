@@ -13,6 +13,7 @@ ere-util-tokio.workspace = true
 
 rayon.workspace = true
 tracing.workspace = true
+tokio = { workspace = true, features = ["time"] }
 walkdir.workspace = true
 sha2.workspace = true
 serde.workspace = true
@@ -33,6 +34,7 @@ ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
 ere-guests-stateless-validator-reth = { "workspace" = true, features = [
     "host",
 ] }
+stateless-validator-zilkworm = { "workspace" = true }
 ere-guests-guest = { "workspace" = true }
 ere-guests-integration-tests = { "workspace" = true }
 
