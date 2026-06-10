@@ -5,6 +5,7 @@ use alloy_eips::BlockNumberOrTag;
 use alloy_genesis::{ChainConfig, Genesis};
 use alloy_rpc_types_eth::{Block, Header, Receipt, Transaction, TransactionRequest};
 use async_trait::async_trait;
+use futures::stream::StreamExt;
 use http::{HeaderName, HeaderValue};
 use jsonrpsee::{
     http_client::{HeaderMap, HttpClient, HttpClientBuilder},
@@ -17,6 +18,7 @@ use stateless::StatelessInput;
 use std::{
     path::{Path, PathBuf},
     str::FromStr,
+    time::{Duration, Instant},
 };
 use tokio_util::sync::CancellationToken;
 
@@ -29,6 +31,7 @@ pub struct RpcBlocksAndWitnessesBuilder {
     block: Option<u64>,
     stop: Option<CancellationToken>,
     genesis: Option<PathBuf>,
+    max_concurrency: Option<usize>,
 }
 
 impl RpcBlocksAndWitnessesBuilder {
@@ -85,6 +88,15 @@ impl RpcBlocksAndWitnessesBuilder {
     /// * `block` - The block number to fetch
     pub const fn block(mut self, block: u64) -> Self {
         self.block = Some(block);
+        self
+    }
+
+    /// Sets the maximum number of blocks and witnesses fetched concurrently while catching up.
+    ///
+    /// # Arguments
+    /// * `max_concurrency` - Maximum number of in-flight block and witness fetches. Defaults to 1 (sequential).
+    pub const fn max_concurrency(mut self, max_concurrency: usize) -> Self {
+        self.max_concurrency = Some(max_concurrency);
         self
     }
 
@@ -157,6 +169,7 @@ impl RpcBlocksAndWitnessesBuilder {
             last_n_blocks: self.last_n_blocks,
             block: self.block,
             stop: self.stop,
+            max_concurrency: self.max_concurrency.unwrap_or(1).max(1),
         })
     }
 }
@@ -169,6 +182,7 @@ pub struct RpcFixtureGenerator {
     last_n_blocks: Option<usize>,
     block: Option<u64>,
     stop: Option<CancellationToken>,
+    max_concurrency: usize,
 }
 
 #[async_trait]
@@ -209,6 +223,37 @@ impl FixtureGenerator for RpcFixtureGenerator {
 }
 
 impl RpcFixtureGenerator {
+    /// Fetches a block by number or tag.
+    ///
+    /// # Arguments
+    /// * `number` - The block number or tag to fetch
+    /// * `full` - Whether to include full transaction bodies
+    ///
+    /// # Errors
+    /// Returns an error if the RPC call fails or if the block cannot be found.
+    async fn fetch_block_by_number(
+        &self,
+        number: BlockNumberOrTag,
+        full: bool,
+    ) -> Result<Block<TransactionSigned>> {
+        EthApiClient::<
+            TransactionRequest,
+            Transaction,
+            Block<TransactionSigned>,
+            Receipt,
+            Header,
+            TransactionSigned,
+        >::block_by_number(&self.client, number, full)
+        .await
+        .map_err(|e| WGError::RpcError(e.to_string()))?
+        .ok_or_else(|| {
+            number
+                .as_number()
+                .map(WGError::BlockNotFoundForNumber)
+                .unwrap_or(WGError::LatestBlockFetchError)
+        })
+    }
+
     /// Fetches the last N blocks and their execution witnesses.
     ///
     /// # Arguments
@@ -221,43 +266,22 @@ impl RpcFixtureGenerator {
             return Ok(vec![]);
         }
 
-        let latest_block = EthApiClient::<
-            TransactionRequest,
-            Transaction,
-            Block,
-            Receipt,
-            Header,
-            TransactionSigned,
-        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await
-        .map_err(|e| WGError::RpcError(e.to_string()))?
-        .ok_or(WGError::LatestBlockFetchError)?;
+        let latest_block = self
+            .fetch_block_by_number(BlockNumberOrTag::Latest, true)
+            .await?;
 
         let (block_num_start, block_num_end) = (
-            std::cmp::max(0, latest_block.header.number - (last_n_blocks as u64 - 1)),
+            latest_block
+                .header
+                .number
+                .saturating_sub(last_n_blocks as u64 - 1),
             latest_block.header.number,
         );
 
-        let mut hashes = Vec::with_capacity(last_n_blocks);
-        hashes.push((latest_block.header.number, latest_block.header.hash));
-        for n in (block_num_start..block_num_end).rev() {
-            let block_hash = hashes.last().unwrap().1;
-            let block = EthApiClient::<
-                TransactionRequest,
-                Transaction,
-                Block,
-                Receipt,
-                Header,
-                TransactionSigned,
-            >::block_by_hash(&self.client, block_hash, true)
-            .await
-            .map_err(|e| WGError::RpcError(e.to_string()))?
-            .ok_or(WGError::BlockNotFoundForNumber(n))?;
-            hashes.push((n, block.header.parent_hash));
-        }
-
-        let mut blocks_and_witnesses = Vec::with_capacity(hashes.len());
-        for (block_num, block_hash) in hashes {
+        let mut blocks = Vec::with_capacity(last_n_blocks);
+        blocks.push(latest_block);
+        for _ in (block_num_start..block_num_end).rev() {
+            let block_hash = blocks.last().unwrap().header.parent_hash;
             let block = EthApiClient::<
                 TransactionRequest,
                 Transaction,
@@ -269,7 +293,13 @@ impl RpcFixtureGenerator {
             .await
             .map_err(|e| WGError::RpcError(e.to_string()))?
             .ok_or(WGError::BlockNotFoundForHash(block_hash.to_string()))?;
+            blocks.push(block);
+        }
 
+        let mut blocks_and_witnesses = Vec::with_capacity(blocks.len());
+        for block in blocks {
+            let block_hash = block.header.hash;
+            let block_num = block.header.number;
             let witness = DebugApiClient::<()>::debug_execution_witness_by_block_hash(
                 &self.client,
                 block_hash,
@@ -312,18 +342,9 @@ impl RpcFixtureGenerator {
         .map_err(|e| WGError::RpcError(e.to_string()))?;
 
         // Fetch the block details
-        let block =
-            EthApiClient::<
-                TransactionRequest,
-                Transaction,
-                Block<TransactionSigned>,
-                Receipt,
-                Header,
-                TransactionSigned,
-            >::block_by_number(&self.client, BlockNumberOrTag::Number(block_num), true)
-            .await
-            .map_err(|e| WGError::RpcError(e.to_string()))?
-            .ok_or(WGError::BlockNotFoundForNumber(block_num))?;
+        let block = self
+            .fetch_block_by_number(BlockNumberOrTag::Number(block_num), true)
+            .await?;
 
         let bw = StatelessValidationFixture {
             name: format!("rpc_block_{block_num}"),
@@ -340,31 +361,42 @@ impl RpcFixtureGenerator {
 
     /// Fetches blocks from a specific block number to the latest block and their execution witnesses.
     ///
+    /// The returned vector is the contiguous prefix of successfully fetched blocks
+    /// starting at `block_num`. On the first fetch failure the method stops and
+    /// returns the blocks gathered so far rather than the full range, so the caller
+    /// can resume from the block after the last returned one. A failure therefore
+    /// yields a shorter `Ok` result rather than an `Err`.
+    ///
     /// # Arguments
     /// * `block_num` - The starting block number to fetch
     ///
     /// # Returns
-    /// A vector of `BlockAndWitness` objects for all blocks in the range
+    /// A vector of `BlockAndWitness` objects forming the contiguous successful
+    /// prefix of the requested range
     ///
     /// # Errors
     ///
-    /// Returns an error if any RPC call fails or if blocks cannot be found.
+    /// Returns an error only if the latest block number cannot be resolved.
     async fn fetch_from_block(&self, block_num: u64) -> Result<Vec<Box<dyn Fixture>>> {
-        let latest_block = EthApiClient::<
-            TransactionRequest,
-            Transaction,
-            Block,
-            Receipt,
-            Header,
-            TransactionSigned,
-        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await
-        .map_err(|e| WGError::RpcError(e.to_string()))?
-        .ok_or(WGError::LatestBlockFetchError)?;
+        let latest_block = self
+            .fetch_block_by_number(BlockNumberOrTag::Latest, false)
+            .await?;
+
+        // Fetch up to `max_concurrency` blocks at a time, returning the contiguous
+        // prefix of successes so the caller can resume from the first gap.
+        let mut stream = futures::stream::iter(block_num..=latest_block.header.number)
+            .map(|n| async move { (n, self.fetch_specific_block(n).await) })
+            .buffered(self.max_concurrency);
 
         let mut bws = Vec::new();
-        for n in block_num..=latest_block.header.number {
-            bws.push(self.fetch_specific_block(n).await?);
+        while let Some((n, result)) = stream.next().await {
+            match result {
+                Ok(bw) => bws.push(bw),
+                Err(err) => {
+                    error!("Fetch block {n} failed: {err}");
+                    break;
+                }
+            }
         }
 
         Ok(bws)
@@ -387,17 +419,9 @@ impl RpcFixtureGenerator {
     /// Returns an error if the cancellation token is not set, if RPC calls fail,
     /// or if file writing fails.
     async fn fetch_live(&self, path: &Path) -> Result<usize> {
-        let latest_block = EthApiClient::<
-            TransactionRequest,
-            Transaction,
-            Block,
-            Receipt,
-            Header,
-            TransactionSigned,
-        >::block_by_number(&self.client, BlockNumberOrTag::Latest, false)
-        .await
-        .map_err(|e| WGError::RpcError(e.to_string()))?
-        .ok_or(WGError::LatestBlockFetchError)?;
+        let latest_block = self
+            .fetch_block_by_number(BlockNumberOrTag::Latest, false)
+            .await?;
 
         let mut count: usize = 0;
         let mut next_block_num = latest_block.header.number;
@@ -407,7 +431,11 @@ impl RpcFixtureGenerator {
             .stop
             .as_ref()
             .ok_or(WGError::CancellationTokenRequired)?;
+
+        const MIN_LOOP_INTERVAL: Duration = Duration::from_secs(6);
         loop {
+            let iter_start = Instant::now();
+
             tokio::select! {
                 _ = stop_signal.cancelled() => {
                     info!("Stopped listening for new blocks.");
@@ -433,12 +461,15 @@ impl RpcFixtureGenerator {
                 }
             }
 
-            tokio::select! {
-                _ = stop_signal.cancelled() => {
-                    info!("Stopped listening for new blocks.");
-                    break;
-                }
-                _ = tokio::time::sleep(std::time::Duration::from_secs(6)) => {
+            // Throttle the remaining time up to the minimum interval.
+            let remaining = MIN_LOOP_INTERVAL.saturating_sub(iter_start.elapsed());
+            if !remaining.is_zero() {
+                tokio::select! {
+                    _ = stop_signal.cancelled() => {
+                        info!("Stopped listening for new blocks.");
+                        break;
+                    }
+                    _ = tokio::time::sleep(remaining) => {}
                 }
             }
         }
