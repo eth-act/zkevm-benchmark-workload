@@ -94,6 +94,15 @@ pub enum GuestProgramCommand {
         #[arg(short, long)]
         execution_client: ExecutionClient,
     },
+    /// External zisk-eth-client stateless validator (converts fixtures in process)
+    ZiskEthClientReth {
+        /// Input folder of `StatelessValidationFixture` JSON files.
+        #[arg(short, long, default_value = "zkevm-fixtures-input")]
+        input_folder: PathBuf,
+        /// Fixture name substring to run. Repeat to select multiple.
+        #[arg(long, value_name = "PREFIX")]
+        fixture: Option<Vec<String>>,
+    },
     /// Empty program
     EmptyProgram,
 }
