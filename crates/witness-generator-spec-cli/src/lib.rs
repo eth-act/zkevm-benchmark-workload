@@ -14,7 +14,15 @@ use reqwest::Client;
 
 // These dependencies are used by this package's CLI target.
 use clap as _;
+use humantime as _;
+use sha2 as _;
+use tar as _;
+use time as _;
 use tokio as _;
+use toml as _;
+use tracing as _;
+use tracing_subscriber as _;
+use zstd as _;
 
 /// Configuration for consensus-layer and execution-layer RPC access.
 #[derive(Debug, Clone)]
