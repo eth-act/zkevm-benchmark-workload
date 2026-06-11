@@ -6,6 +6,7 @@
 )]
 
 mod artifact;
+mod catalog;
 mod collector;
 mod config;
 mod export;
@@ -139,7 +140,13 @@ async fn main() -> anyhow::Result<()> {
         Some(Command::Export(args)) => {
             let config = CollectorConfig::from_path(args.config)?;
             let exported = export::export_batches(&config, args.force)?;
+            let catalog = catalog::generate_catalog(&config)?;
             info!(count = exported.len(), "exported batch archives");
+            info!(
+                blocks = catalog.block_count,
+                batches = catalog.batch_count,
+                "generated public catalog"
+            );
             Ok(())
         }
         Some(Command::PublishR2(args)) => {

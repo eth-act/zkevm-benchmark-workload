@@ -56,6 +56,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 stateless-validator --execution-
 - [Benchmark input reference](docs/benchmark-execution-inputs.md)
 - [Benchmark output reference](docs/benchmark-execution-output.md)
 - [Witness Generator CLI notes](docs/witness-generator-cli.md)
+- [Stateless input publication guide](docs/stateless-input-publication.md)
 
 The root README is intentionally short. Detailed workflow documentation lives under `docs/`.
 
