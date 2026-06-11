@@ -1,0 +1,35 @@
+[package]
+name = "witness-generator-spec-cli"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[lints]
+workspace = true
+
+[[bin]]
+name = "witness-generator-spec-cli"
+path = "src/main.rs"
+
+[dependencies]
+anyhow.workspace = true
+clap = { workspace = true, features = ["derive"] }
+reqwest = { workspace = true, features = ["json"] }
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }
+
+# alloy
+alloy-consensus = { workspace = true, features = ["k256"] }
+alloy-eips.workspace = true
+alloy-primitives = { workspace = true, features = ["k256", "serde", "std"] }
+alloy-rlp.workspace = true
+
+# ssz
+libssz.workspace = true
+libssz_derive.workspace = true
+libssz_types.workspace = true
+
+# local
+stateless-validator-common.workspace = true

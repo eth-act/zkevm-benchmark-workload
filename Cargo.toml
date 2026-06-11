@@ -3,6 +3,7 @@ members = [
     "crates/metrics",
     "crates/witness-generator",
     "crates/witness-generator-cli",
+    "crates/witness-generator-spec-cli",
     "crates/ere-hosts",
 ]
 resolver = "2"
@@ -100,6 +101,7 @@ zero_sized_map_values = "warn"
 
 # local dependencies
 witness-generator = { path = "crates/witness-generator" }
+witness-generator-spec-cli = { path = "crates/witness-generator-spec-cli" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
@@ -109,9 +111,12 @@ ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", tag = "v0.12
 ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.12.1" }
 
 # ere-guests
+stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.11.0", package = "stateless-validator-common" }
 ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.12.1", package = "stateless-validator-reth" }
 ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.12.1", package = "stateless-validator-ethrex" }
-stateless-validator-zilkworm = { git = "https://github.com/erigontech/zilkworm", tag = "v0.1.0-alpha.2-ere", package = "z6m_stateless_validator", features = ["download"] }
+stateless-validator-zilkworm = { git = "https://github.com/erigontech/zilkworm", tag = "v0.1.0-alpha.2-ere", package = "z6m_stateless_validator", features = [
+    "download",
+] }
 ere-guests-guest = { git = "https://github.com/eth-act/ere-guests", tag = "v0.12.1", package = "guest" }
 ere-guests-integration-tests = { git = "https://github.com/eth-act/ere-guests", tag = "v0.12.1", package = "integration-tests" }
 ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.12.1", package = "downloader" }
@@ -123,9 +128,17 @@ ef-tests = { git = "https://github.com/paradigmxyz/stateless", rev = "e5480e71a8
 stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "e5480e71a8031641ff471cad9dc482a7a14b32d5", default-features = false }
 
 # alloy
+alloy-consensus = { version = "2.0", default-features = false }
 alloy-eips = { version = "2.0" }
+alloy-primitives = { version = "1.5.6", default-features = false }
 alloy-rpc-types-eth = "2.0"
 alloy-genesis = { version = "2.0", default-features = false }
+alloy-rlp = { version = "0.3", default-features = false }
+
+# ssz
+libssz = "0.2.2"
+libssz_derive = { package = "libssz-derive", version = "0.2.2" }
+libssz_types = { package = "libssz-types", version = "0.2.2" }
 
 # misc
 clap = { version = "4.0", features = ["derive"] }
