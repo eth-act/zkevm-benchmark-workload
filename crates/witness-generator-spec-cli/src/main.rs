@@ -143,7 +143,7 @@ async fn main() -> anyhow::Result<()> {
             let catalog = catalog::generate_catalog(&config)?;
             info!(count = exported.len(), "exported batch archives");
             info!(
-                blocks = catalog.block_count,
+                artifacts = catalog.artifact_count,
                 batches = catalog.batch_count,
                 "generated public catalog"
             );

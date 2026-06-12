@@ -1,7 +1,6 @@
 use std::{
-    collections::BTreeMap,
     fs,
-    io::{BufRead, BufReader, Read},
+    io::Read,
     path::{Path, PathBuf},
 };
 
@@ -10,31 +9,25 @@ use serde::{Deserialize, Serialize};
 use tar::Archive;
 
 use crate::{
-    artifact::{self, ArtifactIndexEntry, path_to_slash_string, write_bytes_atomic},
+    artifact::{self, path_to_slash_string, write_bytes_atomic},
     config::CollectorConfig,
 };
 
-const CATALOG_SCHEMA_VERSION: u64 = 1;
+const CATALOG_SCHEMA_VERSION: u64 = 2;
 const CATALOG_KIND: &str = "stateless-inputs-public-catalog";
 const HTML_INDEX: &str = "index.html";
 const PUBLIC_MANIFEST: &str = "manifest.json";
-const PUBLIC_BLOCKS_INDEX: &str = "blocks.jsonl";
 const PUBLIC_BATCHES_INDEX: &str = "batches.jsonl";
 const CHECKSUMS: &str = "SHA256SUMS";
-const LEGACY_BLOCK_INDEX: &str = "index.jsonl";
 const BATCH_PREFIX: &str = "exports/batches";
+const STALE_PUBLIC_BLOCKS_INDEX: &str = "blocks.jsonl";
 
-pub(crate) const REQUIRED_CATALOG_FILES: &[&str] = &[
-    HTML_INDEX,
-    PUBLIC_MANIFEST,
-    PUBLIC_BLOCKS_INDEX,
-    PUBLIC_BATCHES_INDEX,
-    CHECKSUMS,
-];
+pub(crate) const REQUIRED_CATALOG_FILES: &[&str] =
+    &[HTML_INDEX, PUBLIC_MANIFEST, PUBLIC_BATCHES_INDEX, CHECKSUMS];
 
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct CatalogGeneration {
-    pub(crate) block_count: usize,
+    pub(crate) artifact_count: usize,
     pub(crate) batch_count: usize,
 }
 
@@ -47,7 +40,6 @@ struct PublicManifest {
     generated_at: String,
     batch_size: u64,
     paths: PublicManifestPaths,
-    blocks: PublicBlocksSummary,
     batches: PublicBatchesSummary,
     notes: Vec<String>,
 }
@@ -57,25 +49,16 @@ struct PublicManifest {
 struct PublicManifestPaths {
     html: String,
     manifest: String,
-    blocks: String,
     batches: String,
     checksums: String,
     batch_prefix: String,
-    legacy_block_index: String,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct PublicBlocksSummary {
-    count: usize,
-    first_block: Option<u64>,
-    last_block: Option<u64>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct PublicBatchesSummary {
     count: usize,
+    artifact_count: usize,
     first_start_block: Option<u64>,
     last_end_block: Option<u64>,
     total_byte_length: u64,
@@ -96,31 +79,6 @@ struct PublicBatchEntry {
     path: String,
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct BatchCatalogData {
-    entry: PublicBatchEntry,
-    artifact_paths: Vec<String>,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct PublicBlockEntry {
-    schema_version: u64,
-    network: String,
-    chain_id: u64,
-    block_number: u64,
-    block_hash: String,
-    slot_number: u64,
-    collection_mode: String,
-    collected_at: String,
-    stateless_input_byte_length: usize,
-    stateless_input_sha256: String,
-    path: String,
-    archive_path: String,
-    batch_path: Option<String>,
-    download_available: bool,
-}
-
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct BatchArchiveManifest {
@@ -130,13 +88,6 @@ struct BatchArchiveManifest {
     batch_size: u64,
     artifact_count: usize,
     created_at: String,
-    artifacts: Vec<BatchArchiveManifestArtifact>,
-}
-
-#[derive(Debug, Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct BatchArchiveManifestArtifact {
-    archive_path: String,
 }
 
 pub(crate) fn required_catalog_files(config: &CollectorConfig) -> Vec<(&'static str, PathBuf)> {
@@ -147,21 +98,12 @@ pub(crate) fn required_catalog_files(config: &CollectorConfig) -> Vec<(&'static 
 }
 
 pub(crate) fn generate_catalog(config: &CollectorConfig) -> anyhow::Result<CatalogGeneration> {
-    let legacy_blocks = read_legacy_blocks(config)?;
-    let batch_data = read_batch_entries(config)?;
-    let batches = batch_data
-        .iter()
-        .map(|batch| batch.entry.clone())
-        .collect::<Vec<_>>();
-    let block_entries = public_block_entries(&legacy_blocks, &batch_data);
-    let manifest = public_manifest(config, &block_entries, &batches)?;
+    let batches = read_batch_entries(config)?;
+    let artifact_count = batches.iter().map(|batch| batch.artifact_count).sum();
+    let manifest = public_manifest(config, &batches)?;
 
     write_json(config.network_root().join(PUBLIC_MANIFEST), &manifest)?;
     write_jsonl(config.network_root().join(PUBLIC_BATCHES_INDEX), &batches)?;
-    write_jsonl(
-        config.network_root().join(PUBLIC_BLOCKS_INDEX),
-        &block_entries,
-    )?;
     write_bytes_atomic(
         &config.network_root().join(CHECKSUMS),
         checksums_file(&batches).as_bytes(),
@@ -170,47 +112,15 @@ pub(crate) fn generate_catalog(config: &CollectorConfig) -> anyhow::Result<Catal
         &config.network_root().join(HTML_INDEX),
         render_html(&manifest, &batches).as_bytes(),
     )?;
+    remove_stale_public_file(config, STALE_PUBLIC_BLOCKS_INDEX)?;
 
     Ok(CatalogGeneration {
-        block_count: block_entries.len(),
+        artifact_count,
         batch_count: batches.len(),
     })
 }
 
-fn read_legacy_blocks(config: &CollectorConfig) -> anyhow::Result<Vec<ArtifactIndexEntry>> {
-    let path = config.index_path();
-    if !path.exists() {
-        return Ok(Vec::new());
-    }
-
-    let file = fs::File::open(&path)
-        .with_context(|| format!("failed to open legacy block index {}", path.display()))?;
-    let reader = BufReader::new(file);
-    let mut blocks = Vec::new();
-    for (line_number, line) in reader.lines().enumerate() {
-        let line = line.with_context(|| {
-            format!(
-                "failed to read line {} from {}",
-                line_number + 1,
-                path.display()
-            )
-        })?;
-        if line.trim().is_empty() {
-            continue;
-        }
-        let entry = serde_json::from_str(&line).with_context(|| {
-            format!(
-                "failed to parse line {} from legacy block index {}",
-                line_number + 1,
-                path.display()
-            )
-        })?;
-        blocks.push(entry);
-    }
-    Ok(blocks)
-}
-
-fn read_batch_entries(config: &CollectorConfig) -> anyhow::Result<Vec<BatchCatalogData>> {
+fn read_batch_entries(config: &CollectorConfig) -> anyhow::Result<Vec<PublicBatchEntry>> {
     if !config.batches_root().exists() {
         return Ok(Vec::new());
     }
@@ -263,76 +173,31 @@ fn read_batch_entries(config: &CollectorConfig) -> anyhow::Result<Vec<BatchCatal
                     config.network_root().display()
                 )
             })?;
-        let artifact_paths = manifest
-            .artifacts
-            .into_iter()
-            .map(|artifact| artifact.archive_path)
-            .collect();
-        batches.push(BatchCatalogData {
-            entry: PublicBatchEntry {
-                schema_version: CATALOG_SCHEMA_VERSION,
-                network: manifest.network,
-                batch_start_block: manifest.batch_start_block,
-                batch_end_block: manifest.batch_end_block,
-                batch_size: manifest.batch_size,
-                artifact_count: manifest.artifact_count,
-                created_at: manifest.created_at,
-                byte_length,
-                sha256,
-                path: path_to_slash_string(relative_path),
-            },
-            artifact_paths,
+        batches.push(PublicBatchEntry {
+            schema_version: CATALOG_SCHEMA_VERSION,
+            network: manifest.network,
+            batch_start_block: manifest.batch_start_block,
+            batch_end_block: manifest.batch_end_block,
+            batch_size: manifest.batch_size,
+            artifact_count: manifest.artifact_count,
+            created_at: manifest.created_at,
+            byte_length,
+            sha256,
+            path: path_to_slash_string(relative_path),
         });
     }
 
-    batches.sort_by_key(|batch| (batch.entry.batch_start_block, batch.entry.batch_end_block));
+    batches.sort_by_key(|batch| (batch.batch_start_block, batch.batch_end_block));
     Ok(batches)
-}
-
-fn public_block_entries(
-    legacy_blocks: &[ArtifactIndexEntry],
-    batches: &[BatchCatalogData],
-) -> Vec<PublicBlockEntry> {
-    let mut batch_by_archive_path = BTreeMap::new();
-    for batch in batches {
-        for archive_path in &batch.artifact_paths {
-            batch_by_archive_path.insert(archive_path.clone(), batch.entry.path.clone());
-        }
-    }
-
-    legacy_blocks
-        .iter()
-        .map(|entry| {
-            let batch_path = batch_by_archive_path.get(&entry.path).cloned();
-            PublicBlockEntry {
-                schema_version: CATALOG_SCHEMA_VERSION,
-                network: entry.network.clone(),
-                chain_id: entry.chain_id,
-                block_number: entry.block_number,
-                block_hash: entry.block_hash.clone(),
-                slot_number: entry.slot_number,
-                collection_mode: entry.collection_mode.clone(),
-                collected_at: entry.collected_at.clone(),
-                stateless_input_byte_length: entry.stateless_input_byte_length,
-                stateless_input_sha256: entry.stateless_input_sha256.clone(),
-                path: entry.path.clone(),
-                archive_path: entry.path.clone(),
-                download_available: batch_path.is_some(),
-                batch_path,
-            }
-        })
-        .collect()
 }
 
 fn public_manifest(
     config: &CollectorConfig,
-    blocks: &[PublicBlockEntry],
     batches: &[PublicBatchEntry],
 ) -> anyhow::Result<PublicManifest> {
-    let first_block = blocks.iter().map(|entry| entry.block_number).min();
-    let last_block = blocks.iter().map(|entry| entry.block_number).max();
     let first_start_block = batches.iter().map(|entry| entry.batch_start_block).min();
     let last_end_block = batches.iter().map(|entry| entry.batch_end_block).max();
+    let artifact_count = batches.iter().map(|entry| entry.artifact_count).sum();
     let total_byte_length = batches.iter().map(|entry| entry.byte_length).sum();
 
     Ok(PublicManifest {
@@ -344,28 +209,35 @@ fn public_manifest(
         paths: PublicManifestPaths {
             html: HTML_INDEX.to_owned(),
             manifest: PUBLIC_MANIFEST.to_owned(),
-            blocks: PUBLIC_BLOCKS_INDEX.to_owned(),
             batches: PUBLIC_BATCHES_INDEX.to_owned(),
             checksums: CHECKSUMS.to_owned(),
             batch_prefix: BATCH_PREFIX.to_owned(),
-            legacy_block_index: LEGACY_BLOCK_INDEX.to_owned(),
-        },
-        blocks: PublicBlocksSummary {
-            count: blocks.len(),
-            first_block,
-            last_block,
         },
         batches: PublicBatchesSummary {
             count: batches.len(),
+            artifact_count,
             first_start_block,
             last_end_block,
             total_byte_length,
         },
         notes: vec![
-            "Public downloads are batch archives; individual block artifacts are not published in this catalog.".to_owned(),
+            "Public downloads are batch archives; individual block artifacts are inside those archives and are not published as standalone R2 objects.".to_owned(),
             "Cloudflare R2 public buckets do not provide directory listing; use this page or the JSON indexes instead.".to_owned(),
         ],
     })
+}
+
+fn remove_stale_public_file(config: &CollectorConfig, name: &str) -> anyhow::Result<()> {
+    let path = config.network_root().join(name);
+    if path.exists() {
+        fs::remove_file(&path).with_context(|| {
+            format!(
+                "failed to remove stale public catalog file {}",
+                path.display()
+            )
+        })?;
+    }
+    Ok(())
 }
 
 fn read_batch_manifest(path: &Path) -> anyhow::Result<BatchArchiveManifest> {
@@ -450,7 +322,11 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     html.push_str(".</p>\n");
 
     html.push_str("<section class=\"summary\">\n");
-    push_metric(&mut html, "Blocks indexed", manifest.blocks.count);
+    push_metric(
+        &mut html,
+        "Block artifacts",
+        manifest.batches.artifact_count,
+    );
     push_metric(&mut html, "Batches", manifest.batches.count);
     push_metric(&mut html, "Batch size", manifest.batch_size);
     push_metric(
@@ -485,12 +361,6 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     html.push_str("<section class=\"panel\">\n<h2>Machine-readable indexes</h2>\n<ul>\n");
     push_link_item(&mut html, &manifest.paths.manifest, "Dataset manifest");
     push_link_item(&mut html, &manifest.paths.batches, "Batch index");
-    push_link_item(&mut html, &manifest.paths.blocks, "Block coverage index");
-    push_link_item(
-        &mut html,
-        &manifest.paths.legacy_block_index,
-        "Legacy collection index",
-    );
     html.push_str("</ul>\n<p class=\"muted\">R2 public buckets do not provide directory listing; use these files instead of folder URLs.</p>\n</section>\n");
 
     html.push_str("<h2>Batch archives</h2>\n");
@@ -603,20 +473,23 @@ mod tests {
 
         let generation = generate_catalog(&config).unwrap();
 
-        assert_eq!(generation.block_count, 3);
+        assert_eq!(generation.artifact_count, 2);
         assert_eq!(generation.batch_count, 1);
         assert!(config.network_root().join("index.html").is_file());
         assert!(config.network_root().join("manifest.json").is_file());
         assert!(config.network_root().join("batches.jsonl").is_file());
-        assert!(config.network_root().join("blocks.jsonl").is_file());
+        assert!(!config.network_root().join("blocks.jsonl").exists());
         assert!(config.network_root().join("SHA256SUMS").is_file());
 
         let manifest: Value =
             serde_json::from_slice(&fs::read(config.network_root().join("manifest.json")).unwrap())
                 .unwrap();
         assert_eq!(manifest["network"], "glamsterdam-devnet-5");
-        assert_eq!(manifest["blocks"]["count"], 3);
+        assert!(manifest.get("blocks").is_none());
+        assert!(manifest["paths"].get("blocks").is_none());
+        assert!(manifest["paths"].get("legacyBlockIndex").is_none());
         assert_eq!(manifest["batches"]["count"], 1);
+        assert_eq!(manifest["batches"]["artifactCount"], 2);
 
         let batches = read_jsonl_values(&config.network_root().join("batches.jsonl"));
         assert_eq!(batches.len(), 1);
@@ -632,34 +505,29 @@ mod tests {
             artifact::file_sha256_hex(&config.batches_root().join("0-1.tar.zst")).unwrap()
         );
 
-        let blocks = read_jsonl_values(&config.network_root().join("blocks.jsonl"));
-        assert_eq!(blocks.len(), 3);
-        assert_eq!(blocks[0]["downloadAvailable"], true);
-        assert_eq!(blocks[0]["batchPath"], "exports/batches/0-1.tar.zst");
-        assert_eq!(blocks[2]["downloadAvailable"], false);
-        assert!(blocks[2]["batchPath"].is_null());
-
         let checksums = fs::read_to_string(config.network_root().join("SHA256SUMS")).unwrap();
         assert!(checksums.contains("  0-1.tar.zst\n"));
 
         let html = fs::read_to_string(config.network_root().join("index.html")).unwrap();
         assert!(html.contains("glamsterdam-devnet-5 stateless inputs"));
         assert!(html.contains("exports/batches/0-1.tar.zst"));
+        assert!(!html.contains("blocks.jsonl"));
+        assert!(!html.contains("index.jsonl"));
     }
 
     #[test]
-    fn incomplete_ranges_appear_only_in_block_coverage() {
+    fn incomplete_ranges_are_omitted_from_public_catalog() {
         let config = test_config("incomplete_ranges", 2);
         write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
+        fs::write(config.network_root().join("blocks.jsonl"), b"stale\n").unwrap();
         export::export_batches(&config, false).unwrap();
 
-        generate_catalog(&config).unwrap();
+        let generation = generate_catalog(&config).unwrap();
 
+        assert_eq!(generation.artifact_count, 0);
+        assert_eq!(generation.batch_count, 0);
         assert!(read_jsonl_values(&config.network_root().join("batches.jsonl")).is_empty());
-        let blocks = read_jsonl_values(&config.network_root().join("blocks.jsonl"));
-        assert_eq!(blocks.len(), 1);
-        assert_eq!(blocks[0]["blockNumber"], 3);
-        assert_eq!(blocks[0]["downloadAvailable"], false);
+        assert!(!config.network_root().join("blocks.jsonl").exists());
     }
 
     #[test]
@@ -672,6 +540,7 @@ mod tests {
         assert!(export::export_batches(&config, false).unwrap().is_empty());
         let generation = generate_catalog(&config).unwrap();
 
+        assert_eq!(generation.artifact_count, 2);
         assert_eq!(generation.batch_count, 1);
         assert_eq!(
             read_jsonl_values(&config.network_root().join("batches.jsonl")).len(),

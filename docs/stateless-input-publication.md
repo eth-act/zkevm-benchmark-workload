@@ -16,7 +16,7 @@ The public dataset is batch-first. Users should download complete `.tar.zst` bat
 exports/batches/<start>-<end>.tar.zst
 ```
 
-Individual block artifacts remain described in metadata, but they are not published as standalone public objects by default.
+Individual block artifacts remain described inside each batch archive's `manifest.json`, but they are not published as standalone public objects.
 
 ## Generated Catalog Files
 
@@ -25,9 +25,7 @@ Running `witness-generator-spec-cli export` rebuilds these files at the network 
 - `index.html`: human-readable landing page with download examples and a batch table.
 - `manifest.json`: dataset summary and paths to all public metadata files.
 - `batches.jsonl`: one completed batch archive per line.
-- `blocks.jsonl`: block coverage, including the batch archive that contains each downloadable block.
 - `SHA256SUMS`: checksums for completed batch archives.
-- `index.jsonl`: legacy per-block collection index, preserved for compatibility.
 
 The generated links are relative, so the same catalog works with an `r2.dev` development URL or a custom domain.
 
@@ -77,5 +75,4 @@ Inspect machine-readable metadata:
 ```bash
 curl -fsSL https://<public-host>/devnets/<network>/manifest.json | jq
 curl -fsSL https://<public-host>/devnets/<network>/batches.jsonl | head
-curl -fsSL https://<public-host>/devnets/<network>/blocks.jsonl | head
 ```

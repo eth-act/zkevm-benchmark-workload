@@ -8,6 +8,8 @@ use crate::{
     config::{CollectorConfig, R2PublishConfig},
 };
 
+const STALE_PUBLIC_OBJECTS: &[&str] = &["blocks.jsonl", "index.jsonl"];
+
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub(crate) struct AwsCommand {
     pub(crate) program: String,
@@ -65,10 +67,9 @@ pub(crate) fn build_publish_commands(config: &CollectorConfig) -> anyhow::Result
         ));
     }
 
-    if config.index_path().is_file() {
-        commands.push(aws_s3_cp_command(
-            config.index_path(),
-            r2_uri(r2, &config.network, "index.jsonl"),
+    for stale_object in STALE_PUBLIC_OBJECTS {
+        commands.push(aws_s3_rm_command(
+            r2_uri(r2, &config.network, stale_object),
             &endpoint_url,
         ));
     }
@@ -97,6 +98,19 @@ fn aws_s3_cp_command(source: PathBuf, destination: String, endpoint_url: &str) -
             "s3".to_owned(),
             "cp".to_owned(),
             source.display().to_string(),
+            destination,
+            "--endpoint-url".to_owned(),
+            endpoint_url.to_owned(),
+        ],
+    }
+}
+
+fn aws_s3_rm_command(destination: String, endpoint_url: &str) -> AwsCommand {
+    AwsCommand {
+        program: "aws".to_owned(),
+        args: vec![
+            "s3".to_owned(),
+            "rm".to_owned(),
             destination,
             "--endpoint-url".to_owned(),
             endpoint_url.to_owned(),
@@ -174,17 +188,6 @@ mod tests {
             vec![
                 "s3",
                 "cp",
-                config.network_root().join("blocks.jsonl").to_str().unwrap(),
-                "s3://stateless-inputs/devnets/glamsterdam-devnet-5/blocks.jsonl",
-                "--endpoint-url",
-                "https://abc123.r2.cloudflarestorage.com",
-            ]
-        );
-        assert_eq!(
-            commands[4].args,
-            vec![
-                "s3",
-                "cp",
                 config
                     .network_root()
                     .join("batches.jsonl")
@@ -196,7 +199,7 @@ mod tests {
             ]
         );
         assert_eq!(
-            commands[5].args,
+            commands[4].args,
             vec![
                 "s3",
                 "cp",
@@ -207,11 +210,20 @@ mod tests {
             ]
         );
         assert_eq!(
+            commands[5].args,
+            vec![
+                "s3",
+                "rm",
+                "s3://stateless-inputs/devnets/glamsterdam-devnet-5/blocks.jsonl",
+                "--endpoint-url",
+                "https://abc123.r2.cloudflarestorage.com",
+            ]
+        );
+        assert_eq!(
             commands[6].args,
             vec![
                 "s3",
-                "cp",
-                config.index_path().to_str().unwrap(),
+                "rm",
                 "s3://stateless-inputs/devnets/glamsterdam-devnet-5/index.jsonl",
                 "--endpoint-url",
                 "https://abc123.r2.cloudflarestorage.com",
