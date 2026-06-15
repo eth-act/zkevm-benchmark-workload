@@ -85,6 +85,8 @@ fn aws_s3_sync_command(source: PathBuf, destination: String, endpoint_url: &str)
             "sync".to_owned(),
             source.display().to_string(),
             destination,
+            "--exclude".to_owned(),
+            "*.part".to_owned(),
             "--endpoint-url".to_owned(),
             endpoint_url.to_owned(),
         ],
@@ -153,6 +155,8 @@ mod tests {
                 "sync",
                 config.batches_root().to_str().unwrap(),
                 "s3://stateless-inputs/devnets/glamsterdam-devnet-5/exports/batches",
+                "--exclude",
+                "*.part",
                 "--endpoint-url",
                 "https://abc123.r2.cloudflarestorage.com",
             ]

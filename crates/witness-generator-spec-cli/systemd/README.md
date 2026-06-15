@@ -11,6 +11,7 @@ The units assume:
 - Config path: `/etc/witness-generator-spec-cli/glamsterdam-devnet-5.toml`
 - Data root in the CLI config: `/data/stateless-inputs`
 - Optional R2 credentials file: `/etc/witness-generator-spec-cli/r2.env`
+- `flock` available at `/usr/bin/flock` to serialize export and publish jobs
 
 Adjust the unit files if your network name, config path, binary path, or data
 root differs.
