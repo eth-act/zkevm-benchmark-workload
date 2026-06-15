@@ -54,6 +54,9 @@ cargo run -p witness-generator-spec-cli --release -- publish-r2 \
 
 If `publish-r2` reports a missing public catalog file, run `export` first.
 
+Example systemd services and timers for this flow live in
+[`crates/witness-generator-spec-cli/systemd`](../crates/witness-generator-spec-cli/systemd/README.md).
+
 ## User Download Examples
 
 Download a batch archive from the generated HTML page:
