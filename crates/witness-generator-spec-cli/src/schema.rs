@@ -20,7 +20,7 @@ pub(crate) const MAX_BLOB_SCHEDULES_PER_FORK: usize = 1;
 pub(crate) const MAX_PUBLIC_KEYS: usize = 1 << 15;
 pub(crate) const PUBLIC_KEY_BYTES: usize = 65;
 
-pub(crate) const AMSTERDAM_PROTOCOL_FORK_INDEX: u64 = 20;
+pub(crate) const AMSTERDAM_PROTOCOL_FORK_INDEX: u64 = 24;
 pub(crate) const AMSTERDAM_BLOB_SCHEDULE_TARGET: u64 = 14;
 pub(crate) const AMSTERDAM_BLOB_SCHEDULE_MAX: u64 = 21;
 pub(crate) const AMSTERDAM_BLOB_BASE_FEE_UPDATE_FRACTION: u64 = 11_684_671;
@@ -132,6 +132,7 @@ mod tests {
         let cfg = amsterdam_chain_config(1).unwrap();
 
         assert_eq!(cfg.chain_id, 1);
+        assert_eq!(cfg.active_fork.fork, 24);
         assert_eq!(cfg.active_fork.fork, AMSTERDAM_PROTOCOL_FORK_INDEX);
         assert!(cfg.active_fork.activation.block_number.is_empty());
         assert_eq!(
