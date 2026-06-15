@@ -1,0 +1,15 @@
+network = "glamsterdam-devnet-5"
+
+# Local Beacon API and execution JSON-RPC endpoints.
+cl_url = "http://127.0.0.1:3500"
+el_url = "http://127.0.0.1:8545"
+
+out_root = "/data/stateless-inputs"
+poll_interval = "4s"
+request_timeout = "30s"
+batch_size = 100
+
+[r2]
+bucket = "stateless-inputs"
+prefix = "devnets"
+account_id = "<replace-with-cloudflare-account-id>"

@@ -1,0 +1,10 @@
+[Unit]
+Description=Run stateless input R2 publisher periodically
+
+[Timer]
+OnBootSec=10min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

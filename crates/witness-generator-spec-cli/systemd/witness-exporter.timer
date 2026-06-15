@@ -1,0 +1,10 @@
+[Unit]
+Description=Run stateless input exporter periodically
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=10min
+Persistent=true
+
+[Install]
+WantedBy=timers.target
