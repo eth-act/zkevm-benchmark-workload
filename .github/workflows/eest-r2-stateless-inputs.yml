@@ -1,0 +1,94 @@
+name: EEST R2 Stateless Inputs
+
+on:
+  workflow_dispatch:
+    inputs:
+      catalog_url:
+        description: Public R2 catalog root, index.html URL, or manifest.json URL
+        required: false
+        default: https://pub-5345007fbd06486bbb7cbbe9f3112c45.r2.dev/devnets/glamsterdam-devnet-5
+        type: string
+      eest_ref:
+        description: ethereum/execution-specs ref to validate with
+        required: false
+        default: tests-zkevm@v0.4.1
+        type: string
+      batch_count:
+        description: Number of latest complete batches to validate
+        required: false
+        default: "10"
+        type: string
+  schedule:
+    - cron: "23 3 * * *"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: eest-r2-stateless-inputs-${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  validate:
+    name: Validate Latest R2 Batch
+    runs-on: ubuntu-latest
+    env:
+      CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-5345007fbd06486bbb7cbbe9f3112c45.r2.dev/devnets/glamsterdam-devnet-5' }}
+      EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v0.4.1' }}
+      BATCH_COUNT: ${{ github.event.inputs.batch_count || '10' }}
+      SUMMARY_DIR: workload/target/eest-r2-stateless-inputs
+    steps:
+      - name: Checkout workload
+        uses: actions/checkout@v4
+        with:
+          path: workload
+
+      - name: Checkout EEST
+        uses: actions/checkout@v4
+        with:
+          repository: ethereum/execution-specs
+          ref: ${{ env.EEST_REF }}
+          path: execution-specs
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: python -m pip install --upgrade pip uv
+
+      - name: Resolve EEST commit
+        id: eest
+        run: echo "commit=$(git -C execution-specs rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Validate R2 stateless inputs with EEST
+        run: |
+          mkdir -p "$SUMMARY_DIR"
+          uv run --project execution-specs --with zstandard \
+            python workload/scripts/validate-r2-stateless-inputs-with-eest.py \
+              --catalog-url "$CATALOG_URL" \
+              --batch-count "$BATCH_COUNT" \
+              --summary-json "$SUMMARY_DIR/summary.json" \
+              --summary-md "$SUMMARY_DIR/summary.md" \
+              --eest-ref "$EEST_REF" \
+              --eest-commit "${{ steps.eest.outputs.commit }}"
+
+      - name: Append summary
+        if: always()
+        run: |
+          if [ -f "$SUMMARY_DIR/summary.md" ]; then
+            cat "$SUMMARY_DIR/summary.md" >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "No validation summary was produced." >> "$GITHUB_STEP_SUMMARY"
+          fi
+
+      - name: Upload summary
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: eest-r2-stateless-inputs-summary
+          path: |
+            ${{ env.SUMMARY_DIR }}/summary.json
+            ${{ env.SUMMARY_DIR }}/summary.md
+          if-no-files-found: warn

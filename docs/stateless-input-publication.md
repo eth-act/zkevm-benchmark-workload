@@ -79,3 +79,80 @@ Inspect machine-readable metadata:
 curl -fsSL https://<public-host>/devnets/<network>/manifest.json | jq
 curl -fsSL https://<public-host>/devnets/<network>/batches.jsonl | head
 ```
+
+## Local EEST Validation
+
+Use [`scripts/validate-r2-stateless-inputs-with-eest.py`](../scripts/validate-r2-stateless-inputs-with-eest.py)
+to validate published R2 batch archives against the EEST Amsterdam stateless
+guest. The script downloads the selected batch archives, verifies the catalog
+metadata, decompresses each `blocks/*.json.zst` artifact, checks the recorded
+stateless input byte length and SHA-256 digest, and runs each stateless input
+through EEST.
+
+Prerequisites:
+
+- Install [`uv`](https://docs.astral.sh/uv/).
+- Check out `ethereum/execution-specs` next to this repository.
+- Check out the EEST ref you want to validate against.
+
+```bash
+cd /path/to/parent
+git clone https://github.com/ethereum/execution-specs.git
+cd execution-specs
+git fetch --tags
+git checkout tests-zkevm@v0.4.1
+```
+
+From this repository root, run:
+
+```bash
+CATALOG_URL="https://pub-5345007fbd06486bbb7cbbe9f3112c45.r2.dev/devnets/glamsterdam-devnet-5"
+EEST_REF="tests-zkevm@v0.4.1"
+EEST_DIR="../execution-specs"
+SUMMARY_DIR="target/eest-r2-stateless-inputs"
+
+mkdir -p "$SUMMARY_DIR"
+
+uv run --project "$EEST_DIR" --with zstandard \
+  python scripts/validate-r2-stateless-inputs-with-eest.py \
+    --catalog-url "$CATALOG_URL" \
+    --batch-count 70 \
+    --summary-json "$SUMMARY_DIR/summary.json" \
+    --summary-md "$SUMMARY_DIR/summary.md" \
+    --eest-ref "$EEST_REF" \
+    --eest-commit "$(git -C "$EEST_DIR" rev-parse HEAD)"
+
+cat "$SUMMARY_DIR/summary.md"
+```
+
+The `uv run --project "$EEST_DIR"` part matters: the validator imports EEST's
+Python modules from the `execution-specs` checkout while adding `zstandard` for
+the compressed R2 artifacts. `--eest-ref` and `--eest-commit` are recorded in
+the summaries for provenance; the script does not use them to check out EEST.
+
+Useful selection options:
+
+- `--batch-count N`: validate the latest `N` complete batches from
+  `batches.jsonl`.
+- `--block-number N`: validate the batch containing one block and only run the
+  matching block artifact.
+- `--max-artifacts N`: stop after `N` matching artifacts, useful for a fast
+  smoke test.
+
+For a quick local smoke test:
+
+```bash
+uv run --project "$EEST_DIR" --with zstandard \
+  python scripts/validate-r2-stateless-inputs-with-eest.py \
+    --catalog-url "$CATALOG_URL" \
+    --batch-count 1 \
+    --max-artifacts 1 \
+    --summary-json "$SUMMARY_DIR/smoke.json" \
+    --summary-md "$SUMMARY_DIR/smoke.md" \
+    --eest-ref "$EEST_REF" \
+    --eest-commit "$(git -C "$EEST_DIR" rev-parse HEAD)"
+```
+
+The JSON summary is intended for automation and contains full failure details.
+The Markdown summary is intended for local inspection or GitHub Actions job
+summaries.
