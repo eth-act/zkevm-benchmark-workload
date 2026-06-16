@@ -19,7 +19,7 @@ on:
         default: "10"
         type: string
   schedule:
-    - cron: "23 3 * * *"
+    - cron: "23 */2 * * *"
 
 permissions:
   contents: read
