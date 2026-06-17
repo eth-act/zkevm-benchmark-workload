@@ -22,6 +22,8 @@ pub enum ExecutionClient {
     Ethrex,
     /// Zilkworm stateless block validation guest program.
     Zilkworm,
+    /// Zesu stateless block validation guest program.
+    Zesu,
 }
 
 /// Extra information about the block being benchmarked
@@ -39,6 +41,7 @@ impl ExecutionClient {
             Self::Reth => env!("RETH_EL_VERSION"),
             Self::Ethrex => env!("ETHREX_EL_VERSION"),
             Self::Zilkworm => env!("ZILKWORM_EL_VERSION"),
+            Self::Zesu => "unknown", // TODO: Temporary until gets republished through ere-guests and remove --guest-artifact-base-url new-ish flag.
         }
     }
 }

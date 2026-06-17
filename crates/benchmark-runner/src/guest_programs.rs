@@ -1,6 +1,6 @@
 //! Guest program input generation and metadata types
 
-use ere_dockerized::Input;
+use ere_dockerized::{zkVMKind, Input};
 use ere_guests_guest::codec::Encode;
 use serde::Serialize;
 use sha2::{Digest, Sha256};
@@ -20,6 +20,14 @@ pub trait GuestFixture: Sync + Send {
 
     /// Returns the expected public values of guest program fixture.
     fn expected_public_values(&self) -> anyhow::Result<Vec<u8>>;
+
+    /// Returns the expected public values normalized for the selected zkVM.
+    fn expected_public_values_for_zkvm(&self, zkvm_kind: zkVMKind) -> anyhow::Result<Vec<u8>> {
+        Ok(normalize_expected_public_values(
+            zkvm_kind,
+            self.expected_public_values()?,
+        ))
+    }
 
     /// Verifies that the provided `public_values` match the expected output.
     fn verify_public_values(&self, public_values: &[u8]) -> anyhow::Result<OutputVerifierResult> {
@@ -112,4 +120,21 @@ pub enum OutputVerifierResult {
     Match,
     /// Output does not match the expected result
     Mismatch(String),
+}
+
+fn normalize_expected_public_values(
+    zkvm_kind: zkVMKind,
+    mut expected_public_values: Vec<u8>,
+) -> Vec<u8> {
+    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
+        && expected_public_values.len() < 32
+    {
+        expected_public_values.resize(32, 0);
+    }
+
+    if matches!(zkvm_kind, zkVMKind::Zisk) && expected_public_values.len() < 256 {
+        expected_public_values.resize(256, 0);
+    }
+
+    expected_public_values
 }
