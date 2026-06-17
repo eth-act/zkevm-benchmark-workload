@@ -207,11 +207,7 @@ impl RpcClient {
         &self,
         block_id: &str,
     ) -> anyhow::Result<ExecutionPayloadEnvelope> {
-        let url = format!(
-            "{}/eth/v1/beacon/execution_payload_envelope/{}",
-            trim_endpoint(&self.config.cl_endpoint),
-            block_id,
-        );
+        let url = execution_payload_envelope_url(&self.config.cl_endpoint, block_id);
         let response: ExecutionPayloadEnvelopeResponse = self
             .send_get_with_headers(&url, &self.config.cl_headers)
             .await
@@ -346,9 +342,25 @@ fn trim_endpoint(endpoint: &str) -> &str {
     endpoint.trim_end_matches('/')
 }
 
+fn execution_payload_envelope_url(endpoint: &str, block_id: &str) -> String {
+    format!(
+        "{}/eth/v1/beacon/execution_payload_envelopes/{}",
+        trim_endpoint(endpoint),
+        block_id,
+    )
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn builds_plural_execution_payload_envelope_url() {
+        assert_eq!(
+            execution_payload_envelope_url("http://127.0.0.1:3500/", "head"),
+            "http://127.0.0.1:3500/eth/v1/beacon/execution_payload_envelopes/head",
+        );
+    }
 
     #[test]
     fn parses_execution_requests_with_mixed_quantities() {
