@@ -762,30 +762,6 @@ mod tests {
         }
     }
 
-    struct ExactFixture(Fixture);
-
-    impl GuestFixture for ExactFixture {
-        fn name(&self) -> String {
-            self.0.name()
-        }
-
-        fn metadata(&self) -> serde_json::Value {
-            self.0.metadata()
-        }
-
-        fn input(&self) -> Result<Input> {
-            self.0.input()
-        }
-
-        fn expected_public_values(&self) -> Result<Vec<u8>> {
-            self.0.expected_public_values()
-        }
-
-        fn expected_public_values_for_zkvm(&self, _zkvm_kind: zkVMKind) -> Result<Vec<u8>> {
-            self.expected_public_values()
-        }
-    }
-
     #[test]
     fn public_output_matched_returns_true_for_matching_values() -> Result<()> {
         let fixture = Fixture::new(vec![1, 2, 3]);
@@ -839,13 +815,13 @@ mod tests {
     }
 
     #[test]
-    fn public_output_matched_can_skip_zkvm_padding_normalization() -> Result<()> {
-        let fixture = ExactFixture(Fixture::new(vec![0xab]));
+    fn public_output_matched_requires_zisk_padding_normalization() -> Result<()> {
+        let fixture = Fixture::new(vec![0xab]);
         let mut zisk_public_values = vec![0xab];
         zisk_public_values.resize(256, 0);
 
-        assert!(public_output_matched(zkVMKind::Zisk, &fixture, &[0xab])?);
-        assert!(!public_output_matched(
+        assert!(!public_output_matched(zkVMKind::Zisk, &fixture, &[0xab])?);
+        assert!(public_output_matched(
             zkVMKind::Zisk,
             &fixture,
             &zisk_public_values,

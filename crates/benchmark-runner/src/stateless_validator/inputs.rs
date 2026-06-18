@@ -5,7 +5,7 @@ use crate::{
     },
 };
 use anyhow::{bail, Context, Result};
-use ere_dockerized::{zkVMKind, Input};
+use ere_dockerized::Input;
 use ere_guests_guest::Guest;
 use ere_guests_integration_tests::NoopPlatform;
 use ere_guests_stateless_validator_ethrex::{
@@ -92,40 +92,7 @@ fn raw_eest_input_from_fixture(
         metadata,
     };
 
-    Ok(match expected_output {
-        EestExpectedOutput::Sha256 => fixture.into_boxed(),
-        EestExpectedOutput::Raw => Box::new(ExactPublicValuesFixture { fixture }),
-    })
-}
-
-#[derive(Debug)]
-struct ExactPublicValuesFixture<M> {
-    fixture: GenericGuestFixture<M>,
-}
-
-impl<M> GuestFixture for ExactPublicValuesFixture<M>
-where
-    M: 'static + Send + Sync + Serialize,
-{
-    fn name(&self) -> String {
-        self.fixture.name()
-    }
-
-    fn metadata(&self) -> serde_json::Value {
-        self.fixture.metadata()
-    }
-
-    fn input(&self) -> Result<Input> {
-        self.fixture.input()
-    }
-
-    fn expected_public_values(&self) -> Result<Vec<u8>> {
-        self.fixture.expected_public_values()
-    }
-
-    fn expected_public_values_for_zkvm(&self, _zkvm_kind: zkVMKind) -> Result<Vec<u8>> {
-        self.expected_public_values()
-    }
+    Ok(fixture.into_boxed())
 }
 
 fn ethrex_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<dyn GuestFixture>> {
