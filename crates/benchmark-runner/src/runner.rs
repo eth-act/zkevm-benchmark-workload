@@ -30,6 +30,32 @@ const ERE_GUESTS_DOWNLOAD_KIND: &str = env!("ERE_GUESTS_DOWNLOAD_KIND");
 /// Tag or commit SHA matching [`ERE_GUESTS_DOWNLOAD_KIND`].
 const ERE_GUESTS_DOWNLOAD_VALUE: &str = env!("ERE_GUESTS_DOWNLOAD_VALUE");
 
+/// Source used to resolve compiled guest programs.
+#[derive(Debug, Clone)]
+pub enum GuestProgramSource {
+    /// Resolve guest programs from the configured ere-guests dependency.
+    Default,
+    /// Resolve guest programs from a local directory.
+    LocalPath(PathBuf),
+    /// Resolve guest programs from a remote base URL.
+    ArtifactBaseUrl(String),
+}
+
+impl GuestProgramSource {
+    /// Returns a stable label for externally supplied guest artifacts.
+    pub fn version_label(&self) -> Option<String> {
+        match self {
+            Self::Default => None,
+            Self::LocalPath(path) => path
+                .file_name()
+                .and_then(|name| name.to_str())
+                .filter(|name| !name.is_empty())
+                .map(std::string::ToString::to_string),
+            Self::ArtifactBaseUrl(url) => artifact_base_url_label(url),
+        }
+    }
+}
+
 /// A zkVM instance bundled with ELF bytes (used for profiling).
 pub enum ZkVMInstance {
     /// Dockerized zkVM instance
@@ -394,10 +420,17 @@ pub async fn get_el_zkvm_instances(
     zkvms: &[zkVMKind],
     resource: ProverResource,
     zkvm_config: DockerizedzkVMConfig,
-    bin_path: Option<&Path>,
+    guest_source: &GuestProgramSource,
 ) -> Result<Vec<ZkVMInstance>> {
     let guest_name_prefix = format!("stateless-validator-{el}");
-    get_guest_zkvm_instances(&guest_name_prefix, zkvms, resource, zkvm_config, bin_path).await
+    get_guest_zkvm_instances(
+        &guest_name_prefix,
+        zkvms,
+        resource,
+        zkvm_config,
+        guest_source,
+    )
+    .await
 }
 
 /// Creates the requested guest program zkVMs ere instances.
@@ -406,12 +439,12 @@ pub async fn get_guest_zkvm_instances(
     zkvms: &[zkVMKind],
     resource: ProverResource,
     zkvm_config: DockerizedzkVMConfig,
-    bin_path: Option<&Path>,
+    guest_source: &GuestProgramSource,
 ) -> Result<Vec<ZkVMInstance>> {
     let mut instances = Vec::new();
     for zkvm in zkvms {
         let guest_name = format!("{}-{}", guest_name_prefix, zkvm.as_str());
-        let compiled = load_compiled(&guest_name, bin_path).await?;
+        let compiled = load_compiled(&guest_name, guest_source).await?;
         let instance = match &resource {
             ProverResource::Cpu | ProverResource::Gpu => {
                 let zkvm = DockerizedzkVM::new(
@@ -448,8 +481,11 @@ pub async fn get_guest_zkvm_instances(
     Ok(instances)
 }
 
-async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<CompiledGuest> {
-    if let Some(path) = bin_path {
+async fn load_compiled(
+    guest_name: &str,
+    guest_source: &GuestProgramSource,
+) -> Result<CompiledGuest> {
+    if let GuestProgramSource::LocalPath(path) = guest_source {
         let elf = fs::read(path.join(format!("{guest_name}.elf")))
             .with_context(|| format!("Failed to read ELF from path: {}", path.display()))?;
         let program_vk = fs::read(path.join(format!("{guest_name}.vk")))
@@ -460,6 +496,10 @@ async fn load_compiled(guest_name: &str, bin_path: Option<&Path>) -> Result<Comp
             program_vk,
             profiling_elf,
         });
+    }
+
+    if let GuestProgramSource::ArtifactBaseUrl(base_url) = guest_source {
+        return load_compiled_from_artifact_base_url(guest_name, base_url).await;
     }
 
     if guest_name.starts_with("stateless-validator-zilkworm") {
@@ -540,6 +580,87 @@ async fn guest_downloader() -> Result<Downloader> {
     }
 }
 
+async fn load_compiled_from_artifact_base_url(
+    guest_name: &str,
+    base_url: &str,
+) -> Result<CompiledGuest> {
+    let client = reqwest::Client::new();
+    let elf_url = guest_artifact_url(base_url, &format!("{guest_name}.elf"));
+    let vk_url = guest_artifact_url(base_url, &format!("{guest_name}.vk"));
+    let profiling_url = guest_artifact_url(base_url, &format!("{guest_name}-profiling.elf"));
+
+    info!("Downloading guest program from {elf_url}");
+    let elf = download_required_artifact(&client, &elf_url).await?;
+    let program_vk = download_optional_artifact(&client, &vk_url)
+        .await?
+        .unwrap_or_default();
+    let profiling_elf = download_optional_artifact(&client, &profiling_url).await?;
+
+    Ok(CompiledGuest {
+        elf,
+        program_vk,
+        profiling_elf,
+    })
+}
+
+async fn download_required_artifact(client: &reqwest::Client, url: &str) -> Result<Vec<u8>> {
+    let response = client
+        .get(url)
+        .send()
+        .await
+        .with_context(|| format!("Failed to download required guest artifact from {url}"))?;
+    let status = response.status();
+    if !status.is_success() {
+        bail!("Failed to download required guest artifact from {url}: HTTP {status}");
+    }
+    Ok(response
+        .bytes()
+        .await
+        .with_context(|| format!("Failed to read required guest artifact from {url}"))?
+        .to_vec())
+}
+
+async fn download_optional_artifact(
+    client: &reqwest::Client,
+    url: &str,
+) -> Result<Option<Vec<u8>>> {
+    let response = match client.get(url).send().await {
+        Ok(response) => response,
+        Err(err) => {
+            warn!("Skipping optional guest artifact {url}: {err}");
+            return Ok(None);
+        }
+    };
+    let status = response.status();
+    if !status.is_success() {
+        info!("Skipping optional guest artifact {url}: HTTP {status}");
+        return Ok(None);
+    }
+    Ok(Some(
+        response
+            .bytes()
+            .await
+            .with_context(|| format!("Failed to read optional guest artifact from {url}"))?
+            .to_vec(),
+    ))
+}
+
+fn guest_artifact_url(base_url: &str, filename: &str) -> String {
+    format!("{}/{}", base_url.trim_end_matches('/'), filename)
+}
+
+fn artifact_base_url_label(base_url: &str) -> Option<String> {
+    base_url
+        .split(['?', '#'])
+        .next()
+        .unwrap_or(base_url)
+        .trim_end_matches('/')
+        .rsplit('/')
+        .next()
+        .filter(|label| !label.is_empty())
+        .map(std::string::ToString::to_string)
+}
+
 /// Dumps the raw input bytes to disk
 fn dump_input(
     input: &[u8],
@@ -590,8 +711,7 @@ fn public_output_matched(
     io: &impl GuestFixture,
     public_values: &[u8],
 ) -> Result<bool> {
-    let expected_public_values =
-        normalize_expected_public_values(zkvm_kind, io.expected_public_values()?);
+    let expected_public_values = io.expected_public_values_for_zkvm(zkvm_kind)?;
 
     if expected_public_values == public_values {
         Ok(true)
@@ -604,23 +724,6 @@ fn public_output_matched(
         );
         Ok(false)
     }
-}
-
-fn normalize_expected_public_values(
-    zkvm_kind: zkVMKind,
-    mut expected_public_values: Vec<u8>,
-) -> Vec<u8> {
-    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
-        && expected_public_values.len() < 32
-    {
-        expected_public_values.resize(32, 0);
-    }
-
-    if matches!(zkvm_kind, zkVMKind::Zisk) && expected_public_values.len() < 256 {
-        expected_public_values.resize(256, 0);
-    }
-
-    expected_public_values
 }
 
 #[cfg(test)]
@@ -709,5 +812,135 @@ mod tests {
         )?);
 
         Ok(())
+    }
+
+    #[test]
+    fn public_output_matched_requires_zisk_padding_normalization() -> Result<()> {
+        let fixture = Fixture::new(vec![0xab]);
+        let mut zisk_public_values = vec![0xab];
+        zisk_public_values.resize(256, 0);
+
+        assert!(!public_output_matched(zkVMKind::Zisk, &fixture, &[0xab])?);
+        assert!(public_output_matched(
+            zkVMKind::Zisk,
+            &fixture,
+            &zisk_public_values,
+        )?);
+
+        Ok(())
+    }
+
+    #[test]
+    fn guest_artifact_url_joins_base_and_filename() {
+        assert_eq!(
+            guest_artifact_url(
+                "https://github.com/Consensys/zesu-zkvm/releases/download/bal-devnet-7-2026-06-12/",
+                "stateless-validator-zesu-zisk.elf",
+            ),
+            "https://github.com/Consensys/zesu-zkvm/releases/download/bal-devnet-7-2026-06-12/stateless-validator-zesu-zisk.elf"
+        );
+    }
+
+    #[test]
+    fn artifact_base_url_label_uses_last_path_segment() {
+        assert_eq!(
+            artifact_base_url_label(
+                "https://github.com/Consensys/zesu-zkvm/releases/download/bal-devnet-7-2026-06-12/"
+            )
+            .as_deref(),
+            Some("bal-devnet-7-2026-06-12")
+        );
+    }
+
+    #[test]
+    fn url_artifact_loader_requires_elf_but_not_vk_or_profiling_elf() -> Result<()> {
+        let server = TestServer::spawn(|path| {
+            (path == "/stateless-validator-zesu-zisk.elf").then(|| Vec::from("elf-bytes"))
+        });
+
+        let compiled = block_on(load_compiled(
+            "stateless-validator-zesu-zisk",
+            &GuestProgramSource::ArtifactBaseUrl(server.base_url()),
+        ))?;
+
+        assert_eq!(compiled.elf, b"elf-bytes");
+        assert!(compiled.program_vk.is_empty());
+        assert!(compiled.profiling_elf.is_none());
+
+        Ok(())
+    }
+
+    #[test]
+    fn url_artifact_loader_fails_when_elf_is_missing() {
+        let server = TestServer::spawn(|_| None);
+
+        let err = block_on(load_compiled(
+            "stateless-validator-zesu-zisk",
+            &GuestProgramSource::ArtifactBaseUrl(server.base_url()),
+        ))
+        .unwrap_err();
+
+        assert!(err
+            .to_string()
+            .contains("stateless-validator-zesu-zisk.elf"));
+    }
+
+    struct TestServer {
+        base_url: String,
+    }
+
+    impl TestServer {
+        fn spawn<F>(handler: F) -> Self
+        where
+            F: Fn(&str) -> Option<Vec<u8>> + Send + Sync + 'static,
+        {
+            use std::{
+                io::{Read, Write},
+                net::TcpListener,
+                sync::Arc,
+                thread,
+            };
+
+            let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+            let base_url = format!("http://{}", listener.local_addr().unwrap());
+            let handler = Arc::new(handler);
+
+            thread::spawn(move || {
+                for stream in listener.incoming().take(3) {
+                    let Ok(mut stream) = stream else {
+                        continue;
+                    };
+                    let mut request = [0_u8; 1024];
+                    let Ok(read) = stream.read(&mut request) else {
+                        continue;
+                    };
+                    let request = String::from_utf8_lossy(&request[..read]);
+                    let path = request
+                        .lines()
+                        .next()
+                        .and_then(|line| line.split_whitespace().nth(1))
+                        .unwrap_or("/");
+
+                    if let Some(body) = handler(path) {
+                        let response = format!(
+                            "HTTP/1.1 200 OK\r\nContent-Length: {}\r\nConnection: close\r\n\r\n",
+                            body.len()
+                        );
+                        let _ = stream.write_all(response.as_bytes());
+                        let _ = stream.write_all(&body);
+                    } else {
+                        let _ = stream.write_all(
+                            b"HTTP/1.1 404 Not Found\r\nContent-Length: 0\r\nConnection: close\r\n\r\n",
+                        );
+                    }
+                }
+            });
+
+            Self { base_url }
+        }
+
+        fn base_url(&self) -> String {
+            self.base_url.clone()
+        }
     }
 }

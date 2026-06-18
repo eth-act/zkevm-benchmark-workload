@@ -6,8 +6,8 @@ use anyhow::{Context, Result, bail};
 use benchmark_runner::{
     empty_program,
     runner::{
-        Action, ProfileConfig, RunConfig, benchmark_output_dir, get_el_zkvm_instances,
-        get_guest_zkvm_instances, run_benchmark_iter,
+        Action, GuestProgramSource, ProfileConfig, RunConfig, benchmark_output_dir,
+        get_el_zkvm_instances, get_guest_zkvm_instances, run_benchmark_iter,
     },
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
@@ -97,7 +97,12 @@ async fn main() -> Result<()> {
     } else {
         (None, cli.proofs_folder)
     };
-    let bin_path = cli.bin_path.as_deref();
+    let guest_source = match (cli.bin_path, cli.guest_artifact_base_url) {
+        (Some(path), None) => GuestProgramSource::LocalPath(path),
+        (None, Some(url)) => GuestProgramSource::ArtifactBaseUrl(url),
+        (None, None) => GuestProgramSource::Default,
+        (Some(_), Some(_)) => unreachable!("clap conflicts_with should reject this combination"),
+    };
     let config_base = RunConfig {
         output_folder: cli.output_folder,
         sub_folder: None,
@@ -117,13 +122,21 @@ async fn main() -> Result<()> {
             let el: stateless_validator::ExecutionClient = execution_client.into();
 
             let el_name = el.as_ref().to_lowercase();
-            let el_str = format!("{}-{}", el_name, el.version());
+            // TODO: For Zesu until integrated to ere-guests when removing `--guest-artifact-base-url.yy
+            let el_version = if matches!(el, stateless_validator::ExecutionClient::Zesu) {
+                guest_source
+                    .version_label()
+                    .unwrap_or_else(|| el.version().to_string())
+            } else {
+                el.version().to_string()
+            };
+            let el_str = format!("{}-{}", el_name, el_version);
             let zkvms = get_el_zkvm_instances(
                 &el_name,
                 &cli.zkvms,
                 resource,
                 zkvm_config.clone(),
-                bin_path,
+                &guest_source,
             )
             .await
             .context("Failed to get EL zkvm instances")?;
@@ -166,7 +179,7 @@ async fn main() -> Result<()> {
                 &cli.zkvms,
                 resource,
                 zkvm_config.clone(),
-                bin_path,
+                &guest_source,
             )
             .await
             .context("Failed to get guest zkvm instances")?;

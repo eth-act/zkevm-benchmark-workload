@@ -42,9 +42,17 @@ pub(crate) fn stateless_validator_input_from_fixture(
             ExecutionClient::Reth => reth_input_from_fixture(*fixture),
             ExecutionClient::Ethrex => ethrex_input_from_fixture(*fixture),
             ExecutionClient::Zilkworm => zilkworm_input_from_fixture(*fixture),
+            ExecutionClient::Zesu => {
+                bail!(
+                    "Zesu supports only EEST blockchain_tests fixtures with statelessInputBytes/statelessOutputBytes"
+                )
+            }
         },
         BenchmarkFixture::Eest(fixture) => match el {
-            ExecutionClient::Reth | ExecutionClient::Ethrex => raw_eest_input_from_fixture(fixture),
+            ExecutionClient::Reth | ExecutionClient::Ethrex => {
+                raw_eest_input_from_fixture(fixture, EestExpectedOutput::Sha256)
+            }
+            ExecutionClient::Zesu => raw_eest_input_from_fixture(fixture, EestExpectedOutput::Raw),
             ExecutionClient::Zilkworm => {
                 bail!("EEST fixture format not yet supported for Zilkworm")
             }
@@ -52,7 +60,16 @@ pub(crate) fn stateless_validator_input_from_fixture(
     }
 }
 
-fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn GuestFixture>> {
+#[derive(Debug, Clone, Copy)]
+enum EestExpectedOutput {
+    Sha256,
+    Raw,
+}
+
+fn raw_eest_input_from_fixture(
+    fixture: EestStatelessFixture,
+    expected_output: EestExpectedOutput,
+) -> Result<Box<dyn GuestFixture>> {
     let metadata = EestBlockMetadata {
         fixture_format: "eest",
         original_test_name: fixture.original_test_name,
@@ -63,15 +80,19 @@ fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn 
         block_number: fixture.block_number,
         block_used_gas: fixture.block_used_gas,
     };
-    let expected_public_values = Sha256::digest(fixture.stateless_output_bytes).to_vec();
+    let expected_public_values = match expected_output {
+        EestExpectedOutput::Sha256 => Sha256::digest(fixture.stateless_output_bytes).to_vec(),
+        EestExpectedOutput::Raw => fixture.stateless_output_bytes,
+    };
 
-    Ok(GenericGuestFixture::<EestBlockMetadata> {
+    let fixture = GenericGuestFixture::<EestBlockMetadata> {
         name: fixture.name,
         input: Input::new().with_stdin(fixture.stateless_input_bytes),
         expected_public_values,
         metadata,
-    }
-    .into_boxed())
+    };
+
+    Ok(fixture.into_boxed())
 }
 
 fn ethrex_input_from_fixture(fixture: StatelessValidationFixture) -> Result<Box<dyn GuestFixture>> {

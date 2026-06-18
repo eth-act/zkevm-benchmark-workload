@@ -149,7 +149,7 @@ where
     I: Iterator<Item = PathBuf>,
 {
     paths.flat_map(move |path| {
-        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root) {
+        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root, el) {
             Ok(fixtures) => fixtures
                 .into_iter()
                 .filter(|fixture| fixture_matches_prefixes(fixture, fixture_prefixes.as_deref()))
@@ -183,12 +183,21 @@ fn fixture_matches_prefixes(fixture: &BenchmarkFixture, prefixes: Option<&[Strin
     })
 }
 
-fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<BenchmarkFixture>> {
+fn load_benchmark_fixtures(
+    path: &Path,
+    input_root: &Path,
+    el: ExecutionClient,
+) -> Result<Vec<BenchmarkFixture>> {
     let content = std::fs::read(path)?;
     let value: serde_json::Value = serde_json::from_slice(&content)
         .with_context(|| format!("Failed to parse {}", path.display()))?;
 
     if value.get("stateless_input").is_some() {
+        if matches!(el, ExecutionClient::Zesu) {
+            bail!(
+                "Zesu supports only EEST blockchain_tests fixtures with statelessInputBytes/statelessOutputBytes"
+            );
+        }
         let fixture = serde_json::from_value(value)
             .with_context(|| format!("Failed to parse legacy fixture {}", path.display()))?;
         return Ok(vec![BenchmarkFixture::Legacy(Box::new(fixture))]);
@@ -270,7 +279,7 @@ mod tests {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
-        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path())?;
+        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path(), ExecutionClient::Reth)?;
         let fixture = fixtures
             .iter()
             .find(|fixture| {
