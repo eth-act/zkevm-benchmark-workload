@@ -1390,8 +1390,8 @@ dependencies = [
  "auto_impl",
  "downloader",
  "ere-cluster-client-zisk",
- "ere-dockerized",
- "ere-util-tokio",
+ "ere-dockerized 0.12.2",
+ "ere-util-tokio 0.12.2",
  "flate2",
  "guest",
  "hex",
@@ -2754,19 +2754,29 @@ name = "ere-catalog"
 version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
- "ere-util-build",
+ "ere-util-build 0.12.1",
+ "serde",
+ "strum 0.27.2",
+]
+
+[[package]]
+name = "ere-catalog"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "ere-util-build 0.12.2",
  "serde",
  "strum 0.27.2",
 ]
 
 [[package]]
 name = "ere-cluster-client-zisk"
-version = "0.12.1"
-source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
 dependencies = [
  "bincode 2.0.1",
- "ere-compiler-core",
- "ere-prover-core",
+ "ere-compiler-core 0.12.2",
+ "ere-prover-core 0.12.2",
  "ere-verifier-zisk",
  "http",
  "prost",
@@ -2790,9 +2800,22 @@ version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 
 [[package]]
+name = "ere-codec"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+
+[[package]]
 name = "ere-compiler-core"
 version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "ere-compiler-core"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
 dependencies = [
  "serde",
 ]
@@ -2803,11 +2826,28 @@ version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "anyhow",
- "ere-catalog",
- "ere-compiler-core",
- "ere-prover-core",
- "ere-server-client",
- "ere-util-tokio",
+ "ere-catalog 0.12.1",
+ "ere-compiler-core 0.12.1",
+ "ere-prover-core 0.12.1",
+ "ere-server-client 0.12.1",
+ "ere-util-tokio 0.12.1",
+ "tempfile",
+ "thiserror 2.0.18",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "ere-dockerized"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "anyhow",
+ "ere-catalog 0.12.2",
+ "ere-compiler-core 0.12.2",
+ "ere-prover-core 0.12.2",
+ "ere-server-client 0.12.2",
+ "ere-util-tokio 0.12.2",
  "tempfile",
  "thiserror 2.0.18",
  "tokio",
@@ -2821,7 +2861,7 @@ dependencies = [
  "anyhow",
  "benchmark-runner",
  "clap",
- "ere-dockerized",
+ "ere-dockerized 0.12.2",
  "humantime",
  "tokio",
  "tracing",
@@ -2848,7 +2888,24 @@ dependencies = [
  "bincode 2.0.1",
  "clap",
  "ere-codec 0.12.1",
- "ere-verifier-core",
+ "ere-verifier-core 0.12.1",
+ "indexmap 2.14.0",
+ "serde",
+ "strum 0.27.2",
+ "thiserror 2.0.18",
+]
+
+[[package]]
+name = "ere-prover-core"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "anyhow",
+ "auto_impl",
+ "bincode 2.0.1",
+ "clap",
+ "ere-codec 0.12.2",
+ "ere-verifier-core 0.12.2",
  "indexmap 2.14.0",
  "serde",
  "strum 0.27.2",
@@ -2866,13 +2923,35 @@ dependencies = [
 ]
 
 [[package]]
+name = "ere-server-api"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "prost",
+ "serde",
+ "twirp",
+]
+
+[[package]]
 name = "ere-server-client"
 version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
 dependencies = [
  "bincode 2.0.1",
- "ere-prover-core",
- "ere-server-api",
+ "ere-prover-core 0.12.1",
+ "ere-server-api 0.12.1",
+ "thiserror 2.0.18",
+ "twirp",
+]
+
+[[package]]
+name = "ere-server-client"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "bincode 2.0.1",
+ "ere-prover-core 0.12.2",
+ "ere-server-api 0.12.2",
  "thiserror 2.0.18",
  "twirp",
 ]
@@ -2886,9 +2965,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "ere-util-build"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "cargo_metadata 0.19.2",
+]
+
+[[package]]
 name = "ere-util-tokio"
 version = "0.12.1"
 source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
+dependencies = [
+ "tokio",
+]
+
+[[package]]
+name = "ere-util-tokio"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
 dependencies = [
  "tokio",
 ]
@@ -2904,14 +2999,24 @@ dependencies = [
 ]
 
 [[package]]
+name = "ere-verifier-core"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
+dependencies = [
+ "auto_impl",
+ "ere-codec 0.12.2",
+ "serde",
+]
+
+[[package]]
 name = "ere-verifier-zisk"
-version = "0.12.1"
-source = "git+https://github.com/eth-act/ere?tag=v0.12.1#628fa3c49941704d72e7b0e038e7bce5b6d2cd58"
+version = "0.12.2"
+source = "git+https://github.com/eth-act/ere?rev=2505e96eb9821b7aa561b56eeeddc145baa138fd#2505e96eb9821b7aa561b56eeeddc145baa138fd"
 dependencies = [
  "bincode 2.0.1",
  "bytemuck",
- "ere-util-build",
- "ere-verifier-core",
+ "ere-util-build 0.12.2",
+ "ere-verifier-core 0.12.2",
  "proofman-util",
  "proofman-verifier",
  "serde",
@@ -3327,8 +3432,8 @@ checksum = "28dea519a9695b9977216879a3ebfddf92f1c08c05d984f8996aecd6ecdc811d"
 
 [[package]]
 name = "fields"
-version = "0.18.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.18.0#42ad4d02da3d3b6238ac126ead82a8814f3fd426"
+version = "1.0.0-alpha"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v1.0.0-alpha#4f2a34ac686c788ad66a1a8ea0a17a016319e65b"
 dependencies = [
  "cfg-if",
  "num-bigint",
@@ -4396,7 +4501,7 @@ version = "0.12.1"
 source = "git+https://github.com/eth-act/ere-guests?tag=v0.12.1#06d48bb7239d65c63e72e68451c1510adf577a92"
 dependencies = [
  "alloy-primitives",
- "ere-dockerized",
+ "ere-dockerized 0.12.1",
  "flate2",
  "guest",
  "rayon",
@@ -6178,8 +6283,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-util"
-version = "0.18.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.18.0#42ad4d02da3d3b6238ac126ead82a8814f3fd426"
+version = "1.0.0-alpha"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v1.0.0-alpha#4f2a34ac686c788ad66a1a8ea0a17a016319e65b"
 dependencies = [
  "bincode 2.0.1",
  "colored",
@@ -6189,8 +6294,8 @@ dependencies = [
 
 [[package]]
 name = "proofman-verifier"
-version = "0.18.0"
-source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v0.18.0#42ad4d02da3d3b6238ac126ead82a8814f3fd426"
+version = "1.0.0-alpha"
+source = "git+https://github.com/0xPolygonHermez/pil2-proofman.git?tag=v1.0.0-alpha#4f2a34ac686c788ad66a1a8ea0a17a016319e65b"
 dependencies = [
  "bincode 2.0.1",
  "fields",
@@ -9491,7 +9596,7 @@ dependencies = [
  "alloy-genesis",
  "alloy-rlp",
  "anyhow",
- "ere-util-build",
+ "ere-util-build 0.12.1",
  "ethrex-common",
  "ethrex-crypto",
  "ethrex-guest-program",
@@ -9518,8 +9623,8 @@ dependencies = [
  "alloy-rpc-types-engine",
  "anyhow",
  "bincode 2.0.1",
- "ere-prover-core",
- "ere-util-build",
+ "ere-prover-core 0.12.1",
+ "ere-util-build 0.12.1",
  "guest",
  "once_cell",
  "reth-chainspec",
@@ -11691,8 +11796,8 @@ dependencies = [
 
 [[package]]
 name = "zisk-verifier"
-version = "0.18.0"
-source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v0.18.0#790f9e28a6d1d8575e38dc77f2af4966b8659722"
+version = "1.0.0-alpha"
+source = "git+https://github.com/0xPolygonHermez/zisk.git?tag=v1.0.0-alpha#4b9f758fabc4955cac20af837019ccc31b803a46"
 dependencies = [
  "proofman-verifier",
 ]
