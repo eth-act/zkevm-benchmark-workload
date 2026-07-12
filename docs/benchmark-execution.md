@@ -16,7 +16,8 @@ Prerequisites:
 
 - Docker is required because zkVM hosts are managed through `ere-dockerized`.
 - Fixture JSON files are expected in `zkevm-fixtures-input/` unless `--input-folder` is provided.
-- `stateless-validator` accepts both generated repo fixtures and EEST `blockchain_tests` fixtures that contain `statelessInputBytes` and `statelessOutputBytes`.
+- Reth and Ethrex consume EEST `blockchain_tests` fixtures containing canonical `statelessInputBytes` and `statelessOutputBytes`. Zesu accepts only Glamsterdam canonical inputs. Legacy generated fixtures remain available only for Zilkworm.
+- The Ere Guests v0.13 release publishes Reth and Ethrex artifacts for OpenVM, SP1, and ZisK, plus a Zesu artifact for ZisK.
 
 ## Common Benchmark Commands
 
@@ -30,14 +31,8 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 Run the stateless validator with Ethrex:
 
 ```bash
-cargo run -p ere-hosts --release -- --zkvms risc0 \
+cargo run -p ere-hosts --release -- --zkvms openvm \
     stateless-validator --execution-client ethrex
-```
-
-Run the empty program:
-
-```bash
-cargo run -p ere-hosts --release -- --zkvms sp1 empty-program
 ```
 
 Use a custom fixture folder:
@@ -87,7 +82,7 @@ Override the timeout for the selected action only:
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --timeout 90s \
-    empty-program
+    stateless-validator --execution-client reth
 ```
 
 ## Inputs And Outputs
@@ -99,7 +94,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 Use the focused references when you need exact schemas or file layouts:
 
-- [Benchmark Execution Inputs](benchmark-execution-inputs.md) describes input discovery, fixture filtering, and the two accepted `stateless-validator` JSON formats.
+- [Benchmark Execution Inputs](benchmark-execution-inputs.md) describes input discovery, fixture filtering, and client compatibility for the accepted `stateless-validator` JSON formats.
 - [Benchmark Execution Output](benchmark-execution-output.md) describes metrics JSON, `hardware.json`, proof files, input dumps, and workload metadata.
 
 Dump the raw serialized guest inputs used for a run:

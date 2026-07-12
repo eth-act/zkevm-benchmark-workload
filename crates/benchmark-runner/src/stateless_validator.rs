@@ -33,15 +33,19 @@ pub struct BlockMetadata {
     pub block_used_gas: u64,
 }
 
+/// Reth version used to build the Reth artifacts in ere-guests v0.13.0.
+const RETH_EL_VERSION: &str = "v2.3.0";
+/// Zesu version republished with the ere-guests v0.13.0 artifacts.
+const ZESU_EL_VERSION: &str = "bal-devnet-7-2026-06-24";
+
 impl ExecutionClient {
-    /// Returns the version string of the execution client (tag or short commit hash),
-    /// extracted from the resolved `Cargo.lock` at build time.
+    /// Returns the version string associated with the selected guest artifact.
     pub const fn version(&self) -> &'static str {
         match self {
-            Self::Reth => env!("RETH_EL_VERSION"),
-            Self::Ethrex => env!("ETHREX_EL_VERSION"),
+            Self::Reth => RETH_EL_VERSION,
+            Self::Ethrex => ere_guests_stateless_validator_ethrex::EL_VERSION,
             Self::Zilkworm => env!("ZILKWORM_EL_VERSION"),
-            Self::Zesu => "unknown", // TODO: Temporary until gets republished through ere-guests and remove --guest-artifact-base-url new-ish flag.
+            Self::Zesu => ZESU_EL_VERSION,
         }
     }
 }

@@ -30,15 +30,6 @@ zkevm-metrics/
       <fixture-name>.json
 ```
 
-For `empty-program`, there is no execution-client subfolder:
-
-```text
-zkevm-metrics/
-  hardware.json
-  <zkvm>-<sdk-version>/
-    empty_program.json
-```
-
 Each fixture metrics file is a single pretty-printed `BenchmarkRun` JSON object. The `zkevm-metrics` library helper `BenchmarkRun::to_json` serializes a list of runs, but the CLI output files under `zkevm-metrics/` contain one object per file.
 
 ## Hardware JSON
@@ -152,7 +143,7 @@ The `metadata` field is workload-specific:
 
 - Legacy stateless-validator fixtures write `{"block_used_gas": <u64>}`.
 - Direct EEST stateless-validator fixtures write EEST provenance and block metadata.
-- `empty-program` and standalone verification metrics write `null`.
+- Standalone verification metrics write `null`.
 
 Direct EEST metadata has this shape:
 

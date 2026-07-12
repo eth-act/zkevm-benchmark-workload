@@ -193,9 +193,9 @@ fn load_benchmark_fixtures(
         .with_context(|| format!("Failed to parse {}", path.display()))?;
 
     if value.get("stateless_input").is_some() {
-        if matches!(el, ExecutionClient::Zesu) {
+        if !matches!(el, ExecutionClient::Zilkworm) {
             bail!(
-                "Zesu supports only EEST blockchain_tests fixtures with statelessInputBytes/statelessOutputBytes"
+                "{el:?} supports only canonical blockchain_tests fixtures with statelessInputBytes/statelessOutputBytes; legacy stateless_input fixtures are supported only for Zilkworm"
             );
         }
         let fixture = serde_json::from_value(value)
@@ -253,7 +253,6 @@ fn normalize_fixture_prefix(prefix: &str) -> Result<String> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use sha2::{Digest, Sha256};
     use std::fs;
 
     #[test]
@@ -304,7 +303,7 @@ mod tests {
     }
 
     #[test]
-    fn eest_fixture_iter_yields_raw_input_and_hashed_output() -> Result<()> {
+    fn eest_fixture_iter_yields_raw_input_and_output() -> Result<()> {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
@@ -321,10 +320,7 @@ mod tests {
 
         let input = guest_fixture.input()?;
         assert_eq!(input.stdin(), [0x00, 0x01, 0x02]);
-        assert_eq!(
-            guest_fixture.expected_public_values()?,
-            Sha256::digest([0xaa, 0xbb]).to_vec()
-        );
+        assert_eq!(guest_fixture.expected_public_values()?, [0xaa, 0xbb]);
 
         let metadata = guest_fixture.metadata();
         assert_eq!(metadata["fixture_format"], "eest");
@@ -333,6 +329,24 @@ mod tests {
             "tests/foo.py::test_same[name/a]"
         );
         assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
+
+        Ok(())
+    }
+
+    #[test]
+    fn legacy_fixtures_are_rejected_for_canonical_clients() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let fixture_path = dir.path().join("legacy.json");
+        fs::write(&fixture_path, r#"{"stateless_input": {}}"#)?;
+
+        for client in [
+            ExecutionClient::Reth,
+            ExecutionClient::Ethrex,
+            ExecutionClient::Zesu,
+        ] {
+            let err = load_benchmark_fixtures(&fixture_path, dir.path(), client).unwrap_err();
+            assert!(err.to_string().contains("supported only for Zilkworm"));
+        }
 
         Ok(())
     }

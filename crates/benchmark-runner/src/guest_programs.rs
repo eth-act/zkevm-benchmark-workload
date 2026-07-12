@@ -1,9 +1,7 @@
 //! Guest program input generation and metadata types
 
 use ere_dockerized::{zkVMKind, Input};
-use ere_guests_guest::codec::Encode;
 use serde::Serialize;
-use sha2::{Digest, Sha256};
 use std::fmt::Debug;
 
 /// Trait for a guest program fixture with associated metadata.
@@ -59,33 +57,6 @@ impl<M> GenericGuestFixture<M>
 where
     M: 'static + Send + Sync + Serialize,
 {
-    /// Creates a new [`GenericGuestFixture`] from a guest input, output, and metadata.
-    pub fn new<G: ere_guests_guest::Guest>(
-        name: impl AsRef<str>,
-        input: ere_guests_guest::GuestInput<G>,
-        output: ere_guests_guest::GuestOutput<G>,
-        metadata: M,
-    ) -> anyhow::Result<Self> {
-        Ok(Self {
-            name: name.as_ref().to_string(),
-            input: Input::new().with_stdin(
-                input
-                    .encode_to_vec()
-                    .map_err(|e| anyhow::anyhow!("Failed to serialize guest input: {}", e))?,
-            ),
-            expected_public_values: output
-                .encode_to_vec()
-                .map_err(|e| anyhow::anyhow!("Failed to serialize guest output: {}", e))?,
-            metadata,
-        })
-    }
-
-    /// Consumes the [`GenericGuestFixture`] and constructs a new one with sha256 output.
-    pub fn output_sha256(mut self) -> Self {
-        self.expected_public_values = Sha256::digest(self.expected_public_values).to_vec();
-        self
-    }
-
     /// Consumes the [`GenericGuestFixture`] and returns it as a boxed trait object.
     pub fn into_boxed(self) -> Box<dyn GuestFixture> {
         Box::new(self)

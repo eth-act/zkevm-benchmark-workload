@@ -1,8 +1,8 @@
 //! Build canonical Amsterdam stateless guest input bytes from live network RPC data.
 
 mod builder;
+mod chain_config;
 mod rpc;
-mod schema;
 mod serde_helpers;
 
 use std::time::Duration;
@@ -167,6 +167,8 @@ fn ensure_matching_hash(
 
 #[cfg(test)]
 mod tests {
+    use stateless_validator_common::guest::input::STATELESS_INPUT_SCHEMA_ID;
+
     use super::*;
 
     #[tokio::test]
@@ -185,7 +187,7 @@ mod tests {
         assert!(
             generated
                 .bytes
-                .starts_with(&schema::STATELESS_INPUT_SCHEMA_ID_BYTES)
+                .starts_with(&STATELESS_INPUT_SCHEMA_ID.to_be_bytes())
         );
         assert!(generated.block_number > 0);
         Ok(())

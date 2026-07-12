@@ -98,8 +98,6 @@ pub enum GuestProgramCommand {
         #[arg(short, long)]
         execution_client: ExecutionClient,
     },
-    /// Empty program
-    EmptyProgram,
 }
 
 /// Execution clients for the stateless validator
