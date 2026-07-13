@@ -4,7 +4,6 @@
 
 pub mod guest_programs;
 
-pub mod empty_program;
 pub mod stateless_validator;
 pub mod zisk_profiling;
 

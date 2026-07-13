@@ -16,7 +16,7 @@ Use `witness-generator-cli` when you need legacy generated fixtures:
 - You want fixtures from live RPC blocks.
 - You have pre-collected raw JSON-RPC inputs.
 - You want to convert EEST cases into the legacy generated fixture shape.
-- You need `ere-hosts` to run the selected execution client's legacy host conversion path instead of passing EEST stateless bytes directly to the guest.
+- You need inputs for the Zilkworm benchmark path, which is the only execution client that retains legacy fixture support.
 
 For the exact schemas accepted by `ere-hosts`, see [Benchmark Execution Inputs](benchmark-execution-inputs.md).
 
@@ -32,9 +32,9 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 When the input folder contains a `blockchain_tests/` subdirectory, `ere-hosts` uses only that subtree for stateless-validator inputs.
 
-## Legacy Generated Fixtures
+## Legacy Generated Fixtures For Zilkworm
 
-`witness-generator-cli` writes legacy generated fixtures as JSON files. By default it writes them to `zkevm-fixtures-input/`; override that with `-o, --output-folder <PATH>`.
+`witness-generator-cli` writes legacy generated fixtures as JSON files for the Zilkworm benchmark path. By default it writes them to `zkevm-fixtures-input/`; override that with `-o, --output-folder <PATH>`.
 
 Inspect the current CLI surface from the repo root:
 

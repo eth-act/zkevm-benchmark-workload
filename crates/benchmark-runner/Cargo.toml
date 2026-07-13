@@ -15,7 +15,6 @@ rayon.workspace = true
 tracing.workspace = true
 tokio = { workspace = true, features = ["time"] }
 walkdir.workspace = true
-sha2.workspace = true
 serde.workspace = true
 serde_json.workspace = true
 strum.workspace = true
@@ -25,18 +24,12 @@ tar.workspace = true
 anyhow.workspace = true
 auto_impl.workspace = true
 ere-guests-downloader.workspace = true
+stateless-validator-common.workspace = true
 tempfile.workspace = true
 hex.workspace = true
 
-ere-guests-stateless-validator-ethrex = { "workspace" = true, features = [
-    "host",
-] }
-ere-guests-stateless-validator-reth = { "workspace" = true, features = [
-    "host",
-] }
+ere-guests-stateless-validator-ethrex.workspace = true
 stateless-validator-zilkworm = { "workspace" = true }
-ere-guests-guest = { "workspace" = true }
-ere-guests-integration-tests = { "workspace" = true }
 
 [build-dependencies]
 toml = { workspace = true }

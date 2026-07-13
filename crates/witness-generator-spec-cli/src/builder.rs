@@ -5,22 +5,28 @@ use alloy_eips::eip2718::Decodable2718;
 use alloy_primitives::{B256, Bytes};
 use alloy_rlp::Decodable;
 use anyhow::{Context, ensure};
-use libssz::SszEncode;
-use libssz_types::SszList;
-use stateless_validator_common::new_payload_request::{
-    BlockAccessList, ConsolidationRequest, ConsolidationRequests, DepositRequest, DepositRequests,
-    ExecutionPayloadV4, ExecutionRequests, ExtraData, NewPayloadRequestAmsterdam,
-    Transaction as PayloadTransaction, Transactions, VersionedHashes, Withdrawal,
-    WithdrawalRequest, WithdrawalRequests, Withdrawals,
+use stateless_validator_common::{
+    SszList,
+    guest::input::{
+        ExecutionWitness, MAX_BYTES_PER_CODE, MAX_BYTES_PER_HEADER, MAX_BYTES_PER_WITNESS_NODE,
+        MAX_PUBLIC_KEYS, MAX_WITNESS_CODES, MAX_WITNESS_HEADERS, MAX_WITNESS_NODES,
+        PUBLIC_KEY_BYTES, StatelessInput,
+        new_payload_request::{
+            BlockAccessList, ConsolidationRequest, ConsolidationRequests, DepositRequest,
+            DepositRequests, ExecutionPayloadV4, ExecutionRequests, ExtraData, NewPayloadRequest,
+            NewPayloadRequestGloas, Transaction as PayloadTransaction, Transactions,
+            VersionedHashes, Withdrawal, WithdrawalRequest, WithdrawalRequests, Withdrawals,
+        },
+    },
 };
 
 use crate::{
+    chain_config,
     rpc::{
         BeaconExecutionPayload, ConsolidationRequestJson, DepositRequestJson,
         ExecutionPayloadEnvelope, ExecutionRequestsJson, RpcExecutionWitness, WithdrawalJson,
         WithdrawalRequestJson,
     },
-    schema::{self, PublicKeys, SszExecutionWitness, SszStatelessInput},
 };
 
 /// Canonical stateless guest input generated from network RPC data.
@@ -49,29 +55,28 @@ pub(crate) fn build_generated_input(
     let block_number = payload.block_number;
     let transaction_artifacts = decode_transaction_artifacts(&payload.transactions)?;
 
-    let new_payload_request = NewPayloadRequestAmsterdam {
+    let new_payload_request = NewPayloadRequest::Gloas(NewPayloadRequestGloas {
         execution_payload: convert_execution_payload(payload)?,
         versioned_hashes: transaction_artifacts.versioned_hashes,
         parent_beacon_block_root: envelope.parent_beacon_block_root.0,
         execution_requests: convert_execution_requests(&envelope.execution_requests)?,
-    };
+    });
 
     let witness = convert_witness(witness, block_number)?;
-    let chain_config = schema::amsterdam_chain_config(chain_id)?;
-    let public_keys = PublicKeys::try_from(transaction_artifacts.public_keys)
-        .map_err(|err| anyhow::anyhow!("public_keys exceed SSZ bound: {err:?}"))?;
+    let chain_config = chain_config::amsterdam(chain_id);
+    let public_keys = SszList::<[u8; PUBLIC_KEY_BYTES], MAX_PUBLIC_KEYS>::try_from(
+        transaction_artifacts.public_keys,
+    )
+    .map_err(|err| anyhow::anyhow!("public_keys exceed SSZ bound: {err:?}"))?;
 
-    let stateless_input = SszStatelessInput {
+    let stateless_input = StatelessInput {
         new_payload_request,
         witness,
         chain_config,
         public_keys,
     };
 
-    let stateless_input_bytes = stateless_input.to_ssz();
-    let mut bytes = Vec::with_capacity(2 + stateless_input_bytes.len());
-    bytes.extend_from_slice(&schema::STATELESS_INPUT_SCHEMA_ID_BYTES);
-    bytes.extend(stateless_input_bytes);
+    let bytes = stateless_input.to_schema_prefixed_ssz();
 
     Ok(GeneratedInput {
         bytes,
@@ -194,21 +199,21 @@ const fn convert_consolidation_request(request: &ConsolidationRequestJson) -> Co
 fn convert_witness(
     witness: RpcExecutionWitness,
     block_number: u64,
-) -> anyhow::Result<SszExecutionWitness> {
+) -> anyhow::Result<ExecutionWitness> {
     let headers = normalize_headers(witness.headers, block_number)?;
-    Ok(SszExecutionWitness {
-        state: bytes_to_nested_ssz_list::<
-            { schema::MAX_BYTES_PER_WITNESS_NODE },
-            { schema::MAX_WITNESS_NODES },
-        >(witness.state, "witness.state")?,
-        codes: bytes_to_nested_ssz_list::<
-            { schema::MAX_BYTES_PER_CODE },
-            { schema::MAX_WITNESS_CODES },
-        >(witness.codes, "witness.codes")?,
-        headers: bytes_to_nested_ssz_list::<
-            { schema::MAX_BYTES_PER_HEADER },
-            { schema::MAX_WITNESS_HEADERS },
-        >(headers, "witness.headers")?,
+    Ok(ExecutionWitness {
+        state: bytes_to_nested_ssz_list::<MAX_BYTES_PER_WITNESS_NODE, MAX_WITNESS_NODES>(
+            witness.state,
+            "witness.state",
+        )?,
+        codes: bytes_to_nested_ssz_list::<MAX_BYTES_PER_CODE, MAX_WITNESS_CODES>(
+            witness.codes,
+            "witness.codes",
+        )?,
+        headers: bytes_to_nested_ssz_list::<MAX_BYTES_PER_HEADER, MAX_WITNESS_HEADERS>(
+            headers,
+            "witness.headers",
+        )?,
     })
 }
 
@@ -321,6 +326,7 @@ fn decode_header_number(bytes: &[u8]) -> anyhow::Result<u64> {
 mod tests {
     use alloy_primitives::{b256, hex};
     use alloy_rlp::Encodable;
+    use stateless_validator_common::guest::input::{ProtocolFork, STATELESS_INPUT_SCHEMA_ID};
 
     use super::*;
 
@@ -387,11 +393,11 @@ mod tests {
 
     #[test]
     fn witness_lists_enforce_bounds() {
-        let oversized = Bytes::from(vec![0_u8; schema::MAX_BYTES_PER_HEADER + 1]);
-        let err = bytes_to_nested_ssz_list::<
-            { schema::MAX_BYTES_PER_HEADER },
-            { schema::MAX_WITNESS_HEADERS },
-        >(vec![oversized], "headers")
+        let oversized = Bytes::from(vec![0_u8; MAX_BYTES_PER_HEADER + 1]);
+        let err = bytes_to_nested_ssz_list::<MAX_BYTES_PER_HEADER, MAX_WITNESS_HEADERS>(
+            vec![oversized],
+            "headers",
+        )
         .unwrap_err();
 
         assert!(err.to_string().contains("exceeds SSZ byte bound"));
@@ -449,10 +455,23 @@ mod tests {
         let second = build_generated_input(envelope, witness, 1).unwrap();
 
         assert_eq!(first.bytes, second.bytes);
-        assert_eq!(&first.bytes[..2], &schema::STATELESS_INPUT_SCHEMA_ID_BYTES);
+        assert_eq!(&first.bytes[..2], &STATELESS_INPUT_SCHEMA_ID.to_be_bytes());
         assert_eq!(first.block_number, 10);
         assert_eq!(first.slot_number, 64);
         assert_eq!(first.chain_id, 1);
+
+        let decoded = StatelessInput::from_schema_prefixed_ssz(&first.bytes).unwrap();
+        assert_eq!(
+            decoded.chain_config.active_fork.fork,
+            ProtocolFork::Amsterdam
+        );
+        assert_eq!(decoded.witness.state.len(), 1);
+        assert_eq!(decoded.public_keys.len(), 0);
+        let NewPayloadRequest::Gloas(request) = decoded.new_payload_request else {
+            panic!("Amsterdam input must decode as a Gloas payload request");
+        };
+        assert_eq!(request.execution_payload.block_number, 10);
+        assert_eq!(request.execution_payload.slot_number, 64);
     }
 
     fn rlp_header(number: u64) -> Bytes {

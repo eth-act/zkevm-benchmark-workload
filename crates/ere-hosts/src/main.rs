@@ -4,10 +4,9 @@
 
 use anyhow::{Context, Result, bail};
 use benchmark_runner::{
-    empty_program,
     runner::{
         Action, GuestProgramSource, ProfileConfig, RunConfig, benchmark_output_dir,
-        get_el_zkvm_instances, get_guest_zkvm_instances, run_benchmark_iter,
+        get_el_zkvm_instances, run_benchmark_iter,
     },
     stateless_validator::{self},
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
@@ -120,9 +119,9 @@ async fn main() -> Result<()> {
             execution_client,
         } => {
             let el: stateless_validator::ExecutionClient = execution_client.into();
+            validate_guest_compatibility(el, &cli.zkvms, &guest_source)?;
 
             let el_name = el.as_ref().to_lowercase();
-            // TODO: For Zesu until integrated to ere-guests when removing `--guest-artifact-base-url.yy
             let el_version = if matches!(el, stateless_validator::ExecutionClient::Zesu) {
                 guest_source
                     .version_label()
@@ -172,33 +171,33 @@ async fn main() -> Result<()> {
                 }
             }
         }
-        GuestProgramCommand::EmptyProgram => {
-            info!("Running empty-program benchmarks");
-            let zkvms = get_guest_zkvm_instances(
-                "empty",
-                &cli.zkvms,
-                resource,
-                zkvm_config.clone(),
-                &guest_source,
-            )
-            .await
-            .context("Failed to get guest zkvm instances")?;
+    }
 
-            match action {
-                Action::Verify => {
-                    for instance in &zkvms {
-                        run_verify_from_disk(instance, &config_base, &proofs_folder)?;
-                    }
-                }
-                _ => {
-                    for zkvm in zkvms {
-                        let guest_io = empty_program::empty_program_input()
-                            .context("Failed to create empty program input")?;
-                        run_benchmark_iter(&zkvm, &config_base, std::iter::once(Ok(guest_io)))?;
-                    }
-                }
-            }
-        }
+    Ok(())
+}
+
+fn validate_guest_compatibility(
+    el: stateless_validator::ExecutionClient,
+    zkvms: &[zkVMKind],
+    guest_source: &GuestProgramSource,
+) -> Result<()> {
+    if !matches!(el, stateless_validator::ExecutionClient::Zesu)
+        || !matches!(guest_source, GuestProgramSource::Default)
+    {
+        return Ok(());
+    }
+
+    let unsupported = zkvms
+        .iter()
+        .filter(|zkvm| **zkvm != zkVMKind::Zisk)
+        .map(|zkvm| zkvm.as_str())
+        .collect::<Vec<_>>();
+    if !unsupported.is_empty() {
+        bail!(
+            "the default Zesu {} artifact is available only for ZisK; unsupported --zkvms: {}",
+            el.version(),
+            unsupported.join(", ")
+        );
     }
 
     Ok(())

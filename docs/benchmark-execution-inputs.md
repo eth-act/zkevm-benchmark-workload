@@ -23,8 +23,6 @@ When the input is a directory, `ere-hosts` recursively loads `.json` files and s
 
 When the input folder contains an EEST `blockchain_tests/` subdirectory, only that subtree is used for `stateless-validator` inputs. EEST bundles that only contain `blockchain_tests_engine/`, `blockchain_tests_engine_x/`, or `blockchain_tests_sync/` are rejected because those fixture formats do not contain the canonical stateless validator bytes.
 
-`empty-program` does not use fixture files.
-
 ## Fixture Selection
 
 `--fixture <PREFIX>` filters selected fixtures by fixture-name prefix:
@@ -45,7 +43,7 @@ For direct EEST fixtures, the prefix may match either the sanitized generated fi
 - Legacy generated fixtures with a top-level `stateless_input` field.
 - Direct EEST `blockchain_tests` fixtures whose executable blocks contain `statelessInputBytes` and `statelessOutputBytes`.
 
-Use direct EEST inputs when you already have `blockchain_tests` files with canonical stateless bytes. Use legacy generated fixtures when generating from RPC, generating from raw inputs, or intentionally exercising the selected execution client's legacy host conversion path.
+Use direct EEST inputs for Reth and Ethrex. Zesu accepts only inputs whose decoded canonical chain configuration selects `ProtocolFork::Amsterdam` (the Glamsterdam guest path). Legacy generated fixtures are accepted only when `--execution-client zilkworm` is selected.
 
 ## Legacy Generated Fixtures
 
@@ -75,7 +73,7 @@ Fields:
 - `stateless_input`: A serialized `stateless::StatelessInput` containing `block`, `witness`, and `chain_config`.
 - `success`: Whether the fixture represents a valid block validation.
 
-Generated repo fixtures are converted into the selected execution client's guest input format before execution. The expected public values are computed with the selected guest host code. Metrics metadata for these fixtures is `{"block_used_gas": <u64>}`.
+Generated repo fixtures are converted into Zilkworm's unified-RLP guest input format before execution. Metrics metadata for these fixtures is `{"block_used_gas": <u64>}`. Selecting a legacy fixture with Reth, Ethrex, or Zesu returns a format error directing the operator to canonical fixtures.
 
 ## Direct EEST Blockchain Tests Fixtures
 
@@ -113,6 +111,6 @@ Rules:
 - A block with non-empty `statelessInputBytes` must also have `statelessOutputBytes`.
 - `statelessInputBytes` and `statelessOutputBytes` are hex strings with or without `0x`; after removing the prefix they must contain an even number of hex digits.
 
-Each accepted EEST block becomes one benchmark fixture. `ere-hosts` sends `statelessInputBytes` directly to the selected guest program without EL-specific host conversion. The expected public values are the SHA-256 digest of `statelessOutputBytes`, matching the current stateless validator guest binaries.
+Each accepted EEST block becomes one benchmark fixture. `ere-hosts` sends `statelessInputBytes` directly to the selected guest program without EL-specific host conversion. The expected public values are the raw SSZ `statelessOutputBytes` emitted by the v0.13 stateless validator guests.
 
 The generated fixture name is derived from the original test name, source path, and block index. Output metadata preserves those original EEST fields; see [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload).

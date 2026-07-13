@@ -34,10 +34,5 @@ alloy-eips.workspace = true
 alloy-primitives = { workspace = true, features = ["k256", "serde", "std"] }
 alloy-rlp.workspace = true
 
-# ssz
-libssz.workspace = true
-libssz_derive.workspace = true
-libssz_types.workspace = true
-
 # local
 stateless-validator-common.workspace = true
