@@ -6,11 +6,10 @@ mod inputs;
 
 use crate::guest_programs::GuestFixture;
 use anyhow::Result;
-use serde::{Deserialize, Serialize};
 use std::path::Path;
 use strum::{AsRefStr, EnumString};
 
-pub use fixtures::{benchmark_fixture_paths, iter_benchmark_fixture_paths, load_benchmark_fixture};
+pub use fixtures::{benchmark_fixture_paths, iter_benchmark_fixture_paths};
 
 /// Execution client variants.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, EnumString, AsRefStr)]
@@ -20,21 +19,10 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex stateless block validation guest program.
     Ethrex,
-    /// Zilkworm stateless block validation guest program.
-    Zilkworm,
     /// Zesu stateless block validation guest program.
     Zesu,
 }
 
-/// Extra information about the block being benchmarked
-#[derive(Debug, Clone, Serialize, Deserialize)]
-pub struct BlockMetadata {
-    /// Gas used by the block
-    pub block_used_gas: u64,
-}
-
-/// Reth version used to build the Reth artifacts in ere-guests v0.13.0.
-const RETH_EL_VERSION: &str = "v2.3.0";
 /// Zesu version republished with the ere-guests v0.13.0 artifacts.
 const ZESU_EL_VERSION: &str = "bal-devnet-7-2026-06-24";
 
@@ -42,9 +30,8 @@ impl ExecutionClient {
     /// Returns the version string associated with the selected guest artifact.
     pub const fn version(&self) -> &'static str {
         match self {
-            Self::Reth => RETH_EL_VERSION,
+            Self::Reth => ere_guests_stateless_validator_reth::EL_VERSION,
             Self::Ethrex => ere_guests_stateless_validator_ethrex::EL_VERSION,
-            Self::Zilkworm => env!("ZILKWORM_EL_VERSION"),
             Self::Zesu => ZESU_EL_VERSION,
         }
     }

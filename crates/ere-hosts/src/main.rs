@@ -33,6 +33,7 @@ async fn main() -> Result<()> {
         .init();
 
     let cli = Cli::parse();
+    cli.validate()?;
 
     if cli.zisk_profile {
         if !matches!(cli.action, cli::BenchmarkAction::Execute) {
@@ -152,6 +153,8 @@ async fn main() -> Result<()> {
                     }
                 }
                 _ => {
+                    let input_folder = input_folder
+                        .expect("CLI validation requires an input folder for execute and prove");
                     info!(
                         "Running stateless-validator benchmark for input folder: {}",
                         input_folder.display()

@@ -1,8 +1,6 @@
 [workspace]
 members = [
     "crates/metrics",
-    "crates/witness-generator",
-    "crates/witness-generator-cli",
     "crates/witness-generator-spec-cli",
     "crates/ere-hosts",
 ]
@@ -100,7 +98,6 @@ zero_sized_map_values = "warn"
 [workspace.dependencies]
 
 # local dependencies
-witness-generator = { path = "crates/witness-generator" }
 witness-generator-spec-cli = { path = "crates/witness-generator-spec-cli" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
@@ -113,23 +110,13 @@ ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
 # ere-guests
 stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-common" }
 ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-ethrex" }
-stateless-validator-zilkworm = { git = "https://github.com/erigontech/zilkworm", tag = "v0.1.0-alpha.2-ere", package = "z6m_stateless_validator", features = [
-    "download",
-] }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-reth" }
 ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "downloader" }
 
-reth-ethereum-primitives = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
-reth-rpc-api = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
-reth-chainspec = { git = "https://github.com/paradigmxyz/reth", tag = "v2.1.0" }
-ef-tests = { git = "https://github.com/paradigmxyz/stateless", rev = "e5480e71a8031641ff471cad9dc482a7a14b32d5" }
-stateless = { git = "https://github.com/paradigmxyz/stateless", rev = "e5480e71a8031641ff471cad9dc482a7a14b32d5", default-features = false }
-
 # alloy
-alloy-consensus = { version = "=2.0.5", default-features = false }
-alloy-eips = { version = "=2.0.5" }
-alloy-primitives = { version = "=1.6.0", default-features = false }
-alloy-rpc-types-eth = "=2.0.5"
-alloy-genesis = { version = "=2.0.5", default-features = false }
+alloy-consensus = { version = "2.0.5", default-features = false }
+alloy-eips = { version = "2.0.5", default-features = false }
+alloy-primitives = { version = "1.6.0", default-features = false }
 alloy-rlp = { version = "0.3", default-features = false }
 
 # misc
@@ -142,15 +129,10 @@ thiserror = "2"
 sha2 = "0.10.9"
 serde_json = "*"
 serde_derive = "*"
-jsonrpsee = "0.26.0"
 anyhow = "1.0"
-async-trait = "0.1.88"
-futures = "0.3.32"
 tokio = { version = "1.45.1" }
-tokio-util = "0.7.15"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
-erased-serde = "0.4.8"
 auto_impl = "1.3.0"
 tempfile = "3.10"
 humantime = "2.1"

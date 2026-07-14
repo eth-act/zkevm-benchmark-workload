@@ -5,7 +5,6 @@ edition = "2021"
 rust-version.workspace = true
 
 [dependencies]
-witness-generator.workspace = true
 zkevm-metrics.workspace = true
 ere-dockerized.workspace = true
 ere-cluster-client-zisk.workspace = true
@@ -29,7 +28,7 @@ tempfile.workspace = true
 hex.workspace = true
 
 ere-guests-stateless-validator-ethrex.workspace = true
-stateless-validator-zilkworm = { "workspace" = true }
+ere-guests-stateless-validator-reth.workspace = true
 
 [build-dependencies]
 toml = { workspace = true }

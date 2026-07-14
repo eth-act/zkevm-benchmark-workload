@@ -502,30 +502,6 @@ async fn load_compiled(
         return load_compiled_from_artifact_base_url(guest_name, base_url).await;
     }
 
-    if guest_name.starts_with("stateless-validator-zilkworm") {
-        let tag = env!("ZILKWORM_GUEST_TAG");
-        anyhow::ensure!(
-            !tag.is_empty(),
-            "z6m_stateless_validator is not tag-pinned (branch- or path-pinned dep); \
-             supply --bin-path or pin the Cargo.toml dep to a release tag"
-        );
-        let downloader = stateless_validator_zilkworm::download::Downloader::from_tag(
-            env!("ZILKWORM_GUEST_REPO_API_URL"),
-            tag,
-        )
-        .await
-        .with_context(|| format!("Failed to create zilkworm guest downloader for tag {tag}"))?;
-        let compiled = downloader
-            .download()
-            .await
-            .with_context(|| format!("Failed to download zilkworm guest from release {tag}"))?;
-        return Ok(CompiledGuest {
-            elf: compiled.elf,
-            program_vk: compiled.program_vk,
-            profiling_elf: compiled.profiling_elf,
-        });
-    }
-
     let downloader = guest_downloader().await?;
     downloader
         .download(guest_name)
