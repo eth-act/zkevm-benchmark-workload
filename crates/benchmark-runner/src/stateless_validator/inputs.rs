@@ -75,4 +75,3 @@ fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn 
 
     Ok(fixture.into_boxed())
 }
-
