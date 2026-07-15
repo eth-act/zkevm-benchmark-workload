@@ -56,7 +56,7 @@ A successful execution metrics file has this shape:
 
 ```json
 {
-  "name": "tests_foo.py_test_case_param-block-0-a1b2c3d4",
+  "name": "eest__tests_foo_py_test_case_param__block0",
   "timestamp_completed": "2026-05-25T12:34:56.789Z",
   "metadata": {
     "fixture_format": "eest",
