@@ -18,8 +18,8 @@ on:
         required: false
         default: "10"
         type: string
-  schedule:
-    - cron: "23 */2 * * *"
+  # schedule:
+  #   - cron: "23 */2 * * *"
 
 permissions:
   contents: read
