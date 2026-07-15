@@ -1,83 +1,34 @@
 # Benchmark Execution Inputs
 
-This is the detailed input reference for `ere-hosts`, especially the `stateless-validator` guest program.
+This is the detailed input reference for the `ere-hosts stateless-validator` workload. For commands and proof operations, see [Benchmark Execution](benchmark-execution.md).
 
-For the operator workflow and common commands, see [Benchmark Execution](benchmark-execution.md). For generated fixture workflows, see [Fixture Generation](fixture-generation.md).
+## Action-Aware Input Requirement
 
-## Input Discovery
-
-Default input location:
+Execute and prove actions require:
 
 ```text
-zkevm-fixtures-input/
+stateless-validator --input-folder <PATH>
 ```
 
-Override it with `stateless-validator --input-folder <PATH>`.
+There is no default input location. The path must exist and may identify:
 
-`ere-hosts` accepts either:
+- One canonical EEST `.json` fixture file.
+- A directory containing canonical EEST `.json` fixture files.
+- An EEST fixture checkout or archive root containing `blockchain_tests/`.
 
-- A directory containing fixture JSON files.
-- A single `.json` fixture file.
+Verification does not need fixture input. If `--input-folder` is supplied with `--action verify`, the option is accepted and ignored for backward compatibility, including when its path no longer exists.
 
-When the input is a directory, `ere-hosts` recursively loads `.json` files and skips any file under a `.meta/` directory.
+## Discovery
 
-When the input folder contains an EEST `blockchain_tests/` subdirectory, only that subtree is used for `stateless-validator` inputs. EEST bundles that only contain `blockchain_tests_engine/`, `blockchain_tests_engine_x/`, or `blockchain_tests_sync/` are rejected because those fixture formats do not contain the canonical stateless validator bytes.
+Directory input is walked recursively in sorted filename order. Only `.json` files are considered, and files below `.meta/` are excluded.
 
-## Fixture Selection
+When the input path contains a `blockchain_tests/` subdirectory, only that subtree is used. This preference prevents engine, sync, or metadata JSON from entering stateless validation. EEST bundles that contain only `blockchain_tests_engine/`, `blockchain_tests_engine_x/`, or `blockchain_tests_sync/` are rejected because those formats do not provide the canonical stateless validator bytes.
 
-`--fixture <PREFIX>` filters selected fixtures by fixture-name prefix:
+An empty directory retains the existing discovery behavior: it produces no fixture paths.
 
-```bash
-cargo run -p ere-hosts --release -- --zkvms sp1 \
-    stateless-validator --execution-client reth \
-    --fixture test_sha256.py::test_sha256 \
-    --fixture test_memory.py::test_mcopy
-```
+## Canonical EEST Schema
 
-For direct EEST fixtures, the prefix may match either the sanitized generated fixture name or the original EEST test name.
-
-## Accepted Fixture Formats
-
-`stateless-validator` accepts two fixture JSON formats:
-
-- Legacy generated fixtures with a top-level `stateless_input` field.
-- Direct EEST `blockchain_tests` fixtures whose executable blocks contain `statelessInputBytes` and `statelessOutputBytes`.
-
-Use direct EEST inputs for Reth and Ethrex. Zesu accepts only inputs whose decoded canonical chain configuration selects `ProtocolFork::Amsterdam` (the Glamsterdam guest path). Legacy generated fixtures are accepted only when `--execution-client zilkworm` is selected.
-
-## Legacy Generated Fixtures
-
-Legacy generated fixtures are the repo-native files produced by `witness-generator-cli` from RPC, raw-input, or legacy EEST generation. `ere-hosts` detects this format by the presence of a top-level `stateless_input` field. Each file contains one fixture object.
-
-```json
-{
-  "name": "rpc_block_23743854",
-  "stateless_input": {
-    "block": {
-      "...": "Ethereum block data"
-    },
-    "witness": {
-      "...": "execution witness data"
-    },
-    "chain_config": {
-      "...": "chain configuration"
-    }
-  },
-  "success": true
-}
-```
-
-Fields:
-
-- `name`: Fixture name. This becomes the metrics file name stem.
-- `stateless_input`: A serialized `stateless::StatelessInput` containing `block`, `witness`, and `chain_config`.
-- `success`: Whether the fixture represents a valid block validation.
-
-Generated repo fixtures are converted into Zilkworm's unified-RLP guest input format before execution. Metrics metadata for these fixtures is `{"block_used_gas": <u64>}`. Selecting a legacy fixture with Reth, Ethrex, or Zesu returns a format error directing the operator to canonical fixtures.
-
-## Direct EEST Blockchain Tests Fixtures
-
-Direct EEST inputs must be `blockchain_tests` fixtures whose executable blocks contain canonical stateless validator input and output bytes.
+The only accepted benchmark fixture format is an EEST `blockchain_tests` JSON object whose executable blocks contain `statelessInputBytes` and `statelessOutputBytes`:
 
 ```json
 {
@@ -102,15 +53,49 @@ Direct EEST inputs must be `blockchain_tests` fixtures whose executable blocks c
 
 Rules:
 
-- The file is a JSON object keyed by original EEST test name.
-- Each test case must include `network`, `config.chainid`, and `blocks`.
-- Additional EEST fields may be present and are ignored by `ere-hosts`.
-- `config.chainid`, `blockHeader.number`, `blocknumber`, and `blockHeader.gasUsed` may be decimal strings or `0x`-prefixed hex strings.
-- A block without `statelessInputBytes` is skipped.
-- A block with empty `statelessInputBytes` is skipped.
-- A block with non-empty `statelessInputBytes` must also have `statelessOutputBytes`.
-- `statelessInputBytes` and `statelessOutputBytes` are hex strings with or without `0x`; after removing the prefix they must contain an even number of hex digits.
+- The file is a JSON object keyed by the original EEST test name.
+- Each test case includes `network`, `config.chainid`, and `blocks`; unrelated EEST fields are ignored.
+- `config.chainid`, `blockHeader.number`, `blocknumber`, and `blockHeader.gasUsed` may be decimal strings or `0x`-prefixed hexadecimal strings.
+- A block without `statelessInputBytes`, or with empty `statelessInputBytes`, is skipped.
+- A block with non-empty `statelessInputBytes` must also contain `statelessOutputBytes`.
+- Both byte fields are hexadecimal strings with an optional `0x` prefix and an even number of hexadecimal digits after that prefix.
 
-Each accepted EEST block becomes one benchmark fixture. `ere-hosts` sends `statelessInputBytes` directly to the selected guest program without EL-specific host conversion. The expected public values are the raw SSZ `statelessOutputBytes` emitted by the v0.13 stateless validator guests.
+Each accepted block becomes one benchmark fixture. Its safe output name is derived from the original EEST test name, block index, and source context; collisions are disambiguated. The original test name remains available for fixture-prefix selection.
 
-The generated fixture name is derived from the original test name, source path, and block index. Output metadata preserves those original EEST fields; see [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload).
+## Execution-Client Routing
+
+- Reth receives `statelessInputBytes` unchanged on stdin and uses `statelessOutputBytes` as the expected public values.
+- Ethrex uses the same raw canonical path.
+- Zesu first decodes the canonical stateless input and accepts it only when the active fork is `ProtocolFork::Amsterdam`, then uses the same raw input and expected public values.
+
+Fixture deserialization is independent of the selected execution client. Client-specific routing occurs only after a canonical EEST case has loaded.
+
+## Fixture Selection
+
+Repeat `--fixture <PREFIX>` to select one or more fixture-name prefixes:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 \
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures \
+    --fixture test_sha256.py::test_sha256 \
+    --fixture test_memory.py::test_mcopy
+```
+
+A prefix may match either the sanitized fixture name or the original EEST test name. A `.json` suffix is ignored during prefix normalization, repeated prefixes are deduplicated, and empty prefixes are rejected.
+
+## Metadata, Existing Outputs, And Public Values
+
+Benchmark metadata preserves the fixture format, original test name, source path, block index, network, chain ID, block number, and gas used. See [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload) for the serialized shape.
+
+Unless `--force-rerun` is set, fixture preparation skips cases whose metrics output already exists. Execution and proving both compare the guest's public values with the fixture's raw `statelessOutputBytes`; proof verification retains the existing stored-proof verification behavior.
+
+## Legacy Format Rejection
+
+JSON with a top-level `stateless_input` field is rejected before canonical deserialization with this migration error:
+
+```text
+legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_tests fixture containing statelessInputBytes and statelessOutputBytes
+```
+
+The old fixture generator crates and image are discontinued. Existing fixture, metric, proof, and published image files remain untouched, but legacy fixture JSON must be replaced with canonical EEST `blockchain_tests` input before it can be benchmarked.

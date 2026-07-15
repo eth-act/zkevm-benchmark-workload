@@ -1,5 +1,6 @@
 //! CLI definitions for the zkVM benchmarker
 
+use anyhow::{Result as AnyhowResult, bail};
 use benchmark_runner::{runner::Action, stateless_validator};
 use clap::{Parser, Subcommand, ValueEnum};
 use ere_dockerized::{ProverResource, RemoteProverConfig, zkVMKind};
@@ -88,9 +89,9 @@ pub struct Cli {
 pub enum GuestProgramCommand {
     /// Ethereum Stateless Validator
     StatelessValidator {
-        /// Input folder for benchmark fixtures
-        #[arg(short, long, default_value = "zkevm-fixtures-input")]
-        input_folder: PathBuf,
+        /// EEST fixture file or folder (required for execute and prove; ignored for verify)
+        #[arg(short, long)]
+        input_folder: Option<PathBuf>,
         /// Fixture name prefix to run. Repeat to select multiple prefixes.
         #[arg(long, value_name = "PREFIX")]
         fixture: Option<Vec<String>>,
@@ -107,23 +108,8 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex execution client
     Ethrex,
-    /// Zilkworm execution client
-    Zilkworm,
     /// Zesu execution client
     Zesu,
-}
-
-impl ExecutionClient {
-    /// Get the guest relative path for the execution client
-    pub fn guest_rel_path(&self) -> PathBuf {
-        let path = match self {
-            Self::Reth => "stateless-validator/reth",
-            Self::Ethrex => "stateless-validator/ethrex",
-            Self::Zilkworm => "stateless-validator/zilkworm",
-            Self::Zesu => "stateless-validator/zesu",
-        };
-        PathBuf::from(path)
-    }
 }
 
 /// Prover resource types
@@ -153,6 +139,23 @@ fn parse_duration(value: &str) -> Result<Duration, String> {
 }
 
 impl Cli {
+    /// Validate arguments whose requirements depend on the selected action.
+    pub fn validate(&self) -> AnyhowResult<()> {
+        if matches!(self.action, BenchmarkAction::Verify) {
+            return Ok(());
+        }
+
+        let GuestProgramCommand::StatelessValidator { input_folder, .. } = &self.guest_program;
+        let Some(input_folder) = input_folder else {
+            bail!("--input-folder is required with --action execute or --action prove");
+        };
+        if !input_folder.exists() {
+            bail!("input path does not exist: {}", input_folder.display());
+        }
+
+        Ok(())
+    }
+
     /// Build the Ere [`ProverResource`] from parsed CLI args.
     pub fn prover_resource(&self) -> ProverResource {
         match self.resource {
@@ -184,7 +187,6 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
         match client {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
-            ExecutionClient::Zilkworm => Self::Zilkworm,
             ExecutionClient::Zesu => Self::Zesu,
         }
     }

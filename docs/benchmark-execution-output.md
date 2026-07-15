@@ -56,10 +56,17 @@ A successful execution metrics file has this shape:
 
 ```json
 {
-  "name": "rpc_block_23743854",
+  "name": "eest__tests_foo_py_test_case_param__block0",
   "timestamp_completed": "2026-05-25T12:34:56.789Z",
   "metadata": {
-    "block_used_gas": 27085079
+    "fixture_format": "eest",
+    "original_test_name": "tests/foo.py::test_case[param]",
+    "source_path": "blockchain_tests/for_amsterdam/compute/mcopy.json",
+    "block_index": 0,
+    "network": "Amsterdam",
+    "chain_id": 1,
+    "block_number": 1,
+    "block_used_gas": 16
   },
   "execution": {
     "success": {
@@ -141,11 +148,10 @@ Crash variants use the same enum wrapper with `crashed`:
 
 The `metadata` field is workload-specific:
 
-- Legacy stateless-validator fixtures write `{"block_used_gas": <u64>}`.
-- Direct EEST stateless-validator fixtures write EEST provenance and block metadata.
+- Canonical EEST stateless-validator fixtures write EEST provenance and block metadata.
 - Standalone verification metrics write `null`.
 
-Direct EEST metadata has this shape:
+Canonical EEST metadata has this shape:
 
 ```json
 {
@@ -170,7 +176,8 @@ Generate and save proofs:
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --action prove \
     --save-proofs my-proofs \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
 Verify proofs from a local folder:
@@ -200,7 +207,8 @@ Dump the raw serialized guest inputs used for a run:
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --dump-inputs debug-inputs \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
-Use these dumps to inspect exactly what bytes were passed to the guest program after fixture loading and any host-side conversion.
+Use these dumps to inspect the canonical `statelessInputBytes` passed to the guest after fixture loading.

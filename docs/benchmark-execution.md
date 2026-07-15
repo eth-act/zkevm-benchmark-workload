@@ -4,9 +4,9 @@ This is the source-of-truth workflow guide for `ere-hosts`.
 
 ## Overview
 
-`ere-hosts` consumes fixtures, resolves guest binaries, runs benchmarks across selected zkVMs, and optionally persists or verifies proofs.
+`ere-hosts` consumes canonical EEST fixtures, resolves guest binaries, runs benchmarks across selected zkVMs, and optionally persists or verifies proofs.
 
-Inspect the current CLI surface from the repo root:
+Inspect the current CLI surface from the repository root:
 
 ```bash
 cargo run -p ere-hosts -- --help
@@ -15,9 +15,8 @@ cargo run -p ere-hosts -- --help
 Prerequisites:
 
 - Docker is required because zkVM hosts are managed through `ere-dockerized`.
-- Fixture JSON files are expected in `zkevm-fixtures-input/` unless `--input-folder` is provided.
-- Reth and Ethrex consume EEST `blockchain_tests` fixtures containing canonical `statelessInputBytes` and `statelessOutputBytes`. Zesu accepts only Glamsterdam canonical inputs. Legacy generated fixtures remain available only for Zilkworm.
-- The Ere Guests v0.13 release publishes Reth and Ethrex artifacts for OpenVM, SP1, and ZisK, plus a Zesu artifact for ZisK.
+- Execute and prove actions require an explicit `--input-folder` pointing to a canonical EEST JSON file, a directory of EEST JSON files, or an EEST checkout containing `blockchain_tests/`.
+- Verification reads proofs and does not require `--input-folder`. A supplied verification input path is accepted and ignored for backward compatibility.
 
 ## Common Benchmark Commands
 
@@ -25,22 +24,24 @@ Run the stateless validator with Reth:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
-Run the stateless validator with Ethrex:
+Run it with Ethrex:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms openvm \
-    stateless-validator --execution-client ethrex
+    stateless-validator --execution-client ethrex \
+    --input-folder /path/to/eest-fixtures
 ```
 
-Use a custom fixture folder:
+Run Zesu's Amsterdam guest with the default ZisK artifact:
 
 ```bash
-cargo run -p ere-hosts --release -- --zkvms sp1 \
-    stateless-validator --execution-client reth \
-    --input-folder my-fixtures
+cargo run -p ere-hosts --release -- --zkvms zisk \
+    stateless-validator --execution-client zesu \
+    --input-folder /path/to/amsterdam-fixtures
 ```
 
 Run directly from an EEST fixture checkout:
@@ -48,17 +49,17 @@ Run directly from an EEST fixture checkout:
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     stateless-validator --execution-client reth \
-    --input-folder /data/code-data/execution-specs/fixtures
+    --input-folder /path/to/execution-specs/fixtures
 ```
 
-When an input folder contains an EEST `blockchain_tests/` subdirectory, only that
-subtree is used for stateless-validator inputs.
+When the path contains a `blockchain_tests/` subdirectory, only that subtree is used. A direct EEST JSON file is also accepted.
 
-Filter the selected fixtures by prefix:
+Filter selected fixtures by prefix:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures \
     --fixture test_sha256.py::test_sha256 \
     --fixture test_memory.py::test_mcopy
 ```
@@ -67,9 +68,11 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 `ere-hosts` supports three actions:
 
-- `--action execute`: execute the guest only. This is the default.
-- `--action prove`: execute and generate a proof.
-- `--action verify`: verify proofs loaded from disk or downloaded from a `.tar.gz` archive.
+- `--action execute`: execute the guest only. This is the default and requires `--input-folder`.
+- `--action prove`: execute, generate a proof, and require `--input-folder`.
+- `--action verify`: verify proofs loaded from disk or a downloaded `.tar.gz` archive. Input fixtures are not read.
+
+Input presence and path existence for execute/prove are checked before guest artifact resolution. Verification may omit the option; when `--input-folder` is supplied with verify, its value is ignored even if that path no longer exists.
 
 Timeouts are action-scoped:
 
@@ -77,24 +80,24 @@ Timeouts are action-scoped:
 - Default prove timeout: `15m`
 - Default verify timeout: `2s`
 
-Override the timeout for the selected action only:
+Override the selected action's timeout:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --timeout 90s \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
 ## Inputs And Outputs
 
-- Fixture input folder default: `zkevm-fixtures-input/`
 - Metrics output folder default: `zkevm-metrics/`
 - Verification proof folder default: `zkevm-fixtures-proofs/`
-- Zisk profile output folder default: `zisk-profiles/`
+- ZisK profile output folder default: `zisk-profiles/`
 
-Use the focused references when you need exact schemas or file layouts:
+Use the focused references for exact schemas and file layouts:
 
-- [Benchmark Execution Inputs](benchmark-execution-inputs.md) describes input discovery, fixture filtering, and client compatibility for the accepted `stateless-validator` JSON formats.
+- [Benchmark Execution Inputs](benchmark-execution-inputs.md) describes canonical input discovery, filtering, client compatibility, and explicit legacy-format rejection.
 - [Benchmark Execution Output](benchmark-execution-output.md) describes metrics JSON, `hardware.json`, proof files, input dumps, and workload metadata.
 
 Dump the raw serialized guest inputs used for a run:
@@ -102,7 +105,8 @@ Dump the raw serialized guest inputs used for a run:
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --dump-inputs debug-inputs \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
 These input dumps are zkVM-independent, so each fixture input is written once even if multiple zkVMs are selected.
@@ -115,10 +119,11 @@ Generate and save proofs:
 cargo run -p ere-hosts --release -- --zkvms sp1 \
     --action prove \
     --save-proofs my-proofs \
-    stateless-validator --execution-client reth
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
 ```
 
-Verify proofs from a local folder:
+Verify proofs from a local folder without fixture input:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
@@ -138,18 +143,16 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 When `--proofs-url` is used, the archive is downloaded, extracted to a temporary directory, and cleaned up after verification.
 
+## Guest Artifact Resolution
+
+All default Reth, Ethrex, and Zesu guests use the `ere-guests` artifact resolver. Tagged dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`.
+
+Use local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive.
+
 ## Operational Notes
 
-- Guest binaries are downloaded automatically unless `--bin-path` is set. Tagged `ere-guests` dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`.
-- Use `--force-rerun` to ignore existing output and rerun a workload.
+- Use `--force-rerun` to ignore existing metrics and rerun a workload. Without it, fixtures with existing output files are skipped.
 - `--resource gpu` selects GPU proving resources where supported.
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
-
-## Common Failure Modes
-
-- `cargo run` from the repo root must include `-p ere-hosts`; the workspace has multiple binaries.
-- Docker availability issues will block benchmark execution.
 - `--save-proofs` is only valid with `--action prove`.
 - `--proofs-url` is only valid with `--action verify`.
-- Direct EEST fixture runs may produce normal benchmark crash reports until the selected EL guest binary can decode canonical EEST stateless input bytes.
-- Local offline failures may come from guest downloads, RPC access, or proof archive downloads rather than from a compile regression.

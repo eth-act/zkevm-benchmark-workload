@@ -13,34 +13,11 @@ use std::{
 };
 use tracing::info;
 use walkdir::WalkDir;
-use witness_generator::StatelessValidationFixture;
 
 const EEST_BLOCKCHAIN_TESTS_DIR: &str = "blockchain_tests";
 const EEST_BLOCKCHAIN_TESTS_ENGINE_DIR: &str = "blockchain_tests_engine";
 const EEST_BLOCKCHAIN_TESTS_ENGINE_X_DIR: &str = "blockchain_tests_engine_x";
 const EEST_BLOCKCHAIN_TESTS_SYNC_DIR: &str = "blockchain_tests_sync";
-
-#[derive(Debug, Clone)]
-pub(crate) enum BenchmarkFixture {
-    Legacy(Box<StatelessValidationFixture>),
-    Eest(EestStatelessFixture),
-}
-
-impl BenchmarkFixture {
-    pub(crate) fn name(&self) -> &str {
-        match self {
-            Self::Legacy(fixture) => &fixture.name,
-            Self::Eest(fixture) => &fixture.name,
-        }
-    }
-
-    fn original_eest_test_name(&self) -> Option<&str> {
-        match self {
-            Self::Legacy(_) => None,
-            Self::Eest(fixture) => Some(&fixture.original_test_name),
-        }
-    }
-}
 
 /// Lazily walks a fixture folder and yields each fixture file path.
 pub fn iter_benchmark_fixture_paths(path: &Path) -> impl Iterator<Item = PathBuf> {
@@ -112,12 +89,6 @@ fn eest_fixture_index_has_formats(input_folder: &Path) -> bool {
     value.get("fixture_formats").is_some()
 }
 
-/// Reads and deserializes a single legacy benchmark fixture file.
-pub fn load_benchmark_fixture(path: &Path) -> Result<StatelessValidationFixture> {
-    let content = std::fs::read(path)?;
-    serde_json::from_slice(&content).with_context(|| format!("Failed to parse {}", path.display()))
-}
-
 pub(super) fn stateless_validator_input_iter(
     input_folder: &Path,
     selected_fixtures: Option<&[String]>,
@@ -149,13 +120,13 @@ where
     I: Iterator<Item = PathBuf>,
 {
     paths.flat_map(move |path| {
-        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root, el) {
+        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root) {
             Ok(fixtures) => fixtures
                 .into_iter()
                 .filter(|fixture| fixture_matches_prefixes(fixture, fixture_prefixes.as_deref()))
                 .filter_map(|fixture| {
                     match skip_existing_fixture_output(
-                        fixture.name(),
+                        &fixture.name,
                         existing_output_dir.as_deref(),
                     ) {
                         Ok(true) => None,
@@ -170,41 +141,28 @@ where
     })
 }
 
-fn fixture_matches_prefixes(fixture: &BenchmarkFixture, prefixes: Option<&[String]>) -> bool {
+fn fixture_matches_prefixes(fixture: &EestStatelessFixture, prefixes: Option<&[String]>) -> bool {
     let Some(prefixes) = prefixes else {
         return true;
     };
 
     prefixes.iter().any(|prefix| {
-        fixture.name().starts_with(prefix)
-            || fixture
-                .original_eest_test_name()
-                .is_some_and(|name| name.starts_with(prefix))
+        fixture.name.starts_with(prefix) || fixture.original_test_name.starts_with(prefix)
     })
 }
 
-fn load_benchmark_fixtures(
-    path: &Path,
-    input_root: &Path,
-    el: ExecutionClient,
-) -> Result<Vec<BenchmarkFixture>> {
+fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<EestStatelessFixture>> {
     let content = std::fs::read(path)?;
     let value: serde_json::Value = serde_json::from_slice(&content)
         .with_context(|| format!("Failed to parse {}", path.display()))?;
 
     if value.get("stateless_input").is_some() {
-        if !matches!(el, ExecutionClient::Zilkworm) {
-            bail!(
-                "{el:?} supports only canonical blockchain_tests fixtures with statelessInputBytes/statelessOutputBytes; legacy stateless_input fixtures are supported only for Zilkworm"
-            );
-        }
-        let fixture = serde_json::from_value(value)
-            .with_context(|| format!("Failed to parse legacy fixture {}", path.display()))?;
-        return Ok(vec![BenchmarkFixture::Legacy(Box::new(fixture))]);
+        bail!(
+            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_tests fixture containing statelessInputBytes and statelessOutputBytes"
+        );
     }
 
     load_eest_benchmark_fixtures(value, path, input_root)
-        .map(|fixtures| fixtures.into_iter().map(BenchmarkFixture::Eest).collect())
 }
 
 fn skip_existing_fixture_output(
@@ -278,15 +236,13 @@ mod tests {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
-        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path(), ExecutionClient::Reth)?;
+        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path())?;
         let fixture = fixtures
             .iter()
-            .find(|fixture| {
-                fixture.original_eest_test_name() == Some("tests/foo.py::test_same[name?a]")
-            })
+            .find(|fixture| fixture.original_test_name == "tests/foo.py::test_same[name?a]")
             .unwrap();
 
-        let safe_prefix = normalize_fixture_prefixes(&[format!("{}.json", fixture.name())])?;
+        let safe_prefix = normalize_fixture_prefixes(&[format!("{}.json", fixture.name)])?;
         assert!(fixture_matches_prefixes(fixture, Some(&safe_prefix)));
 
         let original_prefix =
@@ -334,19 +290,40 @@ mod tests {
     }
 
     #[test]
-    fn legacy_fixtures_are_rejected_for_canonical_clients() -> Result<()> {
+    fn eest_fixture_iter_skips_existing_outputs() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let fixture_path = dir.path().join("mcopy.json");
+        fs::write(&fixture_path, sample_eest_fixture())?;
+
+        let loaded = load_benchmark_fixtures(&fixture_path, dir.path())?;
+        let output_dir = dir.path().join("output");
+        fs::create_dir(&output_dir)?;
+        fs::write(output_dir.join(format!("{}.json", loaded[0].name)), "{}")?;
+
+        let fixtures = stateless_validator_input_iter(
+            &fixture_path,
+            None,
+            ExecutionClient::Reth,
+            Some(&output_dir),
+        )?
+        .collect::<Result<Vec<_>>>()?;
+        assert_eq!(fixtures.len(), 1);
+        assert_eq!(fixtures[0].name(), loaded[1].name);
+
+        Ok(())
+    }
+
+    #[test]
+    fn legacy_fixture_is_rejected_with_migration_error() -> Result<()> {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("legacy.json");
         fs::write(&fixture_path, r#"{"stateless_input": {}}"#)?;
 
-        for client in [
-            ExecutionClient::Reth,
-            ExecutionClient::Ethrex,
-            ExecutionClient::Zesu,
-        ] {
-            let err = load_benchmark_fixtures(&fixture_path, dir.path(), client).unwrap_err();
-            assert!(err.to_string().contains("supported only for Zilkworm"));
-        }
+        let err = load_benchmark_fixtures(&fixture_path, dir.path()).unwrap_err();
+        assert_eq!(
+            err.to_string(),
+            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_tests fixture containing statelessInputBytes and statelessOutputBytes"
+        );
 
         Ok(())
     }
