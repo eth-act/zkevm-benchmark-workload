@@ -46,7 +46,17 @@ The only accepted benchmark fixture format is an EEST `blockchain_tests` JSON ob
           "gasUsed": "0x10"
         }
       }
-    ]
+    ],
+    "_info": {
+      "metadata": {
+        "opcode_count_per_block": [
+          {
+            "PUSH1": 5,
+            "SSTORE": 2
+          }
+        ]
+      }
+    }
   }
 }
 ```
@@ -59,6 +69,7 @@ Rules:
 - A block without `statelessInputBytes`, or with empty `statelessInputBytes`, is skipped.
 - A block with non-empty `statelessInputBytes` must also contain `statelessOutputBytes`.
 - Both byte fields are hexadecimal strings with an optional `0x` prefix and an even number of hexadecimal digits after that prefix.
+- `_info.metadata.opcode_count_per_block` holds one opcode-count map per block in block order, so entry N describes `blocks[N]`. A present array whose length differs from the block count is rejected, and an absent array leaves each block's opcode count empty.
 
 Each accepted block becomes one benchmark fixture. Its safe output name is derived from the original EEST test name, block index, and source context; collisions are disambiguated. The original test name remains available for fixture-prefix selection.
 
@@ -86,7 +97,7 @@ A prefix may match either the sanitized fixture name or the original EEST test n
 
 ## Metadata, Existing Outputs, And Public Values
 
-Benchmark metadata preserves the fixture format, original test name, source path, block index, network, chain ID, block number, and gas used. See [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload) for the serialized shape.
+Benchmark metadata preserves the fixture format, original test name, source path, block index, network, chain ID, block number, gas used, and the block's opcode count. See [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload) for the serialized shape.
 
 Unless `--force-rerun` is set, fixture preparation skips cases whose metrics output already exists. Execution and proving both compare the guest's public values with the fixture's raw `statelessOutputBytes`; proof verification retains the existing stored-proof verification behavior.
 

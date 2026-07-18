@@ -285,6 +285,8 @@ mod tests {
             "tests/foo.py::test_same[name/a]"
         );
         assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
+        assert_eq!(metadata["opcode_count"]["PUSH1"].as_u64(), Some(5));
+        assert_eq!(metadata["opcode_count"]["SSTORE"].as_u64(), Some(2));
 
         Ok(())
     }
@@ -390,7 +392,12 @@ mod tests {
                         "statelessOutputBytes": "0xaabb",
                         "blockHeader": {"number": "0x01", "gasUsed": "0x10"}
                     }
-                ]
+                ],
+                "_info": {
+                    "metadata": {
+                        "opcode_count_per_block": [{"PUSH1": 5, "SSTORE": 2}]
+                    }
+                }
             },
             "tests/foo.py::test_same[name?a]": {
                 "network": "Amsterdam",

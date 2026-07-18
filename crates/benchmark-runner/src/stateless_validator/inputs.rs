@@ -6,6 +6,7 @@ use anyhow::{bail, Context, Result};
 use ere_dockerized::Input;
 use serde::Serialize;
 use stateless_validator_common::guest::input::{ProtocolFork, StatelessInput};
+use std::collections::BTreeMap;
 
 #[derive(Debug, Clone, Serialize)]
 struct EestBlockMetadata {
@@ -17,6 +18,7 @@ struct EestBlockMetadata {
     chain_id: u64,
     block_number: Option<u64>,
     block_used_gas: Option<u64>,
+    opcode_count: BTreeMap<String, u64>,
 }
 
 pub(crate) fn stateless_validator_input_from_fixture(
@@ -65,6 +67,7 @@ fn raw_eest_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn 
         chain_id: fixture.chain_id,
         block_number: fixture.block_number,
         block_used_gas: fixture.block_used_gas,
+        opcode_count: fixture.opcode_count,
     };
     let fixture = GenericGuestFixture::<EestBlockMetadata> {
         name: fixture.name,

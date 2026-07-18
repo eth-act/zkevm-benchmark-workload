@@ -66,7 +66,11 @@ A successful execution metrics file has this shape:
     "network": "Amsterdam",
     "chain_id": 1,
     "block_number": 1,
-    "block_used_gas": 16
+    "block_used_gas": 16,
+    "opcode_count": {
+      "PUSH1": 5,
+      "SSTORE": 2
+    }
   },
   "execution": {
     "success": {
@@ -162,11 +166,15 @@ Canonical EEST metadata has this shape:
   "network": "Amsterdam",
   "chain_id": 1,
   "block_number": 1,
-  "block_used_gas": 16
+  "block_used_gas": 16,
+  "opcode_count": {
+    "PUSH1": 5,
+    "SSTORE": 2
+  }
 }
 ```
 
-`block_number` and `block_used_gas` are `null` when the source fixture does not provide those values.
+`block_number` and `block_used_gas` are `null` when the source fixture does not provide those values. `opcode_count` is the per-block opcode tally taken from `_info.metadata.opcode_count_per_block`, and it is `{}` when the source fixture predates that field.
 
 ## Proofs And Verification
 

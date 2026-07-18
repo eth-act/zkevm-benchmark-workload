@@ -18,6 +18,7 @@ pub(crate) struct EestStatelessFixture {
     pub(crate) chain_id: u64,
     pub(crate) block_number: Option<u64>,
     pub(crate) block_used_gas: Option<u64>,
+    pub(crate) opcode_count: BTreeMap<String, u64>,
     pub(crate) stateless_input_bytes: Vec<u8>,
     pub(crate) stateless_output_bytes: Vec<u8>,
 }
@@ -28,11 +29,26 @@ struct EestBlockchainTest {
     network: String,
     config: EestConfig,
     blocks: Vec<EestBlock>,
+    #[serde(default, rename = "_info")]
+    info: EestInfo,
 }
 
 #[derive(Debug, Deserialize)]
 struct EestConfig {
     chainid: String,
+}
+
+#[derive(Debug, Default, Deserialize)]
+struct EestInfo {
+    #[serde(default)]
+    metadata: EestMetadata,
+}
+
+/// EEST writes `_info.metadata` keys in snake case.
+#[derive(Debug, Default, Deserialize)]
+struct EestMetadata {
+    #[serde(default)]
+    opcode_count_per_block: Vec<BTreeMap<String, u64>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -77,6 +93,15 @@ pub(crate) fn load_eest_benchmark_fixtures(
     for (test_name, case) in cases {
         let chain_id = parse_json_u64(&case.config.chainid)
             .with_context(|| format!("Failed to parse chainid for EEST test {test_name}"))?;
+
+        let opcode_count_per_block = case.info.metadata.opcode_count_per_block;
+        if !opcode_count_per_block.is_empty() && opcode_count_per_block.len() != case.blocks.len() {
+            bail!(
+                "EEST test {test_name} has {} opcode_count_per_block entries but {} blocks",
+                opcode_count_per_block.len(),
+                case.blocks.len()
+            );
+        }
 
         for (block_index, block) in case.blocks.into_iter().enumerate() {
             let Some(input_hex) = block.stateless_input_bytes else {
@@ -140,6 +165,10 @@ pub(crate) fn load_eest_benchmark_fixtures(
                 chain_id,
                 block_number,
                 block_used_gas,
+                opcode_count: opcode_count_per_block
+                    .get(block_index)
+                    .cloned()
+                    .unwrap_or_default(),
                 stateless_input_bytes,
                 stateless_output_bytes,
             });
@@ -318,6 +347,16 @@ mod tests {
         assert_eq!(fixture.chain_id, 1);
         assert_eq!(fixture.block_number, Some(1));
         assert_eq!(fixture.block_used_gas, Some(16));
+        assert_eq!(
+            fixture.opcode_count,
+            BTreeMap::from([("PUSH1".to_string(), 5), ("SSTORE".to_string(), 2)])
+        );
+
+        let info_without_per_block = fixtures
+            .iter()
+            .find(|fixture| fixture.original_test_name == "tests/foo.py::test_same[name?a]")
+            .unwrap();
+        assert!(info_without_per_block.opcode_count.is_empty());
 
         Ok(())
     }
@@ -375,6 +414,39 @@ mod tests {
         Ok(())
     }
 
+    #[test]
+    fn eest_opcode_count_per_block_length_must_match_blocks() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let fixture_path = dir.path().join("mismatched-opcode-count.json");
+        fs::write(
+            &fixture_path,
+            r#"{
+                "tests/foo.py::test_mismatch": {
+                    "network": "Amsterdam",
+                    "config": {"chainid": "0x01"},
+                    "blocks": [
+                        {"statelessInputBytes": "0x0102", "statelessOutputBytes": "0xaa"}
+                    ],
+                    "_info": {
+                        "metadata": {
+                            "opcode_count_per_block": [{"PUSH1": 1}, {"PUSH1": 2}]
+                        }
+                    }
+                }
+            }"#,
+        )?;
+
+        let err = load_eest_benchmark_fixtures(
+            serde_json::from_str(&fs::read_to_string(&fixture_path)?)?,
+            &fixture_path,
+            dir.path(),
+        )
+        .unwrap_err();
+        assert!(err.to_string().contains("opcode_count_per_block"));
+
+        Ok(())
+    }
+
     pub(crate) fn sample_eest_fixture() -> &'static str {
         r#"{
             "tests/foo.py::test_same[name/a]": {
@@ -393,7 +465,18 @@ mod tests {
                         "statelessInputBytes": "0x",
                         "statelessOutputBytes": "0xcc"
                     }
-                ]
+                ],
+                "_info": {
+                    "metadata": {
+                        "opcode_count": {"PUSH1": 8, "SSTORE": 2, "MCOPY": 7},
+                        "target_opcode": "MCOPY",
+                        "opcode_count_per_block": [
+                            {"PUSH1": 5, "SSTORE": 2},
+                            {"PUSH1": 3},
+                            {"MCOPY": 7}
+                        ]
+                    }
+                }
             },
             "tests/foo.py::test_same[name?a]": {
                 "network": "Amsterdam",
@@ -405,7 +488,13 @@ mod tests {
                         "blocknumber": "0x03",
                         "blockHeader": {"gasUsed": "0x30"}
                     }
-                ]
+                ],
+                "_info": {
+                    "metadata": {
+                        "opcode_count": {"ADD": 3},
+                        "target_opcode": "ADD"
+                    }
+                }
             }
         }"#
     }
