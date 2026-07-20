@@ -32,14 +32,13 @@ pub(crate) fn stateless_validator_input_from_fixture(
 }
 
 fn zesu_input_from_fixture(fixture: EestStatelessFixture) -> Result<Box<dyn GuestFixture>> {
-    let input = StatelessInput::from_schema_prefixed_ssz(&fixture.stateless_input_bytes)
+    let (fork, _input) = StatelessInput::from_schema_prefixed_ssz(&fixture.stateless_input_bytes)
         .with_context(|| {
-            format!(
-                "failed to decode canonical stateless input for Zesu fixture {}",
-                fixture.name
-            )
-        })?;
-    let fork = input.chain_config.active_fork.fork;
+        format!(
+            "failed to decode canonical stateless input for Zesu fixture {}",
+            fixture.name
+        )
+    })?;
     validate_zesu_fork(fork, &fixture.name)?;
 
     raw_eest_input_from_fixture(fixture)

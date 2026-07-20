@@ -764,11 +764,6 @@ mod tests {
         thirty_two_byte_public_values.resize(32, 0);
 
         assert!(public_output_matched(
-            zkVMKind::Airbender,
-            &fixture,
-            &thirty_two_byte_public_values,
-        )?);
-        assert!(public_output_matched(
             zkVMKind::OpenVM,
             &fixture,
             &thirty_two_byte_public_values,

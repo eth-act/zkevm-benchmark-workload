@@ -167,8 +167,6 @@ fn ensure_matching_hash(
 
 #[cfg(test)]
 mod tests {
-    use stateless_validator_common::guest::input::STATELESS_INPUT_SCHEMA_ID;
-
     use super::*;
 
     #[tokio::test]
@@ -184,11 +182,7 @@ mod tests {
             NetworkWitnessClient::new(NetworkWitnessConfig::new(cl_endpoint, el_endpoint))?;
         let generated = client.stateless_input_bytes(BlockSelector::Head).await?;
 
-        assert!(
-            generated
-                .bytes
-                .starts_with(&STATELESS_INPUT_SCHEMA_ID.to_be_bytes())
-        );
+        assert!(generated.bytes.starts_with(&[0x15, 0x01]));
         assert!(generated.block_number > 0);
         Ok(())
     }

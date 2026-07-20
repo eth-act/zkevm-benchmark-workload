@@ -23,7 +23,7 @@ pub enum ExecutionClient {
     Zesu,
 }
 
-/// Zesu version republished with the ere-guests v0.13.0 artifacts.
+/// Last published Zesu version, retained while its v0.6.2 artifact is unavailable.
 const ZESU_EL_VERSION: &str = "bal-devnet-7-2026-06-24";
 
 impl ExecutionClient {

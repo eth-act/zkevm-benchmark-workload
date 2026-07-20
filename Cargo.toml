@@ -103,20 +103,20 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
-ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
-ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
+ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
+ere-util-tokio = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
 
 # ere-guests
-stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-common" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-ethrex" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-reth" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "downloader" }
+stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-common" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-ethrex" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-reth" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "downloader" }
 
 # alloy
-alloy-consensus = { version = "2.0.5", default-features = false }
-alloy-eips = { version = "2.0.5", default-features = false }
-alloy-primitives = { version = "1.6.0", default-features = false }
+alloy-consensus = { version = "=2.1.1", default-features = false }
+alloy-eips = { version = "=2.1.1", default-features = false }
+alloy-primitives = { version = "=1.6.0", default-features = false }
 alloy-rlp = { version = "0.3", default-features = false }
 
 # misc
@@ -146,3 +146,24 @@ tar = "0.4"
 toml = "0.8"
 hex = "0.4"
 zstd = "0.13"
+
+# Temporary patches required by the Reth revision used in ere-guests.
+# Remove these once Glamsterdam devnet support is available in released crates.
+[patch.crates-io]
+revm = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-bytecode = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-context = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-context-interface = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-database = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-database-interface = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-handler = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-inspector = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-interpreter = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-precompile = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-primitives = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+revm-state = { git = "https://github.com/bluealloy/revm", rev = "335a35ddb370b667bff248109524a4efc589213f" }
+alloy-evm = { git = "https://github.com/alloy-rs/evm", rev = "721c59b9e4f640c9e646c0516e5be7142c956a26" }
+reth-codecs = { git = "https://github.com/paradigmxyz/reth-core", rev = "1030ec2e47bfd01956e2239ad3399bf3b5121cbe" }
+reth-codecs-derive = { git = "https://github.com/paradigmxyz/reth-core", rev = "1030ec2e47bfd01956e2239ad3399bf3b5121cbe" }
+reth-primitives-traits = { git = "https://github.com/paradigmxyz/reth-core", rev = "1030ec2e47bfd01956e2239ad3399bf3b5121cbe" }
+reth-zstd-compressors = { git = "https://github.com/paradigmxyz/reth-core", rev = "1030ec2e47bfd01956e2239ad3399bf3b5121cbe" }

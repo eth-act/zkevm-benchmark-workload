@@ -97,9 +97,7 @@ fn normalize_expected_public_values(
     zkvm_kind: zkVMKind,
     mut expected_public_values: Vec<u8>,
 ) -> Vec<u8> {
-    if matches!(zkvm_kind, zkVMKind::Airbender | zkVMKind::OpenVM)
-        && expected_public_values.len() < 32
-    {
+    if matches!(zkvm_kind, zkVMKind::OpenVM) && expected_public_values.len() < 32 {
         expected_public_values.resize(32, 0);
     }
 

@@ -177,7 +177,7 @@ mod tests {
 
     fn generated_input(block_number: u64, block_hash: B256) -> GeneratedInput {
         GeneratedInput {
-            bytes: vec![0x00, 0x01, 0x02, 0x03],
+            bytes: vec![0x15, 0x01, 0x02, 0x03],
             block_hash,
             block_number,
             slot_number: 64,

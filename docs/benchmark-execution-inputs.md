@@ -39,7 +39,7 @@ The only accepted benchmark fixture format is an EEST `blockchain_tests` JSON ob
     },
     "blocks": [
       {
-        "statelessInputBytes": "0x000102",
+        "statelessInputBytes": "0x150102",
         "statelessOutputBytes": "0xaabb",
         "blockHeader": {
           "number": "0x01",
@@ -77,7 +77,7 @@ Each accepted block becomes one benchmark fixture. Its safe output name is deriv
 
 - Reth receives `statelessInputBytes` unchanged on stdin and uses `statelessOutputBytes` as the expected public values.
 - Ethrex uses the same raw canonical path.
-- Zesu first decodes the canonical stateless input and accepts it only when the active fork is `ProtocolFork::Amsterdam`, then uses the same raw input and expected public values.
+- Zesu routing is retained but temporarily gated before fixture or artifact loading. Once enabled, it decodes the fork-qualified tuple, accepts only `ProtocolFork::Amsterdam` (`0x1501`), and forwards the same raw input and expected public values.
 
 Fixture deserialization is independent of the selected execution client. Client-specific routing occurs only after a canonical EEST case has loaded.
 

@@ -108,7 +108,7 @@ pub enum ExecutionClient {
     Reth,
     /// Ethrex execution client
     Ethrex,
-    /// Zesu execution client
+    /// Zesu execution client (temporarily unavailable)
     Zesu,
 }
 
