@@ -6755,6 +6755,7 @@ dependencies = [
  "alloy-primitives",
  "alloy-rlp",
  "anyhow",
+ "benchmark-runner",
  "clap",
  "humantime",
  "reqwest",

@@ -1,4 +1,4 @@
-//! Build canonical Amsterdam stateless guest input bytes from live network RPC data.
+//! Build canonical Amsterdam stateless guest input and expected output bytes from live RPC data.
 
 mod builder;
 mod chain_config;
@@ -13,6 +13,8 @@ pub use builder::GeneratedInput;
 use reqwest::Client;
 
 // These dependencies are used by this package's CLI target.
+#[cfg(test)]
+use benchmark_runner as _;
 use clap as _;
 use humantime as _;
 use sha2 as _;
@@ -83,7 +85,7 @@ impl NetworkWitnessClient {
         })
     }
 
-    /// Fetches network data for `selector` and returns canonical spec guest input bytes.
+    /// Fetches network data and returns canonical spec guest input and expected output bytes.
     pub async fn stateless_input_bytes(
         &self,
         selector: BlockSelector,
@@ -182,7 +184,7 @@ mod tests {
             NetworkWitnessClient::new(NetworkWitnessConfig::new(cl_endpoint, el_endpoint))?;
         let generated = client.stateless_input_bytes(BlockSelector::Head).await?;
 
-        assert!(generated.bytes.starts_with(&[0x15, 0x01]));
+        assert!(generated.stateless_input_bytes.starts_with(&[0x15, 0x01]));
         assert!(generated.block_number > 0);
         Ok(())
     }

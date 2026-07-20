@@ -1,6 +1,6 @@
-# Stateless Input Publication
+# Stateless Fixture Publication
 
-This guide describes how to publish canonical stateless input batches as a public R2 dataset.
+This guide describes how to publish benchmark-ready stateless fixture batches as a public R2 dataset.
 
 ## Public Dataset Shape
 
@@ -16,7 +16,9 @@ The public dataset is batch-first. Users should download complete `.tar.zst` bat
 exports/batches/<start>-<end>.tar.zst
 ```
 
-Individual block artifacts remain described inside each batch archive's `manifest.json`, but they are not published as standalone public objects.
+Each archive contains directly executable EEST fixtures under `blockchain_tests/`
+and describes them in `.meta/manifest.json`. Individual fixtures are not
+published as standalone public objects.
 
 ## Generated Catalog Files
 
@@ -31,7 +33,19 @@ The generated links are relative, so the same catalog works with an `r2.dev` dev
 
 ## Operator Flow
 
-Collect live stateless inputs:
+Schema v2 is a clean cut and does not read input-only v1 artifacts. Configure a
+fresh local output root and publish to a fresh R2 prefix when deploying it.
+
+Generate one benchmark-ready fixture without starting the collector:
+
+```bash
+cargo run -p witness-generator-spec-cli --release -- generate \
+    --cl-url http://127.0.0.1:3500 \
+    --el-url http://127.0.0.1:8545 \
+    --out block.json
+```
+
+Collect live stateless fixtures:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- collect \
@@ -80,14 +94,24 @@ curl -fsSL https://<public-host>/devnets/<network>/manifest.json | jq
 curl -fsSL https://<public-host>/devnets/<network>/batches.jsonl | head
 ```
 
+Run an extracted batch directly with the benchmark runner:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 \
+  stateless-validator --execution-client reth \
+  --input-folder /path/to/extracted-batch
+```
+
+The runner detects the extracted `blockchain_tests/` directory automatically.
+
 ## Local EEST Validation
 
 Use [`scripts/validate-r2-stateless-inputs-with-eest.py`](../scripts/validate-r2-stateless-inputs-with-eest.py)
 to validate published R2 batch archives against the EEST Amsterdam stateless
 guest. The script downloads the selected batch archives, verifies the catalog
-metadata, decompresses each `blocks/*.json.zst` artifact, checks the recorded
-stateless input byte length and SHA-256 digest, and runs each stateless input
-through EEST.
+metadata, reads each `blockchain_tests/**/*.json` fixture, checks its recorded
+stateless input byte length, runs each input through EEST, and requires EEST's
+complete output bytes to match the stored `statelessOutputBytes` exactly.
 
 Prerequisites:
 

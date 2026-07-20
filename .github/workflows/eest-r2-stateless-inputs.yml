@@ -1,4 +1,4 @@
-name: EEST R2 Stateless Inputs
+name: EEST R2 Stateless Fixtures
 
 on:
   workflow_dispatch:
@@ -62,7 +62,7 @@ jobs:
         id: eest
         run: echo "commit=$(git -C execution-specs rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Validate R2 stateless inputs with EEST
+      - name: Validate R2 stateless fixtures with EEST
         run: |
           mkdir -p "$SUMMARY_DIR"
           uv run --project execution-specs --with zstandard \

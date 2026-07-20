@@ -49,12 +49,12 @@ pub(crate) async fn collect(config: CollectorConfig, once: bool) -> anyhow::Resu
                     block_number = persisted.artifact.block_number,
                     block_hash = persisted.artifact.block_hash,
                     path = %persisted.write.path.display(),
-                    "collected stateless input artifact",
+                    "collected stateless EEST fixture",
                 );
             }
             Ok(None) => {}
             Err(error) => {
-                warn!(?error, "failed to collect stateless input artifact");
+                warn!(?error, "failed to collect stateless EEST fixture");
             }
         }
         time::sleep(config.poll_interval).await;
@@ -122,6 +122,8 @@ fn write_state(config: &CollectorConfig, artifact: &StatelessInputArtifact) -> a
 mod tests {
     use alloy_primitives::B256;
 
+    use crate::artifact::test_generated_input;
+
     use super::*;
 
     #[test]
@@ -176,12 +178,6 @@ mod tests {
     }
 
     fn generated_input(block_number: u64, block_hash: B256) -> GeneratedInput {
-        GeneratedInput {
-            bytes: vec![0x15, 0x01, 0x02, 0x03],
-            block_hash,
-            block_number,
-            slot_number: 64,
-            chain_id: 1,
-        }
+        test_generated_input(block_number, block_hash)
     }
 }

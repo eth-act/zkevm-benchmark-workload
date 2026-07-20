@@ -1,11 +1,10 @@
 #!/usr/bin/env python3
-"""Validate public R2 stateless input batches with the EEST spec guest."""
+"""Validate public R2 stateless fixture batches with the EEST spec guest."""
 
 from __future__ import annotations
 
 import argparse
 import hashlib
-import io
 import json
 import sys
 import tarfile
@@ -29,6 +28,8 @@ DEFAULT_CATALOG_URL = (
 REQUEST_TIMEOUT_SECONDS = 60
 DOWNLOAD_CHUNK_SIZE = 1024 * 1024
 FAILURE_MARKDOWN_LIMIT = 20
+BATCH_MANIFEST_PATH = ".meta/manifest.json"
+ARTIFACT_SCHEMA_VERSION = 2
 
 
 class ValidationError(Exception):
@@ -101,7 +102,7 @@ def main() -> int:
 
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Validate R2 stateless input batches with EEST",
+        description="Validate R2 stateless fixture batches with EEST",
     )
     parser.add_argument(
         "--catalog-url",
@@ -390,6 +391,7 @@ def validate_batch(
     artifact_count = 0
     successful_artifacts = 0
     batch_manifest: dict[str, Any] | None = None
+    observed_artifacts: dict[str, dict[str, Any]] = {}
     stopped_early = False
     full_batch_validation = block_number is None and max_artifacts is None
 
@@ -403,7 +405,7 @@ def validate_batch(
                 extracted = archive.extractfile(member)
                 if extracted is None:
                     continue
-                if member_name == "manifest.json":
+                if member_name == BATCH_MANIFEST_PATH:
                     batch_manifest = read_json_member(extracted, member_name)
                 elif is_artifact_member(member_name):
                     if block_number is not None:
@@ -419,14 +421,23 @@ def validate_batch(
                     artifact_count += 1
                     artifact = None
                     try:
-                        artifact = read_artifact_member(extracted, member_name)
+                        artifact, fixture_bytes = read_artifact_member(
+                            extracted,
+                            member_name,
+                        )
                         if (
                             block_number is not None
-                            and artifact.get("blockNumber") != block_number
+                            and fixture_block_number(artifact) != block_number
                         ):
                             artifact_count -= 1
                             continue
                         validate_artifact(batch, member_name, artifact, guest)
+                        observed_artifacts[member_name] = {
+                            "archivePath": member_name,
+                            "fixtureByteLength": len(fixture_bytes),
+                            "fixtureSha256": "0x"
+                            + hashlib.sha256(fixture_bytes).hexdigest(),
+                        }
                         successful_artifacts += 1
                     except Exception as error:
                         failures.append(
@@ -447,7 +458,12 @@ def validate_batch(
         )
     if full_batch_validation:
         failures.extend(
-            validate_batch_manifest(batch, batch_manifest, artifact_count)
+            validate_batch_manifest(
+                batch,
+                batch_manifest,
+                artifact_count,
+                observed_artifacts,
+            )
         )
 
     return (
@@ -486,7 +502,10 @@ def download_file(url: str, path: Path) -> tuple[str, int]:
 
 
 def is_artifact_member(member_name: str) -> bool:
-    return member_name.startswith("blocks/") and member_name.endswith(".json.zst")
+    return (
+        member_name.startswith("blockchain_tests/")
+        and member_name.endswith(".json")
+    )
 
 
 def block_number_from_member_name(member_name: str) -> int | None:
@@ -510,24 +529,18 @@ def read_json_member(member_file: Any, member_name: str) -> dict[str, Any]:
     return value
 
 
-def read_artifact_member(member_file: Any, member_name: str) -> dict[str, Any]:
-    compressed = member_file.read()
-    try:
-        reader = zstandard.ZstdDecompressor().stream_reader(
-            io.BytesIO(compressed)
-        )
-        with reader:
-            data = reader.read()
-    except zstandard.ZstdError as error:
-        raise ValidationError(f"failed to decompress {member_name}") from error
-
+def read_artifact_member(
+    member_file: Any,
+    member_name: str,
+) -> tuple[dict[str, Any], bytes]:
+    data = member_file.read()
     try:
         value = json.loads(data)
     except json.JSONDecodeError as error:
         raise ValidationError(f"failed to decode {member_name} JSON") from error
     if not isinstance(value, dict):
         raise ValidationError(f"{member_name} must contain a JSON object")
-    return value
+    return value, data
 
 
 def validate_artifact(
@@ -536,13 +549,30 @@ def validate_artifact(
     artifact: dict[str, Any],
     guest: EestGuest,
 ) -> None:
+    _, test, block, metadata = fixture_parts(artifact)
+    if test.get("network") != "Amsterdam":
+        raise ValidationError("EEST fixture network must be Amsterdam")
+    if metadata.get("schemaVersion") != ARTIFACT_SCHEMA_VERSION:
+        raise ValidationError(
+            "unsupported witness_generator schemaVersion: "
+            f"expected {ARTIFACT_SCHEMA_VERSION}, "
+            f"got {metadata.get('schemaVersion')}"
+        )
+    if metadata.get("network") != batch.network:
+        raise ValidationError(
+            "witness_generator.network mismatch: "
+            f"expected {batch.network}, got {metadata.get('network')}"
+        )
+
     input_bytes = decode_hex_bytes(
         "statelessInputBytes",
-        artifact.get("statelessInputBytes"),
+        block.get("statelessInputBytes"),
     )
+    if not input_bytes:
+        raise ValidationError("statelessInputBytes must not be empty")
     expected_length = int_required(
         "statelessInputByteLength",
-        artifact.get("statelessInputByteLength"),
+        metadata.get("statelessInputByteLength"),
     )
     if len(input_bytes) != expected_length:
         raise ValidationError(
@@ -550,20 +580,18 @@ def validate_artifact(
             f"expected {expected_length}, got {len(input_bytes)}"
         )
 
-    expected_sha256 = normalize_sha256(
-        str_required(
-            "statelessInputSha256",
-            artifact.get("statelessInputSha256"),
-        )
-    )
-    actual_sha256 = hashlib.sha256(input_bytes).hexdigest()
-    if actual_sha256 != expected_sha256:
+    schema_id = str_required(
+        "statelessInputSchemaId",
+        metadata.get("statelessInputSchemaId"),
+    ).lower()
+    actual_schema_id = "0x" + input_bytes[:2].hex()
+    if len(input_bytes) < 2 or schema_id != actual_schema_id:
         raise ValidationError(
-            "statelessInputSha256 mismatch: "
-            f"expected {expected_sha256}, got {actual_sha256}"
+            "statelessInputSchemaId mismatch: "
+            f"expected {schema_id}, got {actual_schema_id}"
         )
 
-    block_number = int_required("blockNumber", artifact.get("blockNumber"))
+    block_number = fixture_block_number(artifact)
     if block_number < batch.batch_start_block or block_number > batch.batch_end_block:
         raise ValidationError(
             "blockNumber outside selected batch range: "
@@ -571,15 +599,92 @@ def validate_artifact(
             f"{batch.batch_start_block}-{batch.batch_end_block}"
         )
 
-    output_bytes = guest.run_stateless_guest(guest.bytes_type(input_bytes))
-    output = guest.deserialize_stateless_output(output_bytes)
-    if not bool(output.successful_validation):
-        output_root = bytes(output.new_payload_request_root).hex()
+    expected_output_bytes = decode_hex_bytes(
+        "statelessOutputBytes",
+        block.get("statelessOutputBytes"),
+    )
+    if not expected_output_bytes:
+        raise ValidationError("statelessOutputBytes must not be empty")
+    expected_output = guest.deserialize_stateless_output(
+        guest.bytes_type(expected_output_bytes)
+    )
+    if not bool(expected_output.successful_validation):
+        raise ValidationError(
+            "stored statelessOutputBytes does not expect successful validation "
+            f"({stateless_output_diagnostics(expected_output)})"
+        )
+
+    actual_output_bytes = bytes(
+        guest.run_stateless_guest(guest.bytes_type(input_bytes))
+    )
+    actual_output = guest.deserialize_stateless_output(
+        guest.bytes_type(actual_output_bytes)
+    )
+    if actual_output_bytes != expected_output_bytes:
+        raise ValidationError(
+            "statelessOutputBytes mismatch: "
+            f"expected {stateless_output_diagnostics(expected_output)}, "
+            f"got {stateless_output_diagnostics(actual_output)}; "
+            f"{stateless_input_diagnostics(input_bytes, guest)}"
+        )
+    if not bool(actual_output.successful_validation):
         raise ValidationError(
             "EEST stateless guest returned unsuccessful_validation "
-            f"(newPayloadRequestRoot=0x{output_root}; "
+            f"({stateless_output_diagnostics(actual_output)}; "
             f"{stateless_input_diagnostics(input_bytes, guest)})"
         )
+
+
+def fixture_parts(
+    artifact: dict[str, Any],
+) -> tuple[str, dict[str, Any], dict[str, Any], dict[str, Any]]:
+    if len(artifact) != 1:
+        raise ValidationError("schema-v2 EEST fixture must contain exactly one test")
+    test_name, test = next(iter(artifact.items()))
+    if not isinstance(test, dict):
+        raise ValidationError(f"EEST test {test_name} must be an object")
+    blocks = test.get("blocks")
+    if not isinstance(blocks, list) or len(blocks) != 1:
+        raise ValidationError(
+            f"EEST test {test_name} must contain exactly one block"
+        )
+    block = blocks[0]
+    if not isinstance(block, dict):
+        raise ValidationError(f"EEST test {test_name} block must be an object")
+    info = test.get("_info")
+    if not isinstance(info, dict):
+        raise ValidationError(f"EEST test {test_name} is missing _info")
+    metadata_container = info.get("metadata")
+    if not isinstance(metadata_container, dict):
+        raise ValidationError(
+            f"EEST test {test_name} is missing _info.metadata"
+        )
+    metadata = metadata_container.get("witness_generator")
+    if not isinstance(metadata, dict):
+        raise ValidationError(
+            f"EEST test {test_name} is missing witness_generator metadata"
+        )
+    return test_name, test, block, metadata
+
+
+def fixture_block_number(artifact: dict[str, Any]) -> int:
+    _, _, block, _ = fixture_parts(artifact)
+    block_header = block.get("blockHeader")
+    if not isinstance(block_header, dict):
+        raise ValidationError("EEST fixture block is missing blockHeader")
+    return parse_json_u64(
+        "blockHeader.number",
+        block_header.get("number"),
+    )
+
+
+def stateless_output_diagnostics(output: Any) -> str:
+    output_root = bytes(output.new_payload_request_root).hex()
+    return (
+        f"newPayloadRequestRoot=0x{output_root}, "
+        f"successfulValidation={bool(output.successful_validation)}, "
+        f"chainId={int(output.chain_config.chain_id)}"
+    )
 
 
 def stateless_input_diagnostics(input_bytes: bytes, guest: EestGuest) -> str:
@@ -607,12 +712,20 @@ def validate_batch_manifest(
     batch: BatchEntry,
     manifest: dict[str, Any] | None,
     artifact_count: int,
+    observed_artifacts: dict[str, dict[str, Any]],
 ) -> list[dict[str, Any]]:
     failures = []
     if manifest is None:
-        return [batch_failure(batch, "manifest.json", "missing batch manifest")]
+        return [
+            batch_failure(
+                batch,
+                BATCH_MANIFEST_PATH,
+                "missing batch manifest",
+            )
+        ]
 
     checks = [
+        ("schemaVersion", ARTIFACT_SCHEMA_VERSION),
         ("network", batch.network),
         ("batchStartBlock", batch.batch_start_block),
         ("batchEndBlock", batch.batch_end_block),
@@ -625,7 +738,7 @@ def validate_batch_manifest(
             failures.append(
                 batch_failure(
                     batch,
-                    "manifest.json",
+                    BATCH_MANIFEST_PATH,
                     f"{field_name} mismatch: expected {expected}, got {actual}",
                 )
             )
@@ -633,14 +746,61 @@ def validate_batch_manifest(
         failures.append(
             batch_failure(
                 batch,
-                "manifest.json",
+                BATCH_MANIFEST_PATH,
                 (
                     "artifact count mismatch: "
                     f"expected {batch.artifact_count}, got {artifact_count}"
                 ),
             )
         )
+    manifest_artifacts = manifest.get("artifacts")
+    if not isinstance(manifest_artifacts, list):
+        failures.append(
+            batch_failure(
+                batch,
+                BATCH_MANIFEST_PATH,
+                "artifacts must be an array",
+            )
+        )
+        return failures
+    by_path = {
+        entry.get("archivePath"): entry
+        for entry in manifest_artifacts
+        if isinstance(entry, dict) and isinstance(entry.get("archivePath"), str)
+    }
+    for archive_path, observed in observed_artifacts.items():
+        expected = by_path.get(archive_path)
+        if expected is None:
+            failures.append(
+                batch_failure(
+                    batch,
+                    BATCH_MANIFEST_PATH,
+                    f"missing manifest artifact entry for {archive_path}",
+                )
+            )
+            continue
+        for field_name in ("fixtureByteLength", "fixtureSha256"):
+            if expected.get(field_name) != observed[field_name]:
+                failures.append(
+                    batch_failure(
+                        batch,
+                        BATCH_MANIFEST_PATH,
+                        (
+                            f"{archive_path} {field_name} mismatch: "
+                            f"expected {expected.get(field_name)}, "
+                            f"got {observed[field_name]}"
+                        ),
+                    )
+                )
     return failures
+
+
+def parse_json_u64(field_name: str, value: Any) -> int:
+    raw = str_required(field_name, value).strip()
+    try:
+        return int(raw, 16 if raw.lower().startswith("0x") else 10)
+    except ValueError as error:
+        raise ValidationError(f"{field_name} is not a valid integer") from error
 
 
 def decode_hex_bytes(field_name: str, value: Any) -> bytes:
@@ -690,8 +850,12 @@ def artifact_failure(
         f"{type(error).__name__}: {error}",
     )
     if artifact is not None:
-        failure["blockNumber"] = artifact.get("blockNumber")
-        failure["blockHash"] = artifact.get("blockHash")
+        try:
+            _, _, _, metadata = fixture_parts(artifact)
+            failure["blockNumber"] = fixture_block_number(artifact)
+            failure["blockHash"] = metadata.get("blockHash")
+        except Exception:
+            pass
     return failure
 
 
@@ -775,7 +939,7 @@ def render_markdown_summary(summary: dict[str, Any]) -> str:
     totals = summary["totals"]
     eest = summary["eest"]
     lines = [
-        "# EEST R2 Stateless Input Validation",
+        "# EEST R2 Stateless Fixture Validation",
         "",
         f"- Catalog: `{summary['catalogUrl']}`",
         f"- EEST ref: `{eest['ref']}`",

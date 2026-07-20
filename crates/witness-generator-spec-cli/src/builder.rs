@@ -6,18 +6,21 @@ use alloy_primitives::{B256, Bytes};
 use alloy_rlp::Decodable;
 use anyhow::{Context, ensure};
 use stateless_validator_common::{
-    SszList,
-    guest::input::{
-        ExecutionWitness, MAX_BYTES_PER_CODE, MAX_BYTES_PER_HEADER, MAX_BYTES_PER_WITNESS_NODE,
-        MAX_PUBLIC_KEYS, MAX_WITNESS_CODES, MAX_WITNESS_HEADERS, MAX_WITNESS_NODES,
-        PUBLIC_KEY_BYTES, ProtocolFork, StatelessInput,
-        new_payload_request::{
-            BlockAccessList, BuilderDepositRequest, BuilderDepositRequests, BuilderExitRequest,
-            BuilderExitRequests, ConsolidationRequest, ConsolidationRequests, DepositRequest,
-            DepositRequests, ExecutionPayloadV4, ExecutionRequestsGloas, ExtraData,
-            NewPayloadRequest, NewPayloadRequestGloas, Transaction as PayloadTransaction,
-            Transactions, VersionedHashes, Withdrawal, WithdrawalRequest, WithdrawalRequests,
-            Withdrawals,
+    HashTreeRoot as _, Sha2Hasher, SszEncode as _, SszList,
+    guest::{
+        StatelessValidationResult,
+        input::{
+            ExecutionWitness, MAX_BYTES_PER_CODE, MAX_BYTES_PER_HEADER, MAX_BYTES_PER_WITNESS_NODE,
+            MAX_PUBLIC_KEYS, MAX_WITNESS_CODES, MAX_WITNESS_HEADERS, MAX_WITNESS_NODES,
+            PUBLIC_KEY_BYTES, ProtocolFork, StatelessInput,
+            new_payload_request::{
+                BlockAccessList, BuilderDepositRequest, BuilderDepositRequests, BuilderExitRequest,
+                BuilderExitRequests, ConsolidationRequest, ConsolidationRequests, DepositRequest,
+                DepositRequests, ExecutionPayloadV4, ExecutionRequestsGloas, ExtraData,
+                NewPayloadRequest, NewPayloadRequestGloas, Transaction as PayloadTransaction,
+                Transactions, VersionedHashes, Withdrawal, WithdrawalRequest, WithdrawalRequests,
+                Withdrawals,
+            },
         },
     },
 };
@@ -35,7 +38,9 @@ use crate::{
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GeneratedInput {
     /// Bytes encoded as `0x1501 || SSZ(StatelessInput)`.
-    pub bytes: Vec<u8>,
+    pub stateless_input_bytes: Vec<u8>,
+    /// Expected plain-SSZ [`StatelessValidationResult`] bytes.
+    pub stateless_output_bytes: Vec<u8>,
     /// Execution block hash.
     pub block_hash: B256,
     /// Execution block number.
@@ -44,6 +49,8 @@ pub struct GeneratedInput {
     pub slot_number: u64,
     /// Execution chain id.
     pub chain_id: u64,
+    /// Gas used by the execution payload.
+    pub gas_used: u64,
 }
 
 pub(crate) fn build_generated_input(
@@ -55,6 +62,7 @@ pub(crate) fn build_generated_input(
     let slot_number = payload.slot_number;
     let block_hash = payload.block_hash;
     let block_number = payload.block_number;
+    let gas_used = payload.gas_used;
     let transaction_artifacts = decode_transaction_artifacts(&payload.transactions)?;
 
     let new_payload_request = NewPayloadRequest::Gloas(NewPayloadRequestGloas {
@@ -71,6 +79,14 @@ pub(crate) fn build_generated_input(
     )
     .map_err(|err| anyhow::anyhow!("public_keys exceed SSZ bound: {err:?}"))?;
 
+    chain_config
+        .validate(&new_payload_request)
+        .context("generated chain configuration is not active for the payload")?;
+    let new_payload_request_root = new_payload_request.hash_tree_root(&Sha2Hasher);
+    let stateless_output_bytes =
+        StatelessValidationResult::new(new_payload_request_root, true, chain_config.clone())
+            .to_ssz();
+
     let stateless_input = StatelessInput {
         new_payload_request,
         witness,
@@ -78,14 +94,16 @@ pub(crate) fn build_generated_input(
         public_keys,
     };
 
-    let bytes = stateless_input.to_schema_prefixed_ssz(ProtocolFork::Amsterdam);
+    let stateless_input_bytes = stateless_input.to_schema_prefixed_ssz(ProtocolFork::Amsterdam);
 
     Ok(GeneratedInput {
-        bytes,
+        stateless_input_bytes,
+        stateless_output_bytes,
         block_hash,
         block_number,
         slot_number,
         chain_id,
+        gas_used,
     })
 }
 
@@ -360,6 +378,7 @@ fn decode_header_number(bytes: &[u8]) -> anyhow::Result<u64> {
 mod tests {
     use alloy_primitives::{b256, hex};
     use alloy_rlp::Encodable;
+    use stateless_validator_common::SszDecode as _;
 
     use super::*;
 
@@ -498,16 +517,27 @@ mod tests {
         let first = build_generated_input(envelope.clone(), witness.clone(), 1).unwrap();
         let second = build_generated_input(envelope, witness, 1).unwrap();
 
-        assert_eq!(first.bytes, second.bytes);
-        assert_eq!(&first.bytes[..2], &[0x15, 0x01]);
+        assert_eq!(first.stateless_input_bytes, second.stateless_input_bytes);
+        assert_eq!(&first.stateless_input_bytes[..2], &[0x15, 0x01]);
         assert_eq!(first.block_number, 10);
         assert_eq!(first.slot_number, 64);
         assert_eq!(first.chain_id, 1);
+        assert_eq!(first.gas_used, 21_000);
 
-        let (fork, decoded) = StatelessInput::from_schema_prefixed_ssz(&first.bytes).unwrap();
+        let (fork, decoded) =
+            StatelessInput::from_schema_prefixed_ssz(&first.stateless_input_bytes).unwrap();
         assert_eq!(fork, ProtocolFork::Amsterdam);
         assert_eq!(decoded.witness.state.len(), 1);
         assert_eq!(decoded.public_keys.len(), 0);
+        let output =
+            StatelessValidationResult::from_ssz_bytes(&first.stateless_output_bytes).unwrap();
+        assert!(!first.stateless_output_bytes.starts_with(&[0x15, 0x01]));
+        assert!(output.successful_validation);
+        assert_eq!(output.chain_config, decoded.chain_config);
+        assert_eq!(
+            output.new_payload_request_root,
+            decoded.new_payload_request.hash_tree_root(&Sha2Hasher)
+        );
         let NewPayloadRequest::Gloas(request) = decoded.new_payload_request else {
             panic!("Amsterdam input must decode as a Gloas payload request");
         };
