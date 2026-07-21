@@ -80,10 +80,14 @@ async fn main() -> Result<()> {
         anyhow::bail!("--cluster-endpoint is only valid with --resource cluster");
     }
 
-    // Validate: --resource cluster currently only supports zisk zkVM and not support --action execute
+    // Validate: --resource cluster currently only supports zisk and openvm zkVMs and not support --action execute
     if matches!(cli.resource, cli::Resource::Cluster) {
-        if cli.zkvms.iter().any(|z| *z != zkVMKind::Zisk) {
-            anyhow::bail!("--resource cluster is only implemented for --zkvms zisk");
+        if cli
+            .zkvms
+            .iter()
+            .any(|z| !matches!(z, zkVMKind::Zisk | zkVMKind::OpenVM))
+        {
+            anyhow::bail!("--resource cluster is only implemented for --zkvms zisk and openvm");
         }
         if matches!(action, Action::Execute) {
             anyhow::bail!("--resource cluster is not implemented for --action execute");
