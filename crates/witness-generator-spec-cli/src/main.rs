@@ -1,4 +1,4 @@
-//! CLI entry point for generating and collecting canonical stateless input bytes.
+//! CLI entry point for generating and collecting canonical stateless fixtures.
 
 #![allow(
     unused_crate_dependencies,
@@ -18,9 +18,8 @@ use std::{
     path::PathBuf,
 };
 
-use alloy_primitives::hex;
 use anyhow::Context;
-use clap::{Args, Parser, Subcommand, ValueEnum};
+use clap::{Args, Parser, Subcommand};
 use config::CollectorConfig;
 use tracing::info;
 use tracing_subscriber::EnvFilter;
@@ -29,7 +28,7 @@ use witness_generator_spec_cli::{BlockSelector, NetworkWitnessClient, NetworkWit
 #[derive(Debug, Parser)]
 #[command(
     name = "witness-generator-spec-cli",
-    about = "Generate and collect canonical Amsterdam stateless guest input bytes from CL/EL RPC endpoints.",
+    about = "Generate and collect canonical Amsterdam stateless guest fixtures from CL/EL RPC endpoints.",
     long_about = None
 )]
 struct Cli {
@@ -48,9 +47,6 @@ struct Cli {
     /// Execution block number to resolve to a CL slot via block timestamp.
     #[arg(long, conflicts_with = "block_id")]
     execution_block_number: Option<u64>,
-    /// Output encoding.
-    #[arg(long, value_enum, default_value_t = OutputFormat::Hex)]
-    format: OutputFormat,
     /// Output file. Stdout is used when omitted.
     #[arg(long)]
     out: Option<PathBuf>,
@@ -58,7 +54,7 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Command {
-    /// Generate canonical stateless input bytes once.
+    /// Generate one benchmark-ready EEST fixture.
     Generate(GenerateArgs),
     /// Poll the live network head and store one artifact per observed block.
     Collect(CollectArgs),
@@ -82,9 +78,6 @@ struct GenerateArgs {
     /// Execution block number to resolve to a CL slot via block timestamp.
     #[arg(long, conflicts_with = "block_id")]
     execution_block_number: Option<u64>,
-    /// Output encoding.
-    #[arg(long, value_enum, default_value_t = OutputFormat::Hex)]
-    format: OutputFormat,
     /// Output file. Stdout is used when omitted.
     #[arg(long)]
     out: Option<PathBuf>,
@@ -115,12 +108,6 @@ struct PublishR2Args {
     /// TOML config path.
     #[arg(long)]
     config: PathBuf,
-}
-
-#[derive(Debug, Clone, Copy, PartialEq, Eq, ValueEnum)]
-enum OutputFormat {
-    Hex,
-    Raw,
 }
 
 #[tokio::main]
@@ -168,7 +155,6 @@ impl Cli {
                 .context("--el-url is required when no subcommand is used")?,
             block_id: self.block_id,
             execution_block_number: self.execution_block_number,
-            format: self.format,
             out: self.out,
         })
     }
@@ -178,10 +164,7 @@ async fn run_generate(args: GenerateArgs) -> anyhow::Result<()> {
     let selector = block_selector(args.block_id.as_deref(), args.execution_block_number);
     let client = NetworkWitnessClient::new(NetworkWitnessConfig::new(args.cl_url, args.el_url))?;
     let generated = client.stateless_input_bytes(selector).await?;
-    let output = match args.format {
-        OutputFormat::Hex => format!("0x{}\n", hex::encode(&generated.bytes)).into_bytes(),
-        OutputFormat::Raw => generated.bytes,
-    };
+    let output = artifact::one_shot_fixture_json(&generated)?;
 
     if let Some(path) = args.out {
         fs::write(path, output)?;
@@ -234,15 +217,14 @@ mod tests {
             "http://cl",
             "--el-url",
             "http://el",
-            "--format",
-            "raw",
         ])
         .unwrap();
 
         let Some(Command::Generate(args)) = cli.command else {
             panic!("expected generate subcommand");
         };
-        assert_eq!(args.format, OutputFormat::Raw);
+        assert_eq!(args.cl_url, "http://cl");
+        assert_eq!(args.el_url, "http://el");
     }
 
     #[test]

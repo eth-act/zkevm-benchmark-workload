@@ -36,3 +36,6 @@ alloy-rlp.workspace = true
 
 # local
 stateless-validator-common.workspace = true
+
+[dev-dependencies]
+benchmark-runner.workspace = true

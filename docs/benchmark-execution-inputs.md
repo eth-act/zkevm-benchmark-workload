@@ -26,6 +26,10 @@ When the input path contains a `blockchain_tests/` subdirectory, only that subtr
 
 An empty directory retains the existing discovery behavior: it produces no fixture paths.
 
+Batch archives exported by `witness-generator-spec-cli` use this layout. After
+extracting one, pass the extraction root as `--input-folder`; discovery selects
+its `blockchain_tests/` subtree and ignores `.meta/manifest.json`.
+
 ## Canonical EEST Schema
 
 The only accepted benchmark fixture format is an EEST `blockchain_tests` JSON object whose executable blocks contain `statelessInputBytes` and `statelessOutputBytes`:

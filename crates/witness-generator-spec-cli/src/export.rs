@@ -1,6 +1,7 @@
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
+    io::Write,
     path::{Path, PathBuf},
 };
 
@@ -10,7 +11,8 @@ use tar::{Builder, Header};
 
 use crate::{
     artifact::{
-        self, StatelessInputArtifact, file_sha256_hex, path_to_slash_string, read_artifact,
+        self, BATCH_MANIFEST_PATH, StatelessInputArtifact, fixture_archive_path,
+        path_to_slash_string, read_artifact_with_json, sha256_hex,
     },
     config::CollectorConfig,
 };
@@ -20,8 +22,8 @@ const ZSTD_LEVEL: i32 = 3;
 #[derive(Debug, Clone)]
 struct ArtifactFile {
     path: PathBuf,
-    relative_path: PathBuf,
     artifact: StatelessInputArtifact,
+    fixture_json: Vec<u8>,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -43,12 +45,12 @@ struct BatchManifestArtifact {
     archive_path: String,
     block_number: u64,
     block_hash: String,
+    gas_used: u64,
     slot_number: u64,
     chain_id: u64,
-    stateless_input_sha256: String,
     stateless_input_byte_length: usize,
-    compressed_file_sha256: String,
-    compressed_file_byte_length: u64,
+    fixture_sha256: String,
+    fixture_byte_length: usize,
 }
 
 pub(crate) fn export_batches(
@@ -90,29 +92,19 @@ fn artifacts_by_block(
 
     let mut by_block: BTreeMap<u64, Vec<ArtifactFile>> = BTreeMap::new();
     for path in files {
-        let artifact = read_artifact(&path)?;
-        let relative_path = path
-            .strip_prefix(config.blocks_root())
-            .with_context(|| {
-                format!(
-                    "artifact {} is not under {}",
-                    path.display(),
-                    config.blocks_root().display()
-                )
-            })?
-            .to_path_buf();
+        let (artifact, fixture_json) = read_artifact_with_json(&path)?;
         by_block
             .entry(artifact.block_number)
             .or_default()
             .push(ArtifactFile {
                 path,
-                relative_path,
                 artifact,
+                fixture_json,
             });
     }
 
     for files in by_block.values_mut() {
-        files.sort_by(|left, right| left.relative_path.cmp(&right.relative_path));
+        files.sort_by(|left, right| left.path.cmp(&right.path));
     }
 
     Ok(by_block)
@@ -166,24 +158,19 @@ fn write_batch_archive(
     let mut tar = Builder::new(encoder);
 
     for artifact in artifacts {
-        let archive_path = PathBuf::from("blocks").join(&artifact.relative_path);
-        tar.append_path_with_name(&artifact.path, &archive_path)
-            .with_context(|| {
-                format!(
-                    "failed to append {} as {}",
-                    artifact.path.display(),
-                    archive_path.display()
-                )
-            })?;
+        let archive_path = fixture_archive_path(&artifact.artifact);
+        append_bytes(&mut tar, &archive_path, &artifact.fixture_json).with_context(|| {
+            format!(
+                "failed to append {} as {}",
+                artifact.path.display(),
+                archive_path.display()
+            )
+        })?;
     }
 
     let manifest_bytes =
         serde_json::to_vec_pretty(&manifest).context("failed to serialize batch manifest")?;
-    let mut header = Header::new_gnu();
-    header.set_size(manifest_bytes.len() as u64);
-    header.set_mode(0o644);
-    header.set_cksum();
-    tar.append_data(&mut header, "manifest.json", manifest_bytes.as_slice())
+    append_bytes(&mut tar, Path::new(BATCH_MANIFEST_PATH), &manifest_bytes)
         .context("failed to append batch manifest")?;
 
     let encoder = tar.into_inner().context("failed to finish tar archive")?;
@@ -213,25 +200,23 @@ fn build_manifest(
     let artifacts = artifacts
         .iter()
         .map(|file| {
-            let archive_path = PathBuf::from("blocks").join(&file.relative_path);
+            let archive_path = fixture_archive_path(&file.artifact);
             Ok(BatchManifestArtifact {
                 archive_path: path_to_slash_string(&archive_path),
                 block_number: file.artifact.block_number,
                 block_hash: file.artifact.block_hash.clone(),
+                gas_used: file.artifact.gas_used,
                 slot_number: file.artifact.slot_number,
                 chain_id: file.artifact.chain_id,
-                stateless_input_sha256: file.artifact.stateless_input_sha256.clone(),
                 stateless_input_byte_length: file.artifact.stateless_input_byte_length,
-                compressed_file_sha256: file_sha256_hex(&file.path)?,
-                compressed_file_byte_length: fs::metadata(&file.path)
-                    .with_context(|| format!("failed to stat {}", file.path.display()))?
-                    .len(),
+                fixture_sha256: sha256_hex(&file.fixture_json),
+                fixture_byte_length: file.fixture_json.len(),
             })
         })
         .collect::<anyhow::Result<Vec<_>>>()?;
 
     Ok(BatchManifest {
-        schema_version: 1,
+        schema_version: 2,
         network: config.network.clone(),
         batch_start_block: start,
         batch_end_block: end,
@@ -240,6 +225,15 @@ fn build_manifest(
         created_at: artifact::utc_now_rfc3339()?,
         artifacts,
     })
+}
+
+fn append_bytes<W: Write>(tar: &mut Builder<W>, path: &Path, bytes: &[u8]) -> anyhow::Result<()> {
+    let mut header = Header::new_gnu();
+    header.set_size(bytes.len() as u64);
+    header.set_mode(0o644);
+    header.set_cksum();
+    tar.append_data(&mut header, path, bytes)
+        .context("failed to append tar entry")
 }
 
 fn collect_artifact_files(dir: &Path, files: &mut Vec<PathBuf>) -> anyhow::Result<()> {
@@ -283,10 +277,12 @@ mod tests {
     use std::io::Read;
 
     use alloy_primitives::B256;
+    use benchmark_runner::stateless_validator::{
+        ExecutionClient, benchmark_fixture_paths, stateless_validator_input_iter,
+    };
     use tar::Archive;
-    use witness_generator_spec_cli::GeneratedInput;
 
-    use crate::artifact::{StatelessInputArtifact, write_artifact_atomic};
+    use crate::artifact::{StatelessInputArtifact, test_generated_input, write_artifact_atomic};
 
     use super::*;
 
@@ -308,11 +304,19 @@ mod tests {
         assert_eq!(manifest.batch_start_block, 0);
         assert_eq!(manifest.batch_end_block, 1);
         assert_eq!(manifest.artifact_count, 2);
-        assert!(
-            manifest
-                .artifacts
+        assert_eq!(manifest.schema_version, 2);
+        assert!(manifest.artifacts.iter().all(|artifact| {
+            artifact.archive_path.starts_with("blockchain_tests/")
+                && artifact.archive_path.ends_with(".json")
+        }));
+        let entries = archive_entries(&exported[0]);
+        assert!(entries.contains(&BATCH_MANIFEST_PATH.to_owned()));
+        assert_eq!(
+            entries
                 .iter()
-                .all(|artifact| artifact.archive_path.starts_with("blocks/"))
+                .filter(|path| path.starts_with("blockchain_tests/"))
+                .count(),
+            2
         );
     }
 
@@ -327,14 +331,40 @@ mod tests {
         assert_eq!(export_batches(&config, true).unwrap().len(), 1);
     }
 
+    #[test]
+    fn extracted_batch_is_directly_loadable_by_benchmark_runner() {
+        let config = test_config("benchmark_ready", 2);
+        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        let archive = export_batches(&config, false).unwrap().remove(0);
+        let extracted = config.out_root.join("extracted");
+
+        let file = fs::File::open(archive).unwrap();
+        let decoder = zstd::stream::read::Decoder::new(file).unwrap();
+        Archive::new(decoder).unpack(&extracted).unwrap();
+
+        let paths = benchmark_fixture_paths(&extracted).unwrap();
+        assert_eq!(paths.len(), 2);
+        assert!(
+            paths
+                .iter()
+                .all(|path| path.starts_with(extracted.join("blockchain_tests")))
+        );
+        let fixtures =
+            stateless_validator_input_iter(&extracted, None, ExecutionClient::Reth, None)
+                .unwrap()
+                .collect::<anyhow::Result<Vec<_>>>()
+                .unwrap();
+        assert_eq!(fixtures.len(), 2);
+        assert_eq!(
+            fixtures[0].expected_public_values().unwrap(),
+            test_generated_input(0, B256::repeat_byte(0xaa)).stateless_output_bytes
+        );
+        assert_eq!(fixtures[0].metadata()["block_used_gas"], 21_000);
+    }
+
     fn write_generated_artifact(config: &CollectorConfig, block_number: u64, block_hash: B256) {
-        let generated = GeneratedInput {
-            bytes: vec![0x15, 0x01, block_number as u8],
-            block_hash,
-            block_number,
-            slot_number: block_number + 100,
-            chain_id: 1,
-        };
+        let generated = test_generated_input(block_number, block_hash);
         let artifact = StatelessInputArtifact::from_generated_at(
             &config.network,
             "head",
@@ -352,13 +382,30 @@ mod tests {
         let mut archive = Archive::new(decoder);
         for entry in archive.entries().unwrap() {
             let mut entry = entry.unwrap();
-            if entry.path().unwrap().as_ref() == Path::new("manifest.json") {
+            if entry.path().unwrap().as_ref() == Path::new(BATCH_MANIFEST_PATH) {
                 let mut bytes = Vec::new();
                 entry.read_to_end(&mut bytes).unwrap();
                 return serde_json::from_slice(&bytes).unwrap();
             }
         }
         panic!("manifest not found");
+    }
+
+    fn archive_entries(path: &Path) -> Vec<String> {
+        let file = fs::File::open(path).unwrap();
+        let decoder = zstd::stream::read::Decoder::new(file).unwrap();
+        Archive::new(decoder)
+            .entries()
+            .unwrap()
+            .map(|entry| {
+                entry
+                    .unwrap()
+                    .path()
+                    .unwrap()
+                    .to_string_lossy()
+                    .into_owned()
+            })
+            .collect()
     }
 
     fn test_config(name: &str, batch_size: u64) -> CollectorConfig {

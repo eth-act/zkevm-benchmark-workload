@@ -9,7 +9,7 @@ use serde::{Deserialize, Serialize};
 use tar::Archive;
 
 use crate::{
-    artifact::{self, path_to_slash_string, write_bytes_atomic},
+    artifact::{self, BATCH_MANIFEST_PATH, path_to_slash_string, write_bytes_atomic},
     config::CollectorConfig,
 };
 
@@ -82,6 +82,7 @@ struct PublicBatchEntry {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct BatchArchiveManifest {
+    schema_version: u64,
     network: String,
     batch_start_block: u64,
     batch_end_block: u64,
@@ -154,6 +155,12 @@ fn read_batch_entries(config: &CollectorConfig) -> anyhow::Result<Vec<PublicBatc
     for archive_path in archive_paths {
         let manifest = read_batch_manifest(&archive_path)?;
         ensure!(
+            manifest.schema_version == 2,
+            "batch archive {} uses unsupported manifest schema version {}; expected 2",
+            archive_path.display(),
+            manifest.schema_version
+        );
+        ensure!(
             manifest.network == config.network,
             "batch archive {} is for network {}, expected {}",
             archive_path.display(),
@@ -221,7 +228,8 @@ fn public_manifest(
             total_byte_length,
         },
         notes: vec![
-            "Public downloads are batch archives; individual block artifacts are inside those archives and are not published as standalone R2 objects.".to_owned(),
+            "Public downloads are batch archives containing benchmark-ready EEST fixtures under blockchain_tests/; individual fixtures are not published as standalone R2 objects.".to_owned(),
+            "After extraction, pass the archive root directly to ere-hosts --input-folder.".to_owned(),
             "Cloudflare R2 public buckets do not provide directory listing; use this page or the JSON indexes instead.".to_owned(),
         ],
     })
@@ -256,20 +264,26 @@ fn read_batch_manifest(path: &Path) -> anyhow::Result<BatchArchiveManifest> {
             .path()
             .with_context(|| format!("failed to read tar entry path from {}", path.display()))?
             .as_ref()
-            == Path::new("manifest.json")
+            == Path::new(BATCH_MANIFEST_PATH)
         {
             let mut bytes = Vec::new();
-            entry
-                .read_to_end(&mut bytes)
-                .with_context(|| format!("failed to read manifest.json from {}", path.display()))?;
+            entry.read_to_end(&mut bytes).with_context(|| {
+                format!(
+                    "failed to read {BATCH_MANIFEST_PATH} from {}",
+                    path.display()
+                )
+            })?;
             let manifest = serde_json::from_slice(&bytes).with_context(|| {
-                format!("failed to decode manifest.json from {}", path.display())
+                format!(
+                    "failed to decode {BATCH_MANIFEST_PATH} from {}",
+                    path.display()
+                )
             })?;
             return Ok(manifest);
         }
     }
     anyhow::bail!(
-        "batch archive {} does not contain manifest.json",
+        "batch archive {} does not contain {BATCH_MANIFEST_PATH}",
         path.display()
     )
 }
@@ -337,7 +351,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     html.push_str("</section>\n");
 
     html.push_str("<section class=\"panel\">\n<h2>How to download</h2>\n");
-    html.push_str("<p>Use the batch archive links below. Each archive contains block artifacts plus a <code>manifest.json</code>.</p>\n");
+    html.push_str("<p>Each archive contains benchmark-ready EEST fixtures under <code>blockchain_tests/</code> and metadata at <code>.meta/manifest.json</code>.</p>\n");
     if let Some(first_batch) = batches.first() {
         html.push_str("<pre>curl -LO ");
         push_escaped(&mut html, &first_batch.path);
@@ -351,6 +365,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
                 .unwrap_or(&first_batch.path),
         );
         html.push_str("</pre>\n");
+        html.push_str("<p>Pass the extracted directory directly to <code>ere-hosts --input-folder</code>.</p>\n");
     } else {
         html.push_str("<p>No complete batch archives are available yet.</p>\n");
     }
@@ -454,10 +469,11 @@ mod tests {
 
     use alloy_primitives::B256;
     use serde_json::Value;
-    use witness_generator_spec_cli::GeneratedInput;
 
     use crate::{
-        artifact::{StatelessInputArtifact, append_index_entry, write_artifact_atomic},
+        artifact::{
+            StatelessInputArtifact, append_index_entry, test_generated_input, write_artifact_atomic,
+        },
         export,
     };
 
@@ -511,6 +527,8 @@ mod tests {
         let html = fs::read_to_string(config.network_root().join("index.html")).unwrap();
         assert!(html.contains("glamsterdam-devnet-5 stateless inputs"));
         assert!(html.contains("exports/batches/0-1.tar.zst"));
+        assert!(html.contains("blockchain_tests/"));
+        assert!(html.contains(".meta/manifest.json"));
         assert!(!html.contains("blocks.jsonl"));
         assert!(!html.contains("index.jsonl"));
     }
@@ -549,13 +567,7 @@ mod tests {
     }
 
     fn write_generated_artifact(config: &CollectorConfig, block_number: u64, block_hash: B256) {
-        let generated = GeneratedInput {
-            bytes: vec![0x15, 0x01, block_number as u8],
-            block_hash,
-            block_number,
-            slot_number: block_number + 100,
-            chain_id: 1,
-        };
+        let generated = test_generated_input(block_number, block_hash);
         let artifact = StatelessInputArtifact::from_generated_at(
             &config.network,
             "head",

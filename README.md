@@ -14,7 +14,7 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 - **`crates/ere-hosts`**: benchmark CLI for execution, proving, and verification jobs.
 - **`crates/benchmark-runner`**: shared orchestration for canonical fixture loading, guest resolution, execution, proof flow, and verification.
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
-- **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing canonical stateless inputs from CL/EL RPC endpoints.
+- **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing benchmark-ready EEST stateless fixtures from CL/EL RPC endpoints.
 
 Reth and Ethrex are enabled across the supported zkVMs. Zesu remains a valid CLI execution-client value and its routing is retained, but it is temporarily gated until `ere-guests` publishes a `tests-zkevm` v0.6.2-compatible artifact. Enabled guest programs are maintained in [eth-act/ere-guests](https://github.com/eth-act/ere-guests) and are downloaded automatically from the resolved release or commit artifacts unless `--bin-path` or `--guest-artifact-base-url` is provided.
 
@@ -32,6 +32,11 @@ Inspect both maintained CLIs:
 cargo run -p ere-hosts -- --help
 cargo run -p witness-generator-spec-cli -- --help
 ```
+
+The witness generator produces benchmark-ready EEST fixtures from live CL/EL
+networks. Use `generate` for one block or `collect` for continuous per-block
+collection. Exported live batches contain a `blockchain_tests/` tree and can be
+passed to `ere-hosts` immediately after extraction.
 
 Obtain an EEST fixture bundle from [ethereum/execution-specs](https://github.com/ethereum/execution-specs) whose `blockchain_tests` cases contain canonical stateless bytes. Then benchmark either the checkout's fixture root, a directory of EEST JSON files, or one EEST JSON file:
 
