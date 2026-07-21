@@ -345,8 +345,8 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     push_metric(&mut html, "Batch size", manifest.batch_size);
     push_metric(
         &mut html,
-        "Total batch bytes",
-        manifest.batches.total_byte_length,
+        "Total batch size",
+        format_byte_size(manifest.batches.total_byte_length),
     );
     html.push_str("</section>\n");
 
@@ -383,7 +383,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
         html.push_str("<p>No completed batch archives have been exported yet.</p>\n");
     } else {
         html.push_str("<table>\n<thead><tr><th>Blocks</th><th>Artifacts</th><th>Size</th><th>SHA-256</th><th>Download</th></tr></thead>\n<tbody>\n");
-        for batch in batches {
+        for batch in batches.iter().rev() {
             html.push_str("<tr><td class=\"nowrap\">");
             push_escaped(
                 &mut html,
@@ -392,7 +392,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
             html.push_str("</td><td>");
             push_escaped(&mut html, &batch.artifact_count.to_string());
             html.push_str("</td><td>");
-            push_escaped(&mut html, &batch.byte_length.to_string());
+            push_escaped(&mut html, &format_byte_size(batch.byte_length));
             html.push_str("</td><td><code>");
             push_escaped(&mut html, &short_sha256(&batch.sha256));
             html.push_str("</code></td><td><a href=\"");
@@ -457,6 +457,25 @@ fn short_sha256(sha256: &str) -> String {
     }
 }
 
+fn format_byte_size(bytes: u64) -> String {
+    const UNITS: [&str; 7] = ["B", "KiB", "MiB", "GiB", "TiB", "PiB", "EiB"];
+
+    let mut value = bytes as f64;
+    let mut unit = 0;
+    while value >= 1024.0 && unit < UNITS.len() - 1 {
+        value /= 1024.0;
+        unit += 1;
+    }
+
+    if unit == 0 {
+        return format!("{bytes} B");
+    }
+
+    let formatted = format!("{value:.2}");
+    let formatted = formatted.trim_end_matches('0').trim_end_matches('.');
+    format!("{formatted} {}", UNITS[unit])
+}
+
 fn is_batch_archive(path: &Path) -> bool {
     path.file_name()
         .and_then(|name| name.to_str())
@@ -478,6 +497,15 @@ mod tests {
     };
 
     use super::*;
+
+    #[test]
+    fn formats_byte_sizes_for_display() {
+        assert_eq!(format_byte_size(0), "0 B");
+        assert_eq!(format_byte_size(1_023), "1023 B");
+        assert_eq!(format_byte_size(1_024), "1 KiB");
+        assert_eq!(format_byte_size(1_536), "1.5 KiB");
+        assert_eq!(format_byte_size(1_891_330_682), "1.76 GiB");
+    }
 
     #[test]
     fn generates_public_catalog_for_completed_batches() {
@@ -526,6 +554,8 @@ mod tests {
 
         let html = fs::read_to_string(config.network_root().join("index.html")).unwrap();
         assert!(html.contains("glamsterdam-devnet-5 stateless inputs"));
+        assert!(html.contains("Total batch size"));
+        assert!(!html.contains("Total batch bytes"));
         assert!(html.contains("exports/batches/0-1.tar.zst"));
         assert!(html.contains("blockchain_tests/"));
         assert!(html.contains(".meta/manifest.json"));
@@ -564,6 +594,27 @@ mod tests {
             read_jsonl_values(&config.network_root().join("batches.jsonl")).len(),
             1
         );
+    }
+
+    #[test]
+    fn html_lists_batch_archives_by_block_range_descending() {
+        let config = test_config("descending_archives", 2);
+        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        write_generated_artifact(&config, 2, B256::repeat_byte(0xcc));
+        write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
+        export::export_batches(&config, false).unwrap();
+
+        generate_catalog(&config).unwrap();
+
+        let html = fs::read_to_string(config.network_root().join("index.html")).unwrap();
+        let newest = html.find(">2-3</td>").unwrap();
+        let oldest = html.find(">0-1</td>").unwrap();
+        assert!(newest < oldest);
+
+        let batches = read_jsonl_values(&config.network_root().join("batches.jsonl"));
+        assert_eq!(batches[0]["batchStartBlock"], 0);
+        assert_eq!(batches[1]["batchStartBlock"], 2);
     }
 
     fn write_generated_artifact(config: &CollectorConfig, block_number: u64, block_hash: B256) {
