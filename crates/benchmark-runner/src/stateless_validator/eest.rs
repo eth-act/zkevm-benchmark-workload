@@ -337,7 +337,7 @@ mod tests {
             .iter()
             .find(|fixture| fixture.original_test_name == "tests/foo.py::test_same[name/a]")
             .unwrap();
-        assert_eq!(fixture.stateless_input_bytes, [0x00, 0x01, 0x02]);
+        assert_eq!(fixture.stateless_input_bytes, [0x15, 0x01, 0x02]);
         assert_eq!(fixture.stateless_output_bytes, [0xaa, 0xbb]);
         assert_eq!(
             fixture.source_path,
@@ -454,7 +454,7 @@ mod tests {
                 "config": {"chainid": "0x01"},
                 "blocks": [
                     {
-                        "statelessInputBytes": "0x000102",
+                        "statelessInputBytes": "0x150102",
                         "statelessOutputBytes": "0xaabb",
                         "blockHeader": {"number": "0x01", "gasUsed": "0x10"}
                     },

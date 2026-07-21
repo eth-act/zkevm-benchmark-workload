@@ -100,14 +100,14 @@ cd /path/to/parent
 git clone https://github.com/ethereum/execution-specs.git
 cd execution-specs
 git fetch --tags
-git checkout tests-zkevm@v0.4.1
+git checkout tests-zkevm@v0.6.2
 ```
 
 From this repository root, run:
 
 ```bash
-CATALOG_URL="https://pub-5345007fbd06486bbb7cbbe9f3112c45.r2.dev/devnets/glamsterdam-devnet-5"
-EEST_REF="tests-zkevm@v0.4.1"
+CATALOG_URL="https://<public-host>/<new-v0.6.2-prefix>/<network>"
+EEST_REF="tests-zkevm@v0.6.2"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"
 

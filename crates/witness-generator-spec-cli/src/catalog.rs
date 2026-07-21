@@ -550,7 +550,7 @@ mod tests {
 
     fn write_generated_artifact(config: &CollectorConfig, block_number: u64, block_hash: B256) {
         let generated = GeneratedInput {
-            bytes: vec![0x00, 0x01, block_number as u8],
+            bytes: vec![0x15, 0x01, block_number as u8],
             block_hash,
             block_number,
             slot_number: block_number + 100,

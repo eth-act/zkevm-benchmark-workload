@@ -103,20 +103,20 @@ zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
 # ere
-ere-dockerized = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
-ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
-ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.13.0" }
+ere-dockerized = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
+ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
+ere-util-tokio = { git = "https://github.com/eth-act/ere", rev = "58ca85beaee2fa8acd31dbf33b90bb765aac9010" }
 
 # ere-guests
-stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-common" }
-ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-ethrex" }
-ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "stateless-validator-reth" }
-ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.13.0", package = "downloader" }
+stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-common" }
+ere-guests-stateless-validator-ethrex = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-ethrex" }
+ere-guests-stateless-validator-reth = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "stateless-validator-reth" }
+ere-guests-downloader = { git = "https://github.com/eth-act/ere-guests", rev = "b2ed4d88a30174b1eb5d75c55b63deab8516e8bd", package = "downloader" }
 
 # alloy
-alloy-consensus = { version = "2.0.5", default-features = false }
-alloy-eips = { version = "2.0.5", default-features = false }
-alloy-primitives = { version = "1.6.0", default-features = false }
+alloy-consensus = { version = "=2.1.1", default-features = false }
+alloy-eips = { version = "=2.1.1", default-features = false }
+alloy-primitives = { version = "=1.6.0", default-features = false }
 alloy-rlp = { version = "0.3", default-features = false }
 
 # misc

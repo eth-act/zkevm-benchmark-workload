@@ -89,6 +89,10 @@ pub(crate) struct ExecutionRequestsJson {
     pub(crate) withdrawals: Vec<WithdrawalRequestJson>,
     #[serde(default)]
     pub(crate) consolidations: Vec<ConsolidationRequestJson>,
+    #[serde(default)]
+    pub(crate) builder_deposits: Vec<BuilderDepositRequestJson>,
+    #[serde(default)]
+    pub(crate) builder_exits: Vec<BuilderExitRequestJson>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -115,6 +119,21 @@ pub(crate) struct ConsolidationRequestJson {
     pub(crate) source_address: Address,
     pub(crate) source_pubkey: FixedBytes<48>,
     pub(crate) target_pubkey: FixedBytes<48>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub(crate) struct BuilderDepositRequestJson {
+    pub(crate) pubkey: FixedBytes<48>,
+    pub(crate) withdrawal_credentials: B256,
+    #[serde(deserialize_with = "de_u64")]
+    pub(crate) amount: u64,
+    pub(crate) signature: FixedBytes<96>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub(crate) struct BuilderExitRequestJson {
+    pub(crate) source_address: Address,
+    pub(crate) pubkey: FixedBytes<48>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -381,6 +400,16 @@ mod tests {
                 "source_address": format!("0x{}", "66".repeat(20)),
                 "source_pubkey": format!("0x{}", "77".repeat(48)),
                 "target_pubkey": format!("0x{}", "88".repeat(48))
+            }],
+            "builder_deposits": [{
+                "pubkey": format!("0x{}", "99".repeat(48)),
+                "withdrawal_credentials": format!("0x{}", "aa".repeat(32)),
+                "amount": "0x2b",
+                "signature": format!("0x{}", "bb".repeat(96))
+            }],
+            "builder_exits": [{
+                "source_address": format!("0x{}", "cc".repeat(20)),
+                "pubkey": format!("0x{}", "dd".repeat(48))
             }]
         });
 
@@ -390,6 +419,8 @@ mod tests {
         assert_eq!(parsed.deposits[0].index, 42);
         assert_eq!(parsed.withdrawals[0].amount, 1);
         assert_eq!(parsed.consolidations.len(), 1);
+        assert_eq!(parsed.builder_deposits[0].amount, 43);
+        assert_eq!(parsed.builder_exits.len(), 1);
     }
 
     #[test]

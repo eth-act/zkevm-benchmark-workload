@@ -12,7 +12,6 @@ use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 use witness_generator_spec_cli::GeneratedInput;
 
 const ARTIFACT_SCHEMA_VERSION: u64 = 1;
-const STATELESS_INPUT_SCHEMA_ID: &str = "0x0001";
 const ZSTD_LEVEL: i32 = 3;
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -80,6 +79,11 @@ impl StatelessInputArtifact {
         collected_at: &str,
         generator_git_commit: String,
     ) -> anyhow::Result<Self> {
+        let schema_id = generated
+            .bytes
+            .get(..2)
+            .context("generated stateless input is missing its two-byte schema id")?;
+
         Ok(Self {
             schema_version: ARTIFACT_SCHEMA_VERSION,
             network: network.to_owned(),
@@ -92,7 +96,7 @@ impl StatelessInputArtifact {
             generator_package: env!("CARGO_PKG_NAME").to_owned(),
             generator_version: env!("CARGO_PKG_VERSION").to_owned(),
             generator_git_commit,
-            stateless_input_schema_id: STATELESS_INPUT_SCHEMA_ID.to_owned(),
+            stateless_input_schema_id: format!("0x{}", hex::encode(schema_id)),
             stateless_input_byte_length: generated.bytes.len(),
             stateless_input_sha256: sha256_hex(&generated.bytes),
             stateless_input_bytes: format!("0x{}", hex::encode(&generated.bytes)),
@@ -289,7 +293,8 @@ mod tests {
         assert_eq!(decoded, artifact);
         assert_eq!(decoded.stateless_input_byte_length, generated.bytes.len());
         assert_eq!(decoded.stateless_input_sha256, sha256_hex(&generated.bytes));
-        assert_eq!(decoded.stateless_input_bytes, "0x00010203");
+        assert_eq!(decoded.stateless_input_schema_id, "0x1501");
+        assert_eq!(decoded.stateless_input_bytes, "0x15010203");
         assert_eq!(decoded.collection_mode, "head");
 
         let file = fs::File::open(&result.path).unwrap();
@@ -329,9 +334,26 @@ mod tests {
         );
     }
 
+    #[test]
+    fn artifact_rejects_generated_input_without_schema_id() {
+        let mut generated = generated_input(42, B256::repeat_byte(0xaa));
+        generated.bytes = vec![0x15];
+
+        let error = StatelessInputArtifact::from_generated_at(
+            "glamsterdam-devnet-7",
+            "head",
+            &generated,
+            "2026-06-11T00:00:00Z",
+            "test-commit".to_owned(),
+        )
+        .unwrap_err();
+
+        assert!(error.to_string().contains("two-byte schema id"));
+    }
+
     fn generated_input(block_number: u64, block_hash: B256) -> GeneratedInput {
         GeneratedInput {
-            bytes: vec![0x00, 0x01, 0x02, 0x03],
+            bytes: vec![0x15, 0x01, 0x02, 0x03],
             block_hash,
             block_number,
             slot_number: 64,

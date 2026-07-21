@@ -10,12 +10,14 @@ use stateless_validator_common::{
     guest::input::{
         ExecutionWitness, MAX_BYTES_PER_CODE, MAX_BYTES_PER_HEADER, MAX_BYTES_PER_WITNESS_NODE,
         MAX_PUBLIC_KEYS, MAX_WITNESS_CODES, MAX_WITNESS_HEADERS, MAX_WITNESS_NODES,
-        PUBLIC_KEY_BYTES, StatelessInput,
+        PUBLIC_KEY_BYTES, ProtocolFork, StatelessInput,
         new_payload_request::{
-            BlockAccessList, ConsolidationRequest, ConsolidationRequests, DepositRequest,
-            DepositRequests, ExecutionPayloadV4, ExecutionRequests, ExtraData, NewPayloadRequest,
-            NewPayloadRequestGloas, Transaction as PayloadTransaction, Transactions,
-            VersionedHashes, Withdrawal, WithdrawalRequest, WithdrawalRequests, Withdrawals,
+            BlockAccessList, BuilderDepositRequest, BuilderDepositRequests, BuilderExitRequest,
+            BuilderExitRequests, ConsolidationRequest, ConsolidationRequests, DepositRequest,
+            DepositRequests, ExecutionPayloadV4, ExecutionRequestsGloas, ExtraData,
+            NewPayloadRequest, NewPayloadRequestGloas, Transaction as PayloadTransaction,
+            Transactions, VersionedHashes, Withdrawal, WithdrawalRequest, WithdrawalRequests,
+            Withdrawals,
         },
     },
 };
@@ -23,16 +25,16 @@ use stateless_validator_common::{
 use crate::{
     chain_config,
     rpc::{
-        BeaconExecutionPayload, ConsolidationRequestJson, DepositRequestJson,
-        ExecutionPayloadEnvelope, ExecutionRequestsJson, RpcExecutionWitness, WithdrawalJson,
-        WithdrawalRequestJson,
+        BeaconExecutionPayload, BuilderDepositRequestJson, BuilderExitRequestJson,
+        ConsolidationRequestJson, DepositRequestJson, ExecutionPayloadEnvelope,
+        ExecutionRequestsJson, RpcExecutionWitness, WithdrawalJson, WithdrawalRequestJson,
     },
 };
 
 /// Canonical stateless guest input generated from network RPC data.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct GeneratedInput {
-    /// Bytes encoded as `0x0001 || SSZ(SszStatelessInput)`.
+    /// Bytes encoded as `0x1501 || SSZ(StatelessInput)`.
     pub bytes: Vec<u8>,
     /// Execution block hash.
     pub block_hash: B256,
@@ -76,7 +78,7 @@ pub(crate) fn build_generated_input(
         public_keys,
     };
 
-    let bytes = stateless_input.to_schema_prefixed_ssz();
+    let bytes = stateless_input.to_schema_prefixed_ssz(ProtocolFork::Amsterdam);
 
     Ok(GeneratedInput {
         bytes,
@@ -143,7 +145,7 @@ const fn convert_withdrawal(withdrawal: &WithdrawalJson) -> Withdrawal {
 
 fn convert_execution_requests(
     requests: &ExecutionRequestsJson,
-) -> anyhow::Result<ExecutionRequests> {
+) -> anyhow::Result<ExecutionRequestsGloas> {
     let deposits = requests
         .deposits
         .iter()
@@ -159,14 +161,28 @@ fn convert_execution_requests(
         .iter()
         .map(convert_consolidation_request)
         .collect::<Vec<_>>();
+    let builder_deposits = requests
+        .builder_deposits
+        .iter()
+        .map(convert_builder_deposit_request)
+        .collect::<Vec<_>>();
+    let builder_exits = requests
+        .builder_exits
+        .iter()
+        .map(convert_builder_exit_request)
+        .collect::<Vec<_>>();
 
-    Ok(ExecutionRequests {
+    Ok(ExecutionRequestsGloas {
         deposits: DepositRequests::try_from(deposits)
             .map_err(|err| anyhow::anyhow!("deposit requests exceed SSZ bound: {err:?}"))?,
         withdrawals: WithdrawalRequests::try_from(withdrawals)
             .map_err(|err| anyhow::anyhow!("withdrawal requests exceed SSZ bound: {err:?}"))?,
         consolidations: ConsolidationRequests::try_from(consolidations)
             .map_err(|err| anyhow::anyhow!("consolidation requests exceed SSZ bound: {err:?}"))?,
+        builder_deposits: BuilderDepositRequests::try_from(builder_deposits)
+            .map_err(|err| anyhow::anyhow!("builder deposit requests exceed SSZ bound: {err:?}"))?,
+        builder_exits: BuilderExitRequests::try_from(builder_exits)
+            .map_err(|err| anyhow::anyhow!("builder exit requests exceed SSZ bound: {err:?}"))?,
     })
 }
 
@@ -193,6 +209,24 @@ const fn convert_consolidation_request(request: &ConsolidationRequestJson) -> Co
         source_address: request.source_address.into_array(),
         source_pubkey: request.source_pubkey.0,
         target_pubkey: request.target_pubkey.0,
+    }
+}
+
+const fn convert_builder_deposit_request(
+    request: &BuilderDepositRequestJson,
+) -> BuilderDepositRequest {
+    BuilderDepositRequest {
+        pubkey: request.pubkey.0,
+        withdrawal_credentials: request.withdrawal_credentials.0,
+        amount: request.amount,
+        signature: request.signature.0,
+    }
+}
+
+const fn convert_builder_exit_request(request: &BuilderExitRequestJson) -> BuilderExitRequest {
+    BuilderExitRequest {
+        source_address: request.source_address.into_array(),
+        pubkey: request.pubkey.0,
     }
 }
 
@@ -326,7 +360,6 @@ fn decode_header_number(bytes: &[u8]) -> anyhow::Result<u64> {
 mod tests {
     use alloy_primitives::{b256, hex};
     use alloy_rlp::Encodable;
-    use stateless_validator_common::guest::input::{ProtocolFork, STATELESS_INPUT_SCHEMA_ID};
 
     use super::*;
 
@@ -433,7 +466,18 @@ mod tests {
                         "block_access_list": "0xc0",
                         "slot_number": "64"
                     },
-                    "execution_requests": {},
+                    "execution_requests": {
+                        "builder_deposits": [{
+                            "pubkey": format!("0x{}", "11".repeat(48)),
+                            "withdrawal_credentials": format!("0x{}", "22".repeat(32)),
+                            "amount": "32000000000",
+                            "signature": format!("0x{}", "33".repeat(96))
+                        }],
+                        "builder_exits": [{
+                            "source_address": format!("0x{}", "44".repeat(20)),
+                            "pubkey": format!("0x{}", "55".repeat(48))
+                        }]
+                    },
                     "builder_index": "0",
                     "beacon_block_root": format!("0x{}", "bb".repeat(32)),
                     "parent_beacon_block_root": format!("0x{}", "aa".repeat(32))
@@ -455,16 +499,13 @@ mod tests {
         let second = build_generated_input(envelope, witness, 1).unwrap();
 
         assert_eq!(first.bytes, second.bytes);
-        assert_eq!(&first.bytes[..2], &STATELESS_INPUT_SCHEMA_ID.to_be_bytes());
+        assert_eq!(&first.bytes[..2], &[0x15, 0x01]);
         assert_eq!(first.block_number, 10);
         assert_eq!(first.slot_number, 64);
         assert_eq!(first.chain_id, 1);
 
-        let decoded = StatelessInput::from_schema_prefixed_ssz(&first.bytes).unwrap();
-        assert_eq!(
-            decoded.chain_config.active_fork.fork,
-            ProtocolFork::Amsterdam
-        );
+        let (fork, decoded) = StatelessInput::from_schema_prefixed_ssz(&first.bytes).unwrap();
+        assert_eq!(fork, ProtocolFork::Amsterdam);
         assert_eq!(decoded.witness.state.len(), 1);
         assert_eq!(decoded.public_keys.len(), 0);
         let NewPayloadRequest::Gloas(request) = decoded.new_payload_request else {
@@ -472,6 +513,32 @@ mod tests {
         };
         assert_eq!(request.execution_payload.block_number, 10);
         assert_eq!(request.execution_payload.slot_number, 64);
+        assert_eq!(request.execution_requests.builder_deposits.len(), 1);
+        assert_eq!(
+            request.execution_requests.builder_deposits[0].pubkey,
+            [0x11; 48]
+        );
+        assert_eq!(
+            request.execution_requests.builder_deposits[0].withdrawal_credentials,
+            [0x22; 32]
+        );
+        assert_eq!(
+            request.execution_requests.builder_deposits[0].amount,
+            32_000_000_000
+        );
+        assert_eq!(
+            request.execution_requests.builder_deposits[0].signature,
+            [0x33; 96]
+        );
+        assert_eq!(request.execution_requests.builder_exits.len(), 1);
+        assert_eq!(
+            request.execution_requests.builder_exits[0].source_address,
+            [0x44; 20]
+        );
+        assert_eq!(
+            request.execution_requests.builder_exits[0].pubkey,
+            [0x55; 48]
+        );
     }
 
     fn rlp_header(number: u64) -> Bytes {

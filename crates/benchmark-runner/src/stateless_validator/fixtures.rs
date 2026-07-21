@@ -275,7 +275,7 @@ mod tests {
         assert!(fixtures.next().is_none());
 
         let input = guest_fixture.input()?;
-        assert_eq!(input.stdin(), [0x00, 0x01, 0x02]);
+        assert_eq!(input.stdin(), [0x15, 0x01, 0x02]);
         assert_eq!(guest_fixture.expected_public_values()?, [0xaa, 0xbb]);
 
         let metadata = guest_fixture.metadata();
@@ -388,7 +388,7 @@ mod tests {
                 "config": {"chainid": "0x01"},
                 "blocks": [
                     {
-                        "statelessInputBytes": "0x000102",
+                        "statelessInputBytes": "0x150102",
                         "statelessOutputBytes": "0xaabb",
                         "blockHeader": {"number": "0x01", "gasUsed": "0x10"}
                     }
