@@ -2095,9 +2095,9 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 [[package]]
 name = "ere-catalog"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
- "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0)",
+ "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc)",
  "serde",
  "strum 0.27.2",
 ]
@@ -2105,7 +2105,7 @@ dependencies = [
 [[package]]
 name = "ere-cluster-client-openvm"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "bincode",
  "ere-compiler-core",
@@ -2126,7 +2126,7 @@ dependencies = [
 [[package]]
 name = "ere-cluster-client-zisk"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "bincode",
  "ere-compiler-core",
@@ -2146,12 +2146,12 @@ dependencies = [
 [[package]]
 name = "ere-codec"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 
 [[package]]
 name = "ere-compiler-core"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "serde",
 ]
@@ -2159,7 +2159,7 @@ dependencies = [
 [[package]]
 name = "ere-dockerized"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -2195,7 +2195,7 @@ source = "git+https://github.com/eth-act/ere?rev=58ca85beaee2fa8acd31dbf33b90bb7
 [[package]]
 name = "ere-prover-core"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -2212,7 +2212,7 @@ dependencies = [
 [[package]]
 name = "ere-server-api"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "prost",
  "serde",
@@ -2222,7 +2222,7 @@ dependencies = [
 [[package]]
 name = "ere-server-client"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "bincode",
  "ere-prover-core",
@@ -2234,7 +2234,7 @@ dependencies = [
 [[package]]
 name = "ere-util-build"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=58ca85beaee2fa8acd31dbf33b90bb765aac9010#58ca85beaee2fa8acd31dbf33b90bb765aac9010"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "cargo_metadata",
 ]
@@ -2242,7 +2242,7 @@ dependencies = [
 [[package]]
 name = "ere-util-build"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=58ca85beaee2fa8acd31dbf33b90bb765aac9010#58ca85beaee2fa8acd31dbf33b90bb765aac9010"
 dependencies = [
  "cargo_metadata",
 ]
@@ -2250,7 +2250,7 @@ dependencies = [
 [[package]]
 name = "ere-util-tokio"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "tokio",
 ]
@@ -2258,7 +2258,7 @@ dependencies = [
 [[package]]
 name = "ere-verifier-core"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "auto_impl",
  "ere-codec",
@@ -2268,11 +2268,11 @@ dependencies = [
 [[package]]
 name = "ere-verifier-openvm"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "bincode",
  "bitcode",
- "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0)",
+ "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc)",
  "ere-verifier-core",
  "openvm-sdk-config",
  "openvm-stark-sdk",
@@ -2284,11 +2284,11 @@ dependencies = [
 [[package]]
 name = "ere-verifier-zisk"
 version = "0.13.0"
-source = "git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0#919bbe3de005d2e726faf66bcad1d03c7ec47bd0"
+source = "git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc#37b4f52c748089fd23fbbe065d0600a1acab6efc"
 dependencies = [
  "bincode",
  "bytemuck",
- "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=919bbe3de005d2e726faf66bcad1d03c7ec47bd0)",
+ "ere-util-build 0.13.0 (git+https://github.com/eth-act/ere?rev=37b4f52c748089fd23fbbe065d0600a1acab6efc)",
  "ere-verifier-core",
  "proofman-util",
  "proofman-verifier",
