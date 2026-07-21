@@ -1,29 +1,52 @@
 use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
-    io::Write,
-    path::{Path, PathBuf},
+    io::{BufRead, BufReader, Write},
+    path::{Component, Path, PathBuf},
 };
 
-use anyhow::Context;
+use anyhow::{Context, ensure};
 use serde::{Deserialize, Serialize};
 use tar::{Builder, Header};
+use tracing::{info, warn};
 
 use crate::{
     artifact::{
-        self, BATCH_MANIFEST_PATH, StatelessInputArtifact, fixture_archive_path,
-        path_to_slash_string, read_artifact_with_json, sha256_hex,
+        self, ARTIFACT_SCHEMA_VERSION, ArtifactIndexEntry, BATCH_MANIFEST_PATH,
+        StatelessInputArtifact, fixture_archive_path, path_to_slash_string,
+        read_artifact_with_json, relative_artifact_path_from_parts, sha256_hex,
     },
     config::CollectorConfig,
 };
 
 const ZSTD_LEVEL: i32 = 3;
 
-#[derive(Debug, Clone)]
-struct ArtifactFile {
+#[derive(Debug)]
+struct ArtifactDescriptor {
     path: PathBuf,
-    artifact: StatelessInputArtifact,
-    fixture_json: Vec<u8>,
+    metadata: ArtifactIndexEntry,
+}
+
+#[derive(Debug, Default)]
+struct DiscoveryStats {
+    artifacts: usize,
+    indexed: usize,
+    recovered: usize,
+    stale: usize,
+    malformed: usize,
+    invalid: usize,
+    duplicates: usize,
+    conflicts: usize,
+}
+
+#[derive(Debug, Default)]
+struct IndexCache {
+    entries: BTreeMap<PathBuf, ArtifactIndexEntry>,
+    conflicted_paths: BTreeSet<PathBuf>,
+    malformed: usize,
+    invalid: usize,
+    duplicates: usize,
+    conflicts: usize,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -57,9 +80,22 @@ pub(crate) fn export_batches(
     config: &CollectorConfig,
     force: bool,
 ) -> anyhow::Result<Vec<PathBuf>> {
-    let by_block = artifacts_by_block(config)?;
+    let (by_block, discovery) = artifacts_by_block(config)?;
     let complete_batches = complete_batch_starts(&by_block, config.batch_size);
     let mut exported = Vec::new();
+    let mut skipped = 0_usize;
+
+    info!(
+        artifacts = discovery.artifacts,
+        indexed = discovery.indexed,
+        recovered = discovery.recovered,
+        stale = discovery.stale,
+        malformed = discovery.malformed,
+        invalid = discovery.invalid,
+        duplicates = discovery.duplicates,
+        conflicts = discovery.conflicts,
+        "discovered artifact metadata"
+    );
 
     fs::create_dir_all(config.batches_root()).with_context(|| {
         format!(
@@ -68,10 +104,11 @@ pub(crate) fn export_batches(
         )
     })?;
 
-    for start in complete_batches {
+    for &start in &complete_batches {
         let end = start + config.batch_size - 1;
         let out_path = config.batches_root().join(format!("{start}-{end}.tar.zst"));
         if out_path.exists() && !force {
+            skipped += 1;
             continue;
         }
 
@@ -80,37 +117,198 @@ pub(crate) fn export_batches(
         exported.push(out_path);
     }
 
+    info!(
+        complete = complete_batches.len(),
+        skipped,
+        exported = exported.len(),
+        force,
+        "processed complete artifact batches"
+    );
+
     Ok(exported)
 }
 
 fn artifacts_by_block(
     config: &CollectorConfig,
-) -> anyhow::Result<BTreeMap<u64, Vec<ArtifactFile>>> {
+) -> anyhow::Result<(BTreeMap<u64, Vec<ArtifactDescriptor>>, DiscoveryStats)> {
+    let mut index = load_index(config)?;
     let mut files = Vec::new();
     collect_artifact_files(&config.blocks_root(), &mut files)?;
     files.sort();
 
-    let mut by_block: BTreeMap<u64, Vec<ArtifactFile>> = BTreeMap::new();
+    let mut stats = DiscoveryStats {
+        malformed: index.malformed,
+        invalid: index.invalid,
+        duplicates: index.duplicates,
+        conflicts: index.conflicts,
+        ..DiscoveryStats::default()
+    };
+    let mut by_block: BTreeMap<u64, Vec<ArtifactDescriptor>> = BTreeMap::new();
     for path in files {
-        let (artifact, fixture_json) = read_artifact_with_json(&path)?;
+        let relative_path = path
+            .strip_prefix(config.network_root())
+            .with_context(|| {
+                format!(
+                    "artifact {} is not under network root {}",
+                    path.display(),
+                    config.network_root().display()
+                )
+            })?
+            .to_path_buf();
+        let metadata = if index.conflicted_paths.contains(&relative_path) {
+            None
+        } else {
+            index.entries.remove(&relative_path)
+        };
+        let metadata = match metadata {
+            Some(metadata) => {
+                stats.indexed += 1;
+                metadata
+            }
+            None => {
+                stats.recovered += 1;
+                recover_artifact_metadata(config, &path, &relative_path)?
+            }
+        };
         by_block
-            .entry(artifact.block_number)
+            .entry(metadata.block_number)
             .or_default()
-            .push(ArtifactFile {
-                path,
-                artifact,
-                fixture_json,
-            });
+            .push(ArtifactDescriptor { path, metadata });
+    }
+
+    for path in index.entries.keys() {
+        warn!(path = %path.display(), "ignoring stale artifact index entry");
+        stats.stale += 1;
     }
 
     for files in by_block.values_mut() {
         files.sort_by(|left, right| left.path.cmp(&right.path));
     }
 
-    Ok(by_block)
+    stats.artifacts = by_block.values().map(Vec::len).sum();
+    Ok((by_block, stats))
 }
 
-fn complete_batch_starts(by_block: &BTreeMap<u64, Vec<ArtifactFile>>, batch_size: u64) -> Vec<u64> {
+fn load_index(config: &CollectorConfig) -> anyhow::Result<IndexCache> {
+    let index_path = config.index_path();
+    if !index_path.exists() {
+        return Ok(IndexCache::default());
+    }
+
+    let file = fs::File::open(&index_path)
+        .with_context(|| format!("failed to open artifact index {}", index_path.display()))?;
+    let mut cache = IndexCache::default();
+    for (line_index, line) in BufReader::new(file).lines().enumerate() {
+        let line_number = line_index + 1;
+        let line = line.with_context(|| {
+            format!(
+                "failed to read line {line_number} from artifact index {}",
+                index_path.display()
+            )
+        })?;
+        if line.trim().is_empty() {
+            continue;
+        }
+        let entry: ArtifactIndexEntry = match serde_json::from_str(&line) {
+            Ok(entry) => entry,
+            Err(error) => {
+                warn!(
+                    path = %index_path.display(),
+                    line = line_number,
+                    %error,
+                    "ignoring malformed artifact index entry"
+                );
+                cache.malformed += 1;
+                continue;
+            }
+        };
+        let Some(relative_path) = validated_index_path(config, &entry, line_number) else {
+            cache.invalid += 1;
+            continue;
+        };
+        if cache.conflicted_paths.contains(&relative_path) {
+            cache.conflicts += 1;
+            continue;
+        }
+
+        match cache.entries.entry(relative_path.clone()) {
+            std::collections::btree_map::Entry::Vacant(slot) => {
+                slot.insert(entry);
+            }
+            std::collections::btree_map::Entry::Occupied(slot) if slot.get() == &entry => {
+                warn!(
+                    path = %relative_path.display(),
+                    line = line_number,
+                    "ignoring duplicate artifact index entry"
+                );
+                cache.duplicates += 1;
+            }
+            std::collections::btree_map::Entry::Occupied(slot) => {
+                warn!(
+                    path = %relative_path.display(),
+                    line = line_number,
+                    "ignoring conflicting artifact index entries"
+                );
+                slot.remove();
+                cache.conflicted_paths.insert(relative_path);
+                cache.conflicts += 1;
+            }
+        }
+    }
+
+    Ok(cache)
+}
+
+fn validated_index_path(
+    config: &CollectorConfig,
+    entry: &ArtifactIndexEntry,
+    line_number: usize,
+) -> Option<PathBuf> {
+    let path = PathBuf::from(&entry.path);
+    let expected_path = PathBuf::from("blocks").join(relative_artifact_path_from_parts(
+        entry.block_number,
+        &entry.block_hash,
+    ));
+    let valid_path = !path.as_os_str().is_empty()
+        && !path.is_absolute()
+        && path
+            .components()
+            .all(|component| matches!(component, Component::Normal(_)))
+        && path.starts_with("blocks")
+        && path == expected_path;
+    let valid_metadata =
+        entry.schema_version == ARTIFACT_SCHEMA_VERSION && entry.network == config.network;
+    if valid_path && valid_metadata {
+        return Some(path);
+    }
+
+    warn!(
+        path = %entry.path,
+        line = line_number,
+        schema_version = entry.schema_version,
+        network = %entry.network,
+        "ignoring invalid artifact index entry"
+    );
+    None
+}
+
+fn recover_artifact_metadata(
+    config: &CollectorConfig,
+    path: &Path,
+    relative_path: &Path,
+) -> anyhow::Result<ArtifactIndexEntry> {
+    let (artifact, fixture_json) = read_artifact_with_json(path)?;
+    validate_artifact_identity(config, &artifact, None)?;
+    let metadata = artifact.index_entry(relative_path);
+    drop(fixture_json);
+    drop(artifact);
+    Ok(metadata)
+}
+
+fn complete_batch_starts(
+    by_block: &BTreeMap<u64, Vec<ArtifactDescriptor>>,
+    batch_size: u64,
+) -> Vec<u64> {
     let starts = by_block
         .keys()
         .map(|block_number| (block_number / batch_size) * batch_size)
@@ -126,13 +324,12 @@ fn complete_batch_starts(by_block: &BTreeMap<u64, Vec<ArtifactFile>>, batch_size
 }
 
 fn batch_artifacts(
-    by_block: &BTreeMap<u64, Vec<ArtifactFile>>,
+    by_block: &BTreeMap<u64, Vec<ArtifactDescriptor>>,
     start: u64,
     end: u64,
-) -> Vec<ArtifactFile> {
+) -> Vec<&ArtifactDescriptor> {
     (start..=end)
         .flat_map(|block_number| by_block.get(&block_number).into_iter().flatten())
-        .cloned()
         .collect()
 }
 
@@ -140,41 +337,28 @@ fn write_batch_archive(
     config: &CollectorConfig,
     start: u64,
     end: u64,
-    artifacts: &[ArtifactFile],
+    artifacts: &[&ArtifactDescriptor],
     out_path: &Path,
     force: bool,
 ) -> anyhow::Result<()> {
-    let manifest = build_manifest(config, start, end, artifacts)?;
     let part_path = archive_part_path(out_path);
     if let Some(parent) = part_path.parent() {
         fs::create_dir_all(parent)
             .with_context(|| format!("failed to create directory {}", parent.display()))?;
     }
 
-    let file = fs::File::create(&part_path)
-        .with_context(|| format!("failed to create partial archive {}", part_path.display()))?;
-    let encoder = zstd::stream::write::Encoder::new(file, ZSTD_LEVEL)
-        .context("failed to create zstd encoder")?;
-    let mut tar = Builder::new(encoder);
-
-    for artifact in artifacts {
-        let archive_path = fixture_archive_path(&artifact.artifact);
-        append_bytes(&mut tar, &archive_path, &artifact.fixture_json).with_context(|| {
-            format!(
-                "failed to append {} as {}",
-                artifact.path.display(),
-                archive_path.display()
-            )
-        })?;
+    let write_result = write_batch_archive_part(config, start, end, artifacts, &part_path);
+    if let Err(error) = write_result {
+        if part_path.exists() {
+            fs::remove_file(&part_path).with_context(|| {
+                format!(
+                    "{error:#}; additionally failed to remove partial archive {}",
+                    part_path.display()
+                )
+            })?;
+        }
+        return Err(error);
     }
-
-    let manifest_bytes =
-        serde_json::to_vec_pretty(&manifest).context("failed to serialize batch manifest")?;
-    append_bytes(&mut tar, Path::new(BATCH_MANIFEST_PATH), &manifest_bytes)
-        .context("failed to append batch manifest")?;
-
-    let encoder = tar.into_inner().context("failed to finish tar archive")?;
-    encoder.finish().context("failed to finish zstd archive")?;
 
     if out_path.exists() && force {
         fs::remove_file(out_path)
@@ -191,40 +375,98 @@ fn write_batch_archive(
     Ok(())
 }
 
-fn build_manifest(
+fn write_batch_archive_part(
     config: &CollectorConfig,
     start: u64,
     end: u64,
-    artifacts: &[ArtifactFile],
-) -> anyhow::Result<BatchManifest> {
-    let artifacts = artifacts
-        .iter()
-        .map(|file| {
-            let archive_path = fixture_archive_path(&file.artifact);
-            Ok(BatchManifestArtifact {
-                archive_path: path_to_slash_string(&archive_path),
-                block_number: file.artifact.block_number,
-                block_hash: file.artifact.block_hash.clone(),
-                gas_used: file.artifact.gas_used,
-                slot_number: file.artifact.slot_number,
-                chain_id: file.artifact.chain_id,
-                stateless_input_byte_length: file.artifact.stateless_input_byte_length,
-                fixture_sha256: sha256_hex(&file.fixture_json),
-                fixture_byte_length: file.fixture_json.len(),
-            })
-        })
-        .collect::<anyhow::Result<Vec<_>>>()?;
+    artifacts: &[&ArtifactDescriptor],
+    part_path: &Path,
+) -> anyhow::Result<()> {
+    let file = fs::File::create(part_path)
+        .with_context(|| format!("failed to create partial archive {}", part_path.display()))?;
+    let encoder = zstd::stream::write::Encoder::new(file, ZSTD_LEVEL)
+        .context("failed to create zstd encoder")?;
+    let mut tar = Builder::new(encoder);
+    let mut manifest_artifacts = Vec::with_capacity(artifacts.len());
 
-    Ok(BatchManifest {
+    for descriptor in artifacts {
+        let (artifact, fixture_json) = read_artifact_with_json(&descriptor.path)?;
+        validate_artifact_identity(config, &artifact, Some(&descriptor.metadata))?;
+        let archive_path = fixture_archive_path(&artifact);
+        manifest_artifacts.push(BatchManifestArtifact {
+            archive_path: path_to_slash_string(&archive_path),
+            block_number: artifact.block_number,
+            block_hash: artifact.block_hash.clone(),
+            gas_used: artifact.gas_used,
+            slot_number: artifact.slot_number,
+            chain_id: artifact.chain_id,
+            stateless_input_byte_length: artifact.stateless_input_byte_length,
+            fixture_sha256: sha256_hex(&fixture_json),
+            fixture_byte_length: fixture_json.len(),
+        });
+        append_bytes(&mut tar, &archive_path, &fixture_json).with_context(|| {
+            format!(
+                "failed to append {} as {}",
+                descriptor.path.display(),
+                archive_path.display()
+            )
+        })?;
+    }
+
+    let manifest = BatchManifest {
         schema_version: 2,
         network: config.network.clone(),
         batch_start_block: start,
         batch_end_block: end,
         batch_size: config.batch_size,
-        artifact_count: artifacts.len(),
+        artifact_count: manifest_artifacts.len(),
         created_at: artifact::utc_now_rfc3339()?,
-        artifacts,
-    })
+        artifacts: manifest_artifacts,
+    };
+    let manifest_bytes =
+        serde_json::to_vec_pretty(&manifest).context("failed to serialize batch manifest")?;
+    append_bytes(&mut tar, Path::new(BATCH_MANIFEST_PATH), &manifest_bytes)
+        .context("failed to append batch manifest")?;
+
+    let encoder = tar.into_inner().context("failed to finish tar archive")?;
+    encoder.finish().context("failed to finish zstd archive")?;
+    Ok(())
+}
+
+fn validate_artifact_identity(
+    config: &CollectorConfig,
+    artifact: &StatelessInputArtifact,
+    expected: Option<&ArtifactIndexEntry>,
+) -> anyhow::Result<()> {
+    ensure!(
+        artifact.schema_version == ARTIFACT_SCHEMA_VERSION,
+        "artifact uses unsupported schema version {}; expected {}",
+        artifact.schema_version,
+        ARTIFACT_SCHEMA_VERSION
+    );
+    ensure!(
+        artifact.network == config.network,
+        "artifact is for network {}, expected {}",
+        artifact.network,
+        config.network
+    );
+    if let Some(expected) = expected {
+        ensure!(
+            artifact.schema_version == expected.schema_version
+                && artifact.network == expected.network
+                && artifact.chain_id == expected.chain_id
+                && artifact.block_number == expected.block_number
+                && artifact.block_hash == expected.block_hash
+                && artifact.gas_used == expected.gas_used
+                && artifact.slot_number == expected.slot_number
+                && artifact.collection_mode == expected.collection_mode
+                && artifact.collected_at == expected.collected_at
+                && artifact.stateless_input_byte_length == expected.stateless_input_byte_length,
+            "artifact metadata does not match its index entry for {}",
+            expected.path
+        );
+    }
+    Ok(())
 }
 
 fn append_bytes<W: Write>(tar: &mut Builder<W>, path: &Path, bytes: &[u8]) -> anyhow::Result<()> {
@@ -250,7 +492,7 @@ fn collect_artifact_files(dir: &Path, files: &mut Vec<PathBuf>) -> anyhow::Resul
             .with_context(|| format!("failed to read file type for {}", path.display()))?;
         if file_type.is_dir() {
             collect_artifact_files(&path, files)?;
-        } else if is_artifact_file(&path) {
+        } else if file_type.is_file() && is_artifact_file(&path) {
             files.push(path);
         }
     }
@@ -282,7 +524,10 @@ mod tests {
     };
     use tar::Archive;
 
-    use crate::artifact::{StatelessInputArtifact, test_generated_input, write_artifact_atomic};
+    use crate::artifact::{
+        ArtifactIndexEntry, StatelessInputArtifact, append_index_entry, test_generated_input,
+        write_artifact_atomic,
+    };
 
     use super::*;
 
@@ -323,12 +568,110 @@ mod tests {
     #[test]
     fn skips_existing_batch_without_force() {
         let config = test_config("skip_existing", 2);
-        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
-        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        append_index_entries(&config, [&first, &second]);
 
         assert_eq!(export_batches(&config, false).unwrap().len(), 1);
         assert!(export_batches(&config, false).unwrap().is_empty());
         assert_eq!(export_batches(&config, true).unwrap().len(), 1);
+
+        fs::write(
+            config.network_root().join(&first.path),
+            b"corrupted artifact",
+        )
+        .unwrap();
+        assert!(export_batches(&config, false).unwrap().is_empty());
+
+        let out_path = config.batches_root().join("0-1.tar.zst");
+        let error = export_batches(&config, true).unwrap_err();
+        assert!(format!("{error:#}").contains("failed to decompress artifact"));
+        assert!(out_path.exists());
+        assert!(!archive_part_path(&out_path).exists());
+    }
+
+    #[test]
+    fn corrupted_existing_batch_does_not_block_new_batch() {
+        let config = test_config("corrupted_existing", 2);
+        let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        append_index_entries(&config, [&first, &second]);
+        assert_eq!(export_batches(&config, false).unwrap().len(), 1);
+
+        fs::write(
+            config.network_root().join(&first.path),
+            b"corrupted artifact",
+        )
+        .unwrap();
+        let third = write_generated_artifact(&config, 2, B256::repeat_byte(0xcc));
+        let fourth = write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
+        append_index_entries(&config, [&third, &fourth]);
+
+        let exported = export_batches(&config, false).unwrap();
+
+        assert_eq!(exported.len(), 1);
+        assert_eq!(
+            exported[0].file_name().and_then(|name| name.to_str()),
+            Some("2-3.tar.zst")
+        );
+    }
+
+    #[test]
+    fn reconciles_unusable_index_entries_from_filesystem() {
+        let config = test_config("reconcile_index", 2);
+        let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        let stale = write_generated_artifact(&config, 99, B256::repeat_byte(0xee));
+        fs::remove_file(config.network_root().join(&stale.path)).unwrap();
+
+        let mut conflict = first.clone();
+        conflict.gas_used += 1;
+        let mut unsafe_entry = second;
+        unsafe_entry.path = "../outside.json.zst".to_owned();
+        let index = [
+            serde_json::to_string(&first).unwrap(),
+            serde_json::to_string(&first).unwrap(),
+            serde_json::to_string(&conflict).unwrap(),
+            serde_json::to_string(&unsafe_entry).unwrap(),
+            "{malformed".to_owned(),
+            serde_json::to_string(&stale).unwrap(),
+            "{\"schemaVersion\":".to_owned(),
+        ]
+        .join("\n");
+        fs::write(config.index_path(), index).unwrap();
+
+        let (by_block, stats) = artifacts_by_block(&config).unwrap();
+
+        assert_eq!(by_block.values().map(Vec::len).sum::<usize>(), 2);
+        assert_eq!(stats.indexed, 0);
+        assert_eq!(stats.recovered, 2);
+        assert_eq!(stats.stale, 1);
+        assert_eq!(stats.malformed, 2);
+        assert_eq!(stats.invalid, 1);
+        assert_eq!(stats.duplicates, 1);
+        assert_eq!(stats.conflicts, 1);
+        assert_eq!(export_batches(&config, false).unwrap().len(), 1);
+    }
+
+    #[test]
+    fn exports_all_reorg_variants_without_cloning_payloads() {
+        let config = test_config("reorg_variants", 2);
+        let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        let variant = write_generated_artifact(&config, 0, B256::repeat_byte(0xbb));
+        let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xcc));
+        append_index_entries(&config, [&first, &variant, &second]);
+
+        let archive = export_batches(&config, false).unwrap().remove(0);
+        let manifest = read_manifest_from_archive(&archive);
+
+        assert_eq!(manifest.artifact_count, 3);
+        assert_eq!(
+            archive_entries(&archive)
+                .iter()
+                .filter(|path| path.starts_with("blockchain_tests/"))
+                .count(),
+            3
+        );
     }
 
     #[test]
@@ -363,7 +706,11 @@ mod tests {
         assert_eq!(fixtures[0].metadata()["block_used_gas"], 21_000);
     }
 
-    fn write_generated_artifact(config: &CollectorConfig, block_number: u64, block_hash: B256) {
+    fn write_generated_artifact(
+        config: &CollectorConfig,
+        block_number: u64,
+        block_hash: B256,
+    ) -> ArtifactIndexEntry {
         let generated = test_generated_input(block_number, block_hash);
         let artifact = StatelessInputArtifact::from_generated_at(
             &config.network,
@@ -373,7 +720,17 @@ mod tests {
             "test-commit".to_owned(),
         )
         .unwrap();
-        write_artifact_atomic(&config.blocks_root(), &artifact).unwrap();
+        let write = write_artifact_atomic(&config.blocks_root(), &artifact).unwrap();
+        artifact.index_entry(&PathBuf::from("blocks").join(write.relative_path))
+    }
+
+    fn append_index_entries<'a>(
+        config: &CollectorConfig,
+        entries: impl IntoIterator<Item = &'a ArtifactIndexEntry>,
+    ) {
+        for entry in entries {
+            append_index_entry(&config.index_path(), entry).unwrap();
+        }
     }
 
     fn read_manifest_from_archive(path: &Path) -> BatchManifest {

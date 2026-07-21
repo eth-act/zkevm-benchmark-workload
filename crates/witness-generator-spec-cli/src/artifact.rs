@@ -470,11 +470,15 @@ pub(crate) fn write_bytes_atomic(path: &Path, bytes: &[u8]) -> anyhow::Result<()
 }
 
 pub(crate) fn relative_artifact_path(artifact: &StatelessInputArtifact) -> PathBuf {
-    let chunk = artifact.block_number / 1_000;
+    relative_artifact_path_from_parts(artifact.block_number, &artifact.block_hash)
+}
+
+pub(crate) fn relative_artifact_path_from_parts(block_number: u64, block_hash: &str) -> PathBuf {
+    let chunk = block_number / 1_000;
     PathBuf::from(format!("{chunk:06}")).join(format!(
         "{}-{}.json.zst",
-        artifact.block_number,
-        filename_hash(&artifact.block_hash)
+        block_number,
+        filename_hash(block_hash)
     ))
 }
 
