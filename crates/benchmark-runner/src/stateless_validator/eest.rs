@@ -103,7 +103,12 @@ pub(crate) fn load_eest_benchmark_fixtures(
             );
         }
 
+        let num_blocks = case.blocks.len();
         for (block_index, block) in case.blocks.into_iter().enumerate() {
+            if block_index != num_blocks - 1 {
+                continue;
+            }
+
             let Some(input_hex) = block.stateless_input_bytes else {
                 info!(
                     "Skipping EEST test {test_name} block {block_index} from {source_path}: missing statelessInputBytes"
