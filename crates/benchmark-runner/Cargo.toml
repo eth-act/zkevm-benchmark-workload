@@ -23,12 +23,10 @@ tar.workspace = true
 anyhow.workspace = true
 auto_impl.workspace = true
 ere-guests-downloader.workspace = true
+stateless-validator-catalog.workspace = true
 stateless-validator-common.workspace = true
 tempfile.workspace = true
 hex.workspace = true
-
-ere-guests-stateless-validator-ethrex.workspace = true
-ere-guests-stateless-validator-reth.workspace = true
 
 [build-dependencies]
 toml = { workspace = true }

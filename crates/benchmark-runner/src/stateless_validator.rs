@@ -6,6 +6,7 @@ mod inputs;
 
 use crate::guest_programs::GuestFixture;
 use anyhow::Result;
+use stateless_validator_catalog::StatelessValidatorKind;
 use std::path::Path;
 use strum::{AsRefStr, EnumString};
 
@@ -30,8 +31,8 @@ impl ExecutionClient {
     /// Returns the version string associated with the selected guest artifact.
     pub const fn version(&self) -> &'static str {
         match self {
-            Self::Reth => ere_guests_stateless_validator_reth::EL_VERSION,
-            Self::Ethrex => ere_guests_stateless_validator_ethrex::EL_VERSION,
+            Self::Reth => StatelessValidatorKind::Reth.version(),
+            Self::Ethrex => StatelessValidatorKind::Ethrex.version(),
             Self::Zesu => ZESU_EL_VERSION,
         }
     }
