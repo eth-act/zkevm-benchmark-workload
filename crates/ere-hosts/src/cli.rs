@@ -108,6 +108,8 @@ pub enum ExecutionClient {
     Zesu,
     /// Nimbus execution client
     Nimbus,
+    /// Zilkworm execution client
+    Zilkworm,
 }
 
 /// Prover resource types
@@ -225,6 +227,7 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
             ExecutionClient::Ethrex => Self::Ethrex,
             ExecutionClient::Zesu => Self::Zesu,
             ExecutionClient::Nimbus => Self::Nimbus,
+            ExecutionClient::Zilkworm => Self::Zilkworm,
         }
     }
 }
