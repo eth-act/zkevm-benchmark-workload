@@ -2,16 +2,16 @@
 
 #![cfg_attr(not(test), warn(unused_crate_dependencies))]
 
-use anyhow::{Context, Result, bail};
+use anyhow::{Context, Result};
 use benchmark_runner::{
     runner::{
         Action, GuestProgramSource, ProfileConfig, RunConfig, benchmark_output_dir,
         get_el_zkvm_instances, run_benchmark_iter,
     },
-    stateless_validator::{self},
+    stateless_validator,
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
 };
-use ere_dockerized::{DockerizedzkVMConfig, ProverResource, zkVMKind};
+use ere_dockerized::{DockerizedzkVMConfig, ProverResource};
 
 use clap::Parser;
 use std::time::Duration;
@@ -35,22 +35,6 @@ async fn main() -> Result<()> {
     let cli = Cli::parse();
     cli.validate()?;
 
-    if cli.zisk_profile {
-        if !matches!(cli.action, cli::BenchmarkAction::Execute) {
-            bail!(
-                "--zisk-profile requires --action execute, but got {:?}",
-                cli.action
-            );
-        }
-        if cli.zkvms.len() != 1 || cli.zkvms[0] != zkVMKind::Zisk {
-            let zkvm_names: Vec<_> = cli.zkvms.iter().map(|z| z.as_str()).collect();
-            bail!(
-                "--zisk-profile requires --zkvms zisk only, but got: {}",
-                zkvm_names.join(", ")
-            );
-        }
-    }
-
     let resource: ProverResource = cli.prover_resource();
     let action: Action = cli.action.into();
     let zkvm_config = build_zkvm_config(action, cli.timeout);
@@ -63,31 +47,6 @@ async fn main() -> Result<()> {
         .zisk_profile
         .then(|| ProfileConfig::new(cli.zisk_profile_output.clone()));
 
-    // Validate: --save-proofs is only valid with --action prove
-    if cli.save_proofs.is_some() && !matches!(action, Action::Prove) {
-        anyhow::bail!("--save-proofs is only valid with --action prove");
-    }
-
-    // Validate: --proofs-url is only valid with --action verify
-    if cli.proofs_url.is_some() && !matches!(action, Action::Verify) {
-        anyhow::bail!("--proofs-url is only valid with --action verify");
-    }
-
-    // Validate: --cluster-endpoint is only valid with --resource cluster
-    if cli.cluster_endpoint.is_some() && !matches!(cli.resource, cli::Resource::Cluster) {
-        anyhow::bail!("--cluster-endpoint is only valid with --resource cluster");
-    }
-
-    // Validate: --resource cluster currently only supports zisk zkVM and not support --action execute
-    if matches!(cli.resource, cli::Resource::Cluster) {
-        if cli.zkvms.iter().any(|z| *z != zkVMKind::Zisk) {
-            anyhow::bail!("--resource cluster is only implemented for --zkvms zisk");
-        }
-        if matches!(action, Action::Execute) {
-            anyhow::bail!("--resource cluster is not implemented for --action execute");
-        }
-    }
-
     // Resolve proofs source: download from URL or use local folder.
     // _proofs_tmpdir must live until verification completes (drop = cleanup).
     let (_proofs_tmpdir, proofs_folder) = if let Some(ref url) = cli.proofs_url {
@@ -95,7 +54,11 @@ async fn main() -> Result<()> {
         let resolved = resolve_extracted_root(tmp.path())?;
         (Some(tmp), resolved)
     } else {
-        (None, cli.proofs_folder)
+        (
+            None,
+            cli.proofs_folder
+                .unwrap_or_else(|| "zkevm-fixtures-proofs".into()),
+        )
     };
     let guest_source = match (cli.bin_path, cli.guest_artifact_base_url) {
         (Some(path), None) => GuestProgramSource::LocalPath(path),
@@ -120,16 +83,9 @@ async fn main() -> Result<()> {
             execution_client,
         } => {
             let el: stateless_validator::ExecutionClient = execution_client.into();
-            validate_guest_compatibility(el, &cli.zkvms, &guest_source)?;
 
             let el_name = el.as_ref().to_lowercase();
-            let el_version = if matches!(el, stateless_validator::ExecutionClient::Zesu) {
-                guest_source
-                    .version_label()
-                    .unwrap_or_else(|| el.version().to_string())
-            } else {
-                el.version().to_string()
-            };
+            let el_version = el.version()?;
             let el_str = format!("{}-{}", el_name, el_version);
             let zkvms =
                 get_el_zkvm_instances(el, &cli.zkvms, resource, zkvm_config.clone(), &guest_source)
@@ -149,7 +105,7 @@ async fn main() -> Result<()> {
                 }
                 _ => {
                     let input_folder = input_folder
-                        .expect("CLI validation requires an input folder for execute and prove");
+                        .expect("CLI validation requires an input folder for execute, estimate-cost, and prove");
                     info!(
                         "Running stateless-validator benchmark for input folder: {}",
                         input_folder.display()
@@ -161,7 +117,7 @@ async fn main() -> Result<()> {
                             input_folder.as_path(),
                             fixture.as_deref(),
                             el,
-                            existing_output_dir.as_deref(),
+                            existing_output_dir.as_deref().map(|path| (path, action)),
                         )?
                         .map(|input| input.context("Failed to get stateless validator input"));
                         run_benchmark_iter(zkvm, &config, guest_io)?;
@@ -169,33 +125,6 @@ async fn main() -> Result<()> {
                 }
             }
         }
-    }
-
-    Ok(())
-}
-
-fn validate_guest_compatibility(
-    el: stateless_validator::ExecutionClient,
-    zkvms: &[zkVMKind],
-    guest_source: &GuestProgramSource,
-) -> Result<()> {
-    if !matches!(el, stateless_validator::ExecutionClient::Zesu)
-        || !matches!(guest_source, GuestProgramSource::Default)
-    {
-        return Ok(());
-    }
-
-    let unsupported = zkvms
-        .iter()
-        .filter(|zkvm| **zkvm != zkVMKind::Zisk)
-        .map(|zkvm| zkvm.as_str())
-        .collect::<Vec<_>>();
-    if !unsupported.is_empty() {
-        bail!(
-            "the default Zesu {} artifact is available only for ZisK; unsupported --zkvms: {}",
-            el.version(),
-            unsupported.join(", ")
-        );
     }
 
     Ok(())
@@ -209,15 +138,62 @@ const fn build_zkvm_config(
         execute_timeout: Some(DEFAULT_EXECUTE_TIMEOUT),
         prove_timeout: Some(DEFAULT_PROVE_TIMEOUT),
         verify_timeout: Some(DEFAULT_VERIFY_TIMEOUT),
+        health_timeout: Duration::from_secs(5 * 60),
     };
 
     if let Some(timeout) = timeout_override {
         match action {
-            Action::Execute => config.execute_timeout = Some(timeout),
+            Action::Execute | Action::EstimateCost => config.execute_timeout = Some(timeout),
             Action::Prove => config.prove_timeout = Some(timeout),
             Action::Verify => config.verify_timeout = Some(timeout),
         }
     }
 
     config
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn timeouts_apply_only_to_the_selected_action() {
+        let override_value = Duration::from_secs(17);
+        for action in [
+            Action::Execute,
+            Action::EstimateCost,
+            Action::Prove,
+            Action::Verify,
+        ] {
+            let default = build_zkvm_config(action, None);
+            assert_eq!(default.execute_timeout, Some(Duration::from_secs(300)));
+            let config = build_zkvm_config(action, Some(override_value));
+            assert_eq!(
+                config.execute_timeout,
+                Some(
+                    if matches!(action, Action::Execute | Action::EstimateCost) {
+                        override_value
+                    } else {
+                        DEFAULT_EXECUTE_TIMEOUT
+                    }
+                )
+            );
+            assert_eq!(
+                config.prove_timeout,
+                Some(if action == Action::Prove {
+                    override_value
+                } else {
+                    DEFAULT_PROVE_TIMEOUT
+                })
+            );
+            assert_eq!(
+                config.verify_timeout,
+                Some(if action == Action::Verify {
+                    override_value
+                } else {
+                    DEFAULT_VERIFY_TIMEOUT
+                })
+            );
+        }
+    }
 }

@@ -4,7 +4,7 @@
 pub use chrono;
 
 use serde_derive::{Deserialize, Serialize};
-use std::{collections::HashMap, fs, io, path::Path, time::Duration};
+use std::{collections::BTreeMap, fs, io, io::Write, path::Path, time::Duration};
 use sysinfo::{CpuExt, System, SystemExt};
 use thiserror::Error;
 
@@ -27,6 +27,9 @@ pub struct BenchmarkRun<Metadata> {
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(default)]
     pub verification: Option<VerificationMetrics>,
+    /// Cost estimation results for the benchmark run.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub cost_estimation: Option<CostEstimationMetrics>,
 }
 
 /// Hardware specs of the benchmark runner.
@@ -113,10 +116,6 @@ pub enum ExecutionMetrics {
     Success {
         /// Whether public output matched the fixture's expected public values.
         output_matched: bool,
-        /// Total number of cycles for the entire workload execution.
-        total_num_cycles: u64,
-        /// Region-specific cycles, mapping region names (e.g., "setup", "compute") to their cycle counts.
-        region_cycles: HashMap<String, u64>,
         /// Execution duration.
         execution_duration: Duration,
     },
@@ -158,9 +157,52 @@ pub enum VerificationMetrics {
     Crashed(CrashInfo),
 }
 
+/// Identity and configuration of a cost estimate.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+pub struct CostEstimationContext {
+    /// Execution client name.
+    pub execution_client: String,
+    /// Version reported by the guest catalog.
+    pub execution_client_version: String,
+    /// zkVM name.
+    pub zkvm: String,
+    /// zkVM SDK version.
+    pub sdk_version: String,
+    /// Ere revision used by the Docker image.
+    pub ere_revision: String,
+    /// SHA-256 of the actual guest ELF, including custom artifacts.
+    pub elf_sha256: String,
+    /// SHA-256 of the raw guest input.
+    pub input_sha256: String,
+    /// Effective settings that affect cost or heap estimation.
+    pub estimator_settings: BTreeMap<String, String>,
+}
+
+/// Estimated proving cost, in units defined by each zkVM.
+#[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone)]
+#[serde(rename_all = "snake_case")]
+pub enum CostEstimationMetrics {
+    /// A completed estimate; output mismatches remain visible.
+    Success {
+        /// Whether the public values matched the fixture.
+        output_matched: bool,
+        /// Cost per component, using the upstream component names.
+        cost: BTreeMap<String, u64>,
+        /// Estimated heap use in bytes, or null if unavailable.
+        peak_heap_bytes: Option<u64>,
+        /// Information needed to compare compatible estimates.
+        context: Box<CostEstimationContext>,
+    },
+    /// An estimator error or panic.
+    Crashed(CrashInfo),
+}
+
 /// Errors that can occur during metrics processing.
 #[derive(Error, Debug)]
 pub enum MetricsError {
+    /// The existing record cannot be safely updated.
+    #[error("cannot merge metrics: {0}")]
+    InvalidUpdate(String),
     /// Error during JSON serialization or deserialization.
     #[error("serde (de)serialization error: {0}")]
     Serde(#[from] serde_json::Error),
@@ -175,7 +217,7 @@ impl MetricsError {
     fn into_serde_err(self) -> serde_json::Error {
         match self {
             Self::Serde(e) => e,
-            Self::Io(e) => panic!("unexpected IO error in test: {e}"),
+            other => panic!("unexpected error in test: {other}"),
         }
     }
 }
@@ -210,10 +252,47 @@ impl<Metadata: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<Meta
     /// Returns `MetricsError::Serde` if JSON serialization fails.
     pub fn to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
         let path = path.as_ref();
-        ensure_parent_dirs(path)?;
-        let json = serde_json::to_string_pretty(self)?;
-        fs::write(path, json)?;
-        Ok(())
+        write_json_atomically(path, &serde_json::to_value(self)?)
+    }
+
+    /// Merges populated actions into a fixture file and replaces it atomically.
+    /// Existing action payloads and non-null metadata remain intact.
+    /// Callers must serialize updates to the same file across processes.
+    ///
+    /// # Errors
+    /// Returns an error for invalid existing JSON, a different fixture name, or I/O failure.
+    pub fn merge_to_path<P: AsRef<Path>>(&self, path: P) -> Result<(), MetricsError> {
+        let path = path.as_ref();
+        let mut update = serde_json::to_value(self)?;
+        match fs::read(path) {
+            Ok(bytes) => {
+                let mut existing: serde_json::Value = serde_json::from_slice(&bytes)?;
+                // Validate known payloads but keep their original JSON, including unknown fields.
+                let previous: BenchmarkRun<serde_json::Value> =
+                    serde_json::from_value(existing.clone())?;
+                if previous.name != self.name {
+                    return Err(MetricsError::InvalidUpdate(format!(
+                        "{} contains fixture {:?}, expected {:?}",
+                        path.display(),
+                        previous.name,
+                        self.name
+                    )));
+                }
+                for field in ["execution", "proving", "verification", "cost_estimation"] {
+                    if let Some(value) = update.get(field) {
+                        existing[field] = value.clone();
+                    }
+                }
+                if existing["metadata"].is_null() {
+                    existing["metadata"] = update["metadata"].take();
+                }
+                existing["timestamp_completed"] = update["timestamp_completed"].take();
+                update = existing;
+            }
+            Err(err) if err.kind() == io::ErrorKind::NotFound => {}
+            Err(err) => return Err(err.into()),
+        }
+        write_json_atomically(path, &update)
     }
 
     /// Reads the file at `path` and deserializes a `BenchmarkRun<Metadata>` from its JSON content.
@@ -228,6 +307,20 @@ impl<Metadata: serde::Serialize + serde::de::DeserializeOwned> BenchmarkRun<Meta
     }
 }
 
+fn write_json_atomically(path: &Path, value: &serde_json::Value) -> Result<(), MetricsError> {
+    ensure_parent_dirs(path)?;
+    let parent = path
+        .parent()
+        .filter(|p| !p.as_os_str().is_empty())
+        .unwrap_or_else(|| Path::new("."));
+    let mut file = tempfile::NamedTempFile::new_in(parent)?;
+    serde_json::to_writer_pretty(&mut file, value)?;
+    file.write_all(b"\n")?;
+    file.as_file().sync_all()?;
+    file.persist(path).map_err(|err| err.error)?;
+    Ok(())
+}
+
 fn ensure_parent_dirs<P: AsRef<Path>>(path: P) -> Result<(), io::Error> {
     if let Some(parent) = path.as_ref().parent() {
         std::fs::create_dir_all(parent)?;
@@ -238,7 +331,6 @@ fn ensure_parent_dirs<P: AsRef<Path>>(path: P) -> Result<(), io::Error> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use std::iter::FromIterator;
     use tempfile::NamedTempFile;
 
     #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -257,16 +349,12 @@ mod tests {
                 },
                 execution: Some(ExecutionMetrics::Success {
                     output_matched: true,
-                    total_num_cycles: 1_000,
-                    region_cycles: HashMap::from_iter([
-                        ("setup".to_string(), 100),
-                        ("compute".to_string(), 800),
-                        ("teardown".to_string(), 100),
-                    ]),
+
                     execution_duration: Duration::from_millis(150),
                 }),
                 proving: None,
                 verification: None,
+                cost_estimation: None,
             },
             BenchmarkRun {
                 name: "aes_bench".into(),
@@ -276,12 +364,7 @@ mod tests {
                 },
                 execution: Some(ExecutionMetrics::Success {
                     output_matched: true,
-                    total_num_cycles: 2_000,
-                    region_cycles: HashMap::from_iter([
-                        ("init".to_string(), 200),
-                        ("encrypt".to_string(), 1_600),
-                        ("final".to_string(), 200),
-                    ]),
+
                     execution_duration: Duration::from_millis(300),
                 }),
                 proving: Some(ProvingMetrics::Success {
@@ -291,6 +374,7 @@ mod tests {
                     verification_time_ms: 200,
                 }),
                 verification: None,
+                cost_estimation: None,
             },
             BenchmarkRun {
                 name: "proving_bench".into(),
@@ -306,6 +390,7 @@ mod tests {
                     verification_time_ms: 500,
                 }),
                 verification: None,
+                cost_estimation: None,
             },
         ]
     }
@@ -348,12 +433,12 @@ mod tests {
             },
             execution: Some(ExecutionMetrics::Success {
                 output_matched: true,
-                total_num_cycles: 1000,
-                region_cycles: HashMap::new(),
+
                 execution_duration: Duration::from_millis(150),
             }),
             proving: None,
             verification: None,
+            cost_estimation: None,
         };
 
         assert_eq!(benchmark_run.name, "test_benchmark");
@@ -369,12 +454,7 @@ mod tests {
             },
             execution: Some(ExecutionMetrics::Success {
                 output_matched: true,
-                total_num_cycles: 500,
-                region_cycles: HashMap::from_iter([
-                    ("setup".to_string(), 50),
-                    ("compute".to_string(), 400),
-                    ("teardown".to_string(), 50),
-                ]),
+
                 execution_duration: Duration::from_millis(100),
             }),
             proving: Some(ProvingMetrics::Success {
@@ -384,6 +464,7 @@ mod tests {
                 verification_time_ms: 150,
             }),
             verification: None,
+            cost_estimation: None,
         };
         let json = BenchmarkRun::to_json(std::slice::from_ref(&bench)).expect("serialize mixed");
         let parsed = BenchmarkRun::from_json(&json).expect("deserialize mixed");
@@ -395,8 +476,7 @@ mod tests {
         for output_matched in [true, false] {
             let metrics = ExecutionMetrics::Success {
                 output_matched,
-                total_num_cycles: 42,
-                region_cycles: HashMap::new(),
+
                 execution_duration: Duration::from_millis(7),
             };
 
@@ -432,5 +512,126 @@ mod tests {
                 serde_json::from_value(value).expect("deserialize proving metrics");
             assert_eq!(metrics, parsed);
         }
+    }
+
+    fn action_run(field: &str, payload: serde_json::Value) -> BenchmarkRun<serde_json::Value> {
+        serde_json::from_value(serde_json::json!({
+            "name": "fixture",
+            "timestamp_completed": "2026-09-10T00:00:00Z",
+            "metadata": null,
+            (field): payload,
+        }))
+        .unwrap()
+    }
+
+    fn estimated(heap: Option<u64>) -> serde_json::Value {
+        serde_json::json!({"success": {
+            "output_matched": false,
+            "cost": {"opcode": u64::MAX, "system": 0},
+            "peak_heap_bytes": heap,
+            "context": {
+                "execution_client": "reth", "execution_client_version": "0.1.0-rc.3",
+                "zkvm": "sp1", "sdk_version": "v6.4.0", "ere_revision": "5023513",
+                "elf_sha256": "elf", "input_sha256": "input",
+                "estimator_settings": {"heap_start": "_end"}
+            }
+        }})
+    }
+
+    #[test]
+    fn costs_round_trip_without_losing_large_integers_or_null_heap() {
+        for heap in [None, Some(0), Some(1234)] {
+            let run = action_run("cost_estimation", estimated(heap));
+            let value = serde_json::to_value(&run).unwrap();
+            assert_eq!(value["cost_estimation"], estimated(heap));
+            assert_eq!(
+                serde_json::from_value::<BenchmarkRun<serde_json::Value>>(value).unwrap(),
+                run
+            );
+        }
+    }
+
+    #[test]
+    fn merge_actions_in_any_order_and_replace_only_the_selected_action() -> Result<(), MetricsError>
+    {
+        let dir = tempfile::tempdir()?;
+        let actions = [
+            action_run(
+                "execution",
+                serde_json::json!({"success": {
+                    "output_matched": true, "execution_duration": {"secs": 1, "nanos": 123}
+                }}),
+            ),
+            action_run(
+                "proving",
+                serde_json::json!({"success": {
+                    "output_matched": true, "proof_size": 42, "proving_time_ms": 1234, "verification_time_ms": 5
+                }}),
+            ),
+            action_run(
+                "verification",
+                serde_json::json!({"success": {"proof_size": 42, "verification_time_ms": 7}}),
+            ),
+            action_run("cost_estimation", estimated(None)),
+        ];
+        for order in [[0, 1, 2, 3], [3, 2, 1, 0], [2, 0, 3, 1]] {
+            let path = dir.path().join(format!("{order:?}.json"));
+            for index in order {
+                let mut update = actions[index].clone();
+                if index != 2 {
+                    update.metadata =
+                        serde_json::json!({"original_test_name": "test", "block_index": 0});
+                }
+                update.merge_to_path(&path)?;
+            }
+            let before: serde_json::Value = serde_json::from_slice(&fs::read(&path)?)?;
+            assert_eq!(before["metadata"]["original_test_name"], "test");
+            for field in ["execution", "proving", "verification", "cost_estimation"] {
+                assert!(!before[field].is_null());
+            }
+            let mut replacement = action_run(
+                "execution",
+                serde_json::json!({"crashed": {"reason": "new failure"}}),
+            );
+            replacement.timestamp_completed += chrono::Duration::seconds(1);
+            replacement.merge_to_path(&path)?;
+            let after: serde_json::Value = serde_json::from_slice(&fs::read(&path)?)?;
+            for field in ["metadata", "proving", "verification", "cost_estimation"] {
+                assert_eq!(before[field], after[field]);
+            }
+            assert_eq!(after["execution"]["crashed"]["reason"], "new failure");
+            assert_ne!(before["timestamp_completed"], after["timestamp_completed"]);
+        }
+        Ok(())
+    }
+
+    #[test]
+    fn merge_preserves_unknown_payload_fields_and_rejects_invalid_records()
+    -> Result<(), MetricsError> {
+        let dir = tempfile::tempdir()?;
+        let path = dir.path().join("fixture.json");
+        let update = action_run("cost_estimation", estimated(Some(42)));
+        for invalid in ["not json", "{}", "[]"] {
+            fs::write(&path, invalid)?;
+            assert!(update.merge_to_path(&path).is_err());
+            assert_eq!(fs::read_to_string(&path)?, invalid);
+        }
+        let mut previous = serde_json::to_value(action_run(
+            "execution",
+            serde_json::json!({"crashed": {"reason": "old"}}),
+        ))?;
+        previous["execution"]["crashed"]["extra"] = serde_json::json!(42);
+        previous["custom"] = serde_json::json!("keep");
+        fs::write(&path, serde_json::to_vec(&previous)?)?;
+        update.merge_to_path(&path)?;
+        let merged: serde_json::Value = serde_json::from_slice(&fs::read(&path)?)?;
+        assert_eq!(merged["execution"], previous["execution"]);
+        assert_eq!(merged["custom"], "keep");
+        let mut wrong_name = update;
+        wrong_name.name = "different".to_owned();
+        let bytes = fs::read(&path)?;
+        assert!(wrong_name.merge_to_path(&path).is_err());
+        assert_eq!(fs::read(&path)?, bytes);
+        Ok(())
     }
 }

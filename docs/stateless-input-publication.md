@@ -40,8 +40,10 @@ archives.
 
 ## Operator Flow
 
-Schema v2 is a clean cut and does not read input-only v1 artifacts. Configure a
-fresh local output root and publish to a fresh R2 prefix when deploying it.
+Schema v2 does not read input-only v1 artifacts. EEST `tests-zkevm@v0.8.4`
+uses the existing SSZ encoding and `glamsterdam-devnet-8` configuration.
+The Ere v0.17.0 upgrade does not require an encoding migration.
+Do not mix devnet-5 or devnet-7 artifacts into this network namespace.
 
 Generate one benchmark-ready fixture without starting the collector:
 
@@ -56,21 +58,21 @@ Collect live stateless fixtures:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- collect \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-5.toml
+    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
 ```
 
 Export complete local block ranges and rebuild the public catalog:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- export \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-5.toml
+    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
 ```
 
 Publish batch archives and catalog files to R2:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- publish-r2 \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-5.toml
+    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
 ```
 
 If `publish-r2` reports a missing public catalog file, run `export` first.
@@ -131,14 +133,14 @@ cd /path/to/parent
 git clone https://github.com/ethereum/execution-specs.git
 cd execution-specs
 git fetch --tags
-git checkout tests-zkevm@v0.6.2
+git checkout 'tests-zkevm@v0.8.4'
 ```
 
 From this repository root, run:
 
 ```bash
-CATALOG_URL="https://<public-host>/<new-v0.6.2-prefix>/<network>"
-EEST_REF="tests-zkevm@v0.6.2"
+CATALOG_URL="https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/devnets/glamsterdam-devnet-8"
+EEST_REF="tests-zkevm@v0.8.4"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"
 

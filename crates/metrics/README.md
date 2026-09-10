@@ -14,8 +14,9 @@ The core data structure is `BenchmarkRun<Metadata>`, which stores:
 - `execution`: Optional execution metrics.
 - `proving`: Optional proving metrics.
 - `verification`: Optional standalone verification metrics.
+- `cost_estimation`: Optional component costs, heap estimate, and comparison context.
 
-`ExecutionMetrics`, `ProvingMetrics`, and `VerificationMetrics` can contain either a success payload or crash information, depending on the run outcome.
+`ExecutionMetrics`, `ProvingMetrics`, `VerificationMetrics`, and `CostEstimationMetrics` can contain either a success payload or crash information, depending on the run outcome.
 
 `HardwareInfo` detects and stores:
 
@@ -45,7 +46,6 @@ Example:
 
 ```rust
 use serde_derive::{Deserialize, Serialize};
-use std::collections::HashMap;
 use std::time::Duration;
 use zkevm_metrics::{BenchmarkRun, ExecutionMetrics};
 
@@ -63,12 +63,11 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         },
         execution: Some(ExecutionMetrics::Success {
             output_matched: true,
-            total_num_cycles: 1_000,
-            region_cycles: HashMap::new(),
             execution_duration: Duration::from_millis(300),
         }),
         proving: None,
         verification: None,
+        cost_estimation: None,
     };
 
     let json = BenchmarkRun::to_json(&[metrics])?;
@@ -76,6 +75,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
+
+## Action Updates
+
+`merge_to_path` replaces populated action fields and preserves other action payloads.
+It retains existing fixture metadata, or fills metadata that was `null`.
+The completion timestamp identifies the latest action update.
+Invalid existing JSON and fixture-name conflicts stop the update.
+Both `to_path` and `merge_to_path` replace files atomically.
+Updates to the same fixture file must run sequentially across processes.
+
+Execution success contains `output_matched` and `execution_duration`. The metrics types no longer contain cycle fields.
+Cost success contains `output_matched`, `cost`, `peak_heap_bytes`, and `context`.
+`cost` maps upstream component names to unsigned 64-bit integers. An unavailable heap estimate is JSON `null`.
+`CostEstimationContext` records the client, zkVM, SDK, Ere revision, ELF/input hashes, and effective estimator settings.
 
 ## Error Handling
 

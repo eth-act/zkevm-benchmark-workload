@@ -1,3 +1,4 @@
+use crate::runner::{should_skip_action, Action};
 use crate::{
     guest_programs::GuestFixture,
     stateless_validator::{
@@ -93,7 +94,7 @@ pub(super) fn stateless_validator_input_iter(
     input_folder: &Path,
     selected_fixtures: Option<&[String]>,
     el: ExecutionClient,
-    existing_output_dir: Option<&Path>,
+    existing_output: Option<(&Path, Action)>,
 ) -> Result<impl Iterator<Item = Result<Box<dyn GuestFixture>>>> {
     let fixture_prefixes = selected_fixtures
         .filter(|fixtures| !fixtures.is_empty())
@@ -105,7 +106,7 @@ pub(super) fn stateless_validator_input_iter(
         input_folder.to_path_buf(),
         fixture_prefixes,
         el,
-        existing_output_dir.map(Path::to_path_buf),
+        existing_output.map(|(path, action)| (path.to_path_buf(), action)),
     ))
 }
 
@@ -114,7 +115,7 @@ fn stateless_validator_input_iter_from_paths<I>(
     input_root: PathBuf,
     fixture_prefixes: Option<Vec<String>>,
     el: ExecutionClient,
-    existing_output_dir: Option<PathBuf>,
+    existing_output: Option<(PathBuf, Action)>,
 ) -> impl Iterator<Item = Result<Box<dyn GuestFixture>>>
 where
     I: Iterator<Item = PathBuf>,
@@ -127,7 +128,9 @@ where
                 .filter_map(|fixture| {
                     match skip_existing_fixture_output(
                         &fixture.name,
-                        existing_output_dir.as_deref(),
+                        existing_output
+                            .as_ref()
+                            .map(|(path, action)| (path.as_path(), *action)),
                     ) {
                         Ok(true) => None,
                         Ok(false) => Some(stateless_validator_input_from_fixture(fixture, el)),
@@ -167,14 +170,14 @@ fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<EestSta
 
 fn skip_existing_fixture_output(
     fixture_name: &str,
-    existing_output_dir: Option<&Path>,
+    existing_output: Option<(&Path, Action)>,
 ) -> Result<bool> {
-    let Some(existing_output_dir) = existing_output_dir else {
+    let Some((existing_output_dir, action)) = existing_output else {
         return Ok(false);
     };
 
     let output_path = existing_output_dir.join(format!("{fixture_name}.json"));
-    if output_path.exists() {
+    if should_skip_action(&output_path, action, false)? {
         info!("Skipping {fixture_name} (already exists)");
         return Ok(true);
     }
@@ -301,17 +304,34 @@ mod tests {
         let loaded = load_benchmark_fixtures(&fixture_path, dir.path())?;
         let output_dir = dir.path().join("output");
         fs::create_dir(&output_dir)?;
-        fs::write(output_dir.join(format!("{}.json", loaded[0].name)), "{}")?;
+        fs::write(
+            output_dir.join(format!("{}.json", loaded[0].name)),
+            serde_json::to_vec(&serde_json::json!({
+                "name": loaded[0].name,
+                "timestamp_completed": "2026-09-10T00:00:00Z",
+                "metadata": {},
+                "execution": {"crashed": {"reason": "recorded failure"}}
+            }))?,
+        )?;
 
         let fixtures = stateless_validator_input_iter(
             &fixture_path,
             None,
             ExecutionClient::Reth,
-            Some(&output_dir),
+            Some((&output_dir, Action::Execute)),
         )?
         .collect::<Result<Vec<_>>>()?;
         assert_eq!(fixtures.len(), 1);
         assert_eq!(fixtures[0].name(), loaded[1].name);
+
+        let estimates = stateless_validator_input_iter(
+            &fixture_path,
+            None,
+            ExecutionClient::Reth,
+            Some((&output_dir, Action::EstimateCost)),
+        )?
+        .collect::<Result<Vec<_>>>()?;
+        assert_eq!(estimates.len(), 2);
 
         Ok(())
     }

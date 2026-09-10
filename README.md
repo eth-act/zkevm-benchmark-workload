@@ -7,22 +7,27 @@
 This repository benchmarks Ethereum stateless-validator guests across multiple zkVMs. The normal workflow has two phases:
 
 1. Obtain canonical EEST `blockchain_tests` fixtures containing `statelessInputBytes` and `statelessOutputBytes`.
-2. Pass a fixture file, fixture directory, or EEST fixture checkout to `ere-hosts` and write execution metrics, proofs, or verification results.
+2. Pass a fixture file, fixture directory, or EEST fixture checkout to `ere-hosts` and write execution metrics, cost estimates, proofs, or verification results.
 
 ## Workspace At a Glance
 
-- **`crates/ere-hosts`**: benchmark CLI for execution, proving, and verification jobs.
+- **`crates/ere-hosts`**: benchmark CLI for execution, estimation, proving, and verification jobs.
 - **`crates/benchmark-runner`**: shared orchestration for canonical fixture loading, guest resolution, execution, proof flow, and verification.
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 - **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing benchmark-ready EEST stateless fixtures from CL/EL RPC endpoints.
 
-Reth and Ethrex are enabled across the supported zkVMs, while Zesu is enabled for ZisK only. Guest programs are maintained in [eth-act/ere-guests](https://github.com/eth-act/ere-guests) and are downloaded automatically from the resolved release or commit artifacts unless `--bin-path` or `--guest-artifact-base-url` is provided.
+Reth `v0.1.0-rc.3` and Ethrex `v26.0.0` support OpenVM, SP1, and ZisK.
+Zesu `tests-glamsterdam-devnet@v8.1.4` supports ZisK only.
+The workspace pins [ere-guests v0.17.0](https://github.com/eth-act/ere-guests/releases/tag/v0.17.0)
+and Ere v0.17.0. Default guest downloads use release assets. GitHub authentication is optional.
+Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
 ## Prerequisites
 
 - Rust via `rustup`
 - Docker
 - Canonical EEST `blockchain_tests` fixtures
+- Python 3.10 or later for the comparison reports
 
 ## Quickstart
 
@@ -38,7 +43,11 @@ networks. Use `generate` for one block or `collect` for continuous per-block
 collection. Exported live batches contain a `blockchain_tests/` tree and can be
 passed to `ere-hosts` immediately after extraction.
 
-Obtain an EEST fixture bundle from [ethereum/execution-specs](https://github.com/ethereum/execution-specs) whose `blockchain_tests` cases contain canonical stateless bytes. Then benchmark either the checkout's fixture root, a directory of EEST JSON files, or one EEST JSON file:
+Obtain the
+[`tests-zkevm@v0.8.4`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v0.8.4)
+`fixtures_zkevm.tar.gz` bundle, whose `blockchain_tests` cases contain canonical stateless
+bytes. Then benchmark either the extracted fixture root, a directory of EEST
+JSON files, or one EEST JSON file:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms sp1 \
@@ -46,7 +55,18 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --input-folder /path/to/execution-specs/fixtures
 ```
 
-Execute and prove actions require `--input-folder`. Verification reads saved proofs and may omit it.
+Execution, cost estimation, and proving require `--input-folder`. Verification reads saved proofs and does not require fixtures.
+
+Estimate proving costs without generating a proof:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 --action estimate-cost \
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/execution-specs/fixtures
+```
+
+Actions merge their results into each fixture JSON. Execution records duration. Estimation records component costs and optional heap usage.
+Cost units differ by zkVM. Compare compatible baseline and candidate runs with `python3 scripts/compare_costs.py BASELINE CANDIDATE`.
 
 ## Guides
 

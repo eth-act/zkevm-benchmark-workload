@@ -8,7 +8,7 @@ use std::path::{Path, PathBuf};
 use tracing::info;
 use zkevm_metrics::{BenchmarkRun, CrashInfo, HardwareInfo, VerificationMetrics};
 
-use crate::runner::{get_panic_msg, RunConfig, ZkVMInstance};
+use crate::runner::{get_panic_msg, should_skip_action, Action, RunConfig, ZkVMInstance};
 
 /// Loads proof artifacts from disk and verifies them using the given zkVM.
 pub fn run_verify_from_disk(
@@ -39,19 +39,7 @@ pub fn run_verify_from_disk(
         })
         .collect();
 
-    // Warmup pass: verify the first proof to warm up the zkVM setup (if any).
-    if let Some(first) = proof_entries.first() {
-        info!(
-            "Warmup: verifying {} (result will be discarded)",
-            first.path().display()
-        );
-        let proof_bytes = fs::read(first.path())
-            .with_context(|| format!("Failed to read proof from {}", first.path().display()))?;
-        let proof = EncodedProof(proof_bytes);
-        let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.verify(&proof)));
-        info!("Warmup complete");
-    }
-
+    let mut warmed_up = false;
     for entry in &proof_entries {
         let fixture_name = entry
             .path()
@@ -65,7 +53,7 @@ pub fn run_verify_from_disk(
             .join(config.sub_folder.as_deref().unwrap_or(""))
             .join(format!("{zkvm_name}/{fixture_name}.json"));
 
-        if !config.force_rerun && out_path.exists() {
+        if should_skip_action(&out_path, Action::Verify, config.force_rerun)? {
             info!("Skipping {fixture_name} (already exists)");
             continue;
         }
@@ -75,6 +63,14 @@ pub fn run_verify_from_disk(
         let proof_bytes = fs::read(entry.path())
             .with_context(|| format!("Failed to read proof from {}", entry.path().display()))?;
         let proof = EncodedProof(proof_bytes);
+
+        // Warm up with the first pending proof. Skipped results must not run again.
+        if !warmed_up {
+            info!("Warmup: verifying {fixture_name} (result will be discarded)");
+            let _ = panic::catch_unwind(panic::AssertUnwindSafe(|| zkvm.verify(&proof)));
+            warmed_up = true;
+            info!("Warmup complete");
+        }
 
         let verify_start = std::time::Instant::now();
         let verification_result =
@@ -103,10 +99,16 @@ pub fn run_verify_from_disk(
             execution: None,
             proving: None,
             verification: Some(verification),
+            cost_estimation: None,
         };
 
         info!("Saving verification report");
-        report.to_path(out_path)?;
+        report.merge_to_path(&out_path).with_context(|| {
+            format!(
+                "Failed to merge metrics at {}; repair or move the existing file before rerunning",
+                out_path.display()
+            )
+        })?;
     }
 
     Ok(())
