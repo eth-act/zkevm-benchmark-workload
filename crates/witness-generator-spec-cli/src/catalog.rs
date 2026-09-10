@@ -456,7 +456,7 @@ fn read_public_seed(
                 slot.insert(batch);
             }
             std::collections::btree_map::Entry::Occupied(slot) => {
-                let batch_path = batch.path.clone();
+                let batch_path = batch.path;
                 slot.remove();
                 conflicted.insert(batch_path.clone());
                 warn!(
