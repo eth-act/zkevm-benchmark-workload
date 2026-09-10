@@ -630,6 +630,7 @@ dependencies = [
  "reqwest",
  "serde",
  "serde_json",
+ "sha2",
  "stateless-validator-catalog",
  "stateless-validator-downloader",
  "strum 0.26.3",
@@ -1309,6 +1310,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "252afb9ae5eaa683babdc6a068b3f5726eb19e05070c731f9b2a23a7c3e8ed34"
 
 [[package]]
+name = "elf"
+version = "0.7.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4445909572dbd556c457c849c4ca58623d84b27c8fff1e74b0b4227d8b90d17b"
+
+[[package]]
 name = "elliptic-curve"
 version = "0.13.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1364,8 +1371,8 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ere-catalog"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "ere-util-build",
  "serde",
@@ -1374,8 +1381,8 @@ dependencies = [
 
 [[package]]
 name = "ere-cluster-client-zisk"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "bincode",
  "ere-compiler-core",
@@ -1394,21 +1401,21 @@ dependencies = [
 
 [[package]]
 name = "ere-codec"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 
 [[package]]
 name = "ere-compiler-core"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "ere-dockerized"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -1438,16 +1445,16 @@ dependencies = [
 
 [[package]]
 name = "ere-prover-core"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "anyhow",
  "auto_impl",
  "bincode",
  "clap",
+ "elf",
  "ere-codec",
  "ere-verifier-core",
- "indexmap 2.14.0",
  "serde",
  "strum 0.27.2",
  "thiserror",
@@ -1455,8 +1462,8 @@ dependencies = [
 
 [[package]]
 name = "ere-server-api"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "prost",
  "serde",
@@ -1465,10 +1472,9 @@ dependencies = [
 
 [[package]]
 name = "ere-server-client"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
- "bincode",
  "ere-prover-core",
  "ere-server-api",
  "thiserror",
@@ -1477,24 +1483,24 @@ dependencies = [
 
 [[package]]
 name = "ere-util-build"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "cargo_metadata",
 ]
 
 [[package]]
 name = "ere-util-tokio"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "tokio",
 ]
 
 [[package]]
 name = "ere-verifier-core"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "auto_impl",
  "ere-codec",
@@ -1503,8 +1509,8 @@ dependencies = [
 
 [[package]]
 name = "ere-verifier-zisk"
-version = "0.16.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.16.2#8961a4e7ac5c9ca2dc6a2fc848452f23a186b1aa"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere?tag=v0.17.0#5023513851c69ab9c4871e3899608e450e6960b6"
 dependencies = [
  "bincode",
  "bytemuck",
@@ -2229,15 +2235,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "itertools"
-version = "0.14.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2b192c782037fadd9cfa75548310488aabdbf3d2da73885b31bd0abd03351285"
-dependencies = [
- "either",
-]
-
-[[package]]
 name = "itoa"
 version = "1.0.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2899,7 +2896,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b570b25f7617e43d59005d0990ccb79e950a423952cea19671b7a876da390adf"
 dependencies = [
  "anyhow",
- "itertools 0.14.0",
+ "itertools 0.10.5",
  "proc-macro2",
  "quote",
  "syn 2.0.119",
@@ -3726,8 +3723,8 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
 name = "stateless-validator-catalog"
-version = "0.16.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=d5a6451221acd42993f4a2c8c40b041e06571dd9#d5a6451221acd42993f4a2c8c40b041e06571dd9"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
 dependencies = [
  "serde",
  "serde_json",
@@ -3736,8 +3733,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-common"
-version = "0.16.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=d5a6451221acd42993f4a2c8c40b041e06571dd9#d5a6451221acd42993f4a2c8c40b041e06571dd9"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
 dependencies = [
  "libssz",
  "libssz-derive",
@@ -3749,8 +3746,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-downloader"
-version = "0.16.0"
-source = "git+https://github.com/eth-act/ere-guests?rev=d5a6451221acd42993f4a2c8c40b041e06571dd9#d5a6451221acd42993f4a2c8c40b041e06571dd9"
+version = "0.17.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -3971,7 +3968,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.3.4",
+ "getrandom 0.4.3",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",

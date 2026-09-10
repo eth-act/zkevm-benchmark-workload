@@ -15,7 +15,7 @@ cargo run -p ere-hosts -- --help
 Prerequisites:
 
 - Docker is required because zkVM hosts are managed through `ere-dockerized`.
-- Execute and prove actions require an explicit `--input-folder` pointing to a canonical EEST JSON file, a directory of EEST JSON files, or an EEST checkout containing `blockchain_tests/`.
+- Execute, estimate-cost, and prove actions require an explicit `--input-folder` pointing to a canonical EEST JSON file, a directory of EEST JSON files, or an EEST checkout containing `blockchain_tests/`.
 - Verification reads proofs and does not require `--input-folder`. A supplied verification input path is accepted and ignored for backward compatibility.
 
 ## Common Benchmark Commands
@@ -36,7 +36,7 @@ cargo run -p ere-hosts --release -- --zkvms openvm \
     --input-folder /path/to/eest-fixtures
 ```
 
-Zesu remains an accepted CLI value but is temporarily unavailable:
+Run Zesu on ZisK:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms zisk \
@@ -44,8 +44,7 @@ cargo run -p ere-hosts --release -- --zkvms zisk \
     --input-folder /path/to/eest-fixtures
 ```
 
-The Zesu command fails at the centralized compatibility check until
-`ere-guests` registers compatible tests-zkevm v0.8.2 artifacts.
+Zesu supports ZisK only. Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
 
 Run directly from an EEST fixture checkout:
 
@@ -69,19 +68,24 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
 
 ## Action Model
 
-`ere-hosts` supports three actions:
+`ere-hosts` supports four actions:
 
 - `--action execute`: execute the guest only. This is the default and requires `--input-folder`.
+- `--action estimate-cost`: execute the cost estimator without generating a proof. This action requires `--input-folder`.
 - `--action prove`: execute, generate a proof, and require `--input-folder`.
 - `--action verify`: verify proofs loaded from disk or a downloaded `.tar.gz` archive. Input fixtures are not read.
 
-Input presence and path existence for execute/prove are checked before guest artifact resolution. Verification may omit the option; when `--input-folder` is supplied with verify, its value is ignored even if that path no longer exists.
+Execution, estimation, and proving require an existing input path before artifact resolution.
+Verification does not require input fixtures. A supplied verification input path is ignored, even if it no longer exists.
 
 Timeouts are action-scoped:
 
-- Default execute timeout: `5m`
+- Default execute and estimate-cost timeout: `5m`
 - Default prove timeout: `15m`
 - Default verify timeout: `2s`
+
+Ere initializes the guest before the action timeout starts.
+OpenVM also compiles its metered executor on the first estimate. This compilation uses the estimation timeout.
 
 Override the selected action's timeout:
 
@@ -91,6 +95,37 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     stateless-validator --execution-client reth \
     --input-folder /path/to/eest-fixtures
 ```
+
+## Cost Estimation And Comparison
+
+Run the estimator against the same fixtures as an execution run:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 --action estimate-cost \
+    stateless-validator --execution-client reth \
+    --input-folder /path/to/eest-fixtures
+```
+
+This action adds `cost_estimation` to each fixture JSON and preserves execution or proof results.
+It calls the estimator once per fixture. It does not measure ordinary execution duration.
+
+Compare two result directories:
+
+```bash
+python3 scripts/compare_costs.py baseline-results candidate-results > cost-comparison.md
+python3 scripts/compare_executions.py baseline-results candidate-results
+```
+
+Both commands discover fixture JSON recursively. The cost command also accepts individual client or zkVM directories.
+Cost comparisons require the same client kind, fixture identity, input hash, zkVM, SDK, Ere revision, and estimator settings.
+Guest versions and ELF hashes can differ. Duplicate matches produce an error.
+The report excludes crashes and output mismatches, and lists unmatched results.
+Component costs sum over matched fixtures. Heap summaries use the maximum available measurement and show measurement coverage.
+Missing values and percentages with a zero baseline appear as `N/A`.
+Positive cost changes indicate an increase. The command exits with code 1 if no compatible pairs exist, or 2 for invalid input.
+
+The execution comparison uses duration, including fractional seconds.
+The [output reference](benchmark-execution-output.md#cost-estimation) explains cost units and heap limitations.
 
 ## Inputs And Outputs
 
@@ -148,16 +183,26 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests use the `ere-guests` artifact resolver. Tagged dependencies use release assets for that tag; commit or branch dependencies use GitHub Actions artifacts for the resolved commit and require `GITHUB_TOKEN` or `GH_TOKEN`. This repository currently pins an exact commit, so one of those token variables is required for default Reth and Ethrex artifact downloads.
+Default guests use the `ere-guests v0.17.0` release assets.
+`GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
+The upstream downloader uses the first nonempty token in that order.
+Commit or branch dependencies still require a token for GitHub Actions artifacts.
+
+Prebuilt Ere images are available with `ERE_IMAGE_REGISTRY=ghcr.io/eth-act/ere`.
+The dependency selects image revision `5023513`.
 
 Artifacts are named `stateless-validator-<execution-client>-<zkvm>-<zkvm-sdk-version>`, so a zkVM SDK bump changes the resolved file names.
 
-Use local Reth or Ethrex artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. The temporary Zesu compatibility check also applies to custom artifact sources.
+Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. Zesu remains restricted to ZisK for all artifact sources.
 
 ## Operational Notes
 
-- Use `--force-rerun` to ignore existing metrics and rerun a workload. Without it, fixtures with existing output files are skipped.
+- Each action skips only its own existing result, including a recorded crash.
+- `--force-rerun` replaces the selected action and preserves the other action results.
+- Actions that target the same fixture file must run sequentially across processes.
 - `--resource gpu` selects GPU proving resources where supported.
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
 - `--save-proofs` is only valid with `--action prove`.
-- `--proofs-url` is only valid with `--action verify`.
+- `--proofs-url` and `--proofs-folder` are only valid with `--action verify`.
+- Cluster resources support proving and verification only.
+- Default release assets do not include profiling ELFs. `--zisk-profile` requires a compatible custom `-profiling.elf` artifact.

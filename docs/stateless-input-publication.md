@@ -40,9 +40,10 @@ archives.
 
 ## Operator Flow
 
-Schema v2 is a clean cut and does not read input-only v1 artifacts. The
-tests-zkevm v0.8.2 wire model must use the fresh `glamsterdam-devnet-8`
-network namespace; do not mix devnet-5 or devnet-7 artifacts into it.
+Schema v2 does not read input-only v1 artifacts. EEST `tests-zkevm@v0.8.4`
+uses the existing SSZ encoding and `glamsterdam-devnet-8` configuration.
+The Ere v0.17.0 upgrade does not require an encoding migration.
+Do not mix devnet-5 or devnet-7 artifacts into this network namespace.
 
 Generate one benchmark-ready fixture without starting the collector:
 
@@ -132,14 +133,14 @@ cd /path/to/parent
 git clone https://github.com/ethereum/execution-specs.git
 cd execution-specs
 git fetch --tags
-git checkout 'tests-zkevm@v0.8.2'
+git checkout 'tests-zkevm@v0.8.4'
 ```
 
 From this repository root, run:
 
 ```bash
-CATALOG_URL="https://pub-df22334654034ebab51bc096137a59d8.r2.dev/devnets/glamsterdam-devnet-8"
-EEST_REF="tests-zkevm@v0.8.2"
+CATALOG_URL="https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/devnets/glamsterdam-devnet-8"
+EEST_REF="tests-zkevm@v0.8.4"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"
 

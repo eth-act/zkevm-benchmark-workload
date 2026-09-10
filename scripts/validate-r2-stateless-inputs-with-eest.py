@@ -22,7 +22,7 @@ except ImportError:
     zstandard = None
 
 DEFAULT_CATALOG_URL = (
-    "https://pub-df22334654034ebab51bc096137a59d8.r2.dev/"
+    "https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/"
     "devnets/glamsterdam-devnet-8"
 )
 REQUEST_TIMEOUT_SECONDS = 60

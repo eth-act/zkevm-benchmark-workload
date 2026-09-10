@@ -18,7 +18,10 @@ Serialized guest inputs are only saved when `--dump-inputs <PATH>` is provided. 
 
 ## Metrics Layout
 
-Completed execution and proving runs are still written as successful metrics even when public values do not match the fixture expectation. In that case the runner logs a warning and writes `output_matched: false` inside `execution.success` or `proving.success`. zkVM errors, proof verification errors, expected-output computation errors, and panics are still recorded as crashed or returned as fatal infrastructure errors as before.
+Completed execution, proving, and estimation runs retain their measurements when public values do not match the fixture.
+The runner logs a warning and sets `output_matched: false` in the selected success payload.
+Estimator errors and panics produce `cost_estimation.crashed`.
+Existing execution, proving, and verification error handling remains unchanged.
 
 For `stateless-validator` runs, metrics are written under:
 
@@ -76,10 +79,6 @@ A successful execution metrics file has this shape:
   "execution": {
     "success": {
       "output_matched": true,
-      "total_num_cycles": 1048737679,
-      "region_cycles": {
-        "setup": 1000
-      },
       "execution_duration": {
         "secs": 12,
         "nanos": 327837000
@@ -94,6 +93,17 @@ Optional top-level fields are omitted when they are not populated:
 - `execution` is present for `--action execute`.
 - `proving` is present for `--action prove`.
 - `verification` is present for `--action verify`.
+- `cost_estimation` is present for `--action estimate-cost`.
+
+Several action fields can coexist in one file. Each action replaces only its own payload.
+Existing results for other actions remain intact. `--force-rerun` follows the same merge behavior.
+Without that flag, an existing result for the selected action causes a skip, including a recorded crash.
+`timestamp_completed` identifies the latest completed action update.
+Updates replace the file atomically. Invalid existing JSON stops the update without overwriting the file.
+Actions that target the same fixture file must run sequentially across processes.
+
+Execution success no longer contains `total_num_cycles` or `region_cycles`.
+Archived metrics are not rewritten in bulk. Unmodified action payloads retain their original fields during a merge.
 
 Success variants:
 
@@ -102,8 +112,6 @@ Success variants:
   "execution": {
     "success": {
       "output_matched": true,
-      "total_num_cycles": 123,
-      "region_cycles": {},
       "execution_duration": {
         "secs": 0,
         "nanos": 1000000
@@ -149,12 +157,63 @@ Crash variants use the same enum wrapper with `crashed`:
 }
 ```
 
+## Cost Estimation
+
+A cost result uses the following structure. The hashes below are illustrative placeholders.
+
+```json
+{
+  "cost_estimation": {
+    "success": {
+      "output_matched": true,
+      "cost": {"opcode": 100, "syscall": 20, "system": 30},
+      "peak_heap_bytes": null,
+      "context": {
+        "execution_client": "reth",
+        "execution_client_version": "0.1.0-rc.3",
+        "zkvm": "sp1",
+        "sdk_version": "v6.4.0",
+        "ere_revision": "5023513",
+        "elf_sha256": "<SHA-256 of actual ELF bytes>",
+        "input_sha256": "<SHA-256 of raw input bytes>",
+        "estimator_settings": {"heap_start": "_end"}
+      }
+    }
+  }
+}
+```
+
+The runner preserves upstream component names and unsigned 64-bit values. Each backend defines its own cost model.
+These values estimate proving work. They are not prices, execution cycles, or measured proving time.
+
+| zkVM | Unit | Components |
+| --- | --- | --- |
+| OpenVM | Unpadded trace cells, summed across segments | `rv64`, `precompile`, `system` |
+| SP1 | `3 * trace_area + complexity` (ten times SP1 gas) | `opcode`, `syscall`, `system` |
+| ZisK | Trace cells | `base`, `precompile`, `memory`, `opcode`, `main` |
+
+Component names and units follow [Ere v0.17.0](https://github.com/eth-act/ere/tree/v0.17.0/crates/prover).
+Raw costs must not be compared across zkVMs, SDK versions, Ere revisions, or estimator settings.
+
+`peak_heap_bytes` is an estimator measurement of guest heap memory. It is not host RAM or a precise allocator high-water mark.
+OpenVM and ZisK estimate the span of nonzero heap bytes. SP1 measures guest memory above its heap symbol.
+Missing symbols or unreadable heap memory can produce `null`. A missing measurement is not zero.
+
+The context records effective settings that affect measurement:
+
+- `heap_start`: `ERE_COST_ESTIMATION_HEAP_START`, default `_end` for OpenVM/SP1 or `_heap_bottom` for ZisK.
+- `heap_end`: ZisK's `ERE_COST_ESTIMATION_HEAP_END`, default `_heap_top`.
+- `segment_memory_bytes`: OpenVM's `ERE_OPENVM_SEGMENT_MEMORY`, default `15569256448` bytes (14.5 GiB).
+
+Invalid OpenVM segment-memory values use the upstream default. Scheduling concurrency does not change the recorded cost model.
+ELF hashes identify custom artifacts even when the client version comes from the pinned catalog.
+
 ## Metadata By Workload
 
 The `metadata` field is workload-specific:
 
 - Canonical EEST stateless-validator fixtures write EEST provenance and block metadata.
-- Standalone verification metrics write `null`.
+- Verification preserves existing fixture metadata. A new verification-only record writes `null`. A later fixture action fills it.
 
 Canonical EEST metadata has this shape:
 

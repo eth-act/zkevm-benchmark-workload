@@ -4,7 +4,7 @@ This is the detailed input reference for the `ere-hosts stateless-validator` wor
 
 ## Action-Aware Input Requirement
 
-Execute and prove actions require:
+Execute, estimate-cost, and prove actions require:
 
 ```text
 stateless-validator --input-folder <PATH>
@@ -82,11 +82,9 @@ Each accepted block becomes one benchmark fixture. Its safe output name is deriv
 
 ## Execution-Client Routing
 
-Reth and Ethrex receive `statelessInputBytes` unchanged on stdin and use
-`statelessOutputBytes` as the expected public values. Zesu remains a valid CLI
-choice so its routing can be enabled without reconstructing the interface, but
-it currently fails before artifact resolution because `ere-guests` has no
-active tests-zkevm v0.8.2 artifacts for it.
+Reth, Ethrex, and Zesu receive `statelessInputBytes` unchanged on stdin and compare public values with `statelessOutputBytes`.
+Reth `0.1.0-rc.3` and Ethrex `26.0.0` support all three zkVMs.
+Zesu `tests-glamsterdam-devnet@v8.1.4` supports ZisK only.
 
 Fixture deserialization remains independent of the selected execution client.
 Client-specific availability is checked before artifact resolution or guest
@@ -110,7 +108,7 @@ A prefix may match either the sanitized fixture name or the original EEST test n
 
 Benchmark metadata preserves the fixture format, original test name, source path, block index, network, chain ID, block number, gas used, the block's opcode count, and the target opcode. See [Benchmark Execution Output](benchmark-execution-output.md#metadata-by-workload) for the serialized shape.
 
-Unless `--force-rerun` is set, fixture preparation skips cases whose metrics output already exists. Execution and proving both compare the guest's public values with the fixture's raw `statelessOutputBytes`; proof verification retains the existing stored-proof verification behavior.
+Unless `--force-rerun` is set, fixture preparation skips cases that already contain a result for the selected action. Execution, estimation, and proving compare the guest's public values with the fixture's raw `statelessOutputBytes`; proof verification retains the existing stored-proof verification behavior.
 
 ## Legacy Format Rejection
 

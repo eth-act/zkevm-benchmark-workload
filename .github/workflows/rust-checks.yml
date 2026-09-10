@@ -141,3 +141,6 @@ jobs:
 
       - name: Run default tests
         run: cargo test --locked --workspace -- --no-capture
+
+      - name: Test report scripts
+        run: python3 -m unittest discover -s scripts/tests -v

@@ -11,7 +11,7 @@ on:
       eest_ref:
         description: ethereum/execution-specs ref to validate with
         required: false
-        default: tests-zkevm@v0.8.2
+        default: tests-zkevm@v0.8.4
         type: string
       batch_count:
         description: Number of latest complete batches to validate
@@ -34,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/devnets/glamsterdam-devnet-8/index.html' }}
-      EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v0.8.2' }}
+      EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v0.8.4' }}
       BATCH_COUNT: ${{ github.event.inputs.batch_count || '10' }}
       SUMMARY_DIR: workload/target/eest-r2-stateless-inputs
     steps:
