@@ -4,7 +4,7 @@ use std::{
     collections::{BTreeMap, HashSet},
     path::Path,
 };
-use tracing::info;
+use tracing::{info, warn};
 
 const EEST_SAFE_FILE_STEM_MAX_LEN: usize = 220;
 
@@ -97,16 +97,18 @@ pub(crate) fn load_eest_benchmark_fixtures(
         let chain_id = parse_json_u64(&case.config.chainid)
             .with_context(|| format!("Failed to parse chainid for EEST test {test_name}"))?;
 
-        let opcode_count_per_block = case.info.metadata.opcode_count_per_block.as_ref();
-        if opcode_count_per_block
-            .is_some_and(|opcode_count_per_block| opcode_count_per_block.len() != case.blocks.len())
-        {
-            bail!(
-                "EEST test {test_name} has {} opcode_count_per_block entries but {} blocks",
-                opcode_count_per_block.unwrap().len(),
-                case.blocks.len()
-            );
-        }
+        let opcode_count_per_block = match case.info.metadata.opcode_count_per_block.as_ref() {
+            Some(counts) if counts.len() != case.blocks.len() => {
+                // Mismatched counts cannot be assigned to blocks reliably, but guest I/O is still usable.
+                warn!(
+                    "Ignoring opcode_count_per_block for EEST test {test_name} from {source_path}: {} entries but {} blocks",
+                    counts.len(),
+                    case.blocks.len()
+                );
+                None
+            }
+            counts => counts,
+        };
 
         // For EEST benchmark fixtures, the worst case block is the last block and the others are setup blocks,
         // so here we only load the last block as benchmark fixture.
@@ -430,34 +432,43 @@ mod tests {
     }
 
     #[test]
-    fn eest_opcode_count_per_block_length_must_match_blocks() -> Result<()> {
-        let dir = tempfile::tempdir()?;
-        let fixture_path = dir.path().join("mismatched-opcode-count.json");
-        fs::write(
-            &fixture_path,
-            r#"{
-                "tests/foo.py::test_mismatch": {
+    fn eest_opcode_counts_are_used_only_when_aligned_with_blocks() -> Result<()> {
+        let input_root = Path::new("fixtures");
+        let fixture_path = input_root.join("opcode-count.json");
+        for (count_len, expected_count) in [(0, None), (4, None), (5, Some(5)), (6, None)] {
+            let counts: Vec<_> = (1..=count_len)
+                .map(|count| serde_json::json!({"PUSH1": count}))
+                .collect();
+            let value = serde_json::json!({
+                "tests/foo.py::test_opcode_counts": {
                     "network": "Amsterdam",
                     "config": {"chainid": "0x01"},
-                    "blocks": [
-                        {"statelessInputBytes": "0x0102", "statelessOutputBytes": "0xaa"}
-                    ],
+                    "blocks": [{}, {}, {}, {}, {
+                        "statelessInputBytes": "0x0102",
+                        "statelessOutputBytes": "0xaa"
+                    }],
                     "_info": {
                         "metadata": {
-                            "opcode_count_per_block": [{"PUSH1": 1}, {"PUSH1": 2}]
+                            "opcode_count_per_block": counts,
+                            "target_opcode": "PUSH1"
                         }
                     }
                 }
-            }"#,
-        )?;
+            });
 
-        let err = load_eest_benchmark_fixtures(
-            serde_json::from_str(&fs::read_to_string(&fixture_path)?)?,
-            &fixture_path,
-            dir.path(),
-        )
-        .unwrap_err();
-        assert!(err.to_string().contains("opcode_count_per_block"));
+            let fixtures = load_eest_benchmark_fixtures(value, &fixture_path, input_root)?;
+            assert_eq!(fixtures.len(), 1);
+            let fixture = &fixtures[0];
+            assert_eq!(fixture.block_index, 4);
+            assert_eq!(fixture.stateless_input_bytes, [0x01, 0x02]);
+            assert_eq!(fixture.stateless_output_bytes, [0xaa]);
+            assert_eq!(fixture.target_opcode.as_deref(), Some("PUSH1"));
+            assert_eq!(
+                fixture.opcode_count,
+                expected_count.map(|count| BTreeMap::from([("PUSH1".to_string(), count)])),
+                "unexpected opcode counts with {count_len} entries for 5 blocks"
+            );
+        }
 
         Ok(())
     }

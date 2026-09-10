@@ -75,7 +75,7 @@ Rules:
 - A block without `statelessInputBytes`, or with empty `statelessInputBytes`, is skipped.
 - A block with non-empty `statelessInputBytes` must also contain `statelessOutputBytes`.
 - Both byte fields are hexadecimal strings with an optional `0x` prefix and an even number of hexadecimal digits after that prefix.
-- `_info.metadata.opcode_count_per_block` holds one opcode-count map per block in block order, so entry N describes `blocks[N]` and the last entry describes the loaded block. A present array whose length differs from the block count is rejected.
+- `_info.metadata.opcode_count_per_block` holds one opcode-count map per block in block order, so entry N describes `blocks[N]` and the last entry describes the loaded block. If the array length differs from the block count, the loader logs a warning and omits opcode counts for that test case. The fixture is still loaded, and guest input/output validation still applies.
 - `_info.metadata.target_opcode` names the opcode a benchmark stresses. Benchmarks that stress no single opcode omit it.
 
 Each accepted block becomes one benchmark fixture. Its safe output name is derived from the original EEST test name, block index, and source context; collisions are disambiguated. The original test name remains available for fixture-prefix selection.

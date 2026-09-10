@@ -235,7 +235,7 @@ Canonical EEST metadata has this shape:
 }
 ```
 
-`block_number` and `block_used_gas` are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value.
+`block_number` and `block_used_gas` are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value. `opcode_count` is also omitted when the per-block array length differs from the block count; the loader logs a warning and continues loading the fixture.
 
 ## Proofs And Verification
 
