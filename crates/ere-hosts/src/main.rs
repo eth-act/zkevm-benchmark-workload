@@ -8,7 +8,7 @@ use benchmark_runner::{
         Action, GuestProgramSource, ProfileConfig, RunConfig, benchmark_output_dir,
         get_el_zkvm_instances, run_benchmark_iter,
     },
-    stateless_validator::{self},
+    stateless_validator,
     verification::{download_and_extract_proofs, resolve_extracted_root, run_verify_from_disk},
 };
 use ere_dockerized::{DockerizedzkVMConfig, ProverResource};
