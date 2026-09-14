@@ -4908,6 +4908,7 @@ dependencies = [
  "anyhow",
  "benchmark-runner",
  "clap",
+ "futures",
  "humantime",
  "reqwest",
  "serde",

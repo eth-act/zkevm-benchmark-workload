@@ -487,8 +487,16 @@ fn write_batch_archive_part(
     let file = fs::File::create(part_path)
         .with_context(|| format!("failed to create partial archive {}", part_path.display()))?;
     let checksum_writer = ChecksumWriter::new(file);
-    let encoder = zstd::stream::write::Encoder::new(checksum_writer, ZSTD_LEVEL)
+    let mut encoder = zstd::stream::write::Encoder::new(checksum_writer, ZSTD_LEVEL)
         .context("failed to create zstd encoder")?;
+    if let Some(window_log) = config.zstd_window_log {
+        encoder
+            .window_log(window_log)
+            .context("failed to set zstd window log")?;
+        encoder
+            .long_distance_matching(true)
+            .context("failed to enable zstd long distance matching")?;
+    }
     let mut tar = Builder::new(encoder);
     let mut manifest_artifacts = Vec::with_capacity(artifacts.len());
 
@@ -707,6 +715,21 @@ mod tests {
     }
 
     #[test]
+    fn long_window_archive_declares_configured_window_log() {
+        let mut config = test_config("long_window", 2);
+        config.zstd_window_log = Some(31);
+        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+
+        let exported = export_batches(&config, false).unwrap();
+
+        let header = fs::read(&exported[0]).unwrap();
+        assert_eq!(&header[..4], &[0x28, 0xb5, 0x2f, 0xfd]);
+        let window_descriptor = header[5];
+        assert_eq!(u32::from(window_descriptor >> 3) + 10, 31);
+    }
+
+    #[test]
     fn skips_existing_batch_without_force() {
         let config = test_config("skip_existing", 2);
         let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
@@ -916,10 +939,14 @@ mod tests {
             network: "glamsterdam-devnet-8".to_owned(),
             cl_url: "http://cl".to_owned(),
             el_url: "http://el".to_owned(),
+            cl_headers: Vec::new(),
+            el_headers: Vec::new(),
             out_root,
             poll_interval: std::time::Duration::from_secs(4),
             request_timeout: std::time::Duration::from_secs(30),
             batch_size,
+            zstd_window_log: None,
+            max_concurrency: 4,
             r2: None,
         }
     }

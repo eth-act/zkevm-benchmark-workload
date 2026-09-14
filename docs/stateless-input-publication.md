@@ -20,6 +20,10 @@ Each archive contains directly executable EEST fixtures under `blockchain_tests/
 and describes them in `.meta/manifest.json`. Individual fixtures are not
 published as standalone public objects.
 
+Large batches compress far better with a long zstd window. Set `zstd_window_log`
+in the config to enable it. An archive written with `zstd_window_log = 31` needs
+`zstd --long=31` or a decoder with a 2 GiB window limit to extract.
+
 ## Generated Catalog Files
 
 Running `witness-generator-spec-cli export` rebuilds these files at the network root:
@@ -54,7 +58,9 @@ cargo run -p witness-generator-spec-cli --release -- generate \
     --out block.json
 ```
 
-Collect live stateless fixtures:
+Collect live stateless fixtures. The collector starts at the chain tip and collects
+every block from there onward in order, with up to `max_concurrency` blocks fetched
+at a time:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- collect \

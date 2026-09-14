@@ -1198,10 +1198,14 @@ mod tests {
             network: "glamsterdam-devnet-8".to_owned(),
             cl_url: "http://cl".to_owned(),
             el_url: "http://el".to_owned(),
+            cl_headers: Vec::new(),
+            el_headers: Vec::new(),
             out_root,
             poll_interval: Duration::from_secs(4),
             request_timeout: Duration::from_secs(30),
             batch_size,
+            zstd_window_log: None,
+            max_concurrency: 4,
             r2: None,
         }
     }

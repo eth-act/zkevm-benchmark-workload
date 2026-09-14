@@ -1,4 +1,4 @@
-use std::{env, fs, path::PathBuf, time::Duration};
+use std::{collections::BTreeMap, env, fs, path::PathBuf, time::Duration};
 
 use anyhow::{Context, ensure};
 use serde::Deserialize;
@@ -7,16 +7,25 @@ const DEFAULT_OUT_ROOT: &str = "/var/lib/stateless-inputs";
 const DEFAULT_POLL_INTERVAL: Duration = Duration::from_secs(4);
 const DEFAULT_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 const DEFAULT_BATCH_SIZE: u64 = 500;
+const DEFAULT_MAX_CONCURRENCY: usize = 2;
 
 #[derive(Debug, Clone)]
 pub(crate) struct CollectorConfig {
     pub(crate) network: String,
     pub(crate) cl_url: String,
     pub(crate) el_url: String,
+    /// Extra HTTP headers sent to the consensus-layer endpoint.
+    pub(crate) cl_headers: Vec<(String, String)>,
+    /// Extra HTTP headers sent to the execution-layer endpoint.
+    pub(crate) el_headers: Vec<(String, String)>,
     pub(crate) out_root: PathBuf,
     pub(crate) poll_interval: Duration,
     pub(crate) request_timeout: Duration,
     pub(crate) batch_size: u64,
+    /// zstd window log of batch archives. When set, long distance matching is enabled.
+    pub(crate) zstd_window_log: Option<u32>,
+    /// Blocks fetched concurrently while catching up to the chain tip.
+    pub(crate) max_concurrency: usize,
     pub(crate) r2: Option<R2PublishConfig>,
 }
 
@@ -33,10 +42,16 @@ struct ConfigFile {
     network: String,
     cl_url: Option<String>,
     el_url: Option<String>,
+    #[serde(default)]
+    cl_headers: BTreeMap<String, String>,
+    #[serde(default)]
+    el_headers: BTreeMap<String, String>,
     out_root: Option<PathBuf>,
     poll_interval: Option<String>,
     request_timeout: Option<String>,
     batch_size: Option<u64>,
+    zstd_window_log: Option<u32>,
+    max_concurrency: Option<usize>,
     r2: Option<R2PublishConfig>,
 }
 
@@ -70,17 +85,26 @@ impl CollectorConfig {
         )?;
         let batch_size = file.batch_size.unwrap_or(DEFAULT_BATCH_SIZE);
         ensure!(batch_size > 0, "batch_size must be greater than zero");
+        let max_concurrency = file.max_concurrency.unwrap_or(DEFAULT_MAX_CONCURRENCY);
+        ensure!(
+            max_concurrency > 0,
+            "max_concurrency must be greater than zero"
+        );
 
         Ok(Self {
             network: file.network,
             cl_url,
             el_url,
+            cl_headers: file.cl_headers.into_iter().collect(),
+            el_headers: file.el_headers.into_iter().collect(),
             out_root: file
                 .out_root
                 .unwrap_or_else(|| PathBuf::from(DEFAULT_OUT_ROOT)),
             poll_interval,
             request_timeout,
             batch_size,
+            zstd_window_log: file.zstd_window_log,
+            max_concurrency,
             r2: file.r2.map(R2PublishConfig::normalize).transpose()?,
         })
     }
@@ -181,9 +205,13 @@ account_id = "abc123"
         .unwrap();
 
         assert_eq!(config.network, "glamsterdam-devnet-8");
+        assert!(config.cl_headers.is_empty());
+        assert!(config.el_headers.is_empty());
         assert_eq!(config.out_root, PathBuf::from(DEFAULT_OUT_ROOT));
         assert_eq!(config.poll_interval, DEFAULT_POLL_INTERVAL);
         assert_eq!(config.batch_size, DEFAULT_BATCH_SIZE);
+        assert_eq!(config.zstd_window_log, None);
+        assert_eq!(config.max_concurrency, DEFAULT_MAX_CONCURRENCY);
         let r2 = config.r2.unwrap();
         assert_eq!(r2.bucket, "stateless-inputs");
         assert_eq!(r2.prefix, "devnets");
@@ -202,6 +230,8 @@ out_root = "/tmp/stateless"
 poll_interval = "10s"
 request_timeout = "45s"
 batch_size = 100
+zstd_window_log = 31
+max_concurrency = 8
 "#,
         )
         .unwrap();
@@ -210,6 +240,50 @@ batch_size = 100
         assert_eq!(config.poll_interval, Duration::from_secs(10));
         assert_eq!(config.request_timeout, Duration::from_secs(45));
         assert_eq!(config.batch_size, 100);
+        assert_eq!(config.zstd_window_log, Some(31));
+        assert_eq!(config.max_concurrency, 8);
+    }
+
+    #[test]
+    fn rejects_zero_max_concurrency() {
+        let error = CollectorConfig::from_toml_str(
+            r#"
+network = "glamsterdam-devnet-8"
+cl_url = "http://cl"
+el_url = "http://el"
+max_concurrency = 0
+"#,
+        )
+        .unwrap_err();
+
+        assert!(
+            error
+                .to_string()
+                .contains("max_concurrency must be greater than zero")
+        );
+    }
+
+    #[test]
+    fn parses_endpoint_headers() {
+        let config = CollectorConfig::from_toml_str(
+            r#"
+network = "glamsterdam-devnet-8"
+cl_url = "http://cl"
+el_url = "http://el"
+cl_headers = { "X-API-Key" = "cl-secret" }
+el_headers = { "X-API-Key" = "el-secret" }
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            config.cl_headers,
+            vec![("X-API-Key".to_owned(), "cl-secret".to_owned())]
+        );
+        assert_eq!(
+            config.el_headers,
+            vec![("X-API-Key".to_owned(), "el-secret".to_owned())]
+        );
     }
 
     #[test]

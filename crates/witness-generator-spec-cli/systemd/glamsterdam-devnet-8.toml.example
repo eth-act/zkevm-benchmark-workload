@@ -3,11 +3,18 @@ network = "glamsterdam-devnet-8"
 # Local Beacon API and execution JSON-RPC endpoints.
 cl_url = "http://127.0.0.1:3500"
 el_url = "http://127.0.0.1:8545"
+# Extra HTTP headers sent to each endpoint.
+# cl_headers = { "X-API-Key" = "<replace-with-api-key>" }
+# el_headers = { "X-API-Key" = "<replace-with-api-key>" }
 
 out_root = "/data/stateless-inputs"
 poll_interval = "4s"
 request_timeout = "30s"
 batch_size = 100
+# Blocks fetched concurrently while catching up to the chain tip.
+# max_concurrency = 2
+# zstd window log of batch archives. Extraction then needs `zstd --long=<value>`.
+# zstd_window_log = 31
 
 [r2]
 bucket = "stateless-inputs"
