@@ -335,6 +335,7 @@ mod tests {
             poll_interval: std::time::Duration::from_secs(4),
             request_timeout: std::time::Duration::from_secs(30),
             batch_size: 500,
+            zstd_window_log: None,
             continuous: false,
             max_concurrency: 4,
             r2: None,

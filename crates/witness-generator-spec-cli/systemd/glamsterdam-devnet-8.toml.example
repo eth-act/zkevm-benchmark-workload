@@ -15,6 +15,8 @@ batch_size = 100
 # continuous = true
 # Blocks fetched concurrently in continuous mode.
 # max_concurrency = 4
+# zstd window log of batch archives. Extraction then needs `zstd --long=<value>`.
+# zstd_window_log = 31
 
 [r2]
 bucket = "stateless-inputs"
