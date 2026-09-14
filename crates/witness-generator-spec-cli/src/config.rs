@@ -1,4 +1,4 @@
-use std::{env, fs, path::PathBuf, time::Duration};
+use std::{collections::BTreeMap, env, fs, path::PathBuf, time::Duration};
 
 use anyhow::{Context, ensure};
 use serde::Deserialize;
@@ -13,6 +13,10 @@ pub(crate) struct CollectorConfig {
     pub(crate) network: String,
     pub(crate) cl_url: String,
     pub(crate) el_url: String,
+    /// Extra HTTP headers sent to the consensus-layer endpoint.
+    pub(crate) cl_headers: Vec<(String, String)>,
+    /// Extra HTTP headers sent to the execution-layer endpoint.
+    pub(crate) el_headers: Vec<(String, String)>,
     pub(crate) out_root: PathBuf,
     pub(crate) poll_interval: Duration,
     pub(crate) request_timeout: Duration,
@@ -33,6 +37,10 @@ struct ConfigFile {
     network: String,
     cl_url: Option<String>,
     el_url: Option<String>,
+    #[serde(default)]
+    cl_headers: BTreeMap<String, String>,
+    #[serde(default)]
+    el_headers: BTreeMap<String, String>,
     out_root: Option<PathBuf>,
     poll_interval: Option<String>,
     request_timeout: Option<String>,
@@ -75,6 +83,8 @@ impl CollectorConfig {
             network: file.network,
             cl_url,
             el_url,
+            cl_headers: file.cl_headers.into_iter().collect(),
+            el_headers: file.el_headers.into_iter().collect(),
             out_root: file
                 .out_root
                 .unwrap_or_else(|| PathBuf::from(DEFAULT_OUT_ROOT)),
@@ -181,6 +191,8 @@ account_id = "abc123"
         .unwrap();
 
         assert_eq!(config.network, "glamsterdam-devnet-8");
+        assert!(config.cl_headers.is_empty());
+        assert!(config.el_headers.is_empty());
         assert_eq!(config.out_root, PathBuf::from(DEFAULT_OUT_ROOT));
         assert_eq!(config.poll_interval, DEFAULT_POLL_INTERVAL);
         assert_eq!(config.batch_size, DEFAULT_BATCH_SIZE);
@@ -210,6 +222,29 @@ batch_size = 100
         assert_eq!(config.poll_interval, Duration::from_secs(10));
         assert_eq!(config.request_timeout, Duration::from_secs(45));
         assert_eq!(config.batch_size, 100);
+    }
+
+    #[test]
+    fn parses_endpoint_headers() {
+        let config = CollectorConfig::from_toml_str(
+            r#"
+network = "glamsterdam-devnet-8"
+cl_url = "http://cl"
+el_url = "http://el"
+cl_headers = { "X-API-Key" = "cl-secret" }
+el_headers = { "X-API-Key" = "el-secret" }
+"#,
+        )
+        .unwrap();
+
+        assert_eq!(
+            config.cl_headers,
+            vec![("X-API-Key".to_owned(), "cl-secret".to_owned())]
+        );
+        assert_eq!(
+            config.el_headers,
+            vec![("X-API-Key".to_owned(), "el-secret".to_owned())]
+        );
     }
 
     #[test]

@@ -3,6 +3,9 @@ network = "glamsterdam-devnet-8"
 # Local Beacon API and execution JSON-RPC endpoints.
 cl_url = "http://127.0.0.1:3500"
 el_url = "http://127.0.0.1:8545"
+# Extra HTTP headers sent to each endpoint.
+# cl_headers = { "X-API-Key" = "<replace-with-api-key>" }
+# el_headers = { "X-API-Key" = "<replace-with-api-key>" }
 
 out_root = "/data/stateless-inputs"
 poll_interval = "4s"

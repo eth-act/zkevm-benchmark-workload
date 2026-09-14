@@ -34,6 +34,8 @@ pub(crate) async fn collect(config: CollectorConfig, once: bool) -> anyhow::Resu
     let mut network_config =
         NetworkWitnessConfig::new(config.cl_url.clone(), config.el_url.clone());
     network_config.timeout = config.request_timeout;
+    network_config.cl_headers = config.cl_headers.clone();
+    network_config.el_headers = config.el_headers.clone();
     let client = NetworkWitnessClient::new(network_config)?;
     let mut last_head_hash = read_state(&config.state_path())?.map(|state| state.last_head_hash);
 
@@ -169,6 +171,8 @@ mod tests {
             network: "glamsterdam-devnet-8".to_owned(),
             cl_url: "http://cl".to_owned(),
             el_url: "http://el".to_owned(),
+            cl_headers: Vec::new(),
+            el_headers: Vec::new(),
             out_root,
             poll_interval: std::time::Duration::from_secs(4),
             request_timeout: std::time::Duration::from_secs(30),
