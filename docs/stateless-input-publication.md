@@ -58,10 +58,9 @@ cargo run -p witness-generator-spec-cli --release -- generate \
     --out block.json
 ```
 
-Collect live stateless fixtures. By default the collector polls the head and
-stores one artifact per observed block. Set `continuous = true` to collect every
-block from the current tip onward, with up to `max_concurrency` blocks fetched at
-a time, so no height is skipped while the collector runs:
+Collect live stateless fixtures. The collector starts at the chain tip and collects
+every block from there onward in order, with up to `max_concurrency` blocks fetched
+at a time:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- collect \

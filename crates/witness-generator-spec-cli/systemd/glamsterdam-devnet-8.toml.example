@@ -11,9 +11,7 @@ out_root = "/data/stateless-inputs"
 poll_interval = "4s"
 request_timeout = "30s"
 batch_size = 100
-# Collect every block from the chain tip onward instead of polling the head.
-# continuous = true
-# Blocks fetched concurrently in continuous mode.
+# Blocks fetched concurrently while catching up to the chain tip.
 # max_concurrency = 4
 # zstd window log of batch archives. Extraction then needs `zstd --long=<value>`.
 # zstd_window_log = 31

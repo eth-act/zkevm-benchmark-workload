@@ -272,7 +272,6 @@ mod tests {
             request_timeout: Duration::from_secs(30),
             batch_size: 500,
             zstd_window_log: None,
-            continuous: false,
             max_concurrency: 4,
             r2: Some(R2PublishConfig {
                 bucket: "stateless-inputs".to_owned(),

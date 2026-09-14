@@ -24,9 +24,7 @@ pub(crate) struct CollectorConfig {
     pub(crate) batch_size: u64,
     /// zstd window log of batch archives. When set, long distance matching is enabled.
     pub(crate) zstd_window_log: Option<u32>,
-    /// Whether to collect every block from the chain tip onward instead of polling the head.
-    pub(crate) continuous: bool,
-    /// Blocks fetched concurrently in continuous mode.
+    /// Blocks fetched concurrently while catching up to the chain tip.
     pub(crate) max_concurrency: usize,
     pub(crate) r2: Option<R2PublishConfig>,
 }
@@ -53,8 +51,6 @@ struct ConfigFile {
     request_timeout: Option<String>,
     batch_size: Option<u64>,
     zstd_window_log: Option<u32>,
-    #[serde(default)]
-    continuous: bool,
     max_concurrency: Option<usize>,
     r2: Option<R2PublishConfig>,
 }
@@ -108,7 +104,6 @@ impl CollectorConfig {
             request_timeout,
             batch_size,
             zstd_window_log: file.zstd_window_log,
-            continuous: file.continuous,
             max_concurrency,
             r2: file.r2.map(R2PublishConfig::normalize).transpose()?,
         })
@@ -216,7 +211,6 @@ account_id = "abc123"
         assert_eq!(config.poll_interval, DEFAULT_POLL_INTERVAL);
         assert_eq!(config.batch_size, DEFAULT_BATCH_SIZE);
         assert_eq!(config.zstd_window_log, None);
-        assert!(!config.continuous);
         assert_eq!(config.max_concurrency, DEFAULT_MAX_CONCURRENCY);
         let r2 = config.r2.unwrap();
         assert_eq!(r2.bucket, "stateless-inputs");
@@ -237,7 +231,6 @@ poll_interval = "10s"
 request_timeout = "45s"
 batch_size = 100
 zstd_window_log = 31
-continuous = true
 max_concurrency = 8
 "#,
         )
@@ -248,7 +241,6 @@ max_concurrency = 8
         assert_eq!(config.request_timeout, Duration::from_secs(45));
         assert_eq!(config.batch_size, 100);
         assert_eq!(config.zstd_window_log, Some(31));
-        assert!(config.continuous);
         assert_eq!(config.max_concurrency, 8);
     }
 

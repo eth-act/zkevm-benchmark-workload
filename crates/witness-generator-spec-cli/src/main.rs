@@ -56,7 +56,7 @@ struct Cli {
 enum Command {
     /// Generate one benchmark-ready EEST fixture.
     Generate(GenerateArgs),
-    /// Poll the live network head and store one artifact per observed block.
+    /// Collect every block from the chain tip onward and store one artifact per block.
     Collect(CollectArgs),
     /// Package complete local block ranges into downloadable batch archives.
     Export(ExportArgs),
@@ -88,7 +88,7 @@ struct CollectArgs {
     /// TOML config path.
     #[arg(long)]
     config: PathBuf,
-    /// Collect one head block and exit.
+    /// Collect up to the current chain tip and exit.
     #[arg(long)]
     once: bool,
 }

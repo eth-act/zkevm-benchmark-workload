@@ -1,4 +1,4 @@
-use std::{fs, future::Future, path::PathBuf, time::Instant};
+use std::{future::Future, path::PathBuf, time::Instant};
 
 use anyhow::Context;
 use futures::StreamExt;
@@ -31,6 +31,8 @@ struct CollectorState {
     updated_at: String,
 }
 
+/// Collects every block from the chain tip at start-up onward, in block order, so no height is
+/// skipped while the collector runs.
 pub(crate) async fn collect(config: CollectorConfig, once: bool) -> anyhow::Result<()> {
     let mut network_config =
         NetworkWitnessConfig::new(config.cl_url.clone(), config.el_url.clone());
@@ -38,58 +40,7 @@ pub(crate) async fn collect(config: CollectorConfig, once: bool) -> anyhow::Resu
     network_config.cl_headers = config.cl_headers.clone();
     network_config.el_headers = config.el_headers.clone();
     let client = NetworkWitnessClient::new(network_config)?;
-    if config.continuous {
-        return collect_continuously(&client, &config, once).await;
-    }
-    let mut last_head_hash = read_state(&config.state_path())?.map(|state| state.last_head_hash);
 
-    if once {
-        collect_head_once(&client, &config, &mut last_head_hash).await?;
-        return Ok(());
-    }
-
-    loop {
-        match collect_head_once(&client, &config, &mut last_head_hash).await {
-            Ok(Some(persisted)) => {
-                info!(
-                    block_number = persisted.artifact.block_number,
-                    block_hash = persisted.artifact.block_hash,
-                    path = %persisted.write.path.display(),
-                    "collected stateless EEST fixture",
-                );
-            }
-            Ok(None) => {}
-            Err(error) => {
-                warn!(?error, "failed to collect stateless EEST fixture");
-            }
-        }
-        time::sleep(config.poll_interval).await;
-    }
-}
-
-async fn collect_head_once(
-    client: &NetworkWitnessClient,
-    config: &CollectorConfig,
-    last_head_hash: &mut Option<String>,
-) -> anyhow::Result<Option<PersistedArtifact>> {
-    let generated = client
-        .stateless_input_bytes(BlockSelector::Head)
-        .await
-        .context("failed to generate stateless input bytes for head")?;
-    let persisted = collect_generated(config, generated, last_head_hash.as_deref())?;
-    if let Some(persisted) = &persisted {
-        *last_head_hash = Some(persisted.artifact.block_hash.clone());
-    }
-    Ok(persisted)
-}
-
-/// Collects every block from the chain tip at start-up onward, in block order, so no height is
-/// skipped while the collector runs.
-async fn collect_continuously(
-    client: &NetworkWitnessClient,
-    config: &CollectorConfig,
-    once: bool,
-) -> anyhow::Result<()> {
     let mut next_block_number = client
         .latest_block_number()
         .await
@@ -98,7 +49,7 @@ async fn collect_continuously(
 
     loop {
         let start = Instant::now();
-        match collect_to_tip(client, config, next_block_number).await {
+        match collect_to_tip(&client, &config, next_block_number).await {
             Ok(next) => next_block_number = next,
             Err(error) => warn!(?error, "failed to resolve the chain tip"),
         }
@@ -126,14 +77,13 @@ async fn collect_to_tip(
             client.stateless_input_bytes(BlockSelector::ExecutionBlockNumber(block_number))
         },
         |generated| {
-            if let Some(persisted) = collect_generated(config, generated, None)? {
-                info!(
-                    block_number = persisted.artifact.block_number,
-                    block_hash = persisted.artifact.block_hash,
-                    path = %persisted.write.path.display(),
-                    "collected stateless EEST fixture",
-                );
-            }
+            let persisted = collect_generated(config, generated)?;
+            info!(
+                block_number = persisted.artifact.block_number,
+                block_hash = persisted.artifact.block_hash,
+                path = %persisted.write.path.display(),
+                "collected stateless EEST fixture",
+            );
             Ok(())
         },
     )
@@ -183,13 +133,7 @@ where
 pub(crate) fn collect_generated(
     config: &CollectorConfig,
     generated: GeneratedInput,
-    last_head_hash: Option<&str>,
-) -> anyhow::Result<Option<PersistedArtifact>> {
-    let block_hash = generated.block_hash.to_string();
-    if last_head_hash == Some(block_hash.as_str()) {
-        return Ok(None);
-    }
-
+) -> anyhow::Result<PersistedArtifact> {
     let artifact = StatelessInputArtifact::from_generated(&config.network, "head", &generated)?;
     let write = artifact::write_artifact_atomic(&config.blocks_root(), &artifact)?;
     if write.created {
@@ -198,17 +142,7 @@ pub(crate) fn collect_generated(
     }
     write_state(config, &artifact)?;
 
-    Ok(Some(PersistedArtifact { artifact, write }))
-}
-
-fn read_state(path: &std::path::Path) -> anyhow::Result<Option<CollectorState>> {
-    if !path.exists() {
-        return Ok(None);
-    }
-    let contents =
-        fs::read(path).with_context(|| format!("failed to read state {}", path.display()))?;
-    serde_json::from_slice(&contents)
-        .with_context(|| format!("failed to decode state {}", path.display()))
+    Ok(PersistedArtifact { artifact, write })
 }
 
 fn write_state(config: &CollectorConfig, artifact: &StatelessInputArtifact) -> anyhow::Result<()> {
@@ -223,7 +157,7 @@ fn write_state(config: &CollectorConfig, artifact: &StatelessInputArtifact) -> a
 
 #[cfg(test)]
 mod tests {
-    use std::{sync::Mutex, time::Duration};
+    use std::{fs, sync::Mutex, time::Duration};
 
     use alloy_primitives::B256;
 
@@ -232,32 +166,31 @@ mod tests {
     use super::*;
 
     #[test]
-    fn collect_generated_dedupes_unchanged_head() {
-        let config = test_config("dedupe");
+    fn collect_generated_writes_the_same_block_once() {
+        let config = test_config("idempotent");
         let generated = generated_input(42, B256::repeat_byte(0xaa));
 
-        let persisted = collect_generated(&config, generated.clone(), None)
-            .unwrap()
-            .unwrap();
-        let skipped =
-            collect_generated(&config, generated, Some(&persisted.artifact.block_hash)).unwrap();
+        let first = collect_generated(&config, generated.clone()).unwrap();
+        let second = collect_generated(&config, generated).unwrap();
 
-        assert!(skipped.is_none());
+        assert!(first.write.created);
+        assert!(!second.write.created);
+        assert_eq!(
+            fs::read_to_string(config.index_path())
+                .unwrap()
+                .lines()
+                .count(),
+            1
+        );
     }
 
     #[test]
     fn collect_generated_preserves_reorg_variants() {
         let config = test_config("reorg");
-        let first = collect_generated(&config, generated_input(42, B256::repeat_byte(0xaa)), None)
-            .unwrap()
-            .unwrap();
-        let second = collect_generated(
-            &config,
-            generated_input(42, B256::repeat_byte(0xbb)),
-            Some(&first.artifact.block_hash),
-        )
-        .unwrap()
-        .unwrap();
+        let first =
+            collect_generated(&config, generated_input(42, B256::repeat_byte(0xaa))).unwrap();
+        let second =
+            collect_generated(&config, generated_input(42, B256::repeat_byte(0xbb))).unwrap();
 
         assert_ne!(first.write.path, second.write.path);
         assert!(first.write.path.exists());
@@ -336,7 +269,6 @@ mod tests {
             request_timeout: std::time::Duration::from_secs(30),
             batch_size: 500,
             zstd_window_log: None,
-            continuous: false,
             max_concurrency: 4,
             r2: None,
         }
