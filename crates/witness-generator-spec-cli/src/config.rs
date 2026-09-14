@@ -7,7 +7,7 @@ const DEFAULT_OUT_ROOT: &str = "/var/lib/stateless-inputs";
 const DEFAULT_POLL_INTERVAL: Duration = Duration::from_secs(4);
 const DEFAULT_REQUEST_TIMEOUT: Duration = Duration::from_secs(30);
 const DEFAULT_BATCH_SIZE: u64 = 500;
-const DEFAULT_MAX_CONCURRENCY: usize = 4;
+const DEFAULT_MAX_CONCURRENCY: usize = 2;
 
 #[derive(Debug, Clone)]
 pub(crate) struct CollectorConfig {
