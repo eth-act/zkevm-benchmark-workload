@@ -278,6 +278,11 @@ impl RpcClient {
         parse_u64(&chain_id).context("failed to parse eth_chainId")
     }
 
+    pub(crate) async fn eth_block_number(&self) -> anyhow::Result<u64> {
+        let number: String = self.el_rpc("eth_blockNumber", json!([])).await?;
+        parse_u64(&number).context("failed to parse eth_blockNumber")
+    }
+
     pub(crate) async fn eth_block_by_number(&self, number: u64) -> anyhow::Result<ElBlock> {
         let result: Option<ElBlockRpc> = self
             .el_rpc("eth_getBlockByNumber", json!([hex_quantity(number), false]))

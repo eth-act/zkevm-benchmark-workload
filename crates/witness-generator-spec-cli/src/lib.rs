@@ -15,6 +15,7 @@ use reqwest::Client;
 #[cfg(test)]
 use benchmark_runner as _;
 use clap as _;
+use futures as _;
 use humantime as _;
 use sha2 as _;
 use tar as _;
@@ -82,6 +83,11 @@ impl NetworkWitnessClient {
         Ok(Self {
             rpc: rpc::RpcClient::new(config, http),
         })
+    }
+
+    /// Returns the execution-layer chain tip block number.
+    pub async fn latest_block_number(&self) -> anyhow::Result<u64> {
+        self.rpc.eth_block_number().await
     }
 
     /// Fetches network data and returns canonical spec guest input and expected output bytes.

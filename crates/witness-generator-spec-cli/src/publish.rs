@@ -271,6 +271,8 @@ mod tests {
             poll_interval: Duration::from_secs(4),
             request_timeout: Duration::from_secs(30),
             batch_size: 500,
+            continuous: false,
+            max_concurrency: 4,
             r2: Some(R2PublishConfig {
                 bucket: "stateless-inputs".to_owned(),
                 prefix: "devnets".to_owned(),

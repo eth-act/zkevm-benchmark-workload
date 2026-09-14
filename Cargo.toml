@@ -130,6 +130,7 @@ serde_json = "*"
 serde_derive = "*"
 anyhow = "1.0"
 tokio = { version = "1.45.1" }
+futures = "0.3.34"
 tracing = "0.1.41"
 tracing-subscriber = { version = "0.3.19", features = ["env-filter"] }
 auto_impl = "1.3.0"

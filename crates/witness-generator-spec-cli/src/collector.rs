@@ -1,6 +1,7 @@
-use std::{fs, path::PathBuf};
+use std::{fs, future::Future, path::PathBuf, time::Instant};
 
 use anyhow::Context;
+use futures::StreamExt;
 use serde::{Deserialize, Serialize};
 use tokio::time;
 use tracing::{info, warn};
@@ -37,6 +38,9 @@ pub(crate) async fn collect(config: CollectorConfig, once: bool) -> anyhow::Resu
     network_config.cl_headers = config.cl_headers.clone();
     network_config.el_headers = config.el_headers.clone();
     let client = NetworkWitnessClient::new(network_config)?;
+    if config.continuous {
+        return collect_continuously(&client, &config, once).await;
+    }
     let mut last_head_hash = read_state(&config.state_path())?.map(|state| state.last_head_hash);
 
     if once {
@@ -77,6 +81,103 @@ async fn collect_head_once(
         *last_head_hash = Some(persisted.artifact.block_hash.clone());
     }
     Ok(persisted)
+}
+
+/// Collects every block from the chain tip at start-up onward, in block order, so no height is
+/// skipped while the collector runs.
+async fn collect_continuously(
+    client: &NetworkWitnessClient,
+    config: &CollectorConfig,
+    once: bool,
+) -> anyhow::Result<()> {
+    let mut next_block_number = client
+        .latest_block_number()
+        .await
+        .context("failed to resolve the chain tip to start collecting from")?;
+    info!(block_number = next_block_number, "collecting from block");
+
+    loop {
+        let start = Instant::now();
+        match collect_to_tip(client, config, next_block_number).await {
+            Ok(next) => next_block_number = next,
+            Err(error) => warn!(?error, "failed to resolve the chain tip"),
+        }
+        if once {
+            return Ok(());
+        }
+        time::sleep(config.poll_interval.saturating_sub(start.elapsed())).await;
+    }
+}
+
+/// Collects every block from `from` up to the chain tip and returns the next block number to
+/// collect.
+async fn collect_to_tip(
+    client: &NetworkWitnessClient,
+    config: &CollectorConfig,
+    from: u64,
+) -> anyhow::Result<u64> {
+    let latest = client.latest_block_number().await?;
+
+    Ok(collect_in_order(
+        from,
+        latest,
+        config.max_concurrency,
+        |block_number| {
+            client.stateless_input_bytes(BlockSelector::ExecutionBlockNumber(block_number))
+        },
+        |generated| {
+            if let Some(persisted) = collect_generated(config, generated, None)? {
+                info!(
+                    block_number = persisted.artifact.block_number,
+                    block_hash = persisted.artifact.block_hash,
+                    path = %persisted.write.path.display(),
+                    "collected stateless EEST fixture",
+                );
+            }
+            Ok(())
+        },
+    )
+    .await)
+}
+
+/// Fetches `from..=latest` with at most `max_concurrency` fetches in flight, persists each result
+/// in block order, and returns the next uncollected block number.
+///
+/// Fetches run concurrently so collection keeps up when a single block takes longer than the block
+/// time. They complete out of order, so `persist` is driven strictly in block order and stops at
+/// the first failure. The recorded position never runs ahead of a block that was not persisted,
+/// and a failed block is retried on the next round instead of skipped.
+async fn collect_in_order<T, Fut>(
+    from: u64,
+    latest: u64,
+    max_concurrency: usize,
+    fetch: impl Fn(u64) -> Fut,
+    mut persist: impl FnMut(T) -> anyhow::Result<()>,
+) -> u64
+where
+    Fut: Future<Output = anyhow::Result<T>>,
+{
+    let mut blocks = futures::stream::iter(from..=latest)
+        .map(|block_number| {
+            let fetched = fetch(block_number);
+            async move { (block_number, fetched.await) }
+        })
+        .buffered(max_concurrency);
+
+    let mut next = from;
+    while let Some((block_number, fetched)) = blocks.next().await {
+        if let Err(error) = fetched.and_then(&mut persist) {
+            warn!(
+                block_number,
+                ?error,
+                "failed to collect block, retrying it next round",
+            );
+            break;
+        }
+        next = block_number + 1;
+    }
+
+    next
 }
 
 pub(crate) fn collect_generated(
@@ -122,6 +223,8 @@ fn write_state(config: &CollectorConfig, artifact: &StatelessInputArtifact) -> a
 
 #[cfg(test)]
 mod tests {
+    use std::{sync::Mutex, time::Duration};
+
     use alloy_primitives::B256;
 
     use crate::artifact::test_generated_input;
@@ -161,6 +264,61 @@ mod tests {
         assert!(second.write.path.exists());
     }
 
+    #[tokio::test]
+    async fn collect_in_order_persists_in_block_order_despite_concurrent_fetches() {
+        // Later blocks are fetched first, so persisting on fetch completion would invert the order.
+        let fetched = Mutex::new(Vec::new());
+        let persisted = Mutex::new(Vec::new());
+
+        let next = collect_in_order(
+            10,
+            17,
+            4,
+            |block_number| {
+                let fetched = &fetched;
+                async move {
+                    time::sleep(Duration::from_millis(10 * (17 - block_number))).await;
+                    fetched.lock().unwrap().push(block_number);
+                    Ok(block_number)
+                }
+            },
+            |block_number| {
+                persisted.lock().unwrap().push(block_number);
+                Ok(())
+            },
+        )
+        .await;
+
+        assert_eq!(next, 18);
+        assert_eq!(*persisted.lock().unwrap(), (10..=17).collect::<Vec<_>>());
+        assert_ne!(*fetched.lock().unwrap(), (10..=17).collect::<Vec<_>>());
+    }
+
+    #[tokio::test]
+    async fn collect_in_order_stops_at_the_first_failure_without_leaving_a_gap() {
+        let persisted = Mutex::new(Vec::new());
+
+        let next = collect_in_order(
+            10,
+            17,
+            4,
+            |block_number| async move {
+                if block_number == 13 {
+                    anyhow::bail!("witness unavailable");
+                }
+                Ok(block_number)
+            },
+            |block_number| {
+                persisted.lock().unwrap().push(block_number);
+                Ok(())
+            },
+        )
+        .await;
+
+        assert_eq!(next, 13);
+        assert_eq!(*persisted.lock().unwrap(), vec![10, 11, 12]);
+    }
+
     fn test_config(name: &str) -> CollectorConfig {
         let out_root = std::env::temp_dir().join(format!(
             "witness-generator-spec-cli-collector-{name}-{}",
@@ -177,6 +335,8 @@ mod tests {
             poll_interval: std::time::Duration::from_secs(4),
             request_timeout: std::time::Duration::from_secs(30),
             batch_size: 500,
+            continuous: false,
+            max_concurrency: 4,
             r2: None,
         }
     }
