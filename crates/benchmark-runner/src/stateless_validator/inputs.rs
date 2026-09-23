@@ -28,9 +28,10 @@ pub(crate) fn stateless_validator_input_from_fixture(
     el: ExecutionClient,
 ) -> Result<Box<dyn GuestFixture>> {
     match el {
-        ExecutionClient::Reth | ExecutionClient::Ethrex | ExecutionClient::Zesu => {
-            raw_eest_input_from_fixture(fixture)
-        }
+        ExecutionClient::Reth
+        | ExecutionClient::Ethrex
+        | ExecutionClient::Zesu
+        | ExecutionClient::Nimbus => raw_eest_input_from_fixture(fixture),
     }
 }
 

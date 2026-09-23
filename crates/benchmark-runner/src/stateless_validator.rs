@@ -23,6 +23,8 @@ pub enum ExecutionClient {
     Ethrex,
     /// Zesu stateless block validation guest program.
     Zesu,
+    /// Nimbus stateless block validation guest program.
+    Nimbus,
 }
 
 impl ExecutionClient {
@@ -32,6 +34,7 @@ impl ExecutionClient {
             Self::Reth => StatelessValidatorKind::Reth,
             Self::Ethrex => StatelessValidatorKind::Ethrex,
             Self::Zesu => StatelessValidatorKind::Zesu,
+            Self::Nimbus => StatelessValidatorKind::Nimbus,
         };
         if kind.version().is_none() {
             bail!(
@@ -45,8 +48,8 @@ impl ExecutionClient {
     /// Rejects combinations without release artifacts before loading a guest.
     pub fn validate_zkvm(self, zkvm: zkVMKind) -> Result<()> {
         self.registered_kind()?;
-        if matches!(self, Self::Zesu) && zkvm != zkVMKind::Zisk {
-            bail!("Zesu supports only ZisK in ere-guests v0.17.0; requested {zkvm}");
+        if matches!(self, Self::Zesu | Self::Nimbus) && zkvm != zkVMKind::Zisk {
+            bail!("{} supports only ZisK; requested {zkvm}", self.as_ref());
         }
         Ok(())
     }
@@ -90,13 +93,16 @@ mod tests {
             ExecutionClient::Zesu.version().unwrap(),
             "tests-glamsterdam-devnet@v8.1.4"
         );
+        assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.1.0-alpha");
         for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
             assert!(ExecutionClient::Reth.validate_zkvm(zkvm).is_ok());
             assert!(ExecutionClient::Ethrex.validate_zkvm(zkvm).is_ok());
-            assert_eq!(
-                ExecutionClient::Zesu.validate_zkvm(zkvm).is_ok(),
-                zkvm == zkVMKind::Zisk
-            );
+            for zisk_only in [ExecutionClient::Zesu, ExecutionClient::Nimbus] {
+                assert_eq!(
+                    zisk_only.validate_zkvm(zkvm).is_ok(),
+                    zkvm == zkVMKind::Zisk
+                );
+            }
         }
     }
 }
