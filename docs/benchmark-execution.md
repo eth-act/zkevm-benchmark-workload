@@ -44,7 +44,15 @@ cargo run -p ere-hosts --release -- --zkvms zisk \
     --input-folder /path/to/eest-fixtures
 ```
 
-Zesu supports ZisK only. Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
+Run Nimbus on ZisK:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms zisk \
+    stateless-validator --execution-client nimbus \
+    --input-folder /path/to/eest-fixtures
+```
+
+Zesu and Nimbus support ZisK only. Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
 
 Run directly from an EEST fixture checkout:
 
@@ -183,7 +191,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests use the `ere-guests v0.17.0` release assets.
+Default guests use the `ere-guests v0.17.1` release assets.
 `GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
 The upstream downloader uses the first nonempty token in that order.
 Commit or branch dependencies still require a token for GitHub Actions artifacts.
@@ -193,7 +201,7 @@ The dependency selects image revision `5023513`.
 
 Artifacts are named `stateless-validator-<execution-client>-<zkvm>-<zkvm-sdk-version>`, so a zkVM SDK bump changes the resolved file names.
 
-Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. Zesu remains restricted to ZisK for all artifact sources.
+Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. Zesu and Nimbus remain restricted to ZisK for all artifact sources.
 
 ## Operational Notes
 

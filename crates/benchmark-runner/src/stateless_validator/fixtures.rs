@@ -268,29 +268,36 @@ mod tests {
         fs::write(&fixture_path, sample_eest_fixture())?;
 
         let selected = vec!["tests/foo.py::test_same[name/a]".to_string()];
-        let mut fixtures = stateless_validator_input_iter(
-            dir.path(),
-            Some(&selected),
+        for client in [
             ExecutionClient::Reth,
-            None,
-        )?;
-        let guest_fixture = fixtures.next().unwrap()?;
-        assert!(fixtures.next().is_none());
+            ExecutionClient::Ethrex,
+            ExecutionClient::Zesu,
+            ExecutionClient::Nimbus,
+        ] {
+            let mut fixtures =
+                stateless_validator_input_iter(dir.path(), Some(&selected), client, None)?;
+            let guest_fixture = fixtures.next().unwrap()?;
+            assert!(fixtures.next().is_none());
 
-        let input = guest_fixture.input()?;
-        assert_eq!(input.stdin(), [0x15, 0x01, 0x02]);
-        assert_eq!(guest_fixture.expected_public_values()?, [0xaa, 0xbb]);
+            let input = guest_fixture.input()?;
+            assert_eq!(input.stdin(), [0x15, 0x01, 0x02], "{client:?}");
+            assert_eq!(
+                guest_fixture.expected_public_values()?,
+                [0xaa, 0xbb],
+                "{client:?}"
+            );
 
-        let metadata = guest_fixture.metadata();
-        assert_eq!(metadata["fixture_format"], "eest");
-        assert_eq!(
-            metadata["original_test_name"],
-            "tests/foo.py::test_same[name/a]"
-        );
-        assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
-        assert_eq!(metadata["opcode_count"]["PUSH1"].as_u64(), Some(5));
-        assert_eq!(metadata["opcode_count"]["SSTORE"].as_u64(), Some(2));
-        assert_eq!(metadata["target_opcode"], "MCOPY");
+            let metadata = guest_fixture.metadata();
+            assert_eq!(metadata["fixture_format"], "eest");
+            assert_eq!(
+                metadata["original_test_name"],
+                "tests/foo.py::test_same[name/a]"
+            );
+            assert_eq!(metadata["block_used_gas"].as_u64(), Some(16));
+            assert_eq!(metadata["opcode_count"]["PUSH1"].as_u64(), Some(5));
+            assert_eq!(metadata["opcode_count"]["SSTORE"].as_u64(), Some(2));
+            assert_eq!(metadata["target_opcode"], "MCOPY");
+        }
 
         Ok(())
     }

@@ -106,6 +106,8 @@ pub enum ExecutionClient {
     Ethrex,
     /// Zesu execution client
     Zesu,
+    /// Nimbus execution client
+    Nimbus,
 }
 
 /// Prover resource types
@@ -222,6 +224,7 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
             ExecutionClient::Reth => Self::Reth,
             ExecutionClient::Ethrex => Self::Ethrex,
             ExecutionClient::Zesu => Self::Zesu,
+            ExecutionClient::Nimbus => Self::Nimbus,
         }
     }
 }
@@ -267,37 +270,57 @@ mod tests {
     }
 
     #[test]
-    fn estimation_requires_input_and_zesu_requires_zisk() {
-        let args = [
-            "ere-hosts",
-            "--zkvms",
-            "zisk",
-            "--action",
-            "estimate-cost",
-            "stateless-validator",
-            "--execution-client",
-            "zesu",
-        ];
-        assert!(Cli::try_parse_from(args).unwrap().validate().is_err());
-        let mut with_input = args.to_vec();
-        with_input.extend(["--input-folder", "."]);
-        assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
-        with_input[2] = "sp1";
-        assert!(
-            Cli::try_parse_from(&with_input)
-                .unwrap()
-                .validate()
-                .is_err()
-        );
-        with_input[2] = "zisk";
-        *with_input.last_mut().unwrap() = "/path/that/does/not/exist";
-        assert!(
-            Cli::try_parse_from(&with_input)
-                .unwrap()
-                .validate()
-                .is_err()
-        );
-        with_input[4] = "verify";
-        assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
+    fn estimation_requires_input_and_zisk_only_clients_reject_other_zkvms() {
+        for (client, expected_client) in [
+            ("zesu", stateless_validator::ExecutionClient::Zesu),
+            ("nimbus", stateless_validator::ExecutionClient::Nimbus),
+        ] {
+            let args = [
+                "ere-hosts",
+                "--zkvms",
+                "zisk",
+                "--action",
+                "estimate-cost",
+                "stateless-validator",
+                "--execution-client",
+                client,
+            ];
+            assert!(Cli::try_parse_from(args).unwrap().validate().is_err());
+            let mut with_input = args.to_vec();
+            with_input.extend(["--input-folder", "."]);
+            let cli = Cli::try_parse_from(&with_input).unwrap();
+            assert!(cli.validate().is_ok());
+            let GuestProgramCommand::StatelessValidator {
+                execution_client, ..
+            } = cli.guest_program;
+            assert_eq!(
+                stateless_validator::ExecutionClient::from(execution_client),
+                expected_client
+            );
+            for zkvm in ["sp1", "openvm"] {
+                with_input[2] = zkvm;
+                let err = Cli::try_parse_from(&with_input)
+                    .unwrap()
+                    .validate()
+                    .unwrap_err();
+                assert_eq!(
+                    err.to_string(),
+                    format!(
+                        "{} supports only ZisK; requested {zkvm}",
+                        expected_client.as_ref()
+                    )
+                );
+            }
+            with_input[2] = "zisk";
+            *with_input.last_mut().unwrap() = "/path/that/does/not/exist";
+            assert!(
+                Cli::try_parse_from(&with_input)
+                    .unwrap()
+                    .validate()
+                    .is_err()
+            );
+            with_input[4] = "verify";
+            assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
+        }
     }
 }
