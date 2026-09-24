@@ -83,7 +83,7 @@ Each accepted block becomes one benchmark fixture. Its safe output name is deriv
 ## Execution-Client Routing
 
 Reth, Ethrex, Zesu, and Nimbus receive `statelessInputBytes` unchanged on stdin and compare public values with `statelessOutputBytes`.
-Reth `0.1.0-rc.3` and Ethrex `26.0.0` support all three zkVMs.
+Reth `0.1.0-rc.3` and Ethrex `27.0.0` support all three zkVMs.
 Zesu `tests-glamsterdam-devnet@v8.1.4` and Nimbus `v0.1.0-alpha` support ZisK only.
 
 Fixture deserialization remains independent of the selected execution client.
