@@ -656,7 +656,7 @@ async fn guest_downloader() -> Result<Downloader> {
                 })
         }
         "commit" => {
-            let github_token = env::var("GITHUB_TOKEN")
+            env::var("GITHUB_TOKEN")
                 .or_else(|_| env::var("GH_TOKEN"))
                 .with_context(|| {
                     format!(
@@ -669,7 +669,7 @@ async fn guest_downloader() -> Result<Downloader> {
                 "Downloading guest programs from ere-guests workflow artifacts for commit {}",
                 ERE_GUESTS_DOWNLOAD_VALUE
             );
-            Downloader::from_commit(ERE_GUESTS_DOWNLOAD_VALUE, &github_token)
+            Downloader::from_commit(ERE_GUESTS_DOWNLOAD_VALUE)
                 .await
                 .with_context(|| {
                     format!(

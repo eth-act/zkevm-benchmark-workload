@@ -191,7 +191,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests use the `ere-guests v0.17.0` release assets.
+Default guests use the `ere-guests v0.17.1` release assets.
 `GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
 The upstream downloader uses the first nonempty token in that order.
 Commit or branch dependencies still require a token for GitHub Actions artifacts.

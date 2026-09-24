@@ -18,7 +18,7 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 
 Reth `v0.1.0-rc.3` and Ethrex `v26.0.0` support OpenVM, SP1, and ZisK.
 Zesu `tests-glamsterdam-devnet@v8.1.4` and Nimbus `v0.1.0-alpha` support ZisK only.
-The workspace pins [ere-guests v0.17.0](https://github.com/eth-act/ere-guests/releases/tag/v0.17.0)
+The workspace pins [ere-guests v0.17.1](https://github.com/eth-act/ere-guests/releases/tag/v0.17.1)
 and Ere v0.17.0. Default guest downloads use release assets. GitHub authentication is optional.
 Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 

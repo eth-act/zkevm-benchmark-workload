@@ -3723,8 +3723,8 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
 name = "stateless-validator-catalog"
-version = "0.17.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
+version = "0.17.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
 dependencies = [
  "serde",
  "serde_json",
@@ -3733,8 +3733,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-common"
-version = "0.17.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
+version = "0.17.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
 dependencies = [
  "libssz",
  "libssz-derive",
@@ -3746,8 +3746,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-downloader"
-version = "0.17.0"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.0#0bfcdd9f318774761de8b8c13dcebf425673285f"
+version = "0.17.1"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
 dependencies = [
  "anyhow",
  "ere-catalog",
