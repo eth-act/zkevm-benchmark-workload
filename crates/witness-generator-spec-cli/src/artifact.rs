@@ -19,8 +19,8 @@ use stateless_validator_common::{
 use time::{OffsetDateTime, format_description::well_known::Rfc3339};
 use witness_generator_spec_cli::GeneratedInput;
 
-pub(crate) const ARTIFACT_SCHEMA_VERSION: u64 = 2;
-pub(crate) const BATCH_MANIFEST_SCHEMA_VERSION: u64 = 2;
+pub(crate) const ARTIFACT_SCHEMA_VERSION: u64 = 3;
+pub(crate) const BATCH_MANIFEST_SCHEMA_VERSION: u64 = 3;
 pub(crate) const BATCH_MANIFEST_PATH: &str = ".meta/manifest.json";
 const EEST_NETWORK: &str = "Amsterdam";
 const ZSTD_LEVEL: i32 = 3;
@@ -31,12 +31,13 @@ pub(crate) struct EestFixture {
     tests: BTreeMap<String, EestBlockchainTest>,
 }
 
+/// EEST `blockchain_test_engine` test case.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EestBlockchainTest {
     network: String,
     config: EestConfig,
-    blocks: Vec<EestBlock>,
+    engine_new_payloads: Vec<EestEngineNewPayload>,
     #[serde(rename = "_info")]
     info: EestInfo,
 }
@@ -46,18 +47,20 @@ struct EestConfig {
     chainid: String,
 }
 
+/// `engineNewPayloads` entry, trimmed to the fields that fixture loaders read.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct EestBlock {
+struct EestEngineNewPayload {
+    /// `engine_newPayload` params. Only `params[0]`, the execution payload, is kept.
+    params: Vec<EestExecutionPayload>,
     stateless_input_bytes: String,
     stateless_output_bytes: String,
-    block_header: EestBlockHeader,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-struct EestBlockHeader {
-    number: String,
+struct EestExecutionPayload {
+    block_number: String,
     gas_used: String,
 }
 
@@ -170,13 +173,13 @@ impl EestFixture {
             config: EestConfig {
                 chainid: hex_quantity(generated.chain_id),
             },
-            blocks: vec![EestBlock {
+            engine_new_payloads: vec![EestEngineNewPayload {
+                params: vec![EestExecutionPayload {
+                    block_number: hex_quantity(generated.block_number),
+                    gas_used: hex_quantity(generated.gas_used),
+                }],
                 stateless_input_bytes: hex_bytes(&generated.stateless_input_bytes),
                 stateless_output_bytes: hex_bytes(&generated.stateless_output_bytes),
-                block_header: EestBlockHeader {
-                    number: hex_quantity(generated.block_number),
-                    gas_used: hex_quantity(generated.gas_used),
-                },
             }],
             info: EestInfo {
                 metadata: EestMetadata {
@@ -235,18 +238,23 @@ impl StatelessInputArtifact {
     fn from_fixture(fixture: EestFixture) -> anyhow::Result<Self> {
         ensure!(
             fixture.tests.len() == 1,
-            "schema-v2 collected fixture must contain exactly one EEST test"
+            "schema-v3 collected fixture must contain exactly one EEST test"
         );
         let (test_name, test) = fixture.tests.first_key_value().unwrap();
         ensure!(
             test.network == EEST_NETWORK,
-            "schema-v2 collected fixture network must be {EEST_NETWORK}"
+            "schema-v3 collected fixture network must be {EEST_NETWORK}"
         );
         ensure!(
-            test.blocks.len() == 1,
-            "schema-v2 collected fixture must contain exactly one block"
+            test.engine_new_payloads.len() == 1,
+            "schema-v3 collected fixture must contain exactly one engine payload"
         );
-        let block = &test.blocks[0];
+        let payload = &test.engine_new_payloads[0];
+        ensure!(
+            payload.params.len() == 1,
+            "schema-v3 engine payload must contain exactly one params entry"
+        );
+        let execution_payload = &payload.params[0];
         let metadata = &test.info.metadata.witness_generator;
         ensure!(
             metadata.schema_version == ARTIFACT_SCHEMA_VERSION,
@@ -261,8 +269,9 @@ impl StatelessInputArtifact {
         let collected_at =
             required_metadata("collectedAt", metadata.collected_at.as_deref())?.to_owned();
         let chain_id = parse_hex_quantity("config.chainid", &test.config.chainid)?;
-        let block_number = parse_hex_quantity("blockHeader.number", &block.block_header.number)?;
-        let gas_used = parse_hex_quantity("blockHeader.gasUsed", &block.block_header.gas_used)?;
+        let block_number =
+            parse_hex_quantity("params[0].blockNumber", &execution_payload.block_number)?;
+        let gas_used = parse_hex_quantity("params[0].gasUsed", &execution_payload.gas_used)?;
         let block_hash = metadata
             .block_hash
             .parse::<B256>()
@@ -270,11 +279,12 @@ impl StatelessInputArtifact {
         let expected_test_name = fixture_test_name(block_number, &metadata.block_hash);
         ensure!(
             test_name == &expected_test_name,
-            "schema-v2 EEST test name does not match its block number and hash"
+            "schema-v3 EEST test name does not match its block number and hash"
         );
 
-        let input_bytes = decode_hex_bytes("statelessInputBytes", &block.stateless_input_bytes)?;
-        let output_bytes = decode_hex_bytes("statelessOutputBytes", &block.stateless_output_bytes)?;
+        let input_bytes = decode_hex_bytes("statelessInputBytes", &payload.stateless_input_bytes)?;
+        let output_bytes =
+            decode_hex_bytes("statelessOutputBytes", &payload.stateless_output_bytes)?;
         ensure!(!input_bytes.is_empty(), "statelessInputBytes is empty");
         ensure!(!output_bytes.is_empty(), "statelessOutputBytes is empty");
         let schema_id = input_bytes
@@ -292,13 +302,13 @@ impl StatelessInputArtifact {
             .context("failed to decode statelessInputBytes")?;
         ensure!(
             fork == ProtocolFork::Amsterdam,
-            "schema-v2 collected fixture must contain Amsterdam stateless input bytes"
+            "schema-v3 collected fixture must contain Amsterdam stateless input bytes"
         );
         let output = StatelessValidationResult::from_ssz_bytes(&output_bytes)
             .map_err(|err| anyhow::anyhow!("failed to decode statelessOutputBytes: {err:?}"))?;
         ensure!(
             output.successful_validation,
-            "schema-v2 statelessOutputBytes must expect successful validation"
+            "schema-v3 statelessOutputBytes must expect successful validation"
         );
         ensure!(
             output.chain_id == input.chain_id,
@@ -319,14 +329,14 @@ impl StatelessInputArtifact {
         );
         ensure!(
             input.new_payload_request.block_number() == block_number,
-            "blockHeader.number does not match the stateless input payload"
+            "params[0].blockNumber does not match the stateless input payload"
         );
         let NewPayloadRequest::Gloas(request) = &input.new_payload_request else {
             anyhow::bail!("Amsterdam stateless input did not decode as a Gloas payload request");
         };
         ensure!(
             request.execution_payload.gas_used == gas_used,
-            "blockHeader.gasUsed does not match the stateless input payload"
+            "params[0].gasUsed does not match the stateless input payload"
         );
         ensure!(
             request.execution_payload.block_hash == block_hash.0,
@@ -426,12 +436,12 @@ pub(crate) fn read_artifact_with_json(
         .with_context(|| format!("failed to decompress artifact {}", path.display()))?;
     let fixture: EestFixture = serde_json::from_slice(&json).with_context(|| {
         format!(
-            "failed to decode schema-v2 EEST artifact JSON {}",
+            "failed to decode schema-v3 EEST artifact JSON {}",
             path.display()
         )
     })?;
     let artifact = StatelessInputArtifact::from_fixture(fixture)
-        .with_context(|| format!("invalid schema-v2 EEST artifact {}", path.display()))?;
+        .with_context(|| format!("invalid schema-v3 EEST artifact {}", path.display()))?;
     Ok((artifact, json))
 }
 
@@ -495,7 +505,7 @@ pub(crate) fn relative_artifact_path_from_parts(block_number: u64, block_hash: &
 
 pub(crate) fn fixture_archive_path(artifact: &StatelessInputArtifact) -> PathBuf {
     let chunk = artifact.block_number / 1_000;
-    PathBuf::from("blockchain_tests")
+    PathBuf::from("blockchain_tests_engine")
         .join(format!("{chunk:06}"))
         .join(format!(
             "{}-{}.json",
@@ -557,14 +567,14 @@ fn parse_hex_quantity(label: &str, value: &str) -> anyhow::Result<u64> {
     let value = value
         .strip_prefix("0x")
         .or_else(|| value.strip_prefix("0X"))
-        .context("schema-v2 EEST quantities must be 0x-prefixed")?;
+        .context("schema-v3 EEST quantities must be 0x-prefixed")?;
     u64::from_str_radix(value, 16).with_context(|| format!("{label} is not a valid hex quantity"))
 }
 
 fn required_metadata<'a>(label: &str, value: Option<&'a str>) -> anyhow::Result<&'a str> {
     value
         .filter(|value| !value.trim().is_empty())
-        .with_context(|| format!("schema-v2 collected fixture is missing {label} metadata"))
+        .with_context(|| format!("schema-v3 collected fixture is missing {label} metadata"))
 }
 
 fn fixture_test_name(block_number: u64, block_hash: &str) -> String {
@@ -689,7 +699,7 @@ mod tests {
 
         assert!(result.created);
         assert_eq!(decoded, artifact);
-        assert_eq!(decoded.schema_version, 2);
+        assert_eq!(decoded.schema_version, 3);
         assert_eq!(
             decoded.stateless_input_byte_length,
             generated.stateless_input_bytes.len()
@@ -701,17 +711,18 @@ mod tests {
         let value: serde_json::Value = serde_json::from_slice(&json).unwrap();
         let test = value.as_object().unwrap().values().next().unwrap();
         assert_eq!(test["network"], "Amsterdam");
+        assert!(test.get("blocks").is_none());
         assert_eq!(
-            test["blocks"][0]["statelessInputBytes"],
+            test["engineNewPayloads"][0]["statelessInputBytes"],
             hex_bytes(&generated.stateless_input_bytes)
         );
         assert_eq!(
-            test["blocks"][0]["statelessOutputBytes"],
+            test["engineNewPayloads"][0]["statelessOutputBytes"],
             hex_bytes(&generated.stateless_output_bytes)
         );
         assert_eq!(
             test["_info"]["metadata"]["witness_generator"]["schemaVersion"],
-            2
+            3
         );
         assert!(
             test["_info"]["metadata"]["witness_generator"]
@@ -741,7 +752,8 @@ mod tests {
         );
         assert_eq!(
             fixture_archive_path(&first),
-            PathBuf::from("blockchain_tests/000002").join(format!("2381-{}.json", "aa".repeat(32)))
+            PathBuf::from("blockchain_tests_engine/000002")
+                .join(format!("2381-{}.json", "aa".repeat(32)))
         );
     }
 
@@ -753,9 +765,14 @@ mod tests {
         let test = value.as_object().unwrap().values().next().unwrap();
         let metadata = &test["_info"]["metadata"]["witness_generator"];
 
+        let payloads = test["engineNewPayloads"].as_array().unwrap();
+        let params = payloads[0]["params"].as_array().unwrap();
+
         assert_eq!(test["config"]["chainid"], "0x1");
-        assert_eq!(test["blocks"][0]["blockHeader"]["number"], "0x2a");
-        assert_eq!(test["blocks"][0]["blockHeader"]["gasUsed"], "0x5208");
+        assert_eq!(payloads.len(), 1);
+        assert_eq!(params.len(), 1);
+        assert_eq!(params[0]["blockNumber"], "0x2a");
+        assert_eq!(params[0]["gasUsed"], "0x5208");
         assert!(metadata.get("network").is_none());
         assert!(metadata.get("collectionMode").is_none());
         assert!(metadata.get("collectedAt").is_none());
@@ -764,7 +781,7 @@ mod tests {
     #[test]
     fn one_shot_fixture_loads_through_benchmark_runner() {
         let dir = temp_dir("one_shot_benchmark_loader");
-        let fixture_dir = dir.join("blockchain_tests");
+        let fixture_dir = dir.join("blockchain_tests_engine");
         fs::create_dir_all(&fixture_dir).unwrap();
         let generated = test_generated_input(42, B256::repeat_byte(0xaa));
         fs::write(
@@ -808,17 +825,42 @@ mod tests {
 
         let error = read_artifact(&path).unwrap_err();
 
-        assert!(error.to_string().contains("schema-v2 EEST artifact"));
+        assert!(error.to_string().contains("schema-v3 EEST artifact"));
     }
 
     #[test]
-    fn rejects_schema_v2_fixture_without_output_bytes() {
+    fn rejects_schema_v2_blockchain_test_shape() {
+        let dir = temp_dir("schema_v2_rejection");
+        let path = dir.join("schema-v2.json.zst");
+        let artifact = artifact_for(42, B256::repeat_byte(0xaa));
+        let mut value = serde_json::to_value(&artifact.fixture).unwrap();
+        let test = value.as_object_mut().unwrap().values_mut().next().unwrap();
+        let test = test.as_object_mut().unwrap();
+        let payload = test.remove("engineNewPayloads").unwrap()[0].clone();
+        test.insert(
+            "blocks".to_owned(),
+            serde_json::json!([{
+                "statelessInputBytes": payload["statelessInputBytes"],
+                "statelessOutputBytes": payload["statelessOutputBytes"],
+                "blockHeader": {"number": "0x2a", "gasUsed": "0x5208"}
+            }]),
+        );
+        test["_info"]["metadata"]["witness_generator"]["schemaVersion"] = serde_json::json!(2);
+        write_compressed_json(&path, &value);
+
+        let error = read_artifact(&path).unwrap_err();
+
+        assert!(format!("{error:#}").contains("engineNewPayloads"));
+    }
+
+    #[test]
+    fn rejects_schema_v3_fixture_without_output_bytes() {
         let dir = temp_dir("missing_output");
         let path = dir.join("missing-output.json.zst");
         let artifact = artifact_for(42, B256::repeat_byte(0xaa));
         let mut value = serde_json::to_value(&artifact.fixture).unwrap();
         let test = value.as_object_mut().unwrap().values_mut().next().unwrap();
-        test["blocks"][0]
+        test["engineNewPayloads"][0]
             .as_object_mut()
             .unwrap()
             .remove("statelessOutputBytes");
@@ -826,7 +868,7 @@ mod tests {
 
         let error = read_artifact(&path).unwrap_err();
 
-        assert!(error.to_string().contains("schema-v2 EEST artifact"));
+        assert!(error.to_string().contains("schema-v3 EEST artifact"));
     }
 
     #[test]
@@ -836,7 +878,7 @@ mod tests {
         let artifact = artifact_for(42, B256::repeat_byte(0xaa));
         let mut value = serde_json::to_value(&artifact.fixture).unwrap();
         let test = value.as_object_mut().unwrap().values_mut().next().unwrap();
-        test["_info"]["metadata"]["witness_generator"]["schemaVersion"] = serde_json::json!(1);
+        test["_info"]["metadata"]["witness_generator"]["schemaVersion"] = serde_json::json!(2);
         write_compressed_json(&path, &value);
 
         let error = read_artifact(&path).unwrap_err();
@@ -887,12 +929,17 @@ mod tests {
         fixture: &mut EestFixture,
         mutate: impl FnOnce(&mut StatelessValidationResult),
     ) {
-        let block = &mut fixture.tests.values_mut().next().unwrap().blocks[0];
+        let payload = &mut fixture
+            .tests
+            .values_mut()
+            .next()
+            .unwrap()
+            .engine_new_payloads[0];
         let bytes =
-            decode_hex_bytes("statelessOutputBytes", &block.stateless_output_bytes).unwrap();
+            decode_hex_bytes("statelessOutputBytes", &payload.stateless_output_bytes).unwrap();
         let mut output = StatelessValidationResult::from_ssz_bytes(&bytes).unwrap();
         mutate(&mut output);
-        block.stateless_output_bytes = hex_bytes(&output.to_ssz());
+        payload.stateless_output_bytes = hex_bytes(&output.to_ssz());
     }
 
     fn temp_dir(name: &str) -> PathBuf {

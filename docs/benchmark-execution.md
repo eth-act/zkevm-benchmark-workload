@@ -15,7 +15,7 @@ cargo run -p ere-hosts -- --help
 Prerequisites:
 
 - Docker is required because zkVM hosts are managed through `ere-dockerized`.
-- Execute, estimate-cost, and prove actions require an explicit `--input-folder` pointing to a canonical EEST JSON file, a directory of EEST JSON files, or an EEST checkout containing `blockchain_tests/`.
+- Execute, estimate-cost, and prove actions require an explicit `--input-folder` pointing to an EEST `blockchain_test_engine` JSON file, a directory of them, or an EEST checkout containing `blockchain_tests_engine/`.
 - Verification reads proofs and does not require `--input-folder`. A supplied verification input path is accepted and ignored for backward compatibility.
 
 ## Common Benchmark Commands
@@ -62,7 +62,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --input-folder /path/to/execution-specs/fixtures
 ```
 
-When the path contains a `blockchain_tests/` subdirectory, only that subtree is used. A direct EEST JSON file is also accepted.
+When the path contains a `blockchain_tests_engine/` subdirectory, only that subtree is used. The runner reads only `blockchain_test_engine` fixtures, so an EEST bundle without that subdirectory is rejected. A direct EEST JSON file is also accepted.
 
 Filter selected fixtures by prefix:
 
@@ -191,7 +191,9 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests use the `ere-guests v0.17.1` release assets.
+<!-- TODO(tests-zkevm@v21): restore the release-asset wording once the workspace pins an ere-guests release. -->
+Default guests come from the ere-guests revision in `Cargo.lock`.
+The workspace currently pins the ere-guests #90 branch, so default guests come from that commit's GitHub Actions artifacts.
 `GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
 The upstream downloader uses the first nonempty token in that order.
 Commit or branch dependencies still require a token for GitHub Actions artifacts.

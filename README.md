@@ -6,7 +6,7 @@
 
 This repository benchmarks Ethereum stateless-validator guests across multiple zkVMs. The normal workflow has two phases:
 
-1. Obtain canonical EEST `blockchain_tests` fixtures containing `statelessInputBytes` and `statelessOutputBytes`.
+1. Obtain canonical EEST `blockchain_test_engine` fixtures containing `statelessInputBytes` and `statelessOutputBytes`.
 2. Pass a fixture file, fixture directory, or EEST fixture checkout to `ere-hosts` and write execution metrics, cost estimates, proofs, or verification results.
 
 ## Workspace At a Glance
@@ -18,15 +18,18 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 
 Reth `v0.1.0-rc.3` and Ethrex `v27.0.0` support OpenVM, SP1, and ZisK.
 Zesu `tests-glamsterdam-devnet@v8.1.4` and Nimbus `v0.1.0-alpha` support ZisK only.
-The workspace pins [ere-guests v0.17.1](https://github.com/eth-act/ere-guests/releases/tag/v0.17.1)
-and Ere v0.17.0. Default guest downloads use release assets. GitHub authentication is optional.
+<!-- TODO(tests-zkevm@v21): pin the ere-guests release that includes #90 and restore the release-asset note. -->
+The workspace pins the `jsign-eest-v20` branch of
+[ere-guests #90](https://github.com/eth-act/ere-guests/pull/90), which targets the
+`tests-zkevm@v21.0.1` input layout, and Ere v0.17.0. Until #90 is released, default guest
+downloads use that commit's GitHub Actions artifacts and need `GH_TOKEN` or `GITHUB_TOKEN`.
 Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
 ## Prerequisites
 
 - Rust via `rustup`
 - Docker
-- Canonical EEST `blockchain_tests` fixtures
+- Canonical EEST `blockchain_test_engine` fixtures
 - Python 3.10 or later for the comparison reports
 
 ## Quickstart
@@ -40,12 +43,12 @@ cargo run -p witness-generator-spec-cli -- --help
 
 The witness generator produces benchmark-ready EEST fixtures from live CL/EL
 networks. Use `generate` for one block or `collect` for continuous per-block
-collection. Exported live batches contain a `blockchain_tests/` tree and can be
+collection. Exported live batches contain a `blockchain_tests_engine/` tree and can be
 passed to `ere-hosts` immediately after extraction.
 
 Obtain the
-[`tests-zkevm@v0.8.4`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v0.8.4)
-`fixtures_zkevm.tar.gz` bundle, whose `blockchain_tests` cases contain canonical stateless
+[`tests-zkevm@v21.0.1`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v21.0.1)
+`fixtures_zkevm.tar.gz` bundle, whose `blockchain_tests_engine` cases contain canonical stateless
 bytes. Then benchmark either the extracted fixture root, a directory of EEST
 JSON files, or one EEST JSON file:
 

@@ -698,9 +698,11 @@ mod tests {
         assert_eq!(manifest.batch_start_block, 0);
         assert_eq!(manifest.batch_end_block, 1);
         assert_eq!(manifest.artifact_count, 2);
-        assert_eq!(manifest.schema_version, 2);
+        assert_eq!(manifest.schema_version, 3);
         assert!(manifest.artifacts.iter().all(|artifact| {
-            artifact.archive_path.starts_with("blockchain_tests/")
+            artifact
+                .archive_path
+                .starts_with("blockchain_tests_engine/")
                 && artifact.archive_path.ends_with(".json")
         }));
         let entries = archive_entries(&exported[0]);
@@ -708,7 +710,7 @@ mod tests {
         assert_eq!(
             entries
                 .iter()
-                .filter(|path| path.starts_with("blockchain_tests/"))
+                .filter(|path| path.starts_with("blockchain_tests_engine/"))
                 .count(),
             2
         );
@@ -832,7 +834,7 @@ mod tests {
         assert_eq!(
             archive_entries(&archive)
                 .iter()
-                .filter(|path| path.starts_with("blockchain_tests/"))
+                .filter(|path| path.starts_with("blockchain_tests_engine/"))
                 .count(),
             3
         );
@@ -855,7 +857,7 @@ mod tests {
         assert!(
             paths
                 .iter()
-                .all(|path| path.starts_with(extracted.join("blockchain_tests")))
+                .all(|path| path.starts_with(extracted.join("blockchain_tests_engine")))
         );
         let fixtures =
             stateless_validator_input_iter(&extracted, None, ExecutionClient::Reth, None)

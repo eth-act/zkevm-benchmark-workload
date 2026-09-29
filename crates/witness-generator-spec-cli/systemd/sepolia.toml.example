@@ -1,4 +1,4 @@
-network = "glamsterdam-devnet-8"
+network = "sepolia"
 
 # Local Beacon API and execution JSON-RPC endpoints.
 cl_url = "http://127.0.0.1:3500"
@@ -18,5 +18,5 @@ batch_size = 100
 
 [r2]
 bucket = "stateless-inputs"
-prefix = "devnets"
+prefix = "testnets"
 account_id = "<replace-with-cloudflare-account-id>"

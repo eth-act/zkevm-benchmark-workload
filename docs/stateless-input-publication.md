@@ -7,8 +7,11 @@ This guide describes how to publish benchmark-ready stateless fixture batches as
 R2 public buckets do not provide directory listing, so share the generated HTML page rather than the bucket or prefix root:
 
 ```text
-https://<public-host>/devnets/<network>/index.html
+https://<public-host>/<prefix>/<network>/index.html
 ```
+
+`<prefix>` and `<network>` are the `[r2] prefix` and `network` config values. The
+Sepolia dataset lives under `testnets/sepolia/`.
 
 The public dataset is batch-first. Users should download complete `.tar.zst` batch archives from:
 
@@ -16,9 +19,9 @@ The public dataset is batch-first. Users should download complete `.tar.zst` bat
 exports/batches/<start>-<end>.tar.zst
 ```
 
-Each archive contains directly executable EEST fixtures under `blockchain_tests/`
-and describes them in `.meta/manifest.json`. Individual fixtures are not
-published as standalone public objects.
+Each archive contains directly executable EEST `blockchain_test_engine` fixtures
+under `blockchain_tests_engine/` and describes them in `.meta/manifest.json`.
+Individual fixtures are not published as standalone public objects.
 
 Large batches compress far better with a long zstd window. Set `zstd_window_log`
 in the config to enable it. An archive written with `zstd_window_log = 31` needs
@@ -44,10 +47,14 @@ archives.
 
 ## Operator Flow
 
-Schema v2 does not read input-only v1 artifacts. EEST `tests-zkevm@v0.8.4`
-uses the existing SSZ encoding and `glamsterdam-devnet-8` configuration.
-The Ere v0.17.0 upgrade does not require an encoding migration.
-Do not mix devnet-5 or devnet-7 artifacts into this network namespace.
+Schema v3 artifacts are EEST `blockchain_test_engine` fixtures with the
+`tests-zkevm@v21.0.1` stateless input layout. Schema v3 does not read schema v2
+artifacts, which are `blockchain_test` fixtures with the `tests-zkevm@v0.8.4`
+layout. Both layouts share the `0x1501` input schema id, so the id cannot tell
+them apart. Keep each layout in its own network directory. The schema v2
+`glamsterdam-devnet-8` data stays under `devnets/glamsterdam-devnet-8/`, and
+Sepolia collection starts fresh under `testnets/sepolia/`. If the input layout
+changes again, start a new network directory.
 
 Generate one benchmark-ready fixture without starting the collector:
 
@@ -64,21 +71,21 @@ at a time:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- collect \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
+    --config /etc/witness-generator-spec-cli/sepolia.toml
 ```
 
 Export complete local block ranges and rebuild the public catalog:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- export \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
+    --config /etc/witness-generator-spec-cli/sepolia.toml
 ```
 
 Publish batch archives and catalog files to R2:
 
 ```bash
 cargo run -p witness-generator-spec-cli --release -- publish-r2 \
-    --config /etc/witness-generator-spec-cli/glamsterdam-devnet-8.toml
+    --config /etc/witness-generator-spec-cli/sepolia.toml
 ```
 
 If `publish-r2` reports a missing public catalog file, run `export` first.
@@ -91,22 +98,22 @@ Example systemd services and timers for this flow live in
 Download a batch archive from the generated HTML page:
 
 ```bash
-curl -LO https://<public-host>/devnets/<network>/exports/batches/32500-32999.tar.zst
+curl -LO https://<public-host>/<prefix>/<network>/exports/batches/32500-32999.tar.zst
 tar --zstd -xf 32500-32999.tar.zst
 ```
 
 Verify checksums:
 
 ```bash
-curl -LO https://<public-host>/devnets/<network>/SHA256SUMS
+curl -LO https://<public-host>/<prefix>/<network>/SHA256SUMS
 sha256sum -c SHA256SUMS
 ```
 
 Inspect machine-readable metadata:
 
 ```bash
-curl -fsSL https://<public-host>/devnets/<network>/manifest.json | jq
-curl -fsSL https://<public-host>/devnets/<network>/batches.jsonl | head
+curl -fsSL https://<public-host>/<prefix>/<network>/manifest.json | jq
+curl -fsSL https://<public-host>/<prefix>/<network>/batches.jsonl | head
 ```
 
 Run an extracted batch directly with the benchmark runner:
@@ -117,14 +124,14 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
   --input-folder /path/to/extracted-batch
 ```
 
-The runner detects the extracted `blockchain_tests/` directory automatically.
+The runner detects the extracted `blockchain_tests_engine/` directory automatically.
 
 ## Local EEST Validation
 
 Use [`scripts/validate-r2-stateless-inputs-with-eest.py`](../scripts/validate-r2-stateless-inputs-with-eest.py)
 to validate published R2 batch archives against the EEST Amsterdam stateless
 guest. The script downloads the selected batch archives, verifies the catalog
-metadata, reads each `blockchain_tests/**/*.json` fixture, checks its recorded
+metadata, reads each `blockchain_tests_engine/**/*.json` fixture, checks its recorded
 stateless input byte length, runs each input through EEST, and requires EEST's
 complete output bytes to match the stored `statelessOutputBytes` exactly.
 
@@ -139,14 +146,17 @@ cd /path/to/parent
 git clone https://github.com/ethereum/execution-specs.git
 cd execution-specs
 git fetch --tags
-git checkout 'tests-zkevm@v0.8.4'
+git checkout 'tests-zkevm@v21.0.1'
 ```
+
+`tests-zkevm@v21.0.1` validates only schema v3 batches. It rejects the schema v2
+`glamsterdam-devnet-8` batches.
 
 From this repository root, run:
 
 ```bash
-CATALOG_URL="https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/devnets/glamsterdam-devnet-8"
-EEST_REF="tests-zkevm@v0.8.4"
+CATALOG_URL="https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/testnets/sepolia"
+EEST_REF="tests-zkevm@v21.0.1"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"
 
