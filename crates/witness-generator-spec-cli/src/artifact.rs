@@ -646,7 +646,6 @@ pub(crate) fn test_generated_input(block_number: u64, block_hash: B256) -> Gener
         new_payload_request: new_payload_request.clone(),
         witness: ExecutionWitness::default(),
         chain_id: 1,
-        public_keys: Default::default(),
     };
     let output = StatelessValidationResult {
         new_payload_request_root: new_payload_request.hash_tree_root(&Sha2Hasher),

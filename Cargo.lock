@@ -31,7 +31,6 @@ dependencies = [
  "auto_impl",
  "derive_more",
  "either",
- "k256",
  "once_cell",
  "thiserror",
 ]
@@ -66,7 +65,6 @@ checksum = "2919c5a56a1007492da313e7a3b6d45ef5edc5d33416fdec63c0d7a2702a0d20"
 dependencies = [
  "alloy-primitives",
  "alloy-rlp",
- "k256",
  "thiserror",
 ]
 
@@ -3724,7 +3722,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stateless-validator-catalog"
 version = "0.17.1"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
+source = "git+https://github.com/eth-act/ere-guests?branch=jsign-eest-v20#cc8513a0bd5354e3d643e5ef8ca8d7ed59f31f44"
 dependencies = [
  "serde",
  "serde_json",
@@ -3734,7 +3732,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-common"
 version = "0.17.1"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
+source = "git+https://github.com/eth-act/ere-guests?branch=jsign-eest-v20#cc8513a0bd5354e3d643e5ef8ca8d7ed59f31f44"
 dependencies = [
  "libssz",
  "libssz-derive",
@@ -3747,7 +3745,7 @@ dependencies = [
 [[package]]
 name = "stateless-validator-downloader"
 version = "0.17.1"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.17.1#daec35a51ec066cae50636a28311d67cb07bb150"
+source = "git+https://github.com/eth-act/ere-guests?branch=jsign-eest-v20#cc8513a0bd5354e3d643e5ef8ca8d7ed59f31f44"
 dependencies = [
  "anyhow",
  "ere-catalog",
