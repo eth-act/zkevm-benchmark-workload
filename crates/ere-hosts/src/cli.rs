@@ -239,7 +239,7 @@ mod tests {
         args.extend([
             "stateless-validator",
             "--execution-client",
-            "reth",
+            "ethrex",
             "--input-folder",
             ".",
         ]);
@@ -271,10 +271,9 @@ mod tests {
 
     #[test]
     fn estimation_requires_input_and_zisk_only_clients_reject_other_zkvms() {
-        for (client, expected_client) in [
-            ("zesu", stateless_validator::ExecutionClient::Zesu),
-            ("nimbus", stateless_validator::ExecutionClient::Nimbus),
-        ] {
+        // TODO(tests-zkevm@v21): re-add zesu once it publishes a v21 release.
+        for (client, expected_client) in [("nimbus", stateless_validator::ExecutionClient::Nimbus)]
+        {
             let args = [
                 "ere-hosts",
                 "--zkvms",
@@ -321,6 +320,32 @@ mod tests {
             );
             with_input[4] = "verify";
             assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
+        }
+    }
+
+    // TODO(tests-zkevm@v21): drop once Reth and Zesu publish v21 releases.
+    #[test]
+    fn unreleased_clients_fail_validation_for_every_action() {
+        for client in ["reth", "zesu"] {
+            for action in ["execute", "estimate-cost", "prove", "verify"] {
+                let args = [
+                    "ere-hosts",
+                    "--zkvms",
+                    "zisk",
+                    "--action",
+                    action,
+                    "stateless-validator",
+                    "--execution-client",
+                    client,
+                    "--input-folder",
+                    ".",
+                ];
+                let err = Cli::try_parse_from(args).unwrap().validate().unwrap_err();
+                assert!(
+                    err.to_string().contains("is temporarily unavailable"),
+                    "{client} {action}: {err}"
+                );
+            }
         }
     }
 }

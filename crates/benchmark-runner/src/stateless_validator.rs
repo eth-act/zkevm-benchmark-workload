@@ -38,7 +38,7 @@ impl ExecutionClient {
         };
         if kind.version().is_none() {
             bail!(
-                "{} has no active artifacts in the pinned ere-guests catalog",
+                "{0} is temporarily unavailable: the pinned ere-guests catalog has no {0} guest release",
                 self.as_ref()
             );
         }
@@ -77,30 +77,36 @@ mod tests {
     use super::*;
 
     #[test]
-    fn active_v08_guests_follow_upstream_catalog() {
-        assert_eq!(
-            ExecutionClient::Reth.registered_kind().unwrap(),
-            StatelessValidatorKind::Reth
-        );
+    fn active_guests_follow_upstream_catalog() {
         assert_eq!(
             ExecutionClient::Ethrex.registered_kind().unwrap(),
             StatelessValidatorKind::Ethrex
         );
-        assert_eq!(ExecutionClient::Reth.version().unwrap(), "0.1.0-rc.3");
-        assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "27.0.0");
-
-        assert_eq!(
-            ExecutionClient::Zesu.version().unwrap(),
-            "tests-glamsterdam-devnet@v8.1.4"
-        );
-        assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.1.0-alpha");
+        assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "29.0.0-rc.2");
+        assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.2.1-alpha");
         for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
-            assert!(ExecutionClient::Reth.validate_zkvm(zkvm).is_ok());
             assert!(ExecutionClient::Ethrex.validate_zkvm(zkvm).is_ok());
-            for zisk_only in [ExecutionClient::Zesu, ExecutionClient::Nimbus] {
+            assert_eq!(
+                ExecutionClient::Nimbus.validate_zkvm(zkvm).is_ok(),
+                zkvm == zkVMKind::Zisk
+            );
+        }
+    }
+
+    // TODO(tests-zkevm@v21): move Reth and Zesu back to the active guests once they publish v21
+    // releases and ere-guests registers them.
+    #[test]
+    fn unreleased_guests_are_temporarily_unavailable() {
+        for client in [ExecutionClient::Reth, ExecutionClient::Zesu] {
+            let expected = format!(
+                "{0} is temporarily unavailable: the pinned ere-guests catalog has no {0} guest release",
+                client.as_ref()
+            );
+            assert_eq!(client.version().unwrap_err().to_string(), expected);
+            for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
                 assert_eq!(
-                    zisk_only.validate_zkvm(zkvm).is_ok(),
-                    zkvm == zkVMKind::Zisk
+                    client.validate_zkvm(zkvm).unwrap_err().to_string(),
+                    expected
                 );
             }
         }

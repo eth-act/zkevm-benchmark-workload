@@ -1035,13 +1035,13 @@ mod tests {
     fn url_artifact_loader_requires_elf_but_not_vk_or_profiling_elf() -> Result<()> {
         let elf_path = format!(
             "/{}.elf",
-            guest_artifact_name(StatelessValidatorKind::Reth, zkVMKind::Zisk)
+            guest_artifact_name(StatelessValidatorKind::Ethrex, zkVMKind::Zisk)
         );
         let server =
             TestServer::spawn(move |path| (path == elf_path).then(|| Vec::from("elf-bytes")));
 
         let compiled = block_on(load_compiled(
-            ExecutionClient::Reth,
+            ExecutionClient::Ethrex,
             zkVMKind::Zisk,
             &GuestProgramSource::ArtifactBaseUrl(server.base_url()),
         ))?;
@@ -1058,7 +1058,7 @@ mod tests {
         let server = TestServer::spawn(|_| None);
 
         let err = block_on(load_compiled(
-            ExecutionClient::Reth,
+            ExecutionClient::Ethrex,
             zkVMKind::Zisk,
             &GuestProgramSource::ArtifactBaseUrl(server.base_url()),
         ))
@@ -1066,7 +1066,7 @@ mod tests {
 
         assert!(err.to_string().contains(&format!(
             "{}.elf",
-            guest_artifact_name(StatelessValidatorKind::Reth, zkVMKind::Zisk)
+            guest_artifact_name(StatelessValidatorKind::Ethrex, zkVMKind::Zisk)
         )));
     }
 
