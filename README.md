@@ -6,7 +6,7 @@
 
 This repository benchmarks Ethereum stateless-validator guests across multiple zkVMs. The normal workflow has two phases:
 
-1. Obtain canonical EEST `blockchain_test_engine` fixtures containing `statelessInputBytes` and `statelessOutputBytes`.
+1. Obtain canonical EEST `blockchain_test_engine` or `blockchain_test` fixtures containing `statelessInputBytes` and `statelessOutputBytes`.
 2. Pass a fixture file, fixture directory, or EEST fixture checkout to `ere-hosts` and write execution metrics, cost estimates, proofs, or verification results.
 
 ## Workspace At a Glance
@@ -29,7 +29,7 @@ Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
 - Rust via `rustup`
 - Docker
-- Canonical EEST `blockchain_test_engine` fixtures
+- Canonical EEST `blockchain_test_engine` or `blockchain_test` fixtures
 - Python 3.10 or later for the comparison reports
 
 ## Quickstart

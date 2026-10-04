@@ -12,9 +12,9 @@ stateless-validator --input-folder <PATH>
 
 There is no default input location. The path must exist and may identify:
 
-- One EEST `blockchain_test_engine` `.json` fixture file.
-- A directory containing EEST `blockchain_test_engine` `.json` fixture files.
-- An EEST fixture checkout or archive root containing `blockchain_tests_engine/`.
+- One EEST `blockchain_test_engine` or `blockchain_test` `.json` fixture file.
+- A directory containing EEST `blockchain_test_engine` or `blockchain_test` `.json` fixture files.
+- An EEST fixture checkout or archive root containing `blockchain_tests_engine/` or `blockchain_tests/`.
 
 Verification does not need fixture input. If `--input-folder` is supplied with `--action verify`, the option is accepted and ignored for backward compatibility, including when its path no longer exists.
 
@@ -22,7 +22,7 @@ Verification does not need fixture input. If `--input-folder` is supplied with `
 
 Directory input is walked recursively in sorted filename order. Only `.json` files are considered, and files below `.meta/` are excluded.
 
-The runner reads only EEST `blockchain_test_engine` fixtures. When the input path contains a `blockchain_tests_engine/` subdirectory, only that subtree is used, so other fixture formats in the same bundle are ignored. An EEST bundle without `blockchain_tests_engine/` is rejected. The runner recognizes a bundle by a `blockchain_tests/`, `blockchain_tests_engine_x/`, or `blockchain_tests_sync/` subdirectory, or by a `.meta/index.json` that lists `fixture_formats`. Any other directory is walked as is.
+The runner reads EEST `blockchain_test_engine` and `blockchain_test` fixtures. When the input path contains a `blockchain_tests_engine/` subdirectory, only that subtree is used, so other fixture formats in the same bundle are ignored. Otherwise, a `blockchain_tests/` subdirectory is used. `tests-zkevm` bundles ship both formats; `tests-zkevm-benchmark` bundles ship only `blockchain_test`. An EEST bundle with neither subdirectory is rejected. The runner recognizes a bundle by a `blockchain_tests_engine_x/` or `blockchain_tests_sync/` subdirectory, or by a `.meta/index.json` that lists `fixture_formats`. Any other directory is walked as is.
 
 An empty directory retains the existing discovery behavior: it produces no fixture paths.
 
@@ -32,7 +32,7 @@ its `blockchain_tests_engine/` subtree and ignores `.meta/manifest.json`.
 
 ## Canonical EEST Schema
 
-The only accepted benchmark fixture format is an EEST `blockchain_test_engine` JSON object whose `engineNewPayloads` entries contain `statelessInputBytes` and `statelessOutputBytes`:
+The runner accepts EEST `blockchain_test_engine` JSON objects whose `engineNewPayloads` entries contain `statelessInputBytes` and `statelessOutputBytes`:
 
 ```json
 {
@@ -71,9 +71,10 @@ The only accepted benchmark fixture format is an EEST `blockchain_test_engine` J
 Rules:
 
 - The file is a JSON object keyed by the original EEST test name.
-- Each test case includes `network`, `config.chainid`, and `engineNewPayloads`; unrelated EEST fields are ignored. A `blockchain_test` fixture, which has `blocks` instead, fails with a missing `engineNewPayloads` error.
-- The block number and gas used come from `params[0].blockNumber` and `params[0].gasUsed`, the execution payload of the `engine_newPayload` call. Both are optional.
-- `config.chainid`, `params[0].blockNumber`, and `params[0].gasUsed` may be decimal strings or `0x`-prefixed hexadecimal strings.
+- Each test case includes `network`, `config.chainid`, and `engineNewPayloads`; unrelated EEST fields are ignored.
+- A `blockchain_test` test case has `blocks` instead of `engineNewPayloads`. Each block carries the same `statelessInputBytes` and `statelessOutputBytes` fields, and the rules below apply to blocks as they do to payloads.
+- The block number and gas used come from `params[0].blockNumber` and `params[0].gasUsed`, the execution payload of the `engine_newPayload` call. In a `blockchain_test` block, they come from `blockHeader.number` and `blockHeader.gasUsed`. All are optional.
+- `config.chainid` and the block number and gas used fields may be decimal strings or `0x`-prefixed hexadecimal strings.
 - Only the last payload of a test case is loaded, because EEST benchmark tests place the worst case block last and use any preceding blocks for setup.
 - A payload without `statelessInputBytes` is skipped. A payload with empty `statelessInputBytes` is loaded, because EEST uses it as a conformance case.
 - A payload with `statelessInputBytes` must also contain `statelessOutputBytes`.
@@ -118,7 +119,7 @@ Unless `--force-rerun` is set, fixture preparation skips cases that already cont
 JSON with a top-level `stateless_input` field is rejected before canonical deserialization with this migration error:
 
 ```text
-legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine fixture containing statelessInputBytes and statelessOutputBytes
+legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine or blockchain_test fixture containing statelessInputBytes and statelessOutputBytes
 ```
 
-The old fixture generator crates and image are discontinued. Existing fixture, metric, proof, and published image files remain untouched, but legacy fixture JSON must be replaced with canonical EEST `blockchain_test_engine` input before it can be benchmarked.
+The old fixture generator crates and image are discontinued. Existing fixture, metric, proof, and published image files remain untouched, but legacy fixture JSON must be replaced with canonical EEST `blockchain_test_engine` or `blockchain_test` input before it can be benchmarked.
