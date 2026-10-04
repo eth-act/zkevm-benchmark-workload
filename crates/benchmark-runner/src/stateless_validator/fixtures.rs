@@ -51,17 +51,23 @@ fn benchmark_fixture_root(input_folder: &Path) -> Result<PathBuf> {
         return Ok(input_folder.to_path_buf());
     }
 
-    let blockchain_tests_engine = input_folder.join(EEST_BLOCKCHAIN_TESTS_ENGINE_DIR);
-    if blockchain_tests_engine.is_dir() {
-        return Ok(blockchain_tests_engine);
+    // Bundles such as tests-zkevm ship both formats with identical stateless bytes, and the engine
+    // format adds payload-level cases. Benchmark releases such as tests-zkevm-benchmark ship only
+    // blockchain_test.
+    for fixture_dir in [EEST_BLOCKCHAIN_TESTS_ENGINE_DIR, EEST_BLOCKCHAIN_TESTS_DIR] {
+        let fixture_root = input_folder.join(fixture_dir);
+        if fixture_root.is_dir() {
+            return Ok(fixture_root);
+        }
     }
 
     if looks_like_eest_fixture_bundle(input_folder) {
         bail!(
-            "EEST fixture bundle {} does not contain required {}/ directory; \
-             stateless-validator supports only EEST blockchain_test_engine fixtures",
+            "EEST fixture bundle {} contains neither {}/ nor {}/; \
+             stateless-validator supports only EEST blockchain_test_engine and blockchain_test fixtures",
             input_folder.display(),
-            EEST_BLOCKCHAIN_TESTS_ENGINE_DIR
+            EEST_BLOCKCHAIN_TESTS_ENGINE_DIR,
+            EEST_BLOCKCHAIN_TESTS_DIR
         );
     }
 
@@ -69,10 +75,9 @@ fn benchmark_fixture_root(input_folder: &Path) -> Result<PathBuf> {
 }
 
 fn looks_like_eest_fixture_bundle(input_folder: &Path) -> bool {
-    input_folder.join(EEST_BLOCKCHAIN_TESTS_DIR).is_dir()
-        || input_folder
-            .join(EEST_BLOCKCHAIN_TESTS_ENGINE_X_DIR)
-            .is_dir()
+    input_folder
+        .join(EEST_BLOCKCHAIN_TESTS_ENGINE_X_DIR)
+        .is_dir()
         || input_folder.join(EEST_BLOCKCHAIN_TESTS_SYNC_DIR).is_dir()
         || eest_fixture_index_has_formats(input_folder)
 }
@@ -160,7 +165,7 @@ fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<EestSta
 
     if value.get("stateless_input").is_some() {
         bail!(
-            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine fixture containing statelessInputBytes and statelessOutputBytes"
+            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine or blockchain_test fixture containing statelessInputBytes and statelessOutputBytes"
         );
     }
 
@@ -359,7 +364,7 @@ mod tests {
         let err = load_benchmark_fixtures(&fixture_path, dir.path()).unwrap_err();
         assert_eq!(
             err.to_string(),
-            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine fixture containing statelessInputBytes and statelessOutputBytes"
+            "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine or blockchain_test fixture containing statelessInputBytes and statelessOutputBytes"
         );
 
         Ok(())
@@ -400,9 +405,28 @@ mod tests {
     }
 
     #[test]
-    fn benchmark_fixture_paths_rejects_eest_bundle_without_engine_subdir() -> Result<()> {
+    fn benchmark_fixture_paths_falls_back_to_eest_blockchain_tests_subdir() -> Result<()> {
+        let dir = tempfile::tempdir()?;
+        let included_path = dir
+            .path()
+            .join("blockchain_tests/for_amsterdam_at_0030M/included.json");
+        fs::create_dir_all(included_path.parent().unwrap())?;
+        fs::create_dir_all(dir.path().join(".meta"))?;
+        fs::write(&included_path, "{}")?;
+        fs::write(
+            dir.path().join(".meta/index.json"),
+            r#"{"fixture_formats": ["blockchain_test"]}"#,
+        )?;
+
+        let paths = benchmark_fixture_paths(dir.path())?;
+        assert_eq!(paths, vec![included_path]);
+
+        Ok(())
+    }
+
+    #[test]
+    fn benchmark_fixture_paths_rejects_eest_bundle_without_supported_subdir() -> Result<()> {
         for marker in [
-            "blockchain_tests/for_amsterdam/ignored.json",
             "blockchain_tests_engine_x/for_amsterdam/ignored.json",
             "blockchain_tests_sync/for_amsterdam/ignored.json",
             ".meta/index.json",
@@ -415,11 +439,13 @@ mod tests {
             let err = benchmark_fixture_paths(dir.path()).unwrap_err();
             let message = err.to_string();
             assert!(
-                message.contains("does not contain required blockchain_tests_engine/ directory"),
+                message.contains("contains neither blockchain_tests_engine/ nor blockchain_tests/"),
                 "{marker}: {message}"
             );
             assert!(
-                message.contains("supports only EEST blockchain_test_engine fixtures"),
+                message.contains(
+                    "supports only EEST blockchain_test_engine and blockchain_test fixtures"
+                ),
                 "{marker}: {message}"
             );
         }
