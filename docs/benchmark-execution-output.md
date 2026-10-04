@@ -33,7 +33,7 @@ zkevm-metrics/
       <fixture-name>.json
 ```
 
-`<fixture-name>` is `eest__<sanitized EEST test ID>__block<index>`. EEST test IDs contain the fixture format, so results from `blockchain_test_engine` and `blockchain_test` fixtures of the same test have different names. Results written before `tests-zkevm@v21` used the older input layout, so they are not comparable with v21 results.
+`<fixture-name>` is `eest__<sanitized EEST test ID>__block<index>`. The test ID includes the fixture format, so a test's `blockchain_test_engine` and `blockchain_test` results have different names. Results written before `tests-zkevm@v21` used an older input layout and are not comparable with v21 results.
 
 Each fixture metrics file is a single pretty-printed `BenchmarkRun` JSON object. The `zkevm-metrics` library helper `BenchmarkRun::to_json` serializes a list of runs, but the CLI output files under `zkevm-metrics/` contain one object per file.
 
@@ -237,7 +237,7 @@ Canonical EEST metadata has this shape:
 }
 ```
 
-`block_number` and `block_used_gas` come from `params[0]` of the benchmarked `engineNewPayloads` entry, or from `blockHeader` of the benchmarked `blocks` entry. They are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value. `opcode_count` is also omitted when the per-block array length differs from the payload count; the loader logs a warning and continues loading the fixture.
+`block_number` and `block_used_gas` come from the benchmarked block: `params[0]` in `blockchain_test_engine`, `blockHeader` in `blockchain_test`. They are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value. `opcode_count` is also omitted when the per-block array length differs from the block count; the loader logs a warning and continues loading the fixture.
 
 ## Proofs And Verification
 
