@@ -155,7 +155,7 @@ git checkout 'tests-zkevm@v21.0.1'
 From this repository root, run:
 
 ```bash
-CATALOG_URL="https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/testnets/sepolia"
+CATALOG_URL="https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia"
 EEST_REF="tests-zkevm@v21.0.1"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"

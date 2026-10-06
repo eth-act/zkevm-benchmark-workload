@@ -22,7 +22,7 @@ except ImportError:
     zstandard = None
 
 DEFAULT_CATALOG_URL = (
-    "https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/"
+    "https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/"
     "testnets/sepolia"
 )
 REQUEST_TIMEOUT_SECONDS = 60

@@ -6,7 +6,7 @@ on:
       catalog_url:
         description: Public R2 catalog root, index.html URL, or manifest.json URL
         required: false
-        default: https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/testnets/sepolia/index.html
+        default: https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia/index.html
         type: string
       eest_ref:
         description: ethereum/execution-specs ref to validate with
@@ -34,7 +34,7 @@ jobs:
     name: Validate Latest R2 Batch
     runs-on: ubuntu-latest
     env:
-      CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/testnets/sepolia/index.html' }}
+      CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia/index.html' }}
       EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v21.0.1' }}
       BATCH_COUNT: ${{ github.event.inputs.batch_count || '10' }}
       SUMMARY_DIR: workload/target/eest-r2-stateless-inputs
