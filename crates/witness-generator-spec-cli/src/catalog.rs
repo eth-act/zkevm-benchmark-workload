@@ -595,7 +595,7 @@ fn public_manifest(
             total_byte_length,
         },
         notes: vec![
-            "Public downloads are batch archives containing benchmark-ready EEST fixtures under blockchain_tests/; individual fixtures are not published as standalone R2 objects.".to_owned(),
+            "Public downloads are batch archives containing benchmark-ready EEST blockchain_test_engine fixtures under blockchain_tests_engine/; individual fixtures are not published as standalone R2 objects.".to_owned(),
             "After extraction, pass the archive root directly to ere-hosts --input-folder.".to_owned(),
             "Cloudflare R2 public buckets do not provide directory listing; use this page or the JSON indexes instead.".to_owned(),
         ],
@@ -718,7 +718,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     html.push_str("</section>\n");
 
     html.push_str("<section class=\"panel\">\n<h2>How to download</h2>\n");
-    html.push_str("<p>Each archive contains benchmark-ready EEST fixtures under <code>blockchain_tests/</code> and metadata at <code>.meta/manifest.json</code>.</p>\n");
+    html.push_str("<p>Each archive contains benchmark-ready EEST <code>blockchain_test_engine</code> fixtures under <code>blockchain_tests_engine/</code> and metadata at <code>.meta/manifest.json</code>.</p>\n");
     if let Some(first_batch) = batches.first() {
         html.push_str("<pre>curl -LO ");
         push_escaped(&mut html, &first_batch.path);
@@ -938,7 +938,7 @@ mod tests {
         assert!(html.contains("Total batch size"));
         assert!(!html.contains("Total batch bytes"));
         assert!(html.contains("exports/batches/0-1.tar.zst"));
-        assert!(html.contains("blockchain_tests/"));
+        assert!(html.contains("blockchain_tests_engine/"));
         assert!(html.contains(".meta/manifest.json"));
         assert!(!html.contains("blocks.jsonl"));
         assert!(!html.contains("index.jsonl"));

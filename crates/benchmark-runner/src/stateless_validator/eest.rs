@@ -24,11 +24,14 @@ pub(crate) struct EestStatelessFixture {
     pub(crate) stateless_output_bytes: Vec<u8>,
 }
 
+/// EEST `blockchain_test` or `blockchain_test_engine` test case.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EestBlockchainTest {
     network: String,
     config: EestConfig,
+    /// `blocks` in `blockchain_test`, `engineNewPayloads` in `blockchain_test_engine`.
+    #[serde(alias = "engineNewPayloads")]
     blocks: Vec<EestBlock>,
     #[serde(default, rename = "_info")]
     info: EestInfo,
@@ -54,6 +57,7 @@ struct EestMetadata {
     target_opcode: Option<String>,
 }
 
+/// `blocks` or `engineNewPayloads` entry. Both formats store the stateless bytes under the same keys.
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct EestBlock {
@@ -61,10 +65,12 @@ struct EestBlock {
     stateless_input_bytes: Option<String>,
     #[serde(default)]
     stateless_output_bytes: Option<String>,
+    /// `blockchain_test` block header. Invalid blocks have none.
     #[serde(default)]
     block_header: Option<EestBlockHeader>,
-    #[serde(default, rename = "blocknumber")]
-    block_number: Option<String>,
+    /// `blockchain_test_engine` `engine_newPayload` params. Only `params[0]`, the execution payload, is read.
+    #[serde(default)]
+    params: Vec<serde_json::Value>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -72,6 +78,15 @@ struct EestBlock {
 struct EestBlockHeader {
     #[serde(default)]
     number: Option<String>,
+    #[serde(default)]
+    gas_used: Option<String>,
+}
+
+#[derive(Debug, Default, Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct EestExecutionPayload {
+    #[serde(default)]
+    block_number: Option<String>,
     #[serde(default)]
     gas_used: Option<String>,
 }
@@ -84,7 +99,7 @@ pub(crate) fn load_eest_benchmark_fixtures(
     let cases: BTreeMap<String, EestBlockchainTest> =
         serde_json::from_value(value).with_context(|| {
             format!(
-                "Failed to parse fixture {} as an EEST blockchain test",
+                "Failed to parse fixture {} as an EEST blockchain_test or blockchain_test_engine fixture",
                 path.display()
             )
         })?;
@@ -97,13 +112,13 @@ pub(crate) fn load_eest_benchmark_fixtures(
         let chain_id = parse_json_u64(&case.config.chainid)
             .with_context(|| format!("Failed to parse chainid for EEST test {test_name}"))?;
 
+        let block_count = case.blocks.len();
         let opcode_count_per_block = match case.info.metadata.opcode_count_per_block.as_ref() {
-            Some(counts) if counts.len() != case.blocks.len() => {
+            Some(counts) if counts.len() != block_count => {
                 // Mismatched counts cannot be assigned to blocks reliably, but guest I/O is still usable.
                 warn!(
-                    "Ignoring opcode_count_per_block for EEST test {test_name} from {source_path}: {} entries but {} blocks",
+                    "Ignoring opcode_count_per_block for EEST test {test_name} from {source_path}: {} entries but {block_count} blocks",
                     counts.len(),
-                    case.blocks.len()
                 );
                 None
             }
@@ -112,7 +127,7 @@ pub(crate) fn load_eest_benchmark_fixtures(
 
         // For EEST benchmark fixtures, the worst case block is the last block and the others are setup blocks,
         // so here we only load the last block as benchmark fixture.
-        let block_index = case.blocks.len().saturating_sub(1);
+        let block_index = block_count.saturating_sub(1);
         if let Some(block) = case.blocks.pop() {
             let Some(input_hex) = block.stateless_input_bytes else {
                 info!(
@@ -126,12 +141,6 @@ pub(crate) fn load_eest_benchmark_fixtures(
                         "Failed to decode statelessInputBytes for EEST test {test_name} block {block_index}"
                     )
                 })?;
-            if stateless_input_bytes.is_empty() {
-                info!(
-                    "Skipping EEST test {test_name} block {block_index} from {source_path}: empty statelessInputBytes"
-                );
-                continue;
-            }
 
             let output_hex = block.stateless_output_bytes.with_context(|| {
                 format!(
@@ -144,27 +153,13 @@ pub(crate) fn load_eest_benchmark_fixtures(
                         "Failed to decode statelessOutputBytes for EEST test {test_name} block {block_index}"
                     )
                 })?;
-            let block_number = parse_optional_json_u64(
-                block
-                    .block_header
-                    .as_ref()
-                    .and_then(|header| header.number.as_deref())
-                    .or(block.block_number.as_deref()),
-            )
-            .with_context(|| {
-                format!(
-                    "Failed to parse block number for EEST test {test_name} block {block_index}"
-                )
-            })?;
-            let block_used_gas = parse_optional_json_u64(
-                block
-                    .block_header
-                    .as_ref()
-                    .and_then(|header| header.gas_used.as_deref()),
-            )
-            .with_context(|| {
-                format!("Failed to parse gas used for EEST test {test_name} block {block_index}")
-            })?;
+            let (block_number, block_used_gas) =
+                parse_block_number_and_gas_used(block.block_header.as_ref(), &block.params)
+                    .with_context(|| {
+                        format!(
+                            "Failed to parse block number or gas used for EEST test {test_name} block {block_index}"
+                        )
+                    })?;
 
             fixtures.push(EestStatelessFixture {
                 name: unique_eest_fixture_name(&test_name, block_index, &mut fixture_names),
@@ -185,6 +180,34 @@ pub(crate) fn load_eest_benchmark_fixtures(
     }
 
     Ok(fixtures)
+}
+
+/// Parses the block number and gas used from the `blockchain_test` block header, or else from
+/// `params[0]`, the `blockchain_test_engine` execution payload.
+fn parse_block_number_and_gas_used(
+    block_header: Option<&EestBlockHeader>,
+    params: &[serde_json::Value],
+) -> Result<(Option<u64>, Option<u64>)> {
+    if let Some(header) = block_header {
+        let block_number = parse_optional_json_u64(header.number.as_deref())
+            .context("Failed to parse blockHeader.number")?;
+        let gas_used = parse_optional_json_u64(header.gas_used.as_deref())
+            .context("Failed to parse blockHeader.gasUsed")?;
+        return Ok((block_number, gas_used));
+    }
+
+    let execution_payload = params
+        .first()
+        .map(EestExecutionPayload::deserialize)
+        .transpose()
+        .context("Invalid params[0]")?
+        .unwrap_or_default();
+    let block_number = parse_optional_json_u64(execution_payload.block_number.as_deref())
+        .context("Failed to parse params[0].blockNumber")?;
+    let gas_used = parse_optional_json_u64(execution_payload.gas_used.as_deref())
+        .context("Failed to parse params[0].gasUsed")?;
+
+    Ok((block_number, gas_used))
 }
 
 fn decode_hex_bytes(field_name: &str, value: &str) -> Result<Vec<u8>> {
@@ -315,7 +338,7 @@ mod tests {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir
             .path()
-            .join("blockchain_tests/for_amsterdam/compute/mcopy.json");
+            .join("blockchain_tests_engine/for_amsterdam/compute/mcopy.json");
         fs::create_dir_all(fixture_path.parent().unwrap())?;
         fs::write(&fixture_path, sample_eest_fixture())?;
 
@@ -324,7 +347,7 @@ mod tests {
             &fixture_path,
             dir.path(),
         )?;
-        assert_eq!(fixtures.len(), 2);
+        assert_eq!(fixtures.len(), 3);
 
         let names: Vec<_> = fixtures
             .iter()
@@ -333,6 +356,7 @@ mod tests {
         assert_eq!(
             names,
             vec![
+                "eest__tests_foo_py_test_same_empty_input__block0".to_string(),
                 "eest__tests_foo_py_test_same_name_a__block2".to_string(),
                 "eest__tests_foo_py_test_same_name_a__block2__2".to_string(),
             ]
@@ -350,7 +374,7 @@ mod tests {
         assert_eq!(fixture.stateless_output_bytes, [0xaa, 0xbb]);
         assert_eq!(
             fixture.source_path,
-            "blockchain_tests/for_amsterdam/compute/mcopy.json"
+            "blockchain_tests_engine/for_amsterdam/compute/mcopy.json"
         );
         assert_eq!(fixture.block_index, 2);
         assert_eq!(fixture.chain_id, 1);
@@ -374,6 +398,17 @@ mod tests {
             info_without_per_block.target_opcode,
             Some("ADD".to_string())
         );
+        assert_eq!(info_without_per_block.block_number, Some(3));
+        assert_eq!(info_without_per_block.block_used_gas, Some(48));
+
+        let empty_input = fixtures
+            .iter()
+            .find(|fixture| fixture.original_test_name == "tests/foo.py::test_same[empty_input]")
+            .unwrap();
+        assert!(empty_input.stateless_input_bytes.is_empty());
+        assert_eq!(empty_input.stateless_output_bytes, [0xcc]);
+        assert_eq!(empty_input.block_number, None);
+        assert_eq!(empty_input.block_used_gas, None);
 
         Ok(())
     }
@@ -381,13 +416,13 @@ mod tests {
     #[test]
     fn eest_fixture_name_preserves_full_sanitized_name_when_it_fits() {
         let name = eest_fixture_name(
-            "tests/amsterdam/eip8025_optional_proofs/test_witness_state_writes.py::test_witness_state_sstore_into_empty_storage_omits_post_state_nodes[fork_Amsterdam-blockchain_test]",
+            "tests/amsterdam/eip8025_optional_proofs/test_witness_state_writes.py::test_witness_state_sstore_into_empty_storage_omits_post_state_nodes[fork_Amsterdam-blockchain_test_engine]",
             0,
         );
 
         assert_eq!(
             name,
-            "eest__tests_amsterdam_eip8025_optional_proofs_test_witness_state_writes_py_test_witness_state_sstore_into_empty_storage_omits_post_state_nodes_fork_Amsterdam-blockchain_test__block0"
+            "eest__tests_amsterdam_eip8025_optional_proofs_test_witness_state_writes_py_test_witness_state_sstore_into_empty_storage_omits_post_state_nodes_fork_Amsterdam-blockchain_test_engine__block0"
         );
     }
 
@@ -404,6 +439,81 @@ mod tests {
     }
 
     #[test]
+    fn load_eest_blockchain_test_fixture_reads_last_block_and_header() -> Result<()> {
+        let fixture_path = Path::new("fixtures/blockchain_tests/for_amsterdam/mcopy.json");
+        let value = serde_json::json!({
+            "tests/foo.py::test_same[fork_Amsterdam-blockchain_test]": {
+                "network": "Amsterdam",
+                "config": {"chainid": "0x01"},
+                "blocks": [
+                    {
+                        "blockHeader": {"number": "0x01", "gasUsed": "0x10"},
+                        "statelessInputBytes": "0x0102",
+                        "statelessOutputBytes": "0xaa"
+                    },
+                    {
+                        "blockHeader": {"number": "0x02", "gasUsed": "0x20"},
+                        "rlp": "0xf9",
+                        "blocknumber": "2",
+                        "statelessInputBytes": "0x150102",
+                        "statelessOutputBytes": "0xaabb"
+                    }
+                ],
+                "_info": {
+                    "metadata": {
+                        "opcode_count_per_block": [{"PUSH1": 1}, {"MCOPY": 7}],
+                        "target_opcode": "MCOPY"
+                    }
+                }
+            }
+        });
+
+        let fixtures = load_eest_benchmark_fixtures(value, fixture_path, Path::new("fixtures"))?;
+        assert_eq!(fixtures.len(), 1);
+        let fixture = &fixtures[0];
+        assert_eq!(
+            fixture.name,
+            "eest__tests_foo_py_test_same_fork_Amsterdam-blockchain_test__block1"
+        );
+        assert_eq!(
+            fixture.source_path,
+            "blockchain_tests/for_amsterdam/mcopy.json"
+        );
+        assert_eq!(fixture.block_index, 1);
+        assert_eq!(fixture.block_number, Some(2));
+        assert_eq!(fixture.block_used_gas, Some(32));
+        assert_eq!(fixture.stateless_input_bytes, [0x15, 0x01, 0x02]);
+        assert_eq!(fixture.stateless_output_bytes, [0xaa, 0xbb]);
+        assert_eq!(
+            fixture.opcode_count,
+            Some(BTreeMap::from([("MCOPY".to_string(), 7)]))
+        );
+        assert_eq!(fixture.target_opcode.as_deref(), Some("MCOPY"));
+
+        Ok(())
+    }
+
+    #[test]
+    fn eest_fixture_without_blocks_is_rejected() {
+        let fixture_path = Path::new("fixtures/blockchain_tests/mcopy.json");
+        let value = serde_json::json!({
+            "tests/foo.py::test_no_blocks": {
+                "network": "Amsterdam",
+                "config": {"chainid": "0x01"}
+            }
+        });
+
+        let err =
+            load_eest_benchmark_fixtures(value, fixture_path, Path::new("fixtures")).unwrap_err();
+        let message = format!("{err:#}");
+        assert!(
+            message.contains("as an EEST blockchain_test or blockchain_test_engine fixture"),
+            "{message}"
+        );
+        assert!(message.contains("missing field `blocks`"), "{message}");
+    }
+
+    #[test]
     fn eest_block_with_input_requires_output() -> Result<()> {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("missing-output.json");
@@ -413,7 +523,7 @@ mod tests {
                 "tests/foo.py::test_missing_output": {
                     "network": "Amsterdam",
                     "config": {"chainid": "0x01"},
-                    "blocks": [{"statelessInputBytes": "0x0102"}]
+                    "engineNewPayloads": [{"statelessInputBytes": "0x0102"}]
                 }
             }"#,
         )?;
@@ -443,7 +553,7 @@ mod tests {
                 "tests/foo.py::test_opcode_counts": {
                     "network": "Amsterdam",
                     "config": {"chainid": "0x01"},
-                    "blocks": [{}, {}, {}, {}, {
+                    "engineNewPayloads": [{}, {}, {}, {}, {
                         "statelessInputBytes": "0x0102",
                         "statelessOutputBytes": "0xaa"
                     }],
@@ -466,7 +576,7 @@ mod tests {
             assert_eq!(
                 fixture.opcode_count,
                 expected_count.map(|count| BTreeMap::from([("PUSH1".to_string(), count)])),
-                "unexpected opcode counts with {count_len} entries for 5 blocks"
+                "unexpected opcode counts with {count_len} entries for 5 payloads"
             );
         }
 
@@ -478,7 +588,7 @@ mod tests {
             "tests/foo.py::test_same[empty_input]": {
                 "network": "Amsterdam",
                 "config": {"chainid": "0x01"},
-                "blocks": [
+                "engineNewPayloads": [
                     {
                         "statelessInputBytes": "0x",
                         "statelessOutputBytes": "0xcc"
@@ -488,18 +598,19 @@ mod tests {
             "tests/foo.py::test_same[name/a]": {
                 "network": "Amsterdam",
                 "config": {"chainid": "0x01"},
-                "blocks": [
+                "engineNewPayloads": [
                     {
                         "statelessInputBytes": "0x150102",
                         "statelessOutputBytes": "0xcc"
                     },
                     {
-                        "blockHeader": {"number": "0x02", "gasUsed": "0x20"}
+                        "params": [{"blockNumber": "0x02", "gasUsed": "0x20"}]
                     },
                     {
+                        "newPayloadVersion": "5",
+                        "params": [{"blockNumber": "0x01", "gasUsed": "0x10"}, [], "0x00", []],
                         "statelessInputBytes": "0x150102",
-                        "statelessOutputBytes": "0xaabb",
-                        "blockHeader": {"number": "0x01", "gasUsed": "0x10"}
+                        "statelessOutputBytes": "0xaabb"
                     }
                 ],
                 "_info": {
@@ -517,14 +628,14 @@ mod tests {
             "tests/foo.py::test_same[name?a]": {
                 "network": "Amsterdam",
                 "config": {"chainid": "0x01"},
-                "blocks": [
+                "engineNewPayloads": [
                     {},
                     {},
                     {
                         "statelessInputBytes": "0x0f",
                         "statelessOutputBytes": "0xdead",
-                        "blocknumber": "0x03",
-                        "blockHeader": {"gasUsed": "0x30"}
+                        "validationError": "BlockException.INVALID_BLOCK_ACCESS_LIST",
+                        "params": [{"blockNumber": "0x03", "gasUsed": "0x30"}]
                     }
                 ],
                 "_info": {

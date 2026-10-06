@@ -11,7 +11,7 @@ use stateless_validator_common::{
         StatelessValidationResult,
         input::{
             ExecutionWitness, MAX_BYTES_PER_CODE, MAX_BYTES_PER_HEADER, MAX_BYTES_PER_WITNESS_NODE,
-            MAX_WITNESS_HEADERS, ProtocolFork, PublicKeys, StatelessInput,
+            MAX_WITNESS_HEADERS, ProtocolFork, StatelessInput,
             new_payload_request::{
                 BlockAccessList, BuilderDepositRequest, BuilderDepositRequests, BuilderExitRequest,
                 BuilderExitRequests, ConsolidationRequest, ConsolidationRequests, DepositRequest,
@@ -59,17 +59,16 @@ pub(crate) fn build_generated_input(
     let block_hash = payload.block_hash;
     let block_number = payload.block_number;
     let gas_used = payload.gas_used;
-    let transaction_artifacts = decode_transaction_artifacts(&payload.transactions)?;
+    let versioned_hashes = decode_versioned_hashes(&payload.transactions)?;
 
     let new_payload_request = NewPayloadRequest::Gloas(NewPayloadRequestGloas {
         execution_payload: convert_execution_payload(payload)?,
-        versioned_hashes: transaction_artifacts.versioned_hashes,
+        versioned_hashes,
         parent_beacon_block_root: envelope.parent_beacon_block_root.0,
         execution_requests: convert_execution_requests(&envelope.execution_requests),
     });
 
     let witness = convert_witness(witness, block_number)?;
-    let public_keys = PublicKeys::from(transaction_artifacts.public_keys);
 
     let new_payload_request_root = new_payload_request.hash_tree_root(&Sha2Hasher);
     let stateless_output_bytes = StatelessValidationResult {
@@ -84,7 +83,6 @@ pub(crate) fn build_generated_input(
         new_payload_request,
         witness,
         chain_id,
-        public_keys,
     };
 
     let stateless_input_bytes = stateless_input.to_schema_prefixed_ssz(ProtocolFork::Amsterdam);
@@ -276,47 +274,19 @@ fn bytes_to_byte_lists<const MAX_BYTES: usize>(
     Ok(values)
 }
 
-#[derive(Debug, Clone, PartialEq, Eq)]
-struct TransactionArtifacts {
-    public_keys: Vec<[u8; 65]>,
-    versioned_hashes: VersionedHashes,
-}
-
-fn decode_transaction_artifacts(transactions: &[Bytes]) -> anyhow::Result<TransactionArtifacts> {
-    let mut public_keys = Vec::with_capacity(transactions.len());
+fn decode_versioned_hashes(transactions: &[Bytes]) -> anyhow::Result<VersionedHashes> {
     let mut versioned_hashes = Vec::new();
 
     for (i, tx) in transactions.iter().enumerate() {
         let envelope = TxEnvelope::decode_2718_exact(tx.as_ref())
             .with_context(|| format!("failed to decode transaction #{i}"))?;
-        let public_key = envelope
-            .signature()
-            .recover_from_prehash(&envelope.signature_hash())
-            .map(|key| key.to_encoded_point(false).as_bytes().try_into().unwrap())
-            .with_context(|| format!("failed to recover public key for transaction #{i}"))?;
-        public_keys.push(public_key);
 
         if let Some(hashes) = envelope.blob_versioned_hashes() {
             versioned_hashes.extend(hashes.iter().map(|hash| hash.0));
         }
     }
 
-    let versioned_hashes = VersionedHashes::from(versioned_hashes);
-
-    Ok(TransactionArtifacts {
-        public_keys,
-        versioned_hashes,
-    })
-}
-
-#[cfg(test)]
-fn recover_public_keys(transactions: &[Bytes]) -> anyhow::Result<Vec<[u8; 65]>> {
-    Ok(decode_transaction_artifacts(transactions)?.public_keys)
-}
-
-#[cfg(test)]
-fn decode_versioned_hashes(transactions: &[Bytes]) -> anyhow::Result<VersionedHashes> {
-    Ok(decode_transaction_artifacts(transactions)?.versioned_hashes)
+    Ok(VersionedHashes::from(versioned_hashes))
 }
 
 fn normalize_headers(headers: Vec<Bytes>, block_number: u64) -> anyhow::Result<Vec<Bytes>> {
@@ -391,19 +361,6 @@ mod tests {
                 b256!("011ac212f13c5dff2b2c6b600a79635103d6f580a4221079951181b25c7e6549").0,
             ]
         );
-    }
-
-    #[test]
-    fn recovers_public_key_from_raw_transaction() {
-        let raw = hex::decode(
-            "f86e81fa843127403882f61894db8d964741c53e55df9c2d4e9414c6c96482874e870aa87bee538000808360306ca03aa421df67a101c45ff9cb06ce28f518a5d8d8dbb76a79361280071909650a27a05a447ff053c4ae601cfe81859b58d5603f2d0a73481c50f348089032feb0b073",
-        )
-        .unwrap();
-
-        let public_keys = recover_public_keys(&[Bytes::from(raw)]).unwrap();
-
-        assert_eq!(public_keys.len(), 1);
-        assert_eq!(public_keys[0][0], 0x04);
     }
 
     #[test]
@@ -541,7 +498,6 @@ mod tests {
             StatelessInput::from_schema_prefixed_ssz(&first.stateless_input_bytes).unwrap();
         assert_eq!(fork, ProtocolFork::Amsterdam);
         assert_eq!(decoded.witness.state.len(), 1);
-        assert_eq!(decoded.public_keys.len(), 0);
         let output =
             StatelessValidationResult::from_ssz_bytes(&first.stateless_output_bytes).unwrap();
         assert_eq!(first.stateless_output_bytes.len(), 43);

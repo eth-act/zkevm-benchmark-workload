@@ -33,6 +33,8 @@ zkevm-metrics/
       <fixture-name>.json
 ```
 
+`<fixture-name>` is `eest__<sanitized EEST test ID>__block<index>`. The test ID includes the fixture format, so a test's `blockchain_test_engine` and `blockchain_test` results have different names. Results written before `tests-zkevm@v21` used an older input layout and are not comparable with v21 results.
+
 Each fixture metrics file is a single pretty-printed `BenchmarkRun` JSON object. The `zkevm-metrics` library helper `BenchmarkRun::to_json` serializes a list of runs, but the CLI output files under `zkevm-metrics/` contain one object per file.
 
 ## Hardware JSON
@@ -64,7 +66,7 @@ A successful execution metrics file has this shape:
   "metadata": {
     "fixture_format": "eest",
     "original_test_name": "tests/foo.py::test_case[param]",
-    "source_path": "blockchain_tests/for_amsterdam/compute/mcopy.json",
+    "source_path": "blockchain_tests_engine/for_amsterdam/compute/mcopy.json",
     "block_index": 0,
     "network": "Amsterdam",
     "chain_id": 1,
@@ -192,7 +194,7 @@ These values estimate proving work. They are not prices, execution cycles, or me
 | SP1 | `3 * trace_area + complexity` (ten times SP1 gas) | `opcode`, `syscall`, `system` |
 | ZisK | Trace cells | `base`, `precompile`, `memory`, `opcode`, `main` |
 
-Component names and units follow [Ere v0.17.0](https://github.com/eth-act/ere/tree/v0.17.0/crates/prover).
+Component names and units follow [Ere v0.18.1](https://github.com/eth-act/ere/tree/v0.18.1/crates/prover).
 Raw costs must not be compared across zkVMs, SDK versions, Ere revisions, or estimator settings.
 
 `peak_heap_bytes` is an estimator measurement of guest heap memory. It is not host RAM or a precise allocator high-water mark.
@@ -221,7 +223,7 @@ Canonical EEST metadata has this shape:
 {
   "fixture_format": "eest",
   "original_test_name": "tests/foo.py::test_case[param]",
-  "source_path": "blockchain_tests/for_amsterdam/compute/mcopy.json",
+  "source_path": "blockchain_tests_engine/for_amsterdam/compute/mcopy.json",
   "block_index": 0,
   "network": "Amsterdam",
   "chain_id": 1,
@@ -235,7 +237,7 @@ Canonical EEST metadata has this shape:
 }
 ```
 
-`block_number` and `block_used_gas` are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value. `opcode_count` is also omitted when the per-block array length differs from the block count; the loader logs a warning and continues loading the fixture.
+`block_number` and `block_used_gas` come from the benchmarked block: `params[0]` in `blockchain_test_engine`, `blockHeader` in `blockchain_test`. They are `null` when the source fixture does not provide those values. `opcode_count` is the opcode tally of the benchmarked block taken from `_info.metadata.opcode_count_per_block`, and `target_opcode` is the opcode the benchmark stresses taken from `_info.metadata.target_opcode`. Either key is omitted when the source fixture supplies no value. `opcode_count` is also omitted when the per-block array length differs from the block count; the loader logs a warning and continues loading the fixture.
 
 ## Proofs And Verification
 

@@ -23,13 +23,13 @@ except ImportError:
 
 DEFAULT_CATALOG_URL = (
     "https://pub-760ad8b3dd9547539f829c1ea30f18b5.r2.dev/"
-    "devnets/glamsterdam-devnet-8"
+    "testnets/sepolia"
 )
 REQUEST_TIMEOUT_SECONDS = 60
 DOWNLOAD_CHUNK_SIZE = 1024 * 1024
 FAILURE_MARKDOWN_LIMIT = 20
 BATCH_MANIFEST_PATH = ".meta/manifest.json"
-ARTIFACT_SCHEMA_VERSION = 2
+ARTIFACT_SCHEMA_VERSION = 3
 
 
 class ValidationError(Exception):
@@ -503,7 +503,7 @@ def download_file(url: str, path: Path) -> tuple[str, int]:
 
 def is_artifact_member(member_name: str) -> bool:
     return (
-        member_name.startswith("blockchain_tests/")
+        member_name.startswith("blockchain_tests_engine/")
         and member_name.endswith(".json")
     )
 
@@ -549,7 +549,7 @@ def validate_artifact(
     artifact: dict[str, Any],
     guest: EestGuest,
 ) -> None:
-    _, test, block, metadata = fixture_parts(artifact)
+    _, test, payload, metadata = fixture_parts(artifact)
     if test.get("network") != "Amsterdam":
         raise ValidationError("EEST fixture network must be Amsterdam")
     if metadata.get("schemaVersion") != ARTIFACT_SCHEMA_VERSION:
@@ -566,7 +566,7 @@ def validate_artifact(
 
     input_bytes = decode_hex_bytes(
         "statelessInputBytes",
-        block.get("statelessInputBytes"),
+        payload.get("statelessInputBytes"),
     )
     if not input_bytes:
         raise ValidationError("statelessInputBytes must not be empty")
@@ -601,7 +601,7 @@ def validate_artifact(
 
     expected_output_bytes = decode_hex_bytes(
         "statelessOutputBytes",
-        block.get("statelessOutputBytes"),
+        payload.get("statelessOutputBytes"),
     )
     if not expected_output_bytes:
         raise ValidationError("statelessOutputBytes must not be empty")
@@ -655,18 +655,20 @@ def fixture_parts(
     artifact: dict[str, Any],
 ) -> tuple[str, dict[str, Any], dict[str, Any], dict[str, Any]]:
     if len(artifact) != 1:
-        raise ValidationError("schema-v2 EEST fixture must contain exactly one test")
+        raise ValidationError("schema-v3 EEST fixture must contain exactly one test")
     test_name, test = next(iter(artifact.items()))
     if not isinstance(test, dict):
         raise ValidationError(f"EEST test {test_name} must be an object")
-    blocks = test.get("blocks")
-    if not isinstance(blocks, list) or len(blocks) != 1:
+    payloads = test.get("engineNewPayloads")
+    if not isinstance(payloads, list) or len(payloads) != 1:
         raise ValidationError(
-            f"EEST test {test_name} must contain exactly one block"
+            f"EEST test {test_name} must contain exactly one engineNewPayloads entry"
         )
-    block = blocks[0]
-    if not isinstance(block, dict):
-        raise ValidationError(f"EEST test {test_name} block must be an object")
+    payload = payloads[0]
+    if not isinstance(payload, dict):
+        raise ValidationError(
+            f"EEST test {test_name} engineNewPayloads entry must be an object"
+        )
     info = test.get("_info")
     if not isinstance(info, dict):
         raise ValidationError(f"EEST test {test_name} is missing _info")
@@ -680,17 +682,19 @@ def fixture_parts(
         raise ValidationError(
             f"EEST test {test_name} is missing witness_generator metadata"
         )
-    return test_name, test, block, metadata
+    return test_name, test, payload, metadata
 
 
 def fixture_block_number(artifact: dict[str, Any]) -> int:
-    _, _, block, _ = fixture_parts(artifact)
-    block_header = block.get("blockHeader")
-    if not isinstance(block_header, dict):
-        raise ValidationError("EEST fixture block is missing blockHeader")
+    _, _, payload, _ = fixture_parts(artifact)
+    params = payload.get("params")
+    if not isinstance(params, list) or not params or not isinstance(params[0], dict):
+        raise ValidationError(
+            "EEST fixture engine payload is missing its params[0] execution payload"
+        )
     return parse_json_u64(
-        "blockHeader.number",
-        block_header.get("number"),
+        "params[0].blockNumber",
+        params[0].get("blockNumber"),
     )
 
 
