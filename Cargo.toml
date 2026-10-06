@@ -57,7 +57,7 @@ manual_clamp = "warn"
 manual_is_variant_and = "warn"
 manual_string_new = "warn"
 match_same_arms = "warn"
-missing-const-for-fn = "warn"
+missing_const_for_fn = "warn"
 mutex_integer = "warn"
 naive_bytecount = "warn"
 needless_bitwise_bool = "warn"
@@ -98,7 +98,6 @@ zero_sized_map_values = "warn"
 [workspace.dependencies]
 
 # local dependencies
-witness-generator-spec-cli = { path = "crates/witness-generator-spec-cli" }
 zkevm-metrics = { path = "crates/metrics" }
 benchmark-runner = { path = "crates/benchmark-runner" }
 
