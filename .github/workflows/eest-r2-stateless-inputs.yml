@@ -33,6 +33,7 @@ jobs:
   validate:
     name: Validate Latest R2 Batch
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     env:
       CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia/index.html' }}
       EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v21.0.1' }}
@@ -40,19 +41,21 @@ jobs:
       SUMMARY_DIR: workload/target/eest-r2-stateless-inputs
     steps:
       - name: Checkout workload
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           path: workload
+          persist-credentials: false
 
       - name: Checkout EEST
-        uses: actions/checkout@v4
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: ethereum/execution-specs
           ref: ${{ env.EEST_REF }}
           path: execution-specs
+          persist-credentials: false
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
 
@@ -64,6 +67,8 @@ jobs:
         run: echo "commit=$(git -C execution-specs rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
       - name: Validate R2 stateless fixtures with EEST
+        env:
+          EEST_COMMIT: ${{ steps.eest.outputs.commit }}
         run: |
           mkdir -p "$SUMMARY_DIR"
           uv run --project execution-specs --with zstandard \
@@ -73,7 +78,7 @@ jobs:
               --summary-json "$SUMMARY_DIR/summary.json" \
               --summary-md "$SUMMARY_DIR/summary.md" \
               --eest-ref "$EEST_REF" \
-              --eest-commit "${{ steps.eest.outputs.commit }}"
+              --eest-commit "$EEST_COMMIT"
 
       - name: Append summary
         if: always()
@@ -86,7 +91,7 @@ jobs:
 
       - name: Upload summary
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: eest-r2-stateless-inputs-summary
           path: |
