@@ -194,7 +194,7 @@ These values estimate proving work. They are not prices, execution cycles, or me
 | SP1 | `3 * trace_area + complexity` (ten times SP1 gas) | `opcode`, `syscall`, `system` |
 | ZisK | Trace cells | `base`, `precompile`, `memory`, `opcode`, `main` |
 
-Component names and units follow [Ere v0.17.0](https://github.com/eth-act/ere/tree/v0.17.0/crates/prover).
+Component names and units follow [Ere v0.18.1](https://github.com/eth-act/ere/tree/v0.18.1/crates/prover).
 Raw costs must not be compared across zkVMs, SDK versions, Ere revisions, or estimator settings.
 
 `peak_heap_bytes` is an estimator measurement of guest heap memory. It is not host RAM or a precise allocator high-water mark.

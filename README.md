@@ -16,13 +16,12 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 - **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing benchmark-ready EEST stateless fixtures from CL/EL RPC endpoints.
 
-Reth `v0.1.0-rc.3` and Ethrex `v27.0.0` support OpenVM, SP1, and ZisK.
-Zesu `tests-glamsterdam-devnet@v8.1.4` and Nimbus `v0.1.0-alpha` support ZisK only.
-<!-- TODO(tests-zkevm@v21): pin the ere-guests release that includes #90 and restore the release-asset note. -->
-The workspace pins the `jsign-eest-v20` branch of
-[ere-guests #90](https://github.com/eth-act/ere-guests/pull/90), which targets the
-`tests-zkevm@v21.0.1` input layout, and Ere v0.17.0. Until #90 is released, default guest
-downloads use that commit's GitHub Actions artifacts and need `GH_TOKEN` or `GITHUB_TOKEN`.
+Reth `v0.1.0-rc.4` and Ethrex `v29.0.0` support OpenVM, SP1, and ZisK.
+Nimbus `v0.2.1-alpha` supports ZisK only.
+<!-- TODO(tests-zkevm@v21): restore Zesu once it publishes a v21 release. -->
+Zesu is unavailable until it publishes a guest for the `tests-zkevm@v21.0.1` input layout.
+The workspace pins [ere-guests v0.18.0](https://github.com/eth-act/ere-guests/releases/tag/v0.18.0)
+and Ere v0.18.1. Default guest downloads use release assets. GitHub authentication is optional.
 Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
 ## Prerequisites

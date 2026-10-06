@@ -191,9 +191,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-<!-- TODO(tests-zkevm@v21): restore the release-asset wording once the workspace pins an ere-guests release. -->
-Default guests come from the ere-guests revision in `Cargo.lock`.
-The workspace currently pins the ere-guests #90 branch, so default guests come from that commit's GitHub Actions artifacts.
+Default guests use the `ere-guests v0.18.0` release assets.
 `GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
 The upstream downloader uses the first nonempty token in that order.
 Commit or branch dependencies still require a token for GitHub Actions artifacts.

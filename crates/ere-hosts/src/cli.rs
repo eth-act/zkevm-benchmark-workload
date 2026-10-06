@@ -323,29 +323,27 @@ mod tests {
         }
     }
 
-    // TODO(tests-zkevm@v21): drop once Reth and Zesu publish v21 releases.
+    // TODO(tests-zkevm@v21): drop once Zesu publishes a v21 release.
     #[test]
     fn unreleased_clients_fail_validation_for_every_action() {
-        for client in ["reth", "zesu"] {
-            for action in ["execute", "estimate-cost", "prove", "verify"] {
-                let args = [
-                    "ere-hosts",
-                    "--zkvms",
-                    "zisk",
-                    "--action",
-                    action,
-                    "stateless-validator",
-                    "--execution-client",
-                    client,
-                    "--input-folder",
-                    ".",
-                ];
-                let err = Cli::try_parse_from(args).unwrap().validate().unwrap_err();
-                assert!(
-                    err.to_string().contains("is temporarily unavailable"),
-                    "{client} {action}: {err}"
-                );
-            }
+        for action in ["execute", "estimate-cost", "prove", "verify"] {
+            let args = [
+                "ere-hosts",
+                "--zkvms",
+                "zisk",
+                "--action",
+                action,
+                "stateless-validator",
+                "--execution-client",
+                "zesu",
+                "--input-folder",
+                ".",
+            ];
+            let err = Cli::try_parse_from(args).unwrap().validate().unwrap_err();
+            assert!(
+                err.to_string().contains("is temporarily unavailable"),
+                "zesu {action}: {err}"
+            );
         }
     }
 }
