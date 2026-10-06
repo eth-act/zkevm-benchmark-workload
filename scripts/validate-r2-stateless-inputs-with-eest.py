@@ -6,15 +6,19 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import os
 import sys
 import tarfile
 import tempfile
 import time
 import urllib.parse
 import urllib.request
+from collections import deque
+from collections.abc import Iterator
+from concurrent.futures import Future, ProcessPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any
+from typing import IO, Any
 
 try:
     import zstandard
@@ -30,6 +34,7 @@ DOWNLOAD_CHUNK_SIZE = 1024 * 1024
 FAILURE_MARKDOWN_LIMIT = 20
 BATCH_MANIFEST_PATH = ".meta/manifest.json"
 ARTIFACT_SCHEMA_VERSION = 3
+USER_AGENT = "zkevm-benchmark-workload-eest-r2-validator/1.0"
 
 
 class ValidationError(Exception):
@@ -85,6 +90,75 @@ class EestGuest:
     deserialize_stateless_input: Any
 
 
+@dataclass(frozen=True)
+class Fixture:
+    """One schema-v3 EEST engine fixture from a batch archive."""
+
+    test: dict[str, Any]
+    payload: dict[str, Any]
+    metadata: dict[str, Any]
+    block_number: int
+
+    @classmethod
+    def parse(cls, data: bytes, member_name: str) -> "Fixture":
+        try:
+            artifact = json.loads(data)
+        except json.JSONDecodeError as error:
+            raise ValidationError(f"failed to decode {member_name} JSON") from error
+        if not isinstance(artifact, dict):
+            raise ValidationError(f"{member_name} must contain a JSON object")
+        if len(artifact) != 1:
+            raise ValidationError(
+                "schema-v3 EEST fixture must contain exactly one test"
+            )
+        test_name, test = next(iter(artifact.items()))
+        if not isinstance(test, dict):
+            raise ValidationError(f"EEST test {test_name} must be an object")
+        payloads = test.get("engineNewPayloads")
+        if not isinstance(payloads, list) or len(payloads) != 1:
+            raise ValidationError(
+                f"EEST test {test_name} must contain exactly one "
+                "engineNewPayloads entry"
+            )
+        payload = payloads[0]
+        if not isinstance(payload, dict):
+            raise ValidationError(
+                f"EEST test {test_name} engineNewPayloads entry must be an object"
+            )
+        info = test.get("_info")
+        if not isinstance(info, dict):
+            raise ValidationError(f"EEST test {test_name} is missing _info")
+        metadata_container = info.get("metadata")
+        if not isinstance(metadata_container, dict):
+            raise ValidationError(
+                f"EEST test {test_name} is missing _info.metadata"
+            )
+        metadata = metadata_container.get("witness_generator")
+        if not isinstance(metadata, dict):
+            raise ValidationError(
+                f"EEST test {test_name} is missing witness_generator metadata"
+            )
+        params = payload.get("params")
+        if (
+            not isinstance(params, list)
+            or not params
+            or not isinstance(params[0], dict)
+        ):
+            raise ValidationError(
+                "EEST fixture engine payload is missing its params[0] "
+                "execution payload"
+            )
+        return cls(
+            test=test,
+            payload=payload,
+            metadata=metadata,
+            block_number=parse_json_u64(
+                "params[0].blockNumber",
+                params[0].get("blockNumber"),
+            ),
+        )
+
+
 def main() -> int:
     args = parse_args()
     started_at = time.monotonic()
@@ -124,6 +198,12 @@ def parse_args() -> argparse.Namespace:
         "--block-number",
         type=non_negative_int,
         help="Validate artifacts for one block number; selects its batch",
+    )
+    parser.add_argument(
+        "--jobs",
+        default=os.cpu_count() or 1,
+        type=positive_int,
+        help="Number of worker processes running EEST (default: CPU count)",
     )
     parser.add_argument(
         "--summary-json",
@@ -178,11 +258,14 @@ def run_validation(args: argparse.Namespace, started_at: float) -> dict[str, Any
     )
     if zstandard is None:
         raise RuntimeError("Python package 'zstandard' is required")
-    guest = load_eest_guest()
+    # Workers load the guest themselves; loading it here first turns an import
+    # failure into a clear error instead of a broken worker pool.
+    load_eest_guest()
 
     print(f"Catalog: {catalog_base_url}")
     print(f"EEST ref: {args.eest_ref}")
     print(f"EEST commit: {args.eest_commit}")
+    print(f"Workers: {args.jobs}")
     print(f"Selected {len(selected_batches)} batch(es)")
     if args.block_number is not None:
         print(f"Block filter: {args.block_number}")
@@ -192,17 +275,19 @@ def run_validation(args: argparse.Namespace, started_at: float) -> dict[str, Any
     all_failures: list[dict[str, Any]] = []
     batch_summaries: list[dict[str, Any]] = []
     processed_batches: list[BatchEntry] = []
-    total_artifacts = 0
-    total_successes = 0
     remaining_artifacts = args.max_artifacts
 
-    with tempfile.TemporaryDirectory(prefix="eest-r2-stateless-") as temp_dir:
+    with (
+        tempfile.TemporaryDirectory(prefix="eest-r2-stateless-") as temp_dir,
+        ProcessPoolExecutor(max_workers=args.jobs, initializer=init_worker) as pool,
+    ):
         temp_root = Path(temp_dir)
         for batch in selected_batches:
             batch_summary, failures = validate_batch(
                 catalog_base_url,
                 batch,
-                guest,
+                pool,
+                args.jobs,
                 temp_root,
                 block_number=args.block_number,
                 max_artifacts=remaining_artifacts,
@@ -210,8 +295,6 @@ def run_validation(args: argparse.Namespace, started_at: float) -> dict[str, Any
             processed_batches.append(batch)
             batch_summaries.append(batch_summary)
             all_failures.extend(failures)
-            total_artifacts += batch_summary["artifactsValidated"]
-            total_successes += batch_summary["successfulArtifacts"]
             if remaining_artifacts is not None:
                 remaining_artifacts -= batch_summary["artifactsValidated"]
                 if remaining_artifacts <= 0:
@@ -235,8 +318,12 @@ def run_validation(args: argparse.Namespace, started_at: float) -> dict[str, Any
         "failures": all_failures,
         "totals": {
             "selectedBatches": len(selected_batches),
-            "artifactsValidated": total_artifacts,
-            "successfulArtifacts": total_successes,
+            "artifactsValidated": sum(
+                batch["artifactsValidated"] for batch in batch_summaries
+            ),
+            "successfulArtifacts": sum(
+                batch["successfulArtifacts"] for batch in batch_summaries
+            ),
             "failures": len(all_failures),
             "durationSeconds": round(time.monotonic() - started_at, 3),
         },
@@ -264,6 +351,15 @@ def load_eest_guest() -> EestGuest:
         deserialize_stateless_output=deserialize_stateless_output,
         deserialize_stateless_input=deserialize_stateless_input,
     )
+
+
+# EEST guest loaded once per worker process by init_worker.
+worker_guest: EestGuest | None = None
+
+
+def init_worker() -> None:
+    global worker_guest
+    worker_guest = load_eest_guest()
 
 
 def normalize_catalog_url(catalog_url: str) -> str:
@@ -308,12 +404,13 @@ def fetch_batches(url: str) -> list[BatchEntry]:
 
 
 def fetch_bytes(url: str) -> bytes:
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent()})
-    with urllib.request.urlopen(
-        request,
-        timeout=REQUEST_TIMEOUT_SECONDS,
-    ) as response:
+    with open_url(url) as response:
         return response.read()
+
+
+def open_url(url: str) -> Any:
+    request = urllib.request.Request(url, headers={"User-Agent": USER_AGENT})
+    return urllib.request.urlopen(request, timeout=REQUEST_TIMEOUT_SECONDS)
 
 
 def select_batches(
@@ -321,39 +418,33 @@ def select_batches(
     batch_count: int,
     block_number: int | None,
 ) -> list[BatchEntry]:
-    if block_number is not None:
-        containing_batches = [
-            batch
-            for batch in batches
-            if batch.batch_start_block <= block_number <= batch.batch_end_block
-        ]
-        if not containing_batches:
-            raise ValidationError(
-                f"block {block_number} is not covered by any batch"
-            )
-        return sorted(
-            containing_batches,
-            key=lambda batch: (batch.batch_end_block, batch.batch_start_block),
-        )
-
     ordered = sorted(
         batches,
         key=lambda batch: (batch.batch_end_block, batch.batch_start_block),
     )
-    return ordered[-batch_count:]
+    if block_number is None:
+        return ordered[-batch_count:]
+    containing_batches = [
+        batch
+        for batch in ordered
+        if batch.batch_start_block <= block_number <= batch.batch_end_block
+    ]
+    if not containing_batches:
+        raise ValidationError(f"block {block_number} is not covered by any batch")
+    return containing_batches
 
 
 def validate_batch(
     catalog_base_url: str,
     batch: BatchEntry,
-    guest: EestGuest,
+    pool: ProcessPoolExecutor,
+    jobs: int,
     temp_root: Path,
     block_number: int | None,
     max_artifacts: int | None,
 ) -> tuple[dict[str, Any], list[dict[str, Any]]]:
     batch_url = urllib.parse.urljoin(catalog_base_url, batch.path)
-    archive_name = batch.path.rsplit("/", maxsplit=1)[-1]
-    archive_path = temp_root / archive_name
+    archive_path = temp_root / batch.path.rsplit("/", maxsplit=1)[-1]
     print(
         "Validating "
         f"{batch.path} ({batch.batch_start_block}-{batch.batch_end_block})"
@@ -362,93 +453,48 @@ def validate_batch(
         batch_url,
         archive_path,
     )
-    expected_sha256 = normalize_sha256(batch.sha256)
-    failures: list[dict[str, Any]] = []
+    failures = check_download(batch, downloaded_sha256, downloaded_byte_length)
 
-    if downloaded_sha256 != expected_sha256:
-        failures.append(
-            batch_failure(
-                batch,
-                "archive",
-                (
-                    "batch SHA-256 mismatch: "
-                    f"expected {expected_sha256}, got {downloaded_sha256}"
-                ),
-            )
-        )
-    if downloaded_byte_length != batch.byte_length:
-        failures.append(
-            batch_failure(
-                batch,
-                "archive",
-                (
-                    "batch byte length mismatch: "
-                    f"expected {batch.byte_length}, got {downloaded_byte_length}"
-                ),
-            )
-        )
-
-    artifact_count = 0
-    successful_artifacts = 0
     batch_manifest: dict[str, Any] | None = None
-    observed_artifacts: dict[str, dict[str, Any]] = {}
+    results: list[dict[str, Any]] = []
+    # Each pending task holds a whole fixture in memory, so queue only enough
+    # to keep every worker busy.
+    pending: deque[Future[dict[str, Any]]] = deque()
     stopped_early = False
     full_batch_validation = block_number is None and max_artifacts is None
 
-    with archive_path.open("rb") as archive_file:
-        reader = zstandard.ZstdDecompressor().stream_reader(archive_file)
-        with reader, tarfile.open(fileobj=reader, mode="r|") as archive:
-            for member in archive:
-                if not member.isfile():
-                    continue
-                member_name = member.name
-                extracted = archive.extractfile(member)
-                if extracted is None:
-                    continue
-                if member_name == BATCH_MANIFEST_PATH:
-                    batch_manifest = read_json_member(extracted, member_name)
-                elif is_artifact_member(member_name):
-                    if block_number is not None:
-                        member_block_number = block_number_from_member_name(
-                            member_name
-                        )
-                        if (
-                            member_block_number is not None
-                            and member_block_number != block_number
-                        ):
-                            continue
+    for member_name, member_file in iter_archive_files(archive_path):
+        if member_name == BATCH_MANIFEST_PATH:
+            batch_manifest = read_json_member(member_file, member_name)
+            continue
+        if not is_artifact_member(member_name):
+            continue
+        # Filtering on the path is safe: validate_artifact checks that it
+        # matches the fixture's block number.
+        if (
+            block_number is not None
+            and block_number_from_member_name(member_name) != block_number
+        ):
+            continue
+        if max_artifacts is not None and len(results) + len(pending) >= max_artifacts:
+            stopped_early = True
+            break
+        pending.append(
+            pool.submit(check_artifact, batch, member_name, member_file.read())
+        )
+        if len(pending) >= 2 * jobs:
+            results.append(wait_for_result(pending.popleft()))
+    results.extend(wait_for_result(future) for future in pending)
 
-                    artifact_count += 1
-                    artifact = None
-                    try:
-                        artifact, fixture_bytes = read_artifact_member(
-                            extracted,
-                            member_name,
-                        )
-                        if (
-                            block_number is not None
-                            and fixture_block_number(artifact) != block_number
-                        ):
-                            artifact_count -= 1
-                            continue
-                        validate_artifact(batch, member_name, artifact, guest)
-                        observed_artifacts[member_name] = {
-                            "archivePath": member_name,
-                            "fixtureByteLength": len(fixture_bytes),
-                            "fixtureSha256": "0x"
-                            + hashlib.sha256(fixture_bytes).hexdigest(),
-                        }
-                        successful_artifacts += 1
-                    except Exception as error:
-                        failures.append(
-                            artifact_failure(batch, member_name, error, artifact)
-                        )
-
-                    if max_artifacts is not None and artifact_count >= max_artifacts:
-                        stopped_early = True
-                        break
-
-    if block_number is not None and artifact_count == 0:
+    observed_artifacts = {
+        result["archivePath"]: result["observed"]
+        for result in results
+        if result["status"] == "success"
+    }
+    failures.extend(
+        result["failure"] for result in results if result["status"] == "failure"
+    )
+    if block_number is not None and not results:
         failures.append(
             batch_failure(
                 batch,
@@ -461,7 +507,7 @@ def validate_batch(
             validate_batch_manifest(
                 batch,
                 batch_manifest,
-                artifact_count,
+                len(results),
                 observed_artifacts,
             )
         )
@@ -472,8 +518,8 @@ def validate_batch(
             "url": batch_url,
             "downloadedByteLength": downloaded_byte_length,
             "downloadedSha256": "0x" + downloaded_sha256,
-            "artifactsValidated": artifact_count,
-            "successfulArtifacts": successful_artifacts,
+            "artifactsValidated": len(results),
+            "successfulArtifacts": len(observed_artifacts),
             "batchManifestValidated": full_batch_validation,
             "stoppedEarly": stopped_early,
             "failures": len(failures),
@@ -482,22 +528,68 @@ def validate_batch(
     )
 
 
+def check_download(
+    batch: BatchEntry,
+    sha256: str,
+    byte_length: int,
+) -> list[dict[str, Any]]:
+    failures = []
+    expected_sha256 = normalize_sha256(batch.sha256)
+    if sha256 != expected_sha256:
+        failures.append(
+            batch_failure(
+                batch,
+                "archive",
+                (
+                    "batch SHA-256 mismatch: "
+                    f"expected {expected_sha256}, got {sha256}"
+                ),
+            )
+        )
+    if byte_length != batch.byte_length:
+        failures.append(
+            batch_failure(
+                batch,
+                "archive",
+                (
+                    "batch byte length mismatch: "
+                    f"expected {batch.byte_length}, got {byte_length}"
+                ),
+            )
+        )
+    return failures
+
+
+def iter_archive_files(archive_path: Path) -> Iterator[tuple[str, IO[bytes]]]:
+    """Yield the name and contents of each regular file in a .tar.zst archive."""
+    # Large batches may use a long zstd window (`zstd_window_log` up to 31),
+    # which exceeds the decoder's default limit.
+    decompressor = zstandard.ZstdDecompressor(max_window_size=2**31)
+    with archive_path.open("rb") as archive_file:
+        reader = decompressor.stream_reader(archive_file)
+        with reader, tarfile.open(fileobj=reader, mode="r|") as archive:
+            for member in archive:
+                if member.isfile():
+                    yield member.name, archive.extractfile(member)
+
+
+def wait_for_result(future: Future[dict[str, Any]]) -> dict[str, Any]:
+    result = future.result()
+    print(
+        f"  {result['status']}: {result['archivePath']} "
+        f"({result['durationSeconds']}s)"
+    )
+    return result
+
+
 def download_file(url: str, path: Path) -> tuple[str, int]:
-    request = urllib.request.Request(url, headers={"User-Agent": user_agent()})
     hasher = hashlib.sha256()
     total_bytes = 0
-    with urllib.request.urlopen(
-        request,
-        timeout=REQUEST_TIMEOUT_SECONDS,
-    ) as response:
-        with path.open("wb") as output:
-            while True:
-                chunk = response.read(DOWNLOAD_CHUNK_SIZE)
-                if not chunk:
-                    break
-                output.write(chunk)
-                hasher.update(chunk)
-                total_bytes += len(chunk)
+    with open_url(url) as response, path.open("wb") as output:
+        while chunk := response.read(DOWNLOAD_CHUNK_SIZE):
+            output.write(chunk)
+            hasher.update(chunk)
+            total_bytes += len(chunk)
     return hasher.hexdigest(), total_bytes
 
 
@@ -529,27 +621,46 @@ def read_json_member(member_file: Any, member_name: str) -> dict[str, Any]:
     return value
 
 
-def read_artifact_member(
-    member_file: Any,
+def check_artifact(
+    batch: BatchEntry,
     member_name: str,
-) -> tuple[dict[str, Any], bytes]:
-    data = member_file.read()
+    data: bytes,
+) -> dict[str, Any]:
+    """Validate one fixture in a worker process.
+
+    Returns a plain dict and never raises, so results cross the process
+    boundary without pickling exceptions or EEST objects.
+    """
+    started_at = time.monotonic()
+    fixture = None
     try:
-        value = json.loads(data)
-    except json.JSONDecodeError as error:
-        raise ValidationError(f"failed to decode {member_name} JSON") from error
-    if not isinstance(value, dict):
-        raise ValidationError(f"{member_name} must contain a JSON object")
-    return value, data
+        fixture = Fixture.parse(data, member_name)
+        validate_artifact(batch, member_name, fixture, worker_guest)
+        result = {
+            "status": "success",
+            "observed": {
+                "archivePath": member_name,
+                "fixtureByteLength": len(data),
+                "fixtureSha256": "0x" + hashlib.sha256(data).hexdigest(),
+            },
+        }
+    except Exception as error:
+        result = {
+            "status": "failure",
+            "failure": artifact_failure(batch, member_name, error, fixture),
+        }
+    result["archivePath"] = member_name
+    result["durationSeconds"] = round(time.monotonic() - started_at, 1)
+    return result
 
 
 def validate_artifact(
     batch: BatchEntry,
     archive_path: str,
-    artifact: dict[str, Any],
+    fixture: Fixture,
     guest: EestGuest,
 ) -> None:
-    _, test, payload, metadata = fixture_parts(artifact)
+    test, payload, metadata = fixture.test, fixture.payload, fixture.metadata
     if test.get("network") != "Amsterdam":
         raise ValidationError("EEST fixture network must be Amsterdam")
     if metadata.get("schemaVersion") != ARTIFACT_SCHEMA_VERSION:
@@ -591,7 +702,11 @@ def validate_artifact(
             f"expected {schema_id}, got {actual_schema_id}"
         )
 
-    block_number = fixture_block_number(artifact)
+    block_number = fixture.block_number
+    if block_number_from_member_name(archive_path) != block_number:
+        raise ValidationError(
+            f"archive path does not match fixture blockNumber {block_number}"
+        )
     if block_number < batch.batch_start_block or block_number > batch.batch_end_block:
         raise ValidationError(
             "blockNumber outside selected batch range: "
@@ -649,53 +764,6 @@ def validate_artifact(
             f"({stateless_output_diagnostics(actual_output)}; "
             f"{stateless_input_diagnostics(input_bytes, guest)})"
         )
-
-
-def fixture_parts(
-    artifact: dict[str, Any],
-) -> tuple[str, dict[str, Any], dict[str, Any], dict[str, Any]]:
-    if len(artifact) != 1:
-        raise ValidationError("schema-v3 EEST fixture must contain exactly one test")
-    test_name, test = next(iter(artifact.items()))
-    if not isinstance(test, dict):
-        raise ValidationError(f"EEST test {test_name} must be an object")
-    payloads = test.get("engineNewPayloads")
-    if not isinstance(payloads, list) or len(payloads) != 1:
-        raise ValidationError(
-            f"EEST test {test_name} must contain exactly one engineNewPayloads entry"
-        )
-    payload = payloads[0]
-    if not isinstance(payload, dict):
-        raise ValidationError(
-            f"EEST test {test_name} engineNewPayloads entry must be an object"
-        )
-    info = test.get("_info")
-    if not isinstance(info, dict):
-        raise ValidationError(f"EEST test {test_name} is missing _info")
-    metadata_container = info.get("metadata")
-    if not isinstance(metadata_container, dict):
-        raise ValidationError(
-            f"EEST test {test_name} is missing _info.metadata"
-        )
-    metadata = metadata_container.get("witness_generator")
-    if not isinstance(metadata, dict):
-        raise ValidationError(
-            f"EEST test {test_name} is missing witness_generator metadata"
-        )
-    return test_name, test, payload, metadata
-
-
-def fixture_block_number(artifact: dict[str, Any]) -> int:
-    _, _, payload, _ = fixture_parts(artifact)
-    params = payload.get("params")
-    if not isinstance(params, list) or not params or not isinstance(params[0], dict):
-        raise ValidationError(
-            "EEST fixture engine payload is missing its params[0] execution payload"
-        )
-    return parse_json_u64(
-        "params[0].blockNumber",
-        params[0].get("blockNumber"),
-    )
 
 
 def stateless_output_diagnostics(output: Any) -> str:
@@ -862,20 +930,16 @@ def artifact_failure(
     batch: BatchEntry,
     archive_path: str,
     error: Exception,
-    artifact: dict[str, Any] | None = None,
+    fixture: Fixture | None,
 ) -> dict[str, Any]:
     failure = batch_failure(
         batch,
         archive_path,
         f"{type(error).__name__}: {error}",
     )
-    if artifact is not None:
-        try:
-            _, _, _, metadata = fixture_parts(artifact)
-            failure["blockNumber"] = fixture_block_number(artifact)
-            failure["blockHash"] = metadata.get("blockHash")
-        except Exception:
-            pass
+    if fixture is not None:
+        failure["blockNumber"] = fixture.block_number
+        failure["blockHash"] = fixture.metadata.get("blockHash")
     return failure
 
 
@@ -1068,9 +1132,6 @@ def short_hash_or_empty(value: Any) -> str:
         return ""
     return short_hash(str(value))
 
-
-def user_agent() -> str:
-    return "zkevm-benchmark-workload-eest-r2-validator/1.0"
 
 
 if __name__ == "__main__":
