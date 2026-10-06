@@ -165,7 +165,7 @@ mkdir -p "$SUMMARY_DIR"
 uv run --project "$EEST_DIR" --with zstandard \
   python scripts/validate-r2-stateless-inputs-with-eest.py \
     --catalog-url "$CATALOG_URL" \
-    --batch-count 70 \
+    --batch-count 1 \
     --summary-json "$SUMMARY_DIR/summary.json" \
     --summary-md "$SUMMARY_DIR/summary.md" \
     --eest-ref "$EEST_REF" \
@@ -187,6 +187,9 @@ Useful selection options:
   matching block artifact.
 - `--max-artifacts N`: stop after `N` matching artifacts, useful for a fast
   smoke test.
+- `--jobs N`: run EEST in `N` worker processes. The default is the CPU count.
+  Each Sepolia block takes EEST several seconds to tens of seconds, so a
+  100-block batch needs the parallelism.
 
 For a quick local smoke test:
 

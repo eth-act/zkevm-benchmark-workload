@@ -16,7 +16,12 @@ on:
       batch_count:
         description: Number of latest complete batches to validate
         required: false
-        default: "10"
+        default: "1"
+        type: string
+      max_artifacts:
+        description: Stop after this many artifacts, or `all` to validate whole batches and their manifests
+        required: false
+        default: "20"
         type: string
   # TODO(tests-zkevm@v21): restore `schedule: [{ cron: "23 */2 * * *" }]` once Sepolia batches
   # exist in R2. The schedule is paused because the devnet-8 artifacts use the tests-zkevm@v0.8.4
@@ -37,7 +42,8 @@ jobs:
     env:
       CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia/index.html' }}
       EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v21.0.1' }}
-      BATCH_COUNT: ${{ github.event.inputs.batch_count || '10' }}
+      BATCH_COUNT: ${{ github.event.inputs.batch_count || '1' }}
+      MAX_ARTIFACTS: ${{ github.event.inputs.max_artifacts || '20' }}
       SUMMARY_DIR: workload/target/eest-r2-stateless-inputs
     steps:
       - name: Checkout workload
@@ -69,12 +75,19 @@ jobs:
       - name: Validate R2 stateless fixtures with EEST
         env:
           EEST_COMMIT: ${{ steps.eest.outputs.commit }}
+          # Stream progress to the log instead of buffering it until exit.
+          PYTHONUNBUFFERED: "1"
         run: |
           mkdir -p "$SUMMARY_DIR"
+          limit_args=()
+          if [ "$MAX_ARTIFACTS" != "all" ]; then
+            limit_args=(--max-artifacts "$MAX_ARTIFACTS")
+          fi
           uv run --project execution-specs --with zstandard \
             python workload/scripts/validate-r2-stateless-inputs-with-eest.py \
               --catalog-url "$CATALOG_URL" \
               --batch-count "$BATCH_COUNT" \
+              "${limit_args[@]}" \
               --summary-json "$SUMMARY_DIR/summary.json" \
               --summary-md "$SUMMARY_DIR/summary.md" \
               --eest-ref "$EEST_REF" \
