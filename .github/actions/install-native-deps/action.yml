@@ -1,0 +1,21 @@
+name: Install native build dependencies
+description: System libraries needed to build the ZisK verifier pulled in by ere-cluster-client-zisk.
+runs:
+  using: composite
+  steps:
+    - name: Install native build dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          build-essential \
+          cmake \
+          libbenchmark-dev \
+          libgmp-dev \
+          libomp-dev \
+          libopenmpi-dev \
+          libsodium-dev \
+          nasm \
+          nlohmann-json3-dev \
+          openmpi-bin \
+          openmpi-common
