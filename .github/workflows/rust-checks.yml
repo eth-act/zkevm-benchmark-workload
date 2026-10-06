@@ -68,7 +68,14 @@ jobs:
           save-if: ${{ github.ref == 'refs/heads/master' }}
 
       - name: Check clippy
-        run: cargo clippy --locked --workspace --all-targets -- -D warnings
+        shell: bash
+        run: |
+          cargo clippy --locked --workspace --all-targets -- -D warnings 2>&1 | tee clippy.log
+          # `-D warnings` doesn't cover Cargo's own manifest warnings, so fail on them explicitly.
+          if grep -q '(manifest) generated' clippy.log; then
+            echo "::error::Cargo.toml warnings found, see the clippy output above"
+            exit 1
+          fi
 
   doc:
     name: Documentation
