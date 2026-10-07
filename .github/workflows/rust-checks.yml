@@ -128,3 +128,34 @@ jobs:
 
       - name: Test report scripts
         run: python3 -m unittest discover -s scripts/tests -v
+
+  e2e:
+    name: E2E (SP1)
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install native build dependencies
+        uses: ./.github/actions/install-native-deps
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@7e38f4b43b4db5c8dd498af069a4f6196df1d067 # master
+        with:
+          toolchain: stable
+
+      - name: Cache dependencies
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          save-if: ${{ github.ref == 'refs/heads/master' }}
+
+      # Executes the fixtures in testdata/eest with the Reth and Ethrex guests on SP1 in Docker.
+      - name: Run e2e tests
+        run: cargo test --locked -p ere-hosts --test e2e -- --ignored
+        env:
+          # The guest downloader lists release assets through the GitHub API.
+          GITHUB_TOKEN: ${{ github.token }}
+          RUST_LOG: info

@@ -20,6 +20,12 @@ use tracing_subscriber::EnvFilter;
 
 use crate::cli::{Cli, GuestProgramCommand};
 
+// These dev-dependencies are used by the integration tests.
+#[cfg(test)]
+use serde_json as _;
+#[cfg(test)]
+use tempfile as _;
+
 pub mod cli;
 
 const DEFAULT_EXECUTE_TIMEOUT: Duration = Duration::from_secs(5 * 60);

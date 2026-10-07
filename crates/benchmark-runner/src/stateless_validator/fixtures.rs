@@ -314,6 +314,70 @@ mod tests {
         Ok(())
     }
 
+    /// Loads the real `tests-zkevm` fixtures in `testdata/eest` and decodes their bytes with the
+    /// guest schema from ere-guests, so a layout change on either side fails without Docker.
+    #[test]
+    fn vendored_eest_fixtures_decode_with_guest_schema() -> Result<()> {
+        use stateless_validator_common::{
+            guest::{input::ProtocolFork, StatelessInput, StatelessValidationResult},
+            SszDecode as _,
+        };
+
+        let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/eest");
+        let fixtures = stateless_validator_input_iter(&root, None, ExecutionClient::Reth, None)?
+            .collect::<Result<Vec<_>>>()?;
+
+        // (fixture name, gas used, expected validation result)
+        let expected = [
+            (
+                "eest__tests_ported_static_stShift_test_sar00_py_test_sar00_fork_Amsterdam-blockchain_test_engine_from_state_test__block0",
+                33112,
+                true,
+            ),
+            (
+                "eest__tests_prague_eip6110_deposits_test_modified_contract_py_test_invalid_layout_with_swapped_decodable_offsets_fork_Amsterdam-blockchain_test_engine__block0",
+                20583,
+                false,
+            ),
+        ];
+        assert_eq!(fixtures.len(), expected.len());
+        for (fixture, (name, gas_used, valid)) in fixtures.iter().zip(expected) {
+            assert_eq!(fixture.name(), name);
+
+            let metadata = fixture.metadata();
+            assert_eq!(metadata["block_number"].as_u64(), Some(1), "{name}");
+            assert_eq!(
+                metadata["block_used_gas"].as_u64(),
+                Some(gas_used),
+                "{name}"
+            );
+            assert!(
+                metadata["opcode_count"]
+                    .as_object()
+                    .is_some_and(|counts| !counts.is_empty()),
+                "{name}"
+            );
+
+            let (fork, _) = StatelessInput::from_schema_prefixed_ssz(fixture.input()?.stdin())?;
+            assert_eq!(fork, ProtocolFork::Amsterdam, "{name}");
+
+            let output =
+                StatelessValidationResult::from_ssz_bytes(&fixture.expected_public_values()?)
+                    .map_err(|err| {
+                        anyhow::anyhow!("failed to decode statelessOutputBytes: {err:?}")
+                    })?;
+            assert_eq!(output.successful_validation, valid, "{name}");
+            assert_eq!(output.chain_id, 1, "{name}");
+            assert_eq!(
+                output.schema_id,
+                ProtocolFork::Amsterdam.schema_id(),
+                "{name}"
+            );
+        }
+
+        Ok(())
+    }
+
     #[test]
     fn eest_fixture_iter_skips_existing_outputs() -> Result<()> {
         let dir = tempfile::tempdir()?;
