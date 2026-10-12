@@ -88,32 +88,17 @@ mod tests {
         );
         assert_eq!(ExecutionClient::Reth.version().unwrap(), "0.1.0-rc.4");
         assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "29.0.0");
+        assert_eq!(ExecutionClient::Zesu.version().unwrap(), "tests@v21.0.0");
         assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.2.1-alpha");
         for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
             assert!(ExecutionClient::Reth.validate_zkvm(zkvm).is_ok());
             assert!(ExecutionClient::Ethrex.validate_zkvm(zkvm).is_ok());
-            assert_eq!(
-                ExecutionClient::Nimbus.validate_zkvm(zkvm).is_ok(),
-                zkvm == zkVMKind::Zisk
-            );
-        }
-    }
-
-    // TODO(tests-zkevm@v21): move Zesu back to the active guests once it publishes a v21 release
-    // and ere-guests registers it.
-    #[test]
-    fn unreleased_guests_are_temporarily_unavailable() {
-        let client = ExecutionClient::Zesu;
-        let expected = format!(
-            "{0} is temporarily unavailable: the pinned ere-guests catalog has no {0} guest release",
-            client.as_ref()
-        );
-        assert_eq!(client.version().unwrap_err().to_string(), expected);
-        for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
-            assert_eq!(
-                client.validate_zkvm(zkvm).unwrap_err().to_string(),
-                expected
-            );
+            for zisk_only in [ExecutionClient::Zesu, ExecutionClient::Nimbus] {
+                assert_eq!(
+                    zisk_only.validate_zkvm(zkvm).is_ok(),
+                    zkvm == zkVMKind::Zisk
+                );
+            }
         }
     }
 }

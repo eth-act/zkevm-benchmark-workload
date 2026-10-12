@@ -105,9 +105,9 @@ ere-cluster-client-zisk = { git = "https://github.com/eth-act/ere", tag = "v0.18
 ere-util-tokio = { git = "https://github.com/eth-act/ere", tag = "v0.18.1" }
 
 # ere-guests
-stateless-validator-catalog = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.0" }
-stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.0" }
-stateless-validator-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.0" }
+stateless-validator-catalog = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.1" }
+stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.1" }
+stateless-validator-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.1" }
 
 # alloy
 alloy-consensus = { version = "=2.1.1", default-features = false }
