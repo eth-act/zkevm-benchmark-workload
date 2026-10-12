@@ -89,9 +89,7 @@ Each loaded block becomes one benchmark fixture, named from the original EEST te
 
 Reth, Ethrex, Zesu, and Nimbus receive `statelessInputBytes` unchanged on stdin and compare public values with `statelessOutputBytes`.
 Reth `0.1.0-rc.4` and Ethrex `29.0.0` support all three zkVMs.
-Nimbus `v0.2.1-alpha` supports ZisK only.
-<!-- TODO(tests-zkevm@v21): restore Zesu once it publishes a v21 release. -->
-Zesu is unavailable until it publishes a v21 guest.
+Zesu `tests@v21.0.0` and Nimbus `v0.2.1-alpha` support ZisK only.
 
 Fixture deserialization remains independent of the selected execution client.
 Client-specific availability is checked before artifact resolution or guest
