@@ -124,8 +124,13 @@ fn stateless_validator_input_iter_from_paths<I>(
 where
     I: Iterator<Item = PathBuf>,
 {
+    // Deduplicate fixture names across ALL files, not per-file: long benchmark
+    // names sanitize/truncate to the same stem across different files, which would
+    // otherwise overwrite each other's result JSON. FnMut carries the set here.
+    let mut fixture_names: HashSet<String> = HashSet::new();
     paths.flat_map(move |path| {
-        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root) {
+        let results: Vec<_> = match load_benchmark_fixtures(&path, &input_root, &mut fixture_names)
+        {
             Ok(fixtures) => fixtures
                 .into_iter()
                 .filter(|fixture| fixture_matches_prefixes(fixture, fixture_prefixes.as_deref()))
@@ -158,7 +163,11 @@ fn fixture_matches_prefixes(fixture: &EestStatelessFixture, prefixes: Option<&[S
     })
 }
 
-fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<EestStatelessFixture>> {
+fn load_benchmark_fixtures(
+    path: &Path,
+    input_root: &Path,
+    fixture_names: &mut HashSet<String>,
+) -> Result<Vec<EestStatelessFixture>> {
     let content = std::fs::read(path)?;
     let value: serde_json::Value = serde_json::from_slice(&content)
         .with_context(|| format!("Failed to parse {}", path.display()))?;
@@ -169,7 +178,7 @@ fn load_benchmark_fixtures(path: &Path, input_root: &Path) -> Result<Vec<EestSta
         );
     }
 
-    load_eest_benchmark_fixtures(value, path, input_root)
+    load_eest_benchmark_fixtures(value, path, input_root, fixture_names)
 }
 
 fn skip_existing_fixture_output(
@@ -243,7 +252,7 @@ mod tests {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
-        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path())?;
+        let fixtures = load_benchmark_fixtures(&fixture_path, dir.path(), &mut HashSet::new())?;
         let fixture = fixtures
             .iter()
             .find(|fixture| fixture.original_test_name == "tests/foo.py::test_same[name?a]")
@@ -379,12 +388,53 @@ mod tests {
     }
 
     #[test]
+    fn eest_fixture_names_are_unique_across_files() -> Result<()> {
+        // Regression: two fixtures living in different files whose long names
+        // truncate to the same EEST_SAFE_FILE_STEM_MAX_LEN stem must still get
+        // distinct output names. With per-file dedup (a fresh HashSet per file)
+        // both emit the identical name and one result JSON silently overwrites
+        // the other; dedup must span all files loaded in a single run.
+        let dir = tempfile::tempdir()?;
+        // Well past EEST_SAFE_FILE_STEM_MAX_LEN (220), so the differing
+        // variant suffix falls beyond the truncation point and is dropped.
+        let long = "t".repeat(300);
+        for (file, variant) in [("a.json", "AAA"), ("b.json", "BBB")] {
+            let test = serde_json::json!({
+                "network": "Amsterdam",
+                "config": { "chainid": "0x01" },
+                "blocks": [{
+                    "statelessInputBytes": "0x0102",
+                    "statelessOutputBytes": "0xaa"
+                }]
+            });
+            let mut root = serde_json::Map::new();
+            root.insert(format!("{long}{variant}"), test);
+            fs::write(
+                dir.path().join(file),
+                serde_json::to_vec(&serde_json::Value::Object(root))?,
+            )?;
+        }
+
+        let names = stateless_validator_input_iter(dir.path(), None, ExecutionClient::Reth, None)?
+            .map(|res| res.map(|io| io.name()))
+            .collect::<Result<Vec<_>>>()?;
+
+        assert_eq!(names.len(), 2, "both fixtures must be emitted");
+        assert_ne!(
+            names[0], names[1],
+            "fixture names must be unique across files, else result JSONs overwrite each other"
+        );
+
+        Ok(())
+    }
+
+    #[test]
     fn eest_fixture_iter_skips_existing_outputs() -> Result<()> {
         let dir = tempfile::tempdir()?;
         let fixture_path = dir.path().join("mcopy.json");
         fs::write(&fixture_path, sample_eest_fixture())?;
 
-        let loaded = load_benchmark_fixtures(&fixture_path, dir.path())?;
+        let loaded = load_benchmark_fixtures(&fixture_path, dir.path(), &mut HashSet::new())?;
         let output_dir = dir.path().join("output");
         fs::create_dir(&output_dir)?;
         fs::write(
@@ -425,7 +475,8 @@ mod tests {
         let fixture_path = dir.path().join("legacy.json");
         fs::write(&fixture_path, r#"{"stateless_input": {}}"#)?;
 
-        let err = load_benchmark_fixtures(&fixture_path, dir.path()).unwrap_err();
+        let err =
+            load_benchmark_fixtures(&fixture_path, dir.path(), &mut HashSet::new()).unwrap_err();
         assert_eq!(
             err.to_string(),
             "legacy fixture format with top-level stateless_input is no longer supported; provide an EEST blockchain_test_engine or blockchain_test fixture containing statelessInputBytes and statelessOutputBytes"
