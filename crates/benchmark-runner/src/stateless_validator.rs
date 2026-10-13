@@ -25,6 +25,8 @@ pub enum ExecutionClient {
     Zesu,
     /// Nimbus stateless block validation guest program.
     Nimbus,
+    /// Zilkworm stateless block validation guest program.
+    Zilkworm,
 }
 
 impl ExecutionClient {
@@ -35,6 +37,7 @@ impl ExecutionClient {
             Self::Ethrex => StatelessValidatorKind::Ethrex,
             Self::Zesu => StatelessValidatorKind::Zesu,
             Self::Nimbus => StatelessValidatorKind::Nimbus,
+            Self::Zilkworm => StatelessValidatorKind::Zilkworm,
         };
         if kind.version().is_none() {
             bail!(
