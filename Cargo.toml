@@ -109,9 +109,6 @@ stateless-validator-catalog = { git = "https://github.com/eth-act/ere-guests", t
 stateless-validator-common = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.1" }
 stateless-validator-downloader = { git = "https://github.com/eth-act/ere-guests", tag = "v0.18.1" }
 
-# zilkworm host adapter: converts canonical statelessInputBytes -> MFBD bundle.
-stateless-validator-zilkworm = { git = "https://github.com/erigontech/zilkworm", tag = "v0.1.0-alpha.4", package = "z6m_stateless_validator" }
-
 # alloy
 alloy-consensus = { version = "=2.1.1", default-features = false }
 alloy-eips = { version = "=2.1.1", default-features = false }
@@ -148,10 +145,8 @@ hex = "0.4"
 zstd = "0.13"
 
 # erigontech/ere-guests fork: carries the zilkworm catalog kind + registry entry
-# ahead of the upstream ere-guests PR. Also unifies the stateless-validator-common
-# pulled by the zilkworm adapter. stateless-validator-downloader stays on the
+# ahead of the upstream ere-guests PR. stateless-validator-downloader stays on the
 # upstream tag, which build.rs resolves as the guest download source.
 # Remove once the zilkworm changes land in a released ere-guests tag.
 [patch."https://github.com/eth-act/ere-guests"]
 stateless-validator-catalog = { git = "https://github.com/erigontech/ere-guests", rev = "3f31e435f9eb9d08190d5d98bccb66ccefa68ae6" }
-stateless-validator-common = { git = "https://github.com/erigontech/ere-guests", rev = "3f31e435f9eb9d08190d5d98bccb66ccefa68ae6" }
