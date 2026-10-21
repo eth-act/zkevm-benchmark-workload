@@ -3725,7 +3725,7 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 [[package]]
 name = "stateless-validator-catalog"
 version = "0.18.1"
-source = "git+https://github.com/erigontech/ere-guests?rev=3f31e435f9eb9d08190d5d98bccb66ccefa68ae6#3f31e435f9eb9d08190d5d98bccb66ccefa68ae6"
+source = "git+https://github.com/erigontech/ere-guests?rev=365cf26a85b85c7cffd53c8b909af8cbc8de9879#365cf26a85b85c7cffd53c8b909af8cbc8de9879"
 dependencies = [
  "serde",
  "serde_json",

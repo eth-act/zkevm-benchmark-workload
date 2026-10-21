@@ -149,4 +149,4 @@ zstd = "0.13"
 # upstream tag, which build.rs resolves as the guest download source.
 # Remove once the zilkworm changes land in a released ere-guests tag.
 [patch."https://github.com/eth-act/ere-guests"]
-stateless-validator-catalog = { git = "https://github.com/erigontech/ere-guests", rev = "3f31e435f9eb9d08190d5d98bccb66ccefa68ae6" }
+stateless-validator-catalog = { git = "https://github.com/erigontech/ere-guests", rev = "365cf26a85b85c7cffd53c8b909af8cbc8de9879" }
