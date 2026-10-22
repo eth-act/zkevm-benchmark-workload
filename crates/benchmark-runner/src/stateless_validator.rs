@@ -89,8 +89,8 @@ mod tests {
             ExecutionClient::Ethrex.registered_kind().unwrap(),
             StatelessValidatorKind::Ethrex
         );
-        assert_eq!(ExecutionClient::Reth.version().unwrap(), "0.1.0-rc.4");
-        assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "29.0.0");
+        assert_eq!(ExecutionClient::Reth.version().unwrap(), "0.1.0-rc.5");
+        assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "30.0.0");
         assert_eq!(ExecutionClient::Zesu.version().unwrap(), "tests@v21.0.0");
         assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.2.1-alpha");
         for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
