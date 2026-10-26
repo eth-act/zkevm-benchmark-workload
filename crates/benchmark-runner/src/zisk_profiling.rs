@@ -1,14 +1,12 @@
 //! Zisk profiling support for benchmark runs
 
 use anyhow::{Context, Result};
+use ere_dockerized::{image::server_zkvm_image, zkVMKind};
+use std::fs;
 use std::io::ErrorKind;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::{env, fs};
 use tracing::info;
-
-/// ERE commit hash extracted from `Cargo.lock` at build time.
-const DEFAULT_ERE_TAG: &str = ere_dockerized::DOCKER_IMAGE_TAG;
 
 /// Configuration for Zisk profiling.
 #[derive(Debug, Clone)]
@@ -158,10 +156,8 @@ where
 }
 
 fn run_ziskemu_command(temp_path: &Path) -> Result<ProfilingCommandOutput> {
-    let registry_prefix = env::var("ERE_IMAGE_REGISTRY")
-        .map(|r| format!("{r}/"))
-        .unwrap_or_default();
-    let docker_image = format!("{registry_prefix}ere-server-zisk:{DEFAULT_ERE_TAG}");
+    // Same image as the CPU server, including the `ERE_IMAGE_REGISTRY` and `ERE_IMAGE_TAG` overrides.
+    let docker_image = server_zkvm_image(zkVMKind::Zisk, false);
     let volume_mount = format!("{}:/data", temp_path.display());
 
     let output = Command::new("docker")

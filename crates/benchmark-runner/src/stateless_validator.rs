@@ -25,6 +25,10 @@ pub enum ExecutionClient {
     Zesu,
     /// Nimbus stateless block validation guest program.
     Nimbus,
+    /// Nethermind stateless block validation guest program.
+    Nethermind,
+    /// Zilkworm stateless block validation guest program.
+    Zilkworm,
 }
 
 impl ExecutionClient {
@@ -35,6 +39,8 @@ impl ExecutionClient {
             Self::Ethrex => StatelessValidatorKind::Ethrex,
             Self::Zesu => StatelessValidatorKind::Zesu,
             Self::Nimbus => StatelessValidatorKind::Nimbus,
+            Self::Nethermind => StatelessValidatorKind::Nethermind,
+            Self::Zilkworm => StatelessValidatorKind::Zilkworm,
         };
         if kind.version().is_none() {
             bail!(
@@ -45,11 +51,29 @@ impl ExecutionClient {
         Ok(kind)
     }
 
+    /// Returns the zkVMs with release artifacts in the pinned ere-guests registry.
+    const fn supported_zkvms(self) -> &'static [zkVMKind] {
+        match self {
+            Self::Reth | Self::Ethrex => &[zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk],
+            Self::Nimbus | Self::Nethermind => &[zkVMKind::SP1, zkVMKind::Zisk],
+            Self::Zilkworm => &[zkVMKind::SP1],
+            // TODO(ere-guests@v0.19): Zesu has no ZisK v1.3 guest yet, so `registered_kind` rejects
+            // it before this list is used.
+            Self::Zesu => &[zkVMKind::Zisk],
+        }
+    }
+
     /// Rejects combinations without release artifacts before loading a guest.
     pub fn validate_zkvm(self, zkvm: zkVMKind) -> Result<()> {
         self.registered_kind()?;
-        if matches!(self, Self::Zesu | Self::Nimbus) && zkvm != zkVMKind::Zisk {
-            bail!("{} supports only ZisK; requested {zkvm}", self.as_ref());
+        let supported = self.supported_zkvms();
+        if !supported.contains(&zkvm) {
+            let supported: Vec<_> = supported.iter().map(zkVMKind::as_str).collect();
+            bail!(
+                "{} supports only {}; requested {zkvm}",
+                self.as_ref(),
+                supported.join(", ")
+            );
         }
         Ok(())
     }
@@ -78,27 +102,67 @@ mod tests {
 
     #[test]
     fn active_guests_follow_upstream_catalog() {
-        assert_eq!(
-            ExecutionClient::Reth.registered_kind().unwrap(),
-            StatelessValidatorKind::Reth
-        );
-        assert_eq!(
-            ExecutionClient::Ethrex.registered_kind().unwrap(),
-            StatelessValidatorKind::Ethrex
-        );
-        assert_eq!(ExecutionClient::Reth.version().unwrap(), "0.1.0-rc.5");
-        assert_eq!(ExecutionClient::Ethrex.version().unwrap(), "30.0.0");
-        assert_eq!(ExecutionClient::Zesu.version().unwrap(), "tests@v21.0.0");
-        assert_eq!(ExecutionClient::Nimbus.version().unwrap(), "v0.2.1-alpha");
-        for zkvm in [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk] {
-            assert!(ExecutionClient::Reth.validate_zkvm(zkvm).is_ok());
-            assert!(ExecutionClient::Ethrex.validate_zkvm(zkvm).is_ok());
-            for zisk_only in [ExecutionClient::Zesu, ExecutionClient::Nimbus] {
+        let all = [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk];
+        let sp1_and_zisk = [zkVMKind::SP1, zkVMKind::Zisk];
+        for (client, kind, version, zkvms) in [
+            (
+                ExecutionClient::Reth,
+                StatelessValidatorKind::Reth,
+                "0.1.0-rc.6",
+                &all[..],
+            ),
+            (
+                ExecutionClient::Ethrex,
+                StatelessValidatorKind::Ethrex,
+                "30.0.1",
+                &all[..],
+            ),
+            (
+                ExecutionClient::Nimbus,
+                StatelessValidatorKind::Nimbus,
+                "v0.3.1-alpha",
+                &sp1_and_zisk[..],
+            ),
+            (
+                ExecutionClient::Nethermind,
+                StatelessValidatorKind::Nethermind,
+                "2.3.0-preview+3",
+                &sp1_and_zisk[..],
+            ),
+            (
+                ExecutionClient::Zilkworm,
+                StatelessValidatorKind::Zilkworm,
+                "0.1.0-alpha.7",
+                &[zkVMKind::SP1][..],
+            ),
+        ] {
+            assert_eq!(client.registered_kind().unwrap(), kind);
+            assert_eq!(client.version().unwrap(), version);
+            for zkvm in zkVMKind::iter() {
                 assert_eq!(
-                    zisk_only.validate_zkvm(zkvm).is_ok(),
-                    zkvm == zkVMKind::Zisk
+                    client.validate_zkvm(zkvm).is_ok(),
+                    zkvms.contains(&zkvm),
+                    "{client:?} {zkvm}"
                 );
             }
+        }
+    }
+
+    // TODO(ere-guests@v0.19): move Zesu back to the active guests once it publishes a ZisK v1.3
+    // guest and ere-guests registers it.
+    #[test]
+    fn unreleased_guests_are_temporarily_unavailable() {
+        let client = ExecutionClient::Zesu;
+        let expected = format!(
+            "{0} is temporarily unavailable: the pinned ere-guests catalog has no {0} guest release",
+            client.as_ref()
+        );
+        assert_eq!(client.version().unwrap_err().to_string(), expected);
+        for zkvm in zkVMKind::iter() {
+            assert_eq!(
+                client.validate_zkvm(zkvm).unwrap_err().to_string(),
+                expected
+            );
         }
     }
 }

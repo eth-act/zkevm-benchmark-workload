@@ -87,7 +87,7 @@ Updates to the same fixture file must run sequentially across processes.
 
 Execution success contains `output_matched` and `execution_duration`. The metrics types no longer contain cycle fields.
 Cost success contains `output_matched`, `cost`, `peak_heap_bytes`, and `context`.
-`cost` maps upstream component names to unsigned 64-bit integers. An unavailable heap estimate is JSON `null`.
+`cost` maps upstream component names to unsigned 64-bit integers. An unavailable heap estimate is JSON `null`, which only results from Ere versions before v0.19 hold.
 `CostEstimationContext` records the client, zkVM, SDK, Ere revision, ELF/input hashes, and effective estimator settings.
 
 ## Error Handling

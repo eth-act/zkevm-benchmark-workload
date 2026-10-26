@@ -122,10 +122,17 @@ impl ZkVMInstance {
         }
     }
 
-    /// Executes the guest with the cost estimator.
-    pub fn estimate_cost(&self, input: &Input) -> Result<(PublicValues, CostEstimation)> {
+    /// Executes the guest with the cost profiler, which also measures the peak heap bytes.
+    pub fn estimate_cost(&self, input: &Input) -> Result<(PublicValues, CostEstimation, u64)> {
         match self {
-            Self::Dockerized { zkvm, .. } => zkvm.execute_estimated_cost(input),
+            Self::Dockerized { zkvm, .. } => {
+                let (public_values, profile) = zkvm.profile(input)?;
+                Ok((
+                    public_values,
+                    profile.cost_estimation(),
+                    profile.peak_heap_bytes,
+                ))
+            }
             Self::ZiskClusterClient { .. } => {
                 bail!("ZiskClusterClient does not support Action::EstimateCost")
             }
@@ -456,15 +463,15 @@ pub(crate) fn should_skip_action(path: &Path, action: Action, force: bool) -> Re
 fn collect_cost_estimation(
     io: &impl GuestFixture,
     context: CostEstimationContext,
-    estimate: impl FnOnce() -> Result<(PublicValues, CostEstimation)>,
+    estimate: impl FnOnce() -> Result<(PublicValues, CostEstimation, u64)>,
 ) -> Result<CostEstimationMetrics> {
     Ok(
         match panic::catch_unwind(panic::AssertUnwindSafe(estimate)) {
-            Ok(Ok((public_values, report))) => CostEstimationMetrics::Success {
+            Ok(Ok((public_values, report, peak_heap_bytes))) => CostEstimationMetrics::Success {
                 output_matched: public_output_matched(io, &public_values)
                     .context("Failed to compare public output from cost estimation")?,
                 cost: report.cost,
-                peak_heap_bytes: report.peak_heap_bytes,
+                peak_heap_bytes: Some(peak_heap_bytes),
                 context: Box::new(context),
             },
             Ok(Err(err)) => CostEstimationMetrics::Crashed(CrashInfo {
@@ -481,29 +488,12 @@ fn estimator_settings(
     zkvm: zkVMKind,
     env_value: impl Fn(&str) -> Option<String>,
 ) -> BTreeMap<String, String> {
-    let heap_start = if zkvm == zkVMKind::Zisk {
-        "_heap_bottom"
-    } else {
-        "_end"
-    };
-    let mut settings = BTreeMap::from([(
-        "heap_start".to_owned(),
-        env_value("ERE_COST_ESTIMATION_HEAP_START").unwrap_or_else(|| heap_start.to_owned()),
-    )]);
-    match zkvm {
-        zkVMKind::Zisk => {
-            settings.insert(
-                "heap_end".to_owned(),
-                env_value("ERE_COST_ESTIMATION_HEAP_END").unwrap_or_else(|| "_heap_top".to_owned()),
-            );
-        }
-        zkVMKind::OpenVM => {
-            let memory = env_value("ERE_OPENVM_SEGMENT_MEMORY")
-                .and_then(|value| value.parse::<usize>().ok())
-                .unwrap_or(29 << 29);
-            settings.insert("segment_memory_bytes".to_owned(), memory.to_string());
-        }
-        zkVMKind::SP1 => {}
+    let mut settings = BTreeMap::new();
+    if zkvm == zkVMKind::OpenVM {
+        let memory = env_value("ERE_OPENVM_SEGMENT_MEMORY")
+            .and_then(|value| value.parse::<usize>().ok())
+            .unwrap_or(29 << 29);
+        settings.insert("segment_memory_bytes".to_owned(), memory.to_string());
     }
     settings
 }
@@ -548,7 +538,7 @@ pub async fn get_guest_zkvm_instances(
                     execution_client_version: el.version()?.to_owned(),
                     zkvm: zkvm.as_str().to_owned(),
                     sdk_version: zkvm.sdk_version().to_owned(),
-                    ere_revision: ere_dockerized::DOCKER_IMAGE_TAG.to_owned(),
+                    ere_revision: ere_dockerized::image::image_tag(*zkvm, false),
                     elf_sha256: hex::encode(Sha256::digest(&compiled.elf)),
                     input_sha256: String::new(),
                     estimator_settings: estimator_settings(*zkvm, |name| env::var(name).ok()),
@@ -804,14 +794,14 @@ mod tests {
                     output.as_slice().into(),
                     CostEstimation {
                         cost: BTreeMap::from([("opcode".into(), 99)]),
-                        peak_heap_bytes: None,
                     },
+                    1234,
                 ))
             })?;
             let value = serde_json::to_value(metrics)?;
             assert_eq!(value["success"]["output_matched"], matched);
             assert_eq!(value["success"]["cost"]["opcode"], 99);
-            assert!(value["success"]["peak_heap_bytes"].is_null());
+            assert_eq!(value["success"]["peak_heap_bytes"], 1234);
         }
         for metrics in [
             collect_cost_estimation(&fixture, test_cost_context(), || bail!("estimator error"))?,
@@ -833,9 +823,13 @@ mod tests {
                 ["segment_memory_bytes"],
             (29_usize << 29).to_string()
         );
-        let settings = estimator_settings(zkVMKind::Zisk, |key| Some(key.to_lowercase()));
-        assert_eq!(settings["heap_start"], "ere_cost_estimation_heap_start");
-        assert_eq!(settings["heap_end"], "ere_cost_estimation_heap_end");
+        assert_eq!(
+            estimator_settings(zkVMKind::OpenVM, |_| Some("1024".into()))["segment_memory_bytes"],
+            "1024"
+        );
+        for zkvm in [zkVMKind::SP1, zkVMKind::Zisk] {
+            assert!(estimator_settings(zkvm, |_| Some("1024".into())).is_empty());
+        }
     }
 
     #[test]

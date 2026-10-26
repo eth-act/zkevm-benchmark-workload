@@ -36,7 +36,9 @@ cargo run -p ere-hosts --release -- --zkvms openvm \
     --input-folder /path/to/eest-fixtures
 ```
 
-Run Zesu on ZisK:
+Run Zesu on ZisK, once it publishes a ZisK v1.3 guest:
+
+<!-- TODO(ere-guests@v0.19): drop the condition above once Zesu is back in the registry. -->
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms zisk \
@@ -52,7 +54,24 @@ cargo run -p ere-hosts --release -- --zkvms zisk \
     --input-folder /path/to/eest-fixtures
 ```
 
-Zesu and Nimbus support ZisK only. Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
+Run Nethermind on SP1:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 \
+    stateless-validator --execution-client nethermind \
+    --input-folder /path/to/eest-fixtures
+```
+
+Run Zilkworm on SP1:
+
+```bash
+cargo run -p ere-hosts --release -- --zkvms sp1 \
+    stateless-validator --execution-client zilkworm \
+    --input-folder /path/to/eest-fixtures
+```
+
+Reth and Ethrex support OpenVM, SP1, and ZisK. Nimbus and Nethermind support SP1 and ZisK. Zilkworm supports SP1 only, and Zesu supports ZisK only.
+Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
 
 Run directly from an EEST fixture checkout:
 
@@ -191,17 +210,17 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.18.2` dependency.
+Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.19.0` dependency.
 The downloader fetches the ELF and Program VK from their registered URLs and fails if either sha256 differs from the registered value.
 It needs no `GH_TOKEN` or `GITHUB_TOKEN`.
 To use the guests of another ere-guests tag or commit, point the `stateless-validator-*` dependencies at it.
 
 Prebuilt Ere images are available with `ERE_IMAGE_REGISTRY=ghcr.io/eth-act/ere`.
-The dependency selects image revision `7c5bc33`.
+The dependency selects image revision `fba5601`. Set `ERE_IMAGE_TAG` to use another tag.
 
 Artifacts are named `stateless-validator-<execution-client>-<zkvm>-<zkvm-sdk-version>`, so a zkVM SDK bump changes the resolved file names.
 
-Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. Zesu and Nimbus remain restricted to ZisK for all artifact sources.
+Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compatible remote directory with `--guest-artifact-base-url <URL>`. Those options remain mutually exclusive. The zkVM restrictions of each execution client apply to all artifact sources.
 
 ## Operational Notes
 
@@ -212,5 +231,7 @@ Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compa
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
 - `--save-proofs` is only valid with `--action prove`.
 - `--proofs-url` and `--proofs-folder` are only valid with `--action verify`.
-- Cluster resources support proving and verification only.
+- Cluster resources support proving and verification only. The ZisK cluster must run ZisK v1.3.2.
+- Ere downloads the ZisK proving key on the first ZisK proof. Set `ERE_ZISK_PROVING_KEY_VOLUME` to a Docker volume or absolute host path to keep it across server containers.
+- Ere v0.19 renamed the SP1 concurrency variables to `ERE_SP1_EXECUTE_CONCURRENCY` and `ERE_SP1_EXECUTE_ESTIMATED_CONCURRENCY`.
 - The ere-guests registry lists no profiling ELFs. `--zisk-profile` requires a compatible custom `-profiling.elf` artifact.

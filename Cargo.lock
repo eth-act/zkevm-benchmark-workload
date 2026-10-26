@@ -727,6 +727,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "blake3"
+version = "1.8.7"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "6d9e454fc11f76977dc803893aff6304ed33d6a26efae8696573bea74baa27ae"
+dependencies = [
+ "arrayvec",
+ "cc",
+ "cfg-if",
+ "constant_time_eq",
+ "cpufeatures 0.3.0",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -960,6 +973,12 @@ dependencies = [
  "quote",
  "unicode-xid",
 ]
+
+[[package]]
+name = "constant_time_eq"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3d52eff69cd5e647efe296129160853a42795992097e8af39800e1060caeea9b"
 
 [[package]]
 name = "convert_case"
@@ -1369,8 +1388,8 @@ checksum = "877a4ace8713b0bcf2a4e7eec82529c029f1d0619886d18145fea96c3ffe5c0f"
 
 [[package]]
 name = "ere-catalog"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "ere-util-build",
  "serde",
@@ -1379,8 +1398,8 @@ dependencies = [
 
 [[package]]
 name = "ere-cluster-client-zisk"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "bincode",
  "ere-compiler-core",
@@ -1399,21 +1418,21 @@ dependencies = [
 
 [[package]]
 name = "ere-codec"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 
 [[package]]
 name = "ere-compiler-core"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "ere-dockerized"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -1445,8 +1464,8 @@ dependencies = [
 
 [[package]]
 name = "ere-prover-core"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "anyhow",
  "auto_impl",
@@ -1454,7 +1473,11 @@ dependencies = [
  "clap",
  "elf",
  "ere-codec",
+ "ere-compiler-core",
  "ere-verifier-core",
+ "flate2",
+ "prost",
+ "rustc-demangle",
  "serde",
  "strum 0.27.2",
  "thiserror",
@@ -1462,8 +1485,8 @@ dependencies = [
 
 [[package]]
 name = "ere-server-api"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "prost",
  "serde",
@@ -1472,35 +1495,36 @@ dependencies = [
 
 [[package]]
 name = "ere-server-client"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "ere-prover-core",
  "ere-server-api",
+ "prost",
  "thiserror",
  "twirp",
 ]
 
 [[package]]
 name = "ere-util-build"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "cargo_metadata",
 ]
 
 [[package]]
 name = "ere-util-tokio"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "tokio",
 ]
 
 [[package]]
 name = "ere-verifier-core"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "auto_impl",
  "ere-codec",
@@ -1509,8 +1533,8 @@ dependencies = [
 
 [[package]]
 name = "ere-verifier-zisk"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere?tag=v0.18.2#7c5bc337a9d0ae7971f7b9bf45399ccbaf30cce9"
+version = "0.19.5"
+source = "git+https://github.com/eth-act/ere?tag=v0.19.5#fba5601fd907634acdc0ce9f19dc8651aa8c0edd"
 dependencies = [
  "bincode",
  "bytemuck",
@@ -2810,10 +2834,11 @@ dependencies = [
 
 [[package]]
 name = "proofman-fields"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "124c75a333fd7209e5f77da6c7734260ad54eaabf7e2e20db24917f7ec4505cd"
+checksum = "f5f97afb3a6383aee3ad8e335591564ec4c0904c591536c41fdd5ec5d666a81b"
 dependencies = [
+ "blake3",
  "cfg-if",
  "num-bigint",
  "paste",
@@ -2823,9 +2848,9 @@ dependencies = [
 
 [[package]]
 name = "proofman-starks-lib-c"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d1f0b940c17f32bcc0b289fd11bd0f8a812c82a4d44a067cd67d773fef54b13f"
+checksum = "727e567d696fd28129f87693f51f01c7e1dda6cb4baa4348881262cc7be3285c"
 dependencies = [
  "crossbeam-channel",
  "proofman-starks-src",
@@ -2833,15 +2858,15 @@ dependencies = [
 
 [[package]]
 name = "proofman-starks-src"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0efcb2cd92919487f86364fc3b51c8efa8ac2ea3a56f3d6c4d39b3bd464a5b50"
+checksum = "824a7f69aeb6ca119fc330533dbf65adc9daad4b7de416f940546cd35a897710"
 
 [[package]]
 name = "proofman-util"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "825c9cfb3f3d8a72fe6e50b52190b99a127c38a0ebb5a46a875d51daeb659d03"
+checksum = "f47a2265fa366cff467d03d17f9b24e0f94099270daeabc16087a8bb9cdebf74"
 dependencies = [
  "colored",
  "sysinfo 0.35.2",
@@ -2849,9 +2874,9 @@ dependencies = [
 
 [[package]]
 name = "proofman-verifier"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5d265453d0cb920c636de66ef3d7dffbcef6a1a8adea91b8484d1b09398d2f51"
+checksum = "c28c5df32f6465a106d6125ec4ab6a544a739027bd1f668df9a14a92658ce16b"
 dependencies = [
  "bincode",
  "num-traits",
@@ -2896,7 +2921,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b570b25f7617e43d59005d0990ccb79e950a423952cea19671b7a876da390adf"
 dependencies = [
  "anyhow",
- "itertools 0.10.5",
+ "itertools 0.13.0",
  "proc-macro2",
  "quote",
  "syn 2.0.119",
@@ -3274,6 +3299,12 @@ name = "ruint-macro"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "48fd7bd8a6377e15ad9d42a8ec25371b94ddc67abe7c8b9127bec79bebaaae18"
+
+[[package]]
+name = "rustc-demangle"
+version = "0.1.28"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b74b56ffa8bb2830709a538c2cbcae9aa062db0d2a42563bfb09bdaae44020eb"
 
 [[package]]
 name = "rustc-hash"
@@ -3723,8 +3754,8 @@ checksum = "6ce2be8dc25455e1f91df71bfa12ad37d7af1092ae736f3a6cd0e37bc7810596"
 
 [[package]]
 name = "stateless-validator-catalog"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.18.2#1e8dc22513a0f0fe99184a56cfe81253e5ad437a"
+version = "0.19.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.19.0#d6145e3201db3191d5bf5db3d47caa81fad0b226"
 dependencies = [
  "serde",
  "serde_json",
@@ -3733,8 +3764,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-common"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.18.2#1e8dc22513a0f0fe99184a56cfe81253e5ad437a"
+version = "0.19.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.19.0#d6145e3201db3191d5bf5db3d47caa81fad0b226"
 dependencies = [
  "libssz",
  "libssz-derive",
@@ -3746,8 +3777,8 @@ dependencies = [
 
 [[package]]
 name = "stateless-validator-downloader"
-version = "0.18.2"
-source = "git+https://github.com/eth-act/ere-guests?tag=v0.18.2#1e8dc22513a0f0fe99184a56cfe81253e5ad437a"
+version = "0.19.0"
+source = "git+https://github.com/eth-act/ere-guests?tag=v0.19.0#d6145e3201db3191d5bf5db3d47caa81fad0b226"
 dependencies = [
  "anyhow",
  "ere-catalog",
@@ -3967,7 +3998,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "32497e9a4c7b38532efcdebeef879707aa9f794296a4f0244f6f69e9bc8574bd"
 dependencies = [
  "fastrand",
- "getrandom 0.4.3",
+ "getrandom 0.3.4",
  "once_cell",
  "rustix",
  "windows-sys 0.61.2",
@@ -5067,10 +5098,11 @@ dependencies = [
 
 [[package]]
 name = "zisk-verifier"
-version = "1.2.0-alpha"
+version = "1.3.2-alpha"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9a218c0e2c72facb1324751f19f37a5a58df629e5a2d154c6932f516a22f367c"
+checksum = "b82ed5753de5f9201277a60d0fb9459a0fcd4c28fe991cb8e93a951d75269bd6"
 dependencies = [
+ "proofman-fields",
  "proofman-verifier",
 ]
 

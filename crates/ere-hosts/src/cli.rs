@@ -108,6 +108,10 @@ pub enum ExecutionClient {
     Zesu,
     /// Nimbus execution client
     Nimbus,
+    /// Nethermind execution client
+    Nethermind,
+    /// Zilkworm execution client
+    Zilkworm,
 }
 
 /// Prover resource types
@@ -225,6 +229,8 @@ impl From<ExecutionClient> for stateless_validator::ExecutionClient {
             ExecutionClient::Ethrex => Self::Ethrex,
             ExecutionClient::Zesu => Self::Zesu,
             ExecutionClient::Nimbus => Self::Nimbus,
+            ExecutionClient::Nethermind => Self::Nethermind,
+            ExecutionClient::Zilkworm => Self::Zilkworm,
         }
     }
 }
@@ -270,15 +276,31 @@ mod tests {
     }
 
     #[test]
-    fn estimation_requires_input_and_zisk_only_clients_reject_other_zkvms() {
-        for (client, expected_client) in [
-            ("zesu", stateless_validator::ExecutionClient::Zesu),
-            ("nimbus", stateless_validator::ExecutionClient::Nimbus),
+    fn estimation_requires_input_and_clients_reject_unsupported_zkvms() {
+        for (client, expected_client, zkvm, unsupported) in [
+            (
+                "nimbus",
+                stateless_validator::ExecutionClient::Nimbus,
+                "zisk",
+                &["openvm", "lambdavm"][..],
+            ),
+            (
+                "nethermind",
+                stateless_validator::ExecutionClient::Nethermind,
+                "sp1",
+                &["openvm", "lambdavm"][..],
+            ),
+            (
+                "zilkworm",
+                stateless_validator::ExecutionClient::Zilkworm,
+                "sp1",
+                &["openvm", "zisk", "lambdavm"][..],
+            ),
         ] {
             let args = [
                 "ere-hosts",
                 "--zkvms",
-                "zisk",
+                zkvm,
                 "--action",
                 "estimate-cost",
                 "stateless-validator",
@@ -297,21 +319,20 @@ mod tests {
                 stateless_validator::ExecutionClient::from(execution_client),
                 expected_client
             );
-            for zkvm in ["sp1", "openvm"] {
-                with_input[2] = zkvm;
+            for unsupported in unsupported {
+                with_input[2] = unsupported;
                 let err = Cli::try_parse_from(&with_input)
                     .unwrap()
                     .validate()
-                    .unwrap_err();
-                assert_eq!(
-                    err.to_string(),
-                    format!(
-                        "{} supports only ZisK; requested {zkvm}",
-                        expected_client.as_ref()
-                    )
+                    .unwrap_err()
+                    .to_string();
+                assert!(
+                    err.starts_with(&format!("{} supports only ", expected_client.as_ref()))
+                        && err.ends_with(&format!("; requested {unsupported}")),
+                    "{err}"
                 );
             }
-            with_input[2] = "zisk";
+            with_input[2] = zkvm;
             *with_input.last_mut().unwrap() = "/path/that/does/not/exist";
             assert!(
                 Cli::try_parse_from(&with_input)
@@ -321,6 +342,30 @@ mod tests {
             );
             with_input[4] = "verify";
             assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
+        }
+    }
+
+    // TODO(ere-guests@v0.19): drop once Zesu publishes a ZisK v1.3 guest.
+    #[test]
+    fn unreleased_clients_fail_validation_for_every_action() {
+        for action in ["execute", "estimate-cost", "prove", "verify"] {
+            let args = [
+                "ere-hosts",
+                "--zkvms",
+                "zisk",
+                "--action",
+                action,
+                "stateless-validator",
+                "--execution-client",
+                "zesu",
+                "--input-folder",
+                ".",
+            ];
+            let err = Cli::try_parse_from(args).unwrap().validate().unwrap_err();
+            assert!(
+                err.to_string().contains("is temporarily unavailable"),
+                "zesu {action}: {err}"
+            );
         }
     }
 }
