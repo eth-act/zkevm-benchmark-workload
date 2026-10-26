@@ -124,8 +124,8 @@ def parse_profile(filepath: Path, verbose: bool = False) -> Optional[ProfileData
                 i += 1
             continue
 
-        # Parse COST BY OPCODE section
-        if line.startswith("COST BY OPCODE"):
+        # Parse COST BY OPCODE section, which ziskemu splits into BASE and PRECOMPILED sections.
+        if re.match(r"^COST BY (BASE |PRECOMPILED )?OPCODE", line):
             i += 2  # Skip header line
             while i < len(lines):
                 line = lines[i].strip()
