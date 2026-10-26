@@ -289,6 +289,8 @@ mod tests {
             ExecutionClient::Ethrex,
             ExecutionClient::Zesu,
             ExecutionClient::Nimbus,
+            ExecutionClient::Nethermind,
+            ExecutionClient::Zilkworm,
         ] {
             let mut fixtures =
                 stateless_validator_input_iter(dir.path(), Some(&selected), client, None)?;

@@ -31,7 +31,9 @@ pub(crate) fn stateless_validator_input_from_fixture(
         ExecutionClient::Reth
         | ExecutionClient::Ethrex
         | ExecutionClient::Zesu
-        | ExecutionClient::Nimbus => raw_eest_input_from_fixture(fixture),
+        | ExecutionClient::Nimbus
+        | ExecutionClient::Nethermind
+        | ExecutionClient::Zilkworm => raw_eest_input_from_fixture(fixture),
     }
 }
 

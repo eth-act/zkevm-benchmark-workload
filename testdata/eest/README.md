@@ -30,4 +30,4 @@ and run both tests.
 
 Pick tests that every client in `e2e.rs` validates correctly. Leave out the three block access list tests
 listed in [paradigmxyz/stateless#48](https://github.com/paradigmxyz/stateless/pull/48): revm and alloy-evm bugs
-make Reth `0.1.0-rc.5` reject their valid blocks.
+make Reth `0.1.0-rc.6` reject their valid blocks.
