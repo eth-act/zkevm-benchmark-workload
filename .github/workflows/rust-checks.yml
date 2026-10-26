@@ -156,6 +156,4 @@ jobs:
       - name: Run e2e tests
         run: cargo test --locked -p ere-hosts --test e2e -- --ignored
         env:
-          # The guest downloader lists release assets through the GitHub API.
-          GITHUB_TOKEN: ${{ github.token }}
           RUST_LOG: info
