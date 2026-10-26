@@ -30,8 +30,5 @@ sha2.workspace = true
 [dev-dependencies]
 stateless-validator-common.workspace = true
 
-[build-dependencies]
-toml = { workspace = true }
-
 [lints]
 workspace = true

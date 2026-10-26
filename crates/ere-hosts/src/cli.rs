@@ -58,8 +58,8 @@ pub struct Cli {
     #[arg(long, conflicts_with = "proofs_folder")]
     pub proofs_url: Option<String>,
 
-    /// Base path for pre-compiled guest program binaries. If not set, they will be downloaded
-    /// from the resolved ere-guests release or commit artifacts.
+    /// Base path for pre-compiled guest program binaries. If not set, the guests registered in
+    /// the pinned ere-guests artifact registry are downloaded.
     #[arg(long, conflicts_with = "guest_artifact_base_url")]
     pub bin_path: Option<PathBuf>,
 

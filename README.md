@@ -16,10 +16,11 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 - **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing benchmark-ready EEST stateless fixtures from CL/EL RPC endpoints.
 
-Reth `v0.1.0-rc.4` and Ethrex `v29.0.0` support OpenVM, SP1, and ZisK.
+Reth `v0.1.0-rc.5` and Ethrex `v30.0.0` support OpenVM, SP1, and ZisK.
 Zesu `tests@v21.0.0` and Nimbus `v0.2.1-alpha` support ZisK only.
-The workspace pins [ere-guests v0.18.1](https://github.com/eth-act/ere-guests/releases/tag/v0.18.1)
-and Ere v0.18.1. Default guest downloads use release assets. GitHub authentication is optional.
+The workspace pins [ere-guests v0.18.2](https://github.com/eth-act/ere-guests/releases/tag/v0.18.2)
+and Ere v0.18.2. Default guests are downloaded from the URLs in the ere-guests artifact registry and
+checked against the registered sha256. They need no GitHub authentication.
 Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
 ## Prerequisites

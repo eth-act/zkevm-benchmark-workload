@@ -11,7 +11,6 @@ use ere_util_tokio::block_on;
 use rayon::iter::{ParallelBridge, ParallelIterator};
 use sha2::{Digest, Sha256};
 use stateless_validator_catalog::StatelessValidatorKind;
-use stateless_validator_downloader::{CompiledGuest, Downloader};
 use std::path::{Path, PathBuf};
 use std::time::Duration;
 use std::{any::Any, env, panic};
@@ -28,12 +27,6 @@ use crate::zisk_profiling::{run_profiling, ProfileOutcome};
 use crate::{guest_programs::GuestFixture, stateless_validator::ExecutionClient};
 
 pub use crate::zisk_profiling::ProfileConfig;
-
-/// How to resolve downloaded guest binaries, derived from the resolved
-/// ere-guests dependency in Cargo.lock at build time.
-const ERE_GUESTS_DOWNLOAD_KIND: &str = env!("ERE_GUESTS_DOWNLOAD_KIND");
-/// Tag or commit SHA matching [`ERE_GUESTS_DOWNLOAD_KIND`].
-const ERE_GUESTS_DOWNLOAD_VALUE: &str = env!("ERE_GUESTS_DOWNLOAD_VALUE");
 
 /// Source used to resolve compiled guest programs.
 #[derive(Debug, Clone)]
@@ -599,6 +592,16 @@ pub async fn get_guest_zkvm_instances(
     Ok(instances)
 }
 
+/// Guest program artifacts resolved from a [`GuestProgramSource`].
+#[derive(Debug)]
+struct CompiledGuest {
+    /// Raw ELF bytes.
+    elf: Vec<u8>,
+    /// ELF of Zisk guest with feature `cycle-scope` enabled. The ere-guests registry lists no
+    /// profiling ELFs, so only custom artifact sources can provide it.
+    profiling_elf: Option<Vec<u8>>,
+}
+
 async fn load_compiled(
     el: ExecutionClient,
     zkvm: zkVMKind,
@@ -610,25 +613,22 @@ async fn load_compiled(
     if let GuestProgramSource::LocalPath(path) = guest_source {
         let elf = fs::read(path.join(format!("{guest_name}.elf")))
             .with_context(|| format!("Failed to read ELF from path: {}", path.display()))?;
-        let program_vk = fs::read(path.join(format!("{guest_name}.vk")))
-            .with_context(|| format!("Failed to read program vk from path: {}", path.display()))?;
         let profiling_elf = fs::read(path.join(format!("{guest_name}-profiling.elf"))).ok();
-        return Ok(CompiledGuest {
-            elf,
-            program_vk,
-            profiling_elf,
-        });
+        return Ok(CompiledGuest { elf, profiling_elf });
     }
 
     if let GuestProgramSource::ArtifactBaseUrl(base_url) = guest_source {
         return load_compiled_from_artifact_base_url(&guest_name, base_url).await;
     }
 
-    let downloader = guest_downloader().await?;
-    downloader
-        .download(stateless_validator_kind, zkvm)
+    info!("Downloading guest program {guest_name} from the ere-guests artifact registry");
+    let compiled = stateless_validator_downloader::download(stateless_validator_kind, zkvm)
         .await
-        .with_context(|| format!("Failed to download guest program: {guest_name}"))
+        .with_context(|| format!("Failed to download guest program: {guest_name}"))?;
+    Ok(CompiledGuest {
+        elf: compiled.elf,
+        profiling_elf: None,
+    })
 }
 
 /// Returns the released artifact name of the `stateless_validator` guest compiled for `zkvm`.
@@ -639,74 +639,19 @@ fn guest_artifact_name(stateless_validator: StatelessValidatorKind, zkvm: zkVMKi
     )
 }
 
-async fn guest_downloader() -> Result<Downloader> {
-    match ERE_GUESTS_DOWNLOAD_KIND {
-        "tag" => {
-            info!(
-                "Downloading guest programs from ere-guests release {}",
-                ERE_GUESTS_DOWNLOAD_VALUE
-            );
-            Downloader::from_tag(ERE_GUESTS_DOWNLOAD_VALUE)
-                .await
-                .with_context(|| {
-                    format!(
-                        "Failed to create guest program downloader for ere-guests release {}",
-                        ERE_GUESTS_DOWNLOAD_VALUE
-                    )
-                })
-        }
-        "commit" => {
-            env::var("GITHUB_TOKEN")
-                .or_else(|_| env::var("GH_TOKEN"))
-                .with_context(|| {
-                    format!(
-                        "GITHUB_TOKEN or GH_TOKEN must be set to download guest artifacts for ere-guests commit {}",
-                        ERE_GUESTS_DOWNLOAD_VALUE
-                    )
-                })?;
-
-            info!(
-                "Downloading guest programs from ere-guests workflow artifacts for commit {}",
-                ERE_GUESTS_DOWNLOAD_VALUE
-            );
-            Downloader::from_commit(ERE_GUESTS_DOWNLOAD_VALUE)
-                .await
-                .with_context(|| {
-                    format!(
-                        "Failed to create guest program downloader for ere-guests commit {}",
-                        ERE_GUESTS_DOWNLOAD_VALUE
-                    )
-                })
-        }
-        other => Err(anyhow!(
-            "Unsupported ere-guests download source `{}` with value `{}`",
-            other,
-            ERE_GUESTS_DOWNLOAD_VALUE
-        )),
-    }
-}
-
 async fn load_compiled_from_artifact_base_url(
     guest_name: &str,
     base_url: &str,
 ) -> Result<CompiledGuest> {
     let client = reqwest::Client::new();
     let elf_url = guest_artifact_url(base_url, &format!("{guest_name}.elf"));
-    let vk_url = guest_artifact_url(base_url, &format!("{guest_name}.vk"));
     let profiling_url = guest_artifact_url(base_url, &format!("{guest_name}-profiling.elf"));
 
     info!("Downloading guest program from {elf_url}");
     let elf = download_required_artifact(&client, &elf_url).await?;
-    let program_vk = download_optional_artifact(&client, &vk_url)
-        .await?
-        .unwrap_or_default();
     let profiling_elf = download_optional_artifact(&client, &profiling_url).await?;
 
-    Ok(CompiledGuest {
-        elf,
-        program_vk,
-        profiling_elf,
-    })
+    Ok(CompiledGuest { elf, profiling_elf })
 }
 
 async fn download_required_artifact(client: &reqwest::Client, url: &str) -> Result<Vec<u8>> {
@@ -1032,7 +977,7 @@ mod tests {
     }
 
     #[test]
-    fn url_artifact_loader_requires_elf_but_not_vk_or_profiling_elf() -> Result<()> {
+    fn url_artifact_loader_requires_elf_but_not_profiling_elf() -> Result<()> {
         let elf_path = format!(
             "/{}.elf",
             guest_artifact_name(StatelessValidatorKind::Ethrex, zkVMKind::Zisk)
@@ -1047,7 +992,6 @@ mod tests {
         ))?;
 
         assert_eq!(compiled.elf, b"elf-bytes");
-        assert!(compiled.program_vk.is_empty());
         assert!(compiled.profiling_elf.is_none());
 
         Ok(())

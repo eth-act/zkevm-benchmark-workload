@@ -191,13 +191,13 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests use the `ere-guests v0.18.1` release assets.
-`GH_TOKEN` or `GITHUB_TOKEN` is optional for release downloads.
-The upstream downloader uses the first nonempty token in that order.
-Commit or branch dependencies still require a token for GitHub Actions artifacts.
+Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.18.2` dependency.
+The downloader fetches the ELF and Program VK from their registered URLs and fails if either sha256 differs from the registered value.
+It needs no `GH_TOKEN` or `GITHUB_TOKEN`.
+To use the guests of another ere-guests tag or commit, point the `stateless-validator-*` dependencies at it.
 
 Prebuilt Ere images are available with `ERE_IMAGE_REGISTRY=ghcr.io/eth-act/ere`.
-The dependency selects image revision `5023513`.
+The dependency selects image revision `7c5bc33`.
 
 Artifacts are named `stateless-validator-<execution-client>-<zkvm>-<zkvm-sdk-version>`, so a zkVM SDK bump changes the resolved file names.
 
@@ -213,4 +213,4 @@ Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compa
 - `--save-proofs` is only valid with `--action prove`.
 - `--proofs-url` and `--proofs-folder` are only valid with `--action verify`.
 - Cluster resources support proving and verification only.
-- Default release assets do not include profiling ELFs. `--zisk-profile` requires a compatible custom `-profiling.elf` artifact.
+- The ere-guests registry lists no profiling ELFs. `--zisk-profile` requires a compatible custom `-profiling.elf` artifact.
