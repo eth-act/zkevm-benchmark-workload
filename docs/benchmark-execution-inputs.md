@@ -88,11 +88,9 @@ Each loaded block becomes one benchmark fixture, named from the original EEST te
 ## Execution-Client Routing
 
 Every execution client receives `statelessInputBytes` unchanged on stdin and compares public values with `statelessOutputBytes`.
-Reth `0.1.0-rc.6` and Ethrex `30.0.1` support OpenVM, SP1, and ZisK.
+Reth `0.1.0-rc.6`, Ethrex `30.0.1`, and Zesu `tests@v21.0.5` support OpenVM, SP1, and ZisK.
 Nimbus `v0.3.1-alpha` and Nethermind `2.3.0-preview+3` support SP1 and ZisK.
 Zilkworm `0.1.0-alpha.7` supports SP1 only.
-<!-- TODO(ere-guests@v0.19): restore Zesu once it publishes a ZisK v1.3 guest. -->
-Zesu is unavailable until it publishes a ZisK v1.3 guest.
 
 Fixture deserialization remains independent of the selected execution client.
 Client-specific availability is checked before artifact resolution or guest

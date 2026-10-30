@@ -344,28 +344,4 @@ mod tests {
             assert!(Cli::try_parse_from(&with_input).unwrap().validate().is_ok());
         }
     }
-
-    // TODO(ere-guests@v0.19): drop once Zesu publishes a ZisK v1.3 guest.
-    #[test]
-    fn unreleased_clients_fail_validation_for_every_action() {
-        for action in ["execute", "estimate-cost", "prove", "verify"] {
-            let args = [
-                "ere-hosts",
-                "--zkvms",
-                "zisk",
-                "--action",
-                action,
-                "stateless-validator",
-                "--execution-client",
-                "zesu",
-                "--input-folder",
-                ".",
-            ];
-            let err = Cli::try_parse_from(args).unwrap().validate().unwrap_err();
-            assert!(
-                err.to_string().contains("is temporarily unavailable"),
-                "zesu {action}: {err}"
-            );
-        }
-    }
 }

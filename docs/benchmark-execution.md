@@ -36,9 +36,7 @@ cargo run -p ere-hosts --release -- --zkvms openvm \
     --input-folder /path/to/eest-fixtures
 ```
 
-Run Zesu on ZisK, once it publishes a ZisK v1.3 guest:
-
-<!-- TODO(ere-guests@v0.19): drop the condition above once Zesu is back in the registry. -->
+Run Zesu on ZisK:
 
 ```bash
 cargo run -p ere-hosts --release -- --zkvms zisk \
@@ -70,7 +68,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --input-folder /path/to/eest-fixtures
 ```
 
-Reth and Ethrex support OpenVM, SP1, and ZisK. Nimbus and Nethermind support SP1 and ZisK. Zilkworm supports SP1 only, and Zesu supports ZisK only.
+Reth, Ethrex, and Zesu support OpenVM, SP1, and ZisK. Nimbus and Nethermind support SP1 and ZisK. Zilkworm supports SP1 only.
 Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
 
 Run directly from an EEST fixture checkout:
@@ -210,7 +208,7 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.19.0` dependency.
+Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.19.1` dependency.
 The downloader fetches the ELF and Program VK from their registered URLs and fails if either sha256 differs from the registered value.
 It needs no `GH_TOKEN` or `GITHUB_TOKEN`.
 To use the guests of another ere-guests tag or commit, point the `stateless-validator-*` dependencies at it.

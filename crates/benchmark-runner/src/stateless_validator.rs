@@ -54,12 +54,11 @@ impl ExecutionClient {
     /// Returns the zkVMs with release artifacts in the pinned ere-guests registry.
     const fn supported_zkvms(self) -> &'static [zkVMKind] {
         match self {
-            Self::Reth | Self::Ethrex => &[zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk],
+            Self::Reth | Self::Ethrex | Self::Zesu => {
+                &[zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk]
+            }
             Self::Nimbus | Self::Nethermind => &[zkVMKind::SP1, zkVMKind::Zisk],
             Self::Zilkworm => &[zkVMKind::SP1],
-            // TODO(ere-guests@v0.19): Zesu has no ZisK v1.3 guest yet, so `registered_kind` rejects
-            // it before this list is used.
-            Self::Zesu => &[zkVMKind::Zisk],
         }
     }
 
@@ -118,6 +117,12 @@ mod tests {
                 &all[..],
             ),
             (
+                ExecutionClient::Zesu,
+                StatelessValidatorKind::Zesu,
+                "tests@v21.0.5",
+                &all[..],
+            ),
+            (
                 ExecutionClient::Nimbus,
                 StatelessValidatorKind::Nimbus,
                 "v0.3.1-alpha",
@@ -145,24 +150,6 @@ mod tests {
                     "{client:?} {zkvm}"
                 );
             }
-        }
-    }
-
-    // TODO(ere-guests@v0.19): move Zesu back to the active guests once it publishes a ZisK v1.3
-    // guest and ere-guests registers it.
-    #[test]
-    fn unreleased_guests_are_temporarily_unavailable() {
-        let client = ExecutionClient::Zesu;
-        let expected = format!(
-            "{0} is temporarily unavailable: the pinned ere-guests catalog has no {0} guest release",
-            client.as_ref()
-        );
-        assert_eq!(client.version().unwrap_err().to_string(), expected);
-        for zkvm in zkVMKind::iter() {
-            assert_eq!(
-                client.validate_zkvm(zkvm).unwrap_err().to_string(),
-                expected
-            );
         }
     }
 }
