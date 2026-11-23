@@ -122,8 +122,15 @@ sudo -u stateless-inputs RUST_LOG=info /usr/local/bin/witness-generator-spec-cli
 
 `migrate` logs each artifact it can't fix, leaves it as it was, and exits with an
 error at the end. Then rebuild every archive and the catalog with
-`export --force`, publish, and start the timers again. The archive checksums
-change, so `batches.jsonl` and `SHA256SUMS` change too.
+`export --force`, publish, and start the timers again. A batch takes about 8 s
+of one core to export, so pass `--jobs` here too. The archive checksums change,
+so `batches.jsonl` and `SHA256SUMS` change too.
+
+```bash
+sudo -u stateless-inputs RUST_LOG=info flock /data/stateless-inputs/.export-publish.lock \
+    /usr/local/bin/witness-generator-spec-cli export \
+    --config /etc/witness-generator-spec-cli/sepolia.toml --force --jobs 4
+```
 
 Example systemd services and timers for this flow live in
 [`crates/witness-generator-spec-cli/systemd`](../crates/witness-generator-spec-cli/systemd/README.md).

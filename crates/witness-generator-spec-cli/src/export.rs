@@ -2,7 +2,13 @@ use std::{
     collections::{BTreeMap, BTreeSet},
     fs,
     io::{BufRead, BufReader, Write},
+    num::NonZeroUsize,
     path::{Component, Path, PathBuf},
+    sync::{
+        Mutex, PoisonError,
+        atomic::{AtomicBool, AtomicUsize, Ordering},
+    },
+    thread,
     time::UNIX_EPOCH,
 };
 
@@ -24,6 +30,7 @@ use crate::{
 };
 
 const ZSTD_LEVEL: i32 = 3;
+const EXPORT_PROGRESS_EVERY: usize = 100;
 
 #[derive(Debug)]
 struct ArtifactDescriptor {
@@ -165,14 +172,16 @@ struct BatchManifestArtifact {
     fixture_byte_length: usize,
 }
 
+/// Writes an archive for each complete batch that has none yet, or for every complete batch with
+/// `force`, on `jobs` threads. The first failure stops the threads from starting new batches, and
+/// the error of the lowest failed batch is returned. Archives already written stay in place.
 pub(crate) fn export_batches(
     config: &CollectorConfig,
     force: bool,
+    jobs: NonZeroUsize,
 ) -> anyhow::Result<Vec<ExportedBatchMetadata>> {
     let (by_block, discovery) = artifacts_by_block(config)?;
     let complete_batches = complete_batch_starts(&by_block, config.batch_size);
-    let mut exported = Vec::new();
-    let mut skipped = 0_usize;
 
     info!(
         artifacts = discovery.artifacts,
@@ -193,19 +202,64 @@ pub(crate) fn export_batches(
         )
     })?;
 
-    for &start in &complete_batches {
-        let end = start + config.batch_size - 1;
-        let out_path = config.batches_root().join(format!("{start}-{end}.tar.zst"));
-        if out_path.exists() && !force {
-            skipped += 1;
-            continue;
-        }
-
-        let artifacts = batch_artifacts(&by_block, start, end);
-        exported.push(write_batch_archive(
-            config, start, end, &artifacts, &out_path, force,
-        )?);
+    let pending = complete_batches
+        .iter()
+        .copied()
+        .filter(|&start| force || !batch_archive_path(config, start).exists())
+        .collect::<Vec<_>>();
+    let skipped = complete_batches.len() - pending.len();
+    if !pending.is_empty() {
+        info!(
+            batches = pending.len(),
+            jobs = jobs.get(),
+            force,
+            "exporting batch archives"
+        );
     }
+
+    let next = AtomicUsize::new(0);
+    let done = AtomicUsize::new(0);
+    let failed = AtomicBool::new(false);
+    let results = Mutex::new(Vec::with_capacity(pending.len()));
+    thread::scope(|scope| {
+        for _ in 0..jobs.get() {
+            scope.spawn(|| {
+                while !failed.load(Ordering::Relaxed) {
+                    let Some(&start) = pending.get(next.fetch_add(1, Ordering::Relaxed)) else {
+                        break;
+                    };
+                    let end = start + config.batch_size - 1;
+                    let artifacts = batch_artifacts(&by_block, start, end);
+                    let result = write_batch_archive(
+                        config,
+                        start,
+                        end,
+                        &artifacts,
+                        &batch_archive_path(config, start),
+                        force,
+                    );
+                    if result.is_err() {
+                        failed.store(true, Ordering::Relaxed);
+                    }
+                    results
+                        .lock()
+                        .unwrap_or_else(PoisonError::into_inner)
+                        .push((start, result));
+                    let done = done.fetch_add(1, Ordering::Relaxed) + 1;
+                    if done.is_multiple_of(EXPORT_PROGRESS_EVERY) {
+                        info!(done, total = pending.len(), "export progress");
+                    }
+                }
+            });
+        }
+    });
+
+    let mut results = results.into_inner().unwrap_or_else(PoisonError::into_inner);
+    results.sort_by_key(|(start, _)| *start);
+    let exported = results
+        .into_iter()
+        .map(|(_, result)| result)
+        .collect::<anyhow::Result<Vec<_>>>()?;
 
     info!(
         complete = complete_batches.len(),
@@ -216,6 +270,11 @@ pub(crate) fn export_batches(
     );
 
     Ok(exported)
+}
+
+fn batch_archive_path(config: &CollectorConfig, start: u64) -> PathBuf {
+    let end = start + config.batch_size - 1;
+    config.batches_root().join(format!("{start}-{end}.tar.zst"))
 }
 
 fn artifacts_by_block(
@@ -688,13 +747,67 @@ mod tests {
     use super::*;
 
     #[test]
+    fn exports_batches_in_parallel() {
+        let config = test_config("parallel_batches", 2);
+        for block_number in 0..9 {
+            write_generated_artifact(&config, block_number, B256::repeat_byte(block_number as u8));
+        }
+        let jobs = NonZeroUsize::new(3).unwrap();
+
+        let exported = export_batches(&config, false, jobs).unwrap();
+
+        let starts = exported
+            .iter()
+            .map(|batch| batch.batch_start_block)
+            .collect::<Vec<_>>();
+        assert_eq!(starts, vec![0, 2, 4, 6]);
+        for batch in &exported {
+            let manifest = read_manifest_from_archive(batch);
+            assert_eq!(manifest.batch_start_block, batch.batch_start_block);
+            assert_eq!(manifest.artifact_count, 2);
+        }
+        assert!(export_batches(&config, false, jobs).unwrap().is_empty());
+        assert_eq!(export_batches(&config, true, jobs).unwrap().len(), 4);
+    }
+
+    #[test]
+    fn parallel_export_returns_the_failed_batch() {
+        let config = test_config("parallel_failure", 2);
+        let mut entries = (0..6)
+            .map(|block_number| {
+                write_generated_artifact(
+                    &config,
+                    block_number,
+                    B256::repeat_byte(block_number as u8),
+                )
+            })
+            .collect::<Vec<_>>();
+        let corrupted = entries.remove(2);
+        fs::write(
+            config.network_root().join(&corrupted.path),
+            b"corrupted artifact",
+        )
+        .unwrap();
+        append_index_entries(&config, entries.iter().chain([&corrupted]));
+
+        let error = export_batches(&config, false, NonZeroUsize::new(2).unwrap()).unwrap_err();
+
+        assert!(
+            format!("{error:#}").contains(&corrupted.path),
+            "unexpected error: {error:#}"
+        );
+        assert!(!config.batches_root().join("2-3.tar.zst").exists());
+        assert!(!config.batches_root().join("2-3.tar.zst.part").exists());
+    }
+
+    #[test]
     fn exports_complete_batches_with_manifest() {
         let config = test_config("complete_batch", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
         write_generated_artifact(&config, 2, B256::repeat_byte(0xcc));
 
-        let exported = export_batches(&config, false).unwrap();
+        let exported = export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         assert_eq!(exported.len(), 1);
         assert_eq!(
@@ -731,7 +844,7 @@ mod tests {
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
 
-        let exported = export_batches(&config, false).unwrap();
+        let exported = export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         let header = fs::read(&exported[0]).unwrap();
         assert_eq!(&header[..4], &[0x28, 0xb5, 0x2f, 0xfd]);
@@ -746,19 +859,37 @@ mod tests {
         let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
         append_index_entries(&config, [&first, &second]);
 
-        assert_eq!(export_batches(&config, false).unwrap().len(), 1);
-        assert!(export_batches(&config, false).unwrap().is_empty());
-        assert_eq!(export_batches(&config, true).unwrap().len(), 1);
+        assert_eq!(
+            export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .len(),
+            1
+        );
+        assert!(
+            export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .is_empty()
+        );
+        assert_eq!(
+            export_batches(&config, true, NonZeroUsize::MIN)
+                .unwrap()
+                .len(),
+            1
+        );
 
         fs::write(
             config.network_root().join(&first.path),
             b"corrupted artifact",
         )
         .unwrap();
-        assert!(export_batches(&config, false).unwrap().is_empty());
+        assert!(
+            export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .is_empty()
+        );
 
         let out_path = config.batches_root().join("0-1.tar.zst");
-        let error = export_batches(&config, true).unwrap_err();
+        let error = export_batches(&config, true, NonZeroUsize::MIN).unwrap_err();
         assert!(format!("{error:#}").contains("failed to decompress artifact"));
         assert!(out_path.exists());
         assert!(!archive_part_path(&out_path).exists());
@@ -770,7 +901,12 @@ mod tests {
         let first = write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
         append_index_entries(&config, [&first, &second]);
-        assert_eq!(export_batches(&config, false).unwrap().len(), 1);
+        assert_eq!(
+            export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .len(),
+            1
+        );
 
         fs::write(
             config.network_root().join(&first.path),
@@ -781,7 +917,7 @@ mod tests {
         let fourth = write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
         append_index_entries(&config, [&third, &fourth]);
 
-        let exported = export_batches(&config, false).unwrap();
+        let exported = export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         assert_eq!(exported.len(), 1);
         assert_eq!(
@@ -824,7 +960,12 @@ mod tests {
         assert_eq!(stats.invalid, 1);
         assert_eq!(stats.duplicates, 1);
         assert_eq!(stats.conflicts, 1);
-        assert_eq!(export_batches(&config, false).unwrap().len(), 1);
+        assert_eq!(
+            export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .len(),
+            1
+        );
     }
 
     #[test]
@@ -835,7 +976,9 @@ mod tests {
         let second = write_generated_artifact(&config, 1, B256::repeat_byte(0xcc));
         append_index_entries(&config, [&first, &variant, &second]);
 
-        let archive = export_batches(&config, false).unwrap().remove(0);
+        let archive = export_batches(&config, false, NonZeroUsize::MIN)
+            .unwrap()
+            .remove(0);
         let manifest = read_manifest_from_archive(&archive);
 
         assert_eq!(manifest.artifact_count, 3);
@@ -853,7 +996,9 @@ mod tests {
         let config = test_config("benchmark_ready", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let archive = export_batches(&config, false).unwrap().remove(0);
+        let archive = export_batches(&config, false, NonZeroUsize::MIN)
+            .unwrap()
+            .remove(0);
         let extracted = config.out_root.join("extracted");
 
         let file = fs::File::open(archive).unwrap();

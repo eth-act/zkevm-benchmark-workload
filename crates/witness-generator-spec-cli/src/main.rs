@@ -105,6 +105,9 @@ struct ExportArgs {
     /// Rebuild existing batch archives.
     #[arg(long)]
     force: bool,
+    /// Batch archives to build in parallel.
+    #[arg(long, default_value = "1")]
+    jobs: NonZeroUsize,
 }
 
 #[derive(Debug, Clone, Args)]
@@ -149,7 +152,7 @@ async fn main() -> anyhow::Result<()> {
         }
         Some(Command::Export(args)) => {
             let config = CollectorConfig::from_path(args.config)?;
-            let exported = export::export_batches(&config, args.force)?;
+            let exported = export::export_batches(&config, args.force, args.jobs)?;
             let catalog = catalog::generate_catalog(&config, &exported)?;
             info!(count = exported.len(), "exported batch archives");
             info!(
