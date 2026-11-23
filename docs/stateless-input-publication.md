@@ -32,8 +32,8 @@ in the config to enable it. An archive written with `zstd_window_log = 31` needs
 Running `witness-generator-spec-cli export` rebuilds these files at the network root:
 
 - `index.html`: human-readable landing page with download examples and a batch table.
-- `manifest.json`: dataset summary and paths to all public metadata files.
-- `batches.jsonl`: one completed batch archive per line.
+- `manifest.json`: dataset summary, the `testsZkevmVersion` every batch follows, and paths to all public metadata files.
+- `batches.jsonl`: one completed batch archive per line, each with its `testsZkevmVersion`.
 - `SHA256SUMS`: checksums for completed batch archives.
 
 The generated links are relative, so the same catalog works with an `r2.dev` development URL or a custom domain.
@@ -48,7 +48,11 @@ archives.
 ## Operator Flow
 
 Schema v3 artifacts are EEST `blockchain_test_engine` fixtures with the
-`tests-zkevm@v21.0.1` stateless input layout. Schema v3 does not read schema v2
+`tests-zkevm@v21` stateless input layout. Within v21, `tests-zkevm@v21.0.7`
+changed how the output's `new_payload_request_root` is computed but kept the
+input encoding, so each artifact records the release it follows in
+`testsZkevmVersion`. An artifact without it was collected for v21.0.6 or older
+and carries the old root. Schema v3 does not read schema v2
 artifacts, which are `blockchain_test` fixtures with the `tests-zkevm@v0.8.4`
 layout. Both layouts share the `0x1501` input schema id, so the id cannot tell
 them apart. Keep each layout in its own network directory. The schema v2
@@ -89,6 +93,37 @@ cargo run -p witness-generator-spec-cli --release -- publish-r2 \
 ```
 
 If `publish-r2` reports a missing public catalog file, run `export` first.
+
+### Moving to a new tests-zkevm release
+
+The CLI reads and writes only artifacts for the release in `TESTS_ZKEVM_VERSION`
+(`crates/witness-generator-spec-cli/src/artifact.rs`), which follows the
+ere-guests pin. After a bump that changes the output root, `export` rejects the
+artifacts collected before it, and the catalog rejects archives built from them.
+`migrate` recomputes the root of every artifact from its stateless input and
+records the new version. It leaves current artifacts alone, so it can run while
+the collector is writing new ones. Stop the exporter and publisher first:
+
+```bash
+sudo systemctl stop witness-exporter.timer witness-publisher.timer
+```
+
+Then migrate one range, check it, and migrate the rest. `--dry-run` only counts
+the artifacts that would change. Each artifact takes about 0.1 s of one core, so
+use `--jobs` on a large dataset:
+
+```bash
+sudo -u stateless-inputs RUST_LOG=info /usr/local/bin/witness-generator-spec-cli migrate \
+    --config /etc/witness-generator-spec-cli/sepolia.toml \
+    --from-block 11856000 --to-block 11856999
+sudo -u stateless-inputs RUST_LOG=info /usr/local/bin/witness-generator-spec-cli migrate \
+    --config /etc/witness-generator-spec-cli/sepolia.toml --jobs 4
+```
+
+`migrate` logs each artifact it can't fix, leaves it as it was, and exits with an
+error at the end. Then rebuild every archive and the catalog with
+`export --force`, publish, and start the timers again. The archive checksums
+change, so `batches.jsonl` and `SHA256SUMS` change too.
 
 Example systemd services and timers for this flow live in
 [`crates/witness-generator-spec-cli/systemd`](../crates/witness-generator-spec-cli/systemd/README.md).
@@ -146,17 +181,19 @@ cd /path/to/parent
 git clone https://github.com/ethereum/execution-specs.git
 cd execution-specs
 git fetch --tags
-git checkout 'tests-zkevm@v21.0.1'
+git checkout 'tests-zkevm@v21.0.7'
 ```
 
-`tests-zkevm@v21.0.1` validates only schema v3 batches. It rejects the schema v2
+Use the release in the catalog's `testsZkevmVersion`. `tests-zkevm@v21.0.7`
+validates only schema v3 batches that record `testsZkevmVersion` v21.0.7. It
+rejects older v21 batches, whose output carries the old root, and the schema v2
 `glamsterdam-devnet-8` batches.
 
 From this repository root, run:
 
 ```bash
 CATALOG_URL="https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia"
-EEST_REF="tests-zkevm@v21.0.1"
+EEST_REF="tests-zkevm@v21.0.7"
 EEST_DIR="../execution-specs"
 SUMMARY_DIR="target/eest-r2-stateless-inputs"
 

@@ -16,9 +16,9 @@ use tracing::{info, warn};
 use crate::{
     artifact::{
         self, ARTIFACT_SCHEMA_VERSION, ArtifactIndexEntry, BATCH_MANIFEST_PATH,
-        BATCH_MANIFEST_SCHEMA_VERSION, StatelessInputArtifact, fixture_archive_path,
-        path_to_slash_string, read_artifact_with_json, relative_artifact_path_from_parts,
-        sha256_hex,
+        BATCH_MANIFEST_SCHEMA_VERSION, StatelessInputArtifact, TESTS_ZKEVM_VERSION,
+        fixture_archive_path, path_to_slash_string, read_artifact_with_json,
+        relative_artifact_path_from_parts, sha256_hex,
     },
     config::CollectorConfig,
 };
@@ -57,6 +57,7 @@ struct IndexCache {
 pub(crate) struct ExportedBatchMetadata {
     pub(crate) path: PathBuf,
     pub(crate) manifest_schema_version: u64,
+    pub(crate) tests_zkevm_version: String,
     pub(crate) network: String,
     pub(crate) batch_start_block: u64,
     pub(crate) batch_end_block: u64,
@@ -85,6 +86,7 @@ impl std::ops::Deref for ExportedBatchMetadata {
 #[derive(Debug)]
 struct WrittenBatchMetadata {
     manifest_schema_version: u64,
+    tests_zkevm_version: String,
     network: String,
     batch_start_block: u64,
     batch_end_block: u64,
@@ -139,6 +141,7 @@ where
 #[serde(rename_all = "camelCase")]
 struct BatchManifest {
     schema_version: u64,
+    tests_zkevm_version: String,
     network: String,
     batch_start_block: u64,
     batch_end_block: u64,
@@ -465,6 +468,7 @@ fn write_batch_archive(
     Ok(ExportedBatchMetadata {
         path: out_path.to_path_buf(),
         manifest_schema_version: written.manifest_schema_version,
+        tests_zkevm_version: written.tests_zkevm_version,
         network: written.network,
         batch_start_block: written.batch_start_block,
         batch_end_block: written.batch_end_block,
@@ -524,8 +528,10 @@ fn write_batch_archive_part(
         })?;
     }
 
+    // The reader rejects any artifact that doesn't follow TESTS_ZKEVM_VERSION.
     let manifest = BatchManifest {
         schema_version: BATCH_MANIFEST_SCHEMA_VERSION,
+        tests_zkevm_version: TESTS_ZKEVM_VERSION.to_owned(),
         network: config.network.clone(),
         batch_start_block: start,
         batch_end_block: end,
@@ -544,6 +550,7 @@ fn write_batch_archive_part(
     let (_file, byte_length, sha256) = checksum_writer.finish();
     Ok(WrittenBatchMetadata {
         manifest_schema_version: manifest.schema_version,
+        tests_zkevm_version: manifest.tests_zkevm_version,
         network: manifest.network,
         batch_start_block: manifest.batch_start_block,
         batch_end_block: manifest.batch_end_block,
@@ -627,7 +634,7 @@ fn append_bytes<W: Write>(tar: &mut Builder<W>, path: &Path, bytes: &[u8]) -> an
         .context("failed to append tar entry")
 }
 
-fn collect_artifact_files(dir: &Path, files: &mut Vec<PathBuf>) -> anyhow::Result<()> {
+pub(crate) fn collect_artifact_files(dir: &Path, files: &mut Vec<PathBuf>) -> anyhow::Result<()> {
     if !dir.exists() {
         return Ok(());
     }
@@ -695,6 +702,7 @@ mod tests {
             Some("0-1.tar.zst")
         );
         let manifest = read_manifest_from_archive(&exported[0]);
+        assert_eq!(manifest.tests_zkevm_version, TESTS_ZKEVM_VERSION);
         assert_eq!(manifest.batch_start_block, 0);
         assert_eq!(manifest.batch_end_block, 1);
         assert_eq!(manifest.artifact_count, 2);

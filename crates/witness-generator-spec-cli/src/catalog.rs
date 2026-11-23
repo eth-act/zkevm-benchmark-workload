@@ -13,16 +13,17 @@ use tracing::{info, warn};
 
 use crate::{
     artifact::{
-        self, BATCH_MANIFEST_PATH, BATCH_MANIFEST_SCHEMA_VERSION, path_to_slash_string,
-        write_bytes_atomic,
+        self, BATCH_MANIFEST_PATH, BATCH_MANIFEST_SCHEMA_VERSION, TESTS_ZKEVM_VERSION,
+        path_to_slash_string, write_bytes_atomic,
     },
     config::CollectorConfig,
     export::ExportedBatchMetadata,
 };
 
-const CATALOG_SCHEMA_VERSION: u64 = 2;
+/// Version 3 records each batch's tests-zkevm version.
+const CATALOG_SCHEMA_VERSION: u64 = 3;
 const CATALOG_KIND: &str = "stateless-inputs-public-catalog";
-const CATALOG_CACHE_SCHEMA_VERSION: u64 = 1;
+const CATALOG_CACHE_SCHEMA_VERSION: u64 = 2;
 const CATALOG_CACHE_KIND: &str = "stateless-inputs-catalog-cache";
 const HTML_INDEX: &str = "index.html";
 const PUBLIC_MANIFEST: &str = "manifest.json";
@@ -50,6 +51,7 @@ struct PublicManifest {
     schema_version: u64,
     kind: String,
     network: String,
+    tests_zkevm_version: String,
     generated_at: String,
     batch_size: u64,
     paths: PublicManifestPaths,
@@ -81,6 +83,7 @@ struct PublicBatchesSummary {
 #[serde(rename_all = "camelCase")]
 struct PublicBatchEntry {
     schema_version: u64,
+    tests_zkevm_version: String,
     network: String,
     batch_start_block: u64,
     batch_end_block: u64,
@@ -134,6 +137,9 @@ enum LoadedCache {
 #[serde(rename_all = "camelCase")]
 struct BatchArchiveManifest {
     schema_version: u64,
+    /// Missing in archives exported before the catalog recorded it.
+    #[serde(default)]
+    tests_zkevm_version: Option<String>,
     network: String,
     batch_start_block: u64,
     batch_end_block: u64,
@@ -154,6 +160,17 @@ pub(crate) fn generate_catalog(
     exported: &[ExportedBatchMetadata],
 ) -> anyhow::Result<CatalogGeneration> {
     let (batches, cache_batches, stats) = read_batch_entries(config, exported)?;
+    if let Some(batch) = batches
+        .iter()
+        .find(|batch| batch.tests_zkevm_version != TESTS_ZKEVM_VERSION)
+    {
+        anyhow::bail!(
+            "batch archive {} follows tests-zkevm {}, expected {TESTS_ZKEVM_VERSION}; run \
+             `witness-generator-spec-cli migrate`, then `export --force`",
+            batch.path,
+            batch.tests_zkevm_version
+        );
+    }
     let artifact_count = batches.iter().map(|batch| batch.artifact_count).sum();
     let manifest = public_manifest(config, &batches)?;
     let cache = CatalogCache {
@@ -327,6 +344,7 @@ fn fresh_batch_entries(
             })?;
         let batch = PublicBatchEntry {
             schema_version: CATALOG_SCHEMA_VERSION,
+            tests_zkevm_version: exported.tests_zkevm_version.clone(),
             network: exported.network.clone(),
             batch_start_block: exported.batch_start_block,
             batch_end_block: exported.batch_end_block,
@@ -490,8 +508,16 @@ fn inspect_archive(
         manifest.network,
         config.network
     );
+    let tests_zkevm_version = manifest.tests_zkevm_version.with_context(|| {
+        format!(
+            "batch archive {} does not record its tests-zkevm version; rebuild it with \
+             `export --force`",
+            archive.path.display()
+        )
+    })?;
     let batch = PublicBatchEntry {
         schema_version: CATALOG_SCHEMA_VERSION,
+        tests_zkevm_version,
         network: manifest.network,
         batch_start_block: manifest.batch_start_block,
         batch_end_block: manifest.batch_end_block,
@@ -578,6 +604,7 @@ fn public_manifest(
         schema_version: CATALOG_SCHEMA_VERSION,
         kind: CATALOG_KIND.to_owned(),
         network: config.network.clone(),
+        tests_zkevm_version: TESTS_ZKEVM_VERSION.to_owned(),
         generated_at: artifact::utc_now_rfc3339()?,
         batch_size: config.batch_size,
         paths: PublicManifestPaths {
@@ -710,6 +737,7 @@ fn render_html(manifest: &PublicManifest, batches: &[PublicBatchEntry]) -> Strin
     );
     push_metric(&mut html, "Batches", manifest.batches.count);
     push_metric(&mut html, "Batch size", manifest.batch_size);
+    push_metric(&mut html, "tests-zkevm", &manifest.tests_zkevm_version);
     push_metric(
         &mut html,
         "Total batch size",
@@ -909,7 +937,9 @@ mod tests {
         let manifest: Value =
             serde_json::from_slice(&fs::read(config.network_root().join("manifest.json")).unwrap())
                 .unwrap();
+        assert_eq!(manifest["schemaVersion"], 3);
         assert_eq!(manifest["network"], "glamsterdam-devnet-8");
+        assert_eq!(manifest["testsZkevmVersion"], TESTS_ZKEVM_VERSION);
         assert!(manifest.get("blocks").is_none());
         assert!(manifest["paths"].get("blocks").is_none());
         assert!(manifest["paths"].get("legacyBlockIndex").is_none());
@@ -919,6 +949,7 @@ mod tests {
         let batches = read_jsonl_values(&config.network_root().join("batches.jsonl"));
         assert_eq!(batches.len(), 1);
         assert_eq!(batches[0]["path"], "exports/batches/0-1.tar.zst");
+        assert_eq!(batches[0]["testsZkevmVersion"], TESTS_ZKEVM_VERSION);
         assert_eq!(
             batches[0]["byteLength"],
             fs::metadata(config.batches_root().join("0-1.tar.zst"))
@@ -936,6 +967,7 @@ mod tests {
         let html = fs::read_to_string(config.network_root().join("index.html")).unwrap();
         assert!(html.contains("glamsterdam-devnet-8 stateless inputs"));
         assert!(html.contains("Total batch size"));
+        assert!(html.contains(TESTS_ZKEVM_VERSION));
         assert!(!html.contains("Total batch bytes"));
         assert!(html.contains("exports/batches/0-1.tar.zst"));
         assert!(html.contains("blockchain_tests_engine/"));
@@ -1147,6 +1179,78 @@ mod tests {
         for (name, path, contents) in public_files {
             assert_eq!(fs::read(path).unwrap(), contents, "{name} was replaced");
         }
+    }
+
+    #[test]
+    fn archive_without_tests_zkevm_version_needs_a_forced_export() {
+        let config = test_config("archive_without_version", 2);
+        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        let exported = export::export_batches(&config, false).unwrap();
+        generate_catalog(&config, &exported).unwrap();
+        let public_files = required_catalog_files(&config)
+            .into_iter()
+            .map(|(name, path)| (name, path.clone(), fs::read(path).unwrap()))
+            .collect::<Vec<_>>();
+        write_archive_with_manifest(&config, None);
+
+        let error = generate_catalog(&config, &[]).unwrap_err();
+
+        assert!(
+            format!("{error:#}").contains("export --force"),
+            "unexpected error: {error:#}"
+        );
+        for (name, path, contents) in public_files {
+            assert_eq!(fs::read(path).unwrap(), contents, "{name} was replaced");
+        }
+        let exported = export::export_batches(&config, true).unwrap();
+        let generation = generate_catalog(&config, &exported).unwrap();
+        assert_eq!(generation.fresh_batch_count, 1);
+    }
+
+    #[test]
+    fn rejects_batches_for_another_tests_zkevm_version() {
+        let config = test_config("archive_other_version", 2);
+        write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
+        write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
+        export::export_batches(&config, false).unwrap();
+        write_archive_with_manifest(&config, Some("v21.0.6"));
+
+        let error = format!("{:#}", generate_catalog(&config, &[]).unwrap_err());
+
+        assert!(error.contains("follows tests-zkevm v21.0.6"), "{error}");
+        assert!(error.contains("migrate"), "{error}");
+        assert!(!config.network_root().join(PUBLIC_MANIFEST).exists());
+    }
+
+    /// Replaces the archive for blocks 0-1 with one holding only a batch manifest, as an older
+    /// exporter would have written it.
+    fn write_archive_with_manifest(config: &CollectorConfig, tests_zkevm_version: Option<&str>) {
+        let mut manifest = serde_json::json!({
+            "schemaVersion": BATCH_MANIFEST_SCHEMA_VERSION,
+            "network": config.network,
+            "batchStartBlock": 0,
+            "batchEndBlock": 1,
+            "batchSize": 2,
+            "artifactCount": 2,
+            "createdAt": "2026-11-01T00:00:00Z",
+            "artifacts": [],
+        });
+        if let Some(version) = tests_zkevm_version {
+            manifest["testsZkevmVersion"] = Value::from(version);
+        }
+        let bytes = serde_json::to_vec_pretty(&manifest).unwrap();
+        let path = config.batches_root().join("0-1.tar.zst");
+        let encoder =
+            zstd::stream::write::Encoder::new(fs::File::create(path).unwrap(), 3).unwrap();
+        let mut tar = tar::Builder::new(encoder);
+        let mut header = tar::Header::new_gnu();
+        header.set_size(bytes.len() as u64);
+        header.set_mode(0o644);
+        header.set_cksum();
+        tar.append_data(&mut header, BATCH_MANIFEST_PATH, bytes.as_slice())
+            .unwrap();
+        tar.into_inner().unwrap().finish().unwrap();
     }
 
     fn assert_full_cache_rebuild(config: &CollectorConfig) {

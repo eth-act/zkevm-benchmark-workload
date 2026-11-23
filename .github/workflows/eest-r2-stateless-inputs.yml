@@ -11,7 +11,7 @@ on:
       eest_ref:
         description: ethereum/execution-specs ref to validate with
         required: false
-        default: tests-zkevm@v21.0.1
+        default: tests-zkevm@v21.0.7
         type: string
       batch_count:
         description: Number of latest complete batches to validate
@@ -41,7 +41,7 @@ jobs:
     timeout-minutes: 30
     env:
       CATALOG_URL: ${{ github.event.inputs.catalog_url || 'https://pub-afa6b160acfb4919bda1d0e2a00b5b77.r2.dev/testnets/sepolia/index.html' }}
-      EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v21.0.1' }}
+      EEST_REF: ${{ github.event.inputs.eest_ref || 'tests-zkevm@v21.0.7' }}
       BATCH_COUNT: ${{ github.event.inputs.batch_count || '1' }}
       MAX_ARTIFACTS: ${{ github.event.inputs.max_artifacts || '20' }}
       SUMMARY_DIR: workload/target/eest-r2-stateless-inputs

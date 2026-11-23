@@ -10,11 +10,13 @@ mod catalog;
 mod collector;
 mod config;
 mod export;
+mod migrate;
 mod publish;
 
 use std::{
     fs,
     io::{self, Write},
+    num::NonZeroUsize,
     path::PathBuf,
 };
 
@@ -60,6 +62,8 @@ enum Command {
     Collect(CollectArgs),
     /// Package complete local block ranges into downloadable batch archives.
     Export(ExportArgs),
+    /// Rewrite collected artifacts for the pinned tests-zkevm release.
+    Migrate(MigrateArgs),
     /// Publish exported batches and indexes to Cloudflare R2.
     PublishR2(PublishR2Args),
 }
@@ -104,6 +108,25 @@ struct ExportArgs {
 }
 
 #[derive(Debug, Clone, Args)]
+struct MigrateArgs {
+    /// TOML config path.
+    #[arg(long)]
+    config: PathBuf,
+    /// First block to migrate.
+    #[arg(long)]
+    from_block: Option<u64>,
+    /// Last block to migrate, inclusive.
+    #[arg(long)]
+    to_block: Option<u64>,
+    /// Artifacts to migrate in parallel.
+    #[arg(long, default_value = "1")]
+    jobs: NonZeroUsize,
+    /// Count the artifacts that need migrating without rewriting them.
+    #[arg(long)]
+    dry_run: bool,
+}
+
+#[derive(Debug, Clone, Args)]
 struct PublishR2Args {
     /// TOML config path.
     #[arg(long)]
@@ -137,6 +160,25 @@ async fn main() -> anyhow::Result<()> {
                 seeded = catalog.seeded_batch_count,
                 inspected = catalog.inspected_batch_count,
                 "generated public catalog"
+            );
+            Ok(())
+        }
+        Some(Command::Migrate(args)) => {
+            let config = CollectorConfig::from_path(args.config)?;
+            let summary = migrate::migrate_artifacts(
+                &config,
+                &migrate::MigrateOptions {
+                    from_block: args.from_block,
+                    to_block: args.to_block,
+                    jobs: args.jobs,
+                    dry_run: args.dry_run,
+                },
+            )?;
+            anyhow::ensure!(
+                summary.failed.is_empty(),
+                "{} of {} artifacts failed to migrate; the log names each one",
+                summary.failed.len(),
+                summary.artifacts
             );
             Ok(())
         }
@@ -233,7 +275,7 @@ mod tests {
 
     #[test]
     fn parses_operational_subcommands() {
-        for command in ["collect", "export", "publish-r2"] {
+        for command in ["collect", "export", "migrate", "publish-r2"] {
             Cli::try_parse_from([
                 "witness-generator-spec-cli",
                 command,
