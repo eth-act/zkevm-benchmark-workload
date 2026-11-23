@@ -123,14 +123,23 @@ impl ZkVMInstance {
     }
 
     /// Executes the guest with the cost profiler, which also measures the peak heap bytes.
-    pub fn estimate_cost(&self, input: &Input) -> Result<(PublicValues, CostEstimation, u64)> {
+    ///
+    /// Ere has no profiler for Pico, so Pico runs the cost estimator alone and reports no peak heap.
+    pub fn estimate_cost(
+        &self,
+        input: &Input,
+    ) -> Result<(PublicValues, CostEstimation, Option<u64>)> {
         match self {
+            Self::Dockerized { zkvm, .. } if zkvm.zkvm_kind() == zkVMKind::Pico => {
+                let (public_values, cost) = zkvm.execute_estimated_cost(input)?;
+                Ok((public_values, cost, None))
+            }
             Self::Dockerized { zkvm, .. } => {
                 let (public_values, profile) = zkvm.profile(input)?;
                 Ok((
                     public_values,
                     profile.cost_estimation(),
-                    profile.peak_heap_bytes,
+                    Some(profile.peak_heap_bytes),
                 ))
             }
             Self::ZiskClusterClient { .. } => {
@@ -463,7 +472,7 @@ pub(crate) fn should_skip_action(path: &Path, action: Action, force: bool) -> Re
 fn collect_cost_estimation(
     io: &impl GuestFixture,
     context: CostEstimationContext,
-    estimate: impl FnOnce() -> Result<(PublicValues, CostEstimation, u64)>,
+    estimate: impl FnOnce() -> Result<(PublicValues, CostEstimation, Option<u64>)>,
 ) -> Result<CostEstimationMetrics> {
     Ok(
         match panic::catch_unwind(panic::AssertUnwindSafe(estimate)) {
@@ -471,7 +480,7 @@ fn collect_cost_estimation(
                 output_matched: public_output_matched(io, &public_values)
                     .context("Failed to compare public output from cost estimation")?,
                 cost: report.cost,
-                peak_heap_bytes: Some(peak_heap_bytes),
+                peak_heap_bytes,
                 context: Box::new(context),
             },
             Ok(Err(err)) => CostEstimationMetrics::Crashed(CrashInfo {
@@ -788,20 +797,27 @@ mod tests {
     #[test]
     fn estimator_preserves_costs_on_output_mismatch_and_handles_failures() -> Result<()> {
         let fixture = Fixture::new(vec![1, 2]);
-        for (output, matched) in [(vec![1, 2, 0], true), (vec![1, 3], false)] {
+        for (output, matched, peak_heap_bytes) in [
+            (vec![1, 2, 0], true, Some(1234)),
+            (vec![1, 3], false, Some(1234)),
+            (vec![1, 2], true, None),
+        ] {
             let metrics = collect_cost_estimation(&fixture, test_cost_context(), || {
                 Ok((
                     output.as_slice().into(),
                     CostEstimation {
                         cost: BTreeMap::from([("opcode".into(), 99)]),
                     },
-                    1234,
+                    peak_heap_bytes,
                 ))
             })?;
             let value = serde_json::to_value(metrics)?;
             assert_eq!(value["success"]["output_matched"], matched);
             assert_eq!(value["success"]["cost"]["opcode"], 99);
-            assert_eq!(value["success"]["peak_heap_bytes"], 1234);
+            assert_eq!(
+                value["success"]["peak_heap_bytes"],
+                serde_json::json!(peak_heap_bytes)
+            );
         }
         for metrics in [
             collect_cost_estimation(&fixture, test_cost_context(), || bail!("estimator error"))?,

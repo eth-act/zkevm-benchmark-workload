@@ -88,9 +88,14 @@ Each loaded block becomes one benchmark fixture, named from the original EEST te
 ## Execution-Client Routing
 
 Every execution client receives `statelessInputBytes` unchanged on stdin and compares public values with `statelessOutputBytes`.
-Reth `0.1.0-rc.6`, Ethrex `30.0.1`, and Zesu `tests@v21.0.5` support OpenVM, SP1, and ZisK.
-Nimbus `v0.3.1-alpha` and Nethermind `2.3.0-preview+3` support SP1 and ZisK.
-Zilkworm `0.1.0-alpha.7` supports SP1 only.
+Reth `0.1.0-rc.9` supports OpenVM, Pico, SP1, and ZisK.
+Ethrex `32.0.0-rc.1` and Zesu `tests@v21.0.7` support OpenVM, SP1, and ZisK.
+Nimbus `v0.4.0-alpha` and Nethermind `2.3.0-preview+6` support SP1 and ZisK.
+Zilkworm `0.1.0-alpha.8` supports SP1 only.
+
+The guests follow `tests-zkevm@v21.0.7`, which hashes the payload request as a progressive container.
+Fixtures from earlier v21 releases keep the old `new_payload_request_root` in `statelessOutputBytes`,
+so their outputs no longer match.
 
 Fixture deserialization remains independent of the selected execution client.
 Client-specific availability is checked before artifact resolution or guest

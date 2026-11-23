@@ -286,7 +286,8 @@ fn decode_versioned_hashes(transactions: &[Bytes]) -> anyhow::Result<VersionedHa
         }
     }
 
-    Ok(VersionedHashes::from(versioned_hashes))
+    VersionedHashes::try_from(versioned_hashes)
+        .map_err(|err| anyhow::anyhow!("versioned hashes exceed SSZ list bound: {err:?}"))
 }
 
 fn normalize_headers(headers: Vec<Bytes>, block_number: u64) -> anyhow::Result<Vec<Bytes>> {

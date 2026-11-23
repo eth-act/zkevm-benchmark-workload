@@ -54,9 +54,13 @@ impl ExecutionClient {
     /// Returns the zkVMs with release artifacts in the pinned ere-guests registry.
     const fn supported_zkvms(self) -> &'static [zkVMKind] {
         match self {
-            Self::Reth | Self::Ethrex | Self::Zesu => {
-                &[zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk]
-            }
+            Self::Reth => &[
+                zkVMKind::OpenVM,
+                zkVMKind::Pico,
+                zkVMKind::SP1,
+                zkVMKind::Zisk,
+            ],
+            Self::Ethrex | Self::Zesu => &[zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk],
             Self::Nimbus | Self::Nethermind => &[zkVMKind::SP1, zkVMKind::Zisk],
             Self::Zilkworm => &[zkVMKind::SP1],
         }
@@ -101,43 +105,49 @@ mod tests {
 
     #[test]
     fn active_guests_follow_upstream_catalog() {
+        let reth = [
+            zkVMKind::OpenVM,
+            zkVMKind::Pico,
+            zkVMKind::SP1,
+            zkVMKind::Zisk,
+        ];
         let all = [zkVMKind::OpenVM, zkVMKind::SP1, zkVMKind::Zisk];
         let sp1_and_zisk = [zkVMKind::SP1, zkVMKind::Zisk];
         for (client, kind, version, zkvms) in [
             (
                 ExecutionClient::Reth,
                 StatelessValidatorKind::Reth,
-                "0.1.0-rc.6",
-                &all[..],
+                "0.1.0-rc.9",
+                &reth[..],
             ),
             (
                 ExecutionClient::Ethrex,
                 StatelessValidatorKind::Ethrex,
-                "30.0.1",
+                "32.0.0-rc.1",
                 &all[..],
             ),
             (
                 ExecutionClient::Zesu,
                 StatelessValidatorKind::Zesu,
-                "tests@v21.0.5",
+                "tests@v21.0.7",
                 &all[..],
             ),
             (
                 ExecutionClient::Nimbus,
                 StatelessValidatorKind::Nimbus,
-                "v0.3.1-alpha",
+                "v0.4.0-alpha",
                 &sp1_and_zisk[..],
             ),
             (
                 ExecutionClient::Nethermind,
                 StatelessValidatorKind::Nethermind,
-                "2.3.0-preview+3",
+                "2.3.0-preview+6",
                 &sp1_and_zisk[..],
             ),
             (
                 ExecutionClient::Zilkworm,
                 StatelessValidatorKind::Zilkworm,
-                "0.1.0-alpha.7",
+                "0.1.0-alpha.8",
                 &[zkVMKind::SP1][..],
             ),
         ] {

@@ -16,11 +16,12 @@ This repository benchmarks Ethereum stateless-validator guests across multiple z
 - **`crates/metrics`**: serializable result types such as `BenchmarkRun`.
 - **`crates/witness-generator-spec-cli`**: separate CLI and library for producing and publishing benchmark-ready EEST stateless fixtures from CL/EL RPC endpoints.
 
-Reth `v0.1.0-rc.6`, Ethrex `v30.0.1`, and Zesu `tests@v21.0.5` support OpenVM, SP1, and ZisK.
-Nimbus `v0.3.1-alpha` and Nethermind `v2.3.0-preview+3` support SP1 and ZisK.
-Zilkworm `v0.1.0-alpha.7` supports SP1 only.
-The workspace pins [ere-guests v0.19.1](https://github.com/eth-act/ere-guests/releases/tag/v0.19.1)
-and Ere v0.19.5. Default guests are downloaded from the URLs in the ere-guests artifact registry and
+Reth `v0.1.0-rc.9` supports OpenVM, Pico, SP1, and ZisK.
+Ethrex `v32.0.0-rc.1` and Zesu `tests@v21.0.7` support OpenVM, SP1, and ZisK.
+Nimbus `v0.4.0-alpha` and Nethermind `v2.3.0-preview+6` support SP1 and ZisK.
+Zilkworm `v0.1.0-alpha.8` supports SP1 only.
+The workspace pins [ere-guests v0.20.0](https://github.com/eth-act/ere-guests/releases/tag/v0.20.0)
+and Ere v0.20.2. Default guests are downloaded from the URLs in the ere-guests artifact registry and
 checked against the registered sha256. They need no GitHub authentication.
 Compatible custom artifacts can use `--bin-path` or `--guest-artifact-base-url`.
 
@@ -46,7 +47,7 @@ collection. Exported live batches contain a `blockchain_tests_engine/` tree and 
 passed to `ere-hosts` immediately after extraction.
 
 Obtain the
-[`tests-zkevm@v21.0.1`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v21.0.1)
+[`tests-zkevm@v21.0.7`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v21.0.7)
 `fixtures_zkevm.tar.gz` bundle, whose `blockchain_tests_engine` cases contain canonical stateless
 bytes. Then benchmark either the extracted fixture root, a directory of EEST
 JSON files, or one EEST JSON file:

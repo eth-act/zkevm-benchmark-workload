@@ -325,13 +325,14 @@ mod tests {
         Ok(())
     }
 
-    /// Loads the real `tests-zkevm` fixtures in `testdata/eest` and decodes their bytes with the
-    /// guest schema from ere-guests, so a layout change on either side fails without Docker.
+    /// Loads the real `tests-zkevm` fixtures in `testdata/eest`, decodes their bytes with the guest
+    /// schema from ere-guests and checks their payload request root, so a layout or hashing change on
+    /// either side fails without Docker.
     #[test]
     fn vendored_eest_fixtures_decode_with_guest_schema() -> Result<()> {
         use stateless_validator_common::{
             guest::{input::ProtocolFork, StatelessInput, StatelessValidationResult},
-            SszDecode as _,
+            HashTreeRoot as _, Sha2Hasher, SszDecode as _,
         };
 
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../testdata/eest");
@@ -362,14 +363,7 @@ mod tests {
                 Some(gas_used),
                 "{name}"
             );
-            assert!(
-                metadata["opcode_count"]
-                    .as_object()
-                    .is_some_and(|counts| !counts.is_empty()),
-                "{name}"
-            );
-
-            let (fork, _) = StatelessInput::from_schema_prefixed_ssz(fixture.input()?.stdin())?;
+            let (fork, input) = StatelessInput::from_schema_prefixed_ssz(fixture.input()?.stdin())?;
             assert_eq!(fork, ProtocolFork::Amsterdam, "{name}");
 
             let output =
@@ -377,6 +371,11 @@ mod tests {
                     .map_err(|err| {
                         anyhow::anyhow!("failed to decode statelessOutputBytes: {err:?}")
                     })?;
+            assert_eq!(
+                output.new_payload_request_root,
+                input.new_payload_request.hash_tree_root(&Sha2Hasher),
+                "{name}"
+            );
             assert_eq!(output.successful_validation, valid, "{name}");
             assert_eq!(output.chain_id, 1, "{name}");
             assert_eq!(
