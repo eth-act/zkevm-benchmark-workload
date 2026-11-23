@@ -10,7 +10,7 @@ use anyhow::{Context, ensure};
 use serde::{Deserialize, Serialize};
 use sha2::{Digest, Sha256};
 use stateless_validator_common::{
-    HashTreeRoot as _, Sha2Hasher, SszDecode as _,
+    HashTreeRoot as _, Sha2Hasher, SszDecode as _, SszEncode as _,
     guest::{
         StatelessInput, StatelessValidationResult,
         input::{ProtocolFork, new_payload_request::NewPayloadRequest},
@@ -22,6 +22,11 @@ use witness_generator_spec_cli::GeneratedInput;
 pub(crate) const ARTIFACT_SCHEMA_VERSION: u64 = 3;
 pub(crate) const BATCH_MANIFEST_SCHEMA_VERSION: u64 = 3;
 pub(crate) const BATCH_MANIFEST_PATH: &str = ".meta/manifest.json";
+/// The execution-specs `tests-zkevm` release whose stateless input and output the pinned
+/// `stateless-validator-common` follows. v21.0.7 changed how `new_payload_request_root` is
+/// computed without changing the input encoding, so schema v3 covers both, and this version tells
+/// them apart. When an ere-guests bump changes the root again, bump this and run `migrate`.
+pub(crate) const TESTS_ZKEVM_VERSION: &str = "v21.0.7";
 const EEST_NETWORK: &str = "Amsterdam";
 const ZSTD_LEVEL: i32 = 3;
 
@@ -78,6 +83,9 @@ struct EestMetadata {
 #[serde(rename_all = "camelCase")]
 struct WitnessGeneratorMetadata {
     schema_version: u64,
+    /// Missing in artifacts collected for tests-zkevm v21.0.6 or older.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    tests_zkevm_version: Option<String>,
     #[serde(skip_serializing_if = "Option::is_none")]
     network: Option<String>,
     block_hash: String,
@@ -157,6 +165,7 @@ impl EestFixture {
         let test_name = fixture_test_name(generated.block_number, &block_hash);
         let metadata = WitnessGeneratorMetadata {
             schema_version: ARTIFACT_SCHEMA_VERSION,
+            tests_zkevm_version: Some(TESTS_ZKEVM_VERSION.to_owned()),
             network: provenance.network,
             block_hash,
             slot_number: generated.slot_number,
@@ -198,6 +207,32 @@ impl EestFixture {
             serde_json::to_vec_pretty(self).context("failed to serialize EEST fixture JSON")?;
         bytes.push(b'\n');
         Ok(bytes)
+    }
+
+    /// Recomputes `new_payload_request_root` in each `statelessOutputBytes` from its
+    /// `statelessInputBytes` and records [`TESTS_ZKEVM_VERSION`]. The other output fields stay as
+    /// they are; the reader checks them against the input.
+    fn migrate_output(&mut self) -> anyhow::Result<()> {
+        for test in self.tests.values_mut() {
+            for payload in &mut test.engine_new_payloads {
+                let input_bytes =
+                    decode_hex_bytes("statelessInputBytes", &payload.stateless_input_bytes)?;
+                let (_, input) = StatelessInput::from_schema_prefixed_ssz(&input_bytes)
+                    .context("failed to decode statelessInputBytes")?;
+                let output_bytes =
+                    decode_hex_bytes("statelessOutputBytes", &payload.stateless_output_bytes)?;
+                let mut output =
+                    StatelessValidationResult::from_ssz_bytes(&output_bytes).map_err(|err| {
+                        anyhow::anyhow!("failed to decode statelessOutputBytes: {err:?}")
+                    })?;
+                output.new_payload_request_root =
+                    input.new_payload_request.hash_tree_root(&Sha2Hasher);
+                payload.stateless_output_bytes = hex_bytes(&output.to_ssz());
+            }
+            test.info.metadata.witness_generator.tests_zkevm_version =
+                Some(TESTS_ZKEVM_VERSION.to_owned());
+        }
+        Ok(())
     }
 }
 
@@ -262,6 +297,17 @@ impl StatelessInputArtifact {
             metadata.schema_version,
             ARTIFACT_SCHEMA_VERSION
         );
+        match metadata.tests_zkevm_version.as_deref() {
+            Some(TESTS_ZKEVM_VERSION) => {}
+            Some(version) => anyhow::bail!(
+                "artifact follows tests-zkevm {version}, expected {TESTS_ZKEVM_VERSION}; \
+                 run `witness-generator-spec-cli migrate`"
+            ),
+            None => anyhow::bail!(
+                "artifact has no testsZkevmVersion metadata, so it was collected for tests-zkevm \
+                 v21.0.6 or older; run `witness-generator-spec-cli migrate`"
+            ),
+        }
 
         let network = required_metadata("network", metadata.network.as_deref())?.to_owned();
         let collection_mode =
@@ -443,6 +489,44 @@ pub(crate) fn read_artifact_with_json(
     let artifact = StatelessInputArtifact::from_fixture(fixture)
         .with_context(|| format!("invalid schema-v3 EEST artifact {}", path.display()))?;
     Ok((artifact, json))
+}
+
+/// What [`migrate_artifact`] found.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Migration {
+    /// The artifact already follows [`TESTS_ZKEVM_VERSION`] and was left alone.
+    Current,
+    /// The artifact was rewritten, or would be without `dry_run`.
+    Migrated,
+}
+
+/// Brings one collected artifact to [`TESTS_ZKEVM_VERSION`]. A valid artifact is left alone.
+/// Otherwise the output root is recomputed from the input, the result must pass the same checks
+/// as [`read_artifact_with_json`], and it replaces the file through a rename.
+pub(crate) fn migrate_artifact(path: &Path, dry_run: bool) -> anyhow::Result<Migration> {
+    let file = fs::File::open(path)
+        .with_context(|| format!("failed to open artifact {}", path.display()))?;
+    let json = zstd::stream::decode_all(file)
+        .with_context(|| format!("failed to decompress artifact {}", path.display()))?;
+    let mut fixture: EestFixture = serde_json::from_slice(&json).with_context(|| {
+        format!(
+            "failed to decode schema-v3 EEST artifact JSON {}",
+            path.display()
+        )
+    })?;
+    if StatelessInputArtifact::from_fixture(fixture.clone()).is_ok() {
+        return Ok(Migration::Current);
+    }
+
+    fixture.migrate_output()?;
+    let artifact = StatelessInputArtifact::from_fixture(fixture)
+        .with_context(|| format!("invalid schema-v3 EEST artifact {}", path.display()))?;
+    if !dry_run {
+        let compressed = zstd::bulk::compress(&artifact.fixture_json()?, ZSTD_LEVEL)
+            .context("failed to compress artifact")?;
+        write_bytes_atomic(path, &compressed)?;
+    }
+    Ok(Migration::Migrated)
 }
 
 pub(crate) fn append_index_entry(
@@ -677,7 +761,6 @@ pub(crate) fn test_generated_input(block_number: u64, block_hash: B256) -> Gener
 #[cfg(test)]
 mod tests {
     use benchmark_runner::stateless_validator::{ExecutionClient, stateless_validator_input_iter};
-    use stateless_validator_common::SszEncode as _;
 
     use super::*;
 
