@@ -193,13 +193,14 @@ These values estimate proving work. They are not prices, execution cycles, or me
 | OpenVM | Unpadded trace cells, summed across segments | `rv64`, `precompile`, `system` |
 | SP1 | `3 * trace_area + complexity` (ten times SP1 gas) | `opcode`, `syscall`, `system` |
 | ZisK | Trace cells | `base`, `precompile`, `memory`, `opcode`, `main` |
+| Pico | Unpadded main-trace cells of the RISC-V chips, summed across chunks | `rv64`, `precompile`, `system` |
 
-Component names and units follow [Ere v0.19.5](https://github.com/eth-act/ere/tree/v0.19.5/crates/prover).
+Component names and units follow [Ere v0.20.2](https://github.com/eth-act/ere/tree/v0.20.2/crates/prover).
 Raw costs must not be compared across zkVMs, SDK versions, Ere revisions, or estimator settings.
 
 `peak_heap_bytes` comes from Ere's `profile`, which runs the same cost estimator and counts the guest memory bytes read or written outside the ELF segments, the stack and the memory the zkVM reserves. OpenVM counts whole 16-byte leaves.
 It is not host RAM or a precise allocator high-water mark.
-Results from Ere versions before v0.19 can hold `null`, which means the estimator could not read the heap. A missing measurement is not zero.
+Pico results and results from Ere versions before v0.19 hold `null`, which means the estimator could not read the heap. A missing measurement is not zero.
 
 The context records effective settings that affect measurement:
 

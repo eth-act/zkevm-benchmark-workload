@@ -19,15 +19,13 @@ use benchmark_runner::stateless_validator::{ExecutionClient, stateless_validator
 use ere_dockerized::zkVMKind;
 use std::{
     collections::{BTreeMap, BTreeSet},
-    env, fs,
+    fs,
     path::Path,
     process::Command,
     sync::{Mutex, PoisonError},
     thread,
     time::{Duration, Instant},
 };
-
-const DEFAULT_IMAGE_REGISTRY: &str = "ghcr.io/eth-act/ere";
 
 /// Covers the image pull and SP1 prover startup, which dominate each run.
 const RUN_TIMEOUT: Duration = Duration::from_secs(10 * 60);
@@ -103,9 +101,6 @@ fn run_ere_hosts(client: ExecutionClient, action: &str, input: &Path, output: &P
             "--input-folder",
         ])
         .arg(input);
-    if env::var_os("ERE_IMAGE_REGISTRY").is_none() {
-        command.env("ERE_IMAGE_REGISTRY", DEFAULT_IMAGE_REGISTRY);
-    }
 
     let mut child = command.spawn().expect("failed to spawn ere-hosts");
     let deadline = Instant::now() + RUN_TIMEOUT;

@@ -282,19 +282,19 @@ mod tests {
                 "nimbus",
                 stateless_validator::ExecutionClient::Nimbus,
                 "zisk",
-                &["openvm", "lambdavm"][..],
+                &["openvm", "pico", "lambdavm"][..],
             ),
             (
                 "nethermind",
                 stateless_validator::ExecutionClient::Nethermind,
                 "sp1",
-                &["openvm", "lambdavm"][..],
+                &["openvm", "pico", "lambdavm"][..],
             ),
             (
                 "zilkworm",
                 stateless_validator::ExecutionClient::Zilkworm,
                 "sp1",
-                &["openvm", "zisk", "lambdavm"][..],
+                &["openvm", "pico", "zisk", "lambdavm"][..],
             ),
         ] {
             let args = [

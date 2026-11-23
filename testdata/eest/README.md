@@ -1,7 +1,7 @@
 # EEST Test Fixtures
 
 These two `blockchain_test_engine` fixtures come unchanged from the `fixtures_zkevm.tar.gz` bundle of
-[`tests-zkevm@v21.0.1`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v21.0.1).
+[`tests-zkevm@v21.0.7`](https://github.com/ethereum/execution-specs/releases/tag/tests-zkevm%40v21.0.7).
 Their paths below `blockchain_tests_engine/` match the bundle.
 
 | Fixture | Expected result |
@@ -28,6 +28,9 @@ When the workspace moves to a new `tests-zkevm` release, replace these files wit
 bundle. Keep one valid and one invalid block. Then update the fixture names and gas values in the loader test,
 and run both tests.
 
-Pick tests that every client in `e2e.rs` validates correctly. Leave out the three block access list tests
-listed in [paradigmxyz/stateless#48](https://github.com/paradigmxyz/stateless/pull/48): revm and alloy-evm bugs
-make Reth `0.1.0-rc.6` reject their valid blocks.
+Pick tests that every client in `e2e.rs` validates correctly. Leave out the tests that ere-guests lists as
+expected failures in
+[`zkvm_execution.rs`](https://github.com/eth-act/ere-guests/blob/v0.20.0/crates/stateless-validator-test/tests/zkvm_execution.rs).
+
+`tests-zkevm@v21.0.7` fixtures carry no `opcode_count_per_block` metadata, so the loader test does not check
+opcode counts.

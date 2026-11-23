@@ -68,7 +68,7 @@ cargo run -p ere-hosts --release -- --zkvms sp1 \
     --input-folder /path/to/eest-fixtures
 ```
 
-Reth, Ethrex, and Zesu support OpenVM, SP1, and ZisK. Nimbus and Nethermind support SP1 and ZisK. Zilkworm supports SP1 only.
+Reth supports OpenVM, Pico, SP1, and ZisK. Ethrex and Zesu support OpenVM, SP1, and ZisK. Nimbus and Nethermind support SP1 and ZisK. Zilkworm supports SP1 only.
 Unsupported guest/zkVM pairs fail before artifact downloads or container startup.
 
 Run directly from an EEST fixture checkout:
@@ -208,13 +208,13 @@ When `--proofs-url` is used, the archive is downloaded, extracted to a temporary
 
 ## Guest Artifact Resolution
 
-Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.19.1` dependency.
+Default guests are the ones registered in the `artifact-registry.json` of the pinned `ere-guests v0.20.0` dependency.
 The downloader fetches the ELF and Program VK from their registered URLs and fails if either sha256 differs from the registered value.
 It needs no `GH_TOKEN` or `GITHUB_TOKEN`.
 To use the guests of another ere-guests tag or commit, point the `stateless-validator-*` dependencies at it.
 
-Prebuilt Ere images are available with `ERE_IMAGE_REGISTRY=ghcr.io/eth-act/ere`.
-The dependency selects image revision `fba5601`. Set `ERE_IMAGE_TAG` to use another tag.
+Ere pulls prebuilt images from `ghcr.io/eth-act/ere` by default. Set `ERE_IMAGE_REGISTRY` to use another registry.
+The dependency selects image revision `4d21321`. Set `ERE_IMAGE_TAG` to use another tag.
 
 Artifacts are named `stateless-validator-<execution-client>-<zkvm>-<zkvm-sdk-version>`, so a zkVM SDK bump changes the resolved file names.
 
@@ -229,7 +229,9 @@ Use compatible local artifacts with `--bin-path <DIRECTORY>`, or provide a compa
 - `--zisk-profile` only works with `--zkvms zisk` and `--action execute`.
 - `--save-proofs` is only valid with `--action prove`.
 - `--proofs-url` and `--proofs-folder` are only valid with `--action verify`.
-- Cluster resources support proving and verification only. The ZisK cluster must run ZisK v1.3.2.
+- Cluster resources support proving and verification only. The ZisK cluster must run ZisK v1.4.0.
 - Ere downloads the ZisK proving key on the first ZisK proof. Set `ERE_ZISK_PROVING_KEY_VOLUME` to a Docker volume or absolute host path to keep it across server containers.
 - Ere v0.19 renamed the SP1 concurrency variables to `ERE_SP1_EXECUTE_CONCURRENCY` and `ERE_SP1_EXECUTE_ESTIMATED_CONCURRENCY`.
+- Ere v0.20 limits the RAM of each server container to `ERE_DOCKER_MEMORY`, 90% of the Docker host memory by default, and lets it use all free swap. Set `ERE_DOCKER_MEMORY_SWAP` to limit swap.
+- Ere has no profiler for Pico, so Pico cost estimates record a `null` `peak_heap_bytes`.
 - The ere-guests registry lists no profiling ELFs. `--zisk-profile` requires a compatible custom `-profiling.elf` artifact.
