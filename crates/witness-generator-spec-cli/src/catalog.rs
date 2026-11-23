@@ -881,6 +881,7 @@ fn is_batch_archive(path: &Path) -> bool {
 mod tests {
     use std::{
         fs::FileTimes,
+        num::NonZeroUsize,
         time::{Duration, SystemTime},
     };
 
@@ -911,7 +912,7 @@ mod tests {
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
         write_generated_artifact(&config, 2, B256::repeat_byte(0xcc));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         assert_eq!(
             exported[0].byte_length,
@@ -981,7 +982,7 @@ mod tests {
         let config = test_config("incomplete_ranges", 2);
         write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
         fs::write(config.network_root().join("blocks.jsonl"), b"stale\n").unwrap();
-        export::export_batches(&config, false).unwrap();
+        export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         let generation = generate_catalog(&config, &[]).unwrap();
 
@@ -997,10 +998,14 @@ mod tests {
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
 
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         assert_eq!(exported.len(), 1);
         generate_catalog(&config, &exported).unwrap();
-        assert!(export::export_batches(&config, false).unwrap().is_empty());
+        assert!(
+            export::export_batches(&config, false, NonZeroUsize::MIN)
+                .unwrap()
+                .is_empty()
+        );
         let generation = generate_catalog(&config, &[]).unwrap();
 
         assert_eq!(generation.artifact_count, 2);
@@ -1020,7 +1025,7 @@ mod tests {
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
         write_generated_artifact(&config, 2, B256::repeat_byte(0xcc));
         write_generated_artifact(&config, 3, B256::repeat_byte(0xdd));
-        export::export_batches(&config, false).unwrap();
+        export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
 
         generate_catalog(&config, &[]).unwrap();
 
@@ -1039,7 +1044,7 @@ mod tests {
         let config = test_config("seed_cache", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         fs::remove_file(config.catalog_cache_path()).unwrap();
 
@@ -1057,7 +1062,7 @@ mod tests {
         let config = test_config("mtime_change", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         let archive_path = config.batches_root().join("0-1.tar.zst");
         let original_sha256 = exported[0].sha256.clone();
@@ -1081,12 +1086,12 @@ mod tests {
         let config = test_config("force_replacement", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let initial = export::export_batches(&config, false).unwrap();
+        let initial = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &initial).unwrap();
         let initial_sha256 = initial[0].sha256.clone();
 
         write_generated_artifact(&config, 0, B256::repeat_byte(0xcc));
-        let replaced = export::export_batches(&config, true).unwrap();
+        let replaced = export::export_batches(&config, true, NonZeroUsize::MIN).unwrap();
         let generation = generate_catalog(&config, &replaced).unwrap();
 
         assert_eq!(replaced.len(), 1);
@@ -1103,7 +1108,7 @@ mod tests {
         for block_number in 0..4 {
             write_generated_artifact(&config, block_number, B256::repeat_byte(block_number as u8));
         }
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         fs::remove_file(config.batches_root().join("0-1.tar.zst")).unwrap();
 
@@ -1125,7 +1130,7 @@ mod tests {
         let config = test_config("invalid_cache", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         let valid_cache: Value =
             serde_json::from_slice(&fs::read(config.catalog_cache_path()).unwrap()).unwrap();
@@ -1158,7 +1163,7 @@ mod tests {
         let config = test_config("invalid_changed_archive", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         let public_files = required_catalog_files(&config)
             .into_iter()
@@ -1186,7 +1191,7 @@ mod tests {
         let config = test_config("archive_without_version", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        let exported = export::export_batches(&config, false).unwrap();
+        let exported = export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         generate_catalog(&config, &exported).unwrap();
         let public_files = required_catalog_files(&config)
             .into_iter()
@@ -1203,7 +1208,7 @@ mod tests {
         for (name, path, contents) in public_files {
             assert_eq!(fs::read(path).unwrap(), contents, "{name} was replaced");
         }
-        let exported = export::export_batches(&config, true).unwrap();
+        let exported = export::export_batches(&config, true, NonZeroUsize::MIN).unwrap();
         let generation = generate_catalog(&config, &exported).unwrap();
         assert_eq!(generation.fresh_batch_count, 1);
     }
@@ -1213,7 +1218,7 @@ mod tests {
         let config = test_config("archive_other_version", 2);
         write_generated_artifact(&config, 0, B256::repeat_byte(0xaa));
         write_generated_artifact(&config, 1, B256::repeat_byte(0xbb));
-        export::export_batches(&config, false).unwrap();
+        export::export_batches(&config, false, NonZeroUsize::MIN).unwrap();
         write_archive_with_manifest(&config, Some("v21.0.6"));
 
         let error = format!("{:#}", generate_catalog(&config, &[]).unwrap_err());
