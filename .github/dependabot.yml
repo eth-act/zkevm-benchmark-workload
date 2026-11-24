@@ -3,9 +3,14 @@ updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
-      interval: weekly
+      interval: monthly
     cooldown:
       default-days: 7
     groups:
       github-actions:
         patterns: ["*"]
+    ignore:
+      # Pinned to a master commit; there are no releases to follow.
+      - dependency-name: dtolnay/rust-toolchain
+      - dependency-name: "*"
+        update-types: ["version-update:semver-minor", "version-update:semver-patch"]
